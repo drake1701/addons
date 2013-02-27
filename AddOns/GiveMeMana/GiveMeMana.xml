@@ -1,0 +1,21 @@
+﻿<Ui xmlns="http://www.blizzard.com/wow/ui/" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:schemaLocation="http://www.blizzard.com/wow/ui/
+..\FrameXML\UI.xsd">
+  <Script file="Loc.lua"/>
+  <Script file="ManaDB.lua"/>
+  <Script file="GiveMeMana.lua"/>
+    <Frame name="GiveMeManaFrame" parent="UIParent" >
+      <Scripts>
+        <OnLoad>
+          GMMana_OnLoad();
+		    self:RegisterEvent("PLAYER_LOGIN");
+			self:RegisterEvent("BAG_UPDATE");
+        </OnLoad>
+        <OnEvent>
+          GMMana_OnEvent(event);
+        </OnEvent>
+        <OnUpdate>
+          GMMana_OnUpdate(event);
+        </OnUpdate>
+      </Scripts>
+    </Frame>
+</Ui>

@@ -1,0 +1,11 @@
+## Interface: 50100
+## Title: QuestHelper Data (enUS)
+## Author: zorbathut, smariot, vipersniper, nesher, nconantj
+## Notes: Contains the data needed by QuestHelper
+## Version: 5.0.5.267r
+## Dependencies: QHData-base
+## LoadOnDemand: 1
+
+static_enUS.lua
+static_enUS_1.lua
+static_enUS_2.lua

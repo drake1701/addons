@@ -1,0 +1,463 @@
+<Ui>
+	<Frame name="LivestockBlueFrameTemplate" hidden="true" virtual="true" >
+		<Backdrop edgeFile="Interface\Tooltips\UI-Tooltip-Border" bgfile="Interface\Tooltips\UI-Tooltip-Background" tile="true">
+			<EdgeSize>
+				<AbsValue val="15" />
+			</EdgeSize>
+			<BackgroundInsets>
+				<AbsInset left="2" right="2" top="2" bottom="2"/>
+			</BackgroundInsets>
+		</Backdrop>
+		<Scripts>
+			<OnLoad>
+				self:SetBackdropColor(0.2, 0.2, 0.6, 1)
+			</OnLoad>
+		</Scripts>
+	</Frame>
+	
+	<Frame name="LivestockUpdateFrame">
+		<Size x="1" y="1" />
+		<Anchors>
+			<Anchor point="TOPRIGHT" />
+		</Anchors>
+		<Scripts>
+			<OnLoad>
+				self:RegisterEvent("ADDON_LOADED")
+				self:RegisterEvent("PLAYER_ENTERING_WORLD")
+			</OnLoad>
+			<OnEvent>
+				Livestock.OnEvent(self,event,...)
+			</OnEvent>
+			<OnUpdate>
+				Livestock.RestoreUI(self, elapsed)
+			</OnUpdate>
+		</Scripts>
+	</Frame>
+	
+	<Frame name="LivestockMenuFrame" parent="UIParent" inherits="LivestockBlueFrameTemplate" movable="true" enableMouse="true" frameStrata="TOOLTIP" hidden="true">
+		<Size x="580" y="40" />
+		<Anchors>
+			<Anchor point="CENTER">
+				<Offset x="-150" y="250" />
+			</Anchor>
+		</Anchors>
+		<Frames>
+			<Button name="LivestockCritterMenuButton" inherits="GameMenuButtonTemplate">
+				<Size x="105" y="25"/>
+				<Anchors>
+					<Anchor point="LEFT" >
+						<Offset x="10" y="0" />
+					</Anchor>
+				</Anchors>
+				<Scripts>
+					<OnClick>
+						Livestock.HeaderButtonOnClick("Critter")
+					</OnClick>
+				</Scripts>
+			</Button>
+			
+			<Button name="LivestockLandMountMenuButton" inherits="GameMenuButtonTemplate">
+				<Size x="105" y="25"/>
+				<Anchors>
+					<Anchor point="LEFT" relativeTo="LivestockCritterMenuButton" relativePoint="RIGHT">
+						<Offset x="10" y="0" />
+					</Anchor>
+				</Anchors>
+				<Scripts>
+					<OnClick>
+						Livestock.HeaderButtonOnClick("Land")
+					</OnClick>
+				</Scripts>
+			</Button>
+			
+			<Button name="LivestockFlyingMountMenuButton" inherits="GameMenuButtonTemplate">
+				<Size x="105" y="25"/>
+				<Anchors>
+					<Anchor point="LEFT" relativeTo="LivestockLandMountMenuButton" relativePoint="RIGHT">
+						<Offset x="10" y="0" />
+					</Anchor>
+				</Anchors>
+				<Scripts>
+					<OnClick>
+						Livestock.HeaderButtonOnClick("Flying")
+					</OnClick>
+				</Scripts>
+			</Button>
+			
+			<Button name="LivestockWaterMountMenuButton" inherits="GameMenuButtonTemplate">
+				<Size x="105" y="25"/>
+				<Anchors>
+					<Anchor point="LEFT" relativeTo="LivestockFlyingMountMenuButton" relativePoint="RIGHT">
+						<Offset x="10" y="0" />
+					</Anchor>
+				</Anchors>
+				<Scripts>
+					<OnClick>
+						Livestock.HeaderButtonOnClick("Water")
+					</OnClick>
+				</Scripts>
+			</Button>
+			
+			<CheckButton name="LivestockToggleModel" inherits="UICheckButtonTemplate" >
+				<Size x="16" y="16" />
+				<Anchors>
+					<Anchor point="LEFT" relativePoint="RIGHT" relativeTo="LivestockWaterMountMenuButton">
+						<Offset x="4" y="0" />
+					</Anchor>
+				</Anchors>
+				<Scripts>
+					<OnClick>
+						if LivestockModelFrame:IsVisible() then
+							LivestockModelFrame:Hide()
+						else
+							LivestockModelFrame:Show()
+						end
+					</OnClick>
+				</Scripts>
+			</CheckButton>
+			
+			<Button name="LivestockMenuFrameClose" inherits="UIPanelCloseButton">
+				<Size x="25" y="25" />
+				<Anchors>
+					<Anchor point="RIGHT">
+						<Offset x="-10" y="0" />
+					</Anchor>
+				</Anchors>
+				<Scripts>
+					<OnClick>
+						Livestock.HideDropdowns()
+						self:GetParent():Hide()
+					</OnClick>
+				</Scripts>
+			</Button>
+			
+		</Frames>
+		<Layers>
+			<Layer level="BACKGROUND">
+				<FontString name="$parent3DLabel" inherits="GameFontHighlightSmall" justifyH="LEFT" >
+					<Anchors>
+						<Anchor point="LEFT" relativePoint="RIGHT">
+							<Offset x="-100" y="2"/>
+						</Anchor>
+					</Anchors>
+				</FontString>
+			</Layer>
+		</Layers>
+		<Scripts>
+			<OnLoad>
+				self:RegisterForDrag("LeftButton","RightButton")
+				self:SetBackdropColor(0.2,0.2,0.6,1)
+				tinsert(UISpecialFrames,self:GetName())
+			</OnLoad>
+			<OnDragStart>
+				self:StartMoving()
+			</OnDragStart>
+			<OnDragStop>
+				self:StopMovingOrSizing()
+			</OnDragStop>
+		</Scripts>
+	</Frame>
+	
+	<Button name="LivestockCrittersButton" inherits="SecureActionButtonTemplate" movable="true" parent="UIParent" hidden="true">
+		<Size x="36" y="36" />
+		<Anchors>
+			<Anchor point="CENTER">
+				<Offset x="-50" y="-150"/>
+			</Anchor>
+		</Anchors>
+		<Attributes>
+			<Attribute name="type" value="macro" />
+			<Attribute name="macrotext" value="/run if GetMouseButtonClicked() == 'RightButton' then Livestock.DismissCritter() else if IsModifierKeyDown() then Livestock.SummonFavoritePet() else Livestock.PickCritter() end end" />
+		</Attributes>
+		<Layers>
+			<Layer level="OVERLAY" >
+				<Texture name="LivestockCritterButtonTexture" file="Interface\Addons\Livestock\Textures\critter.tga">
+					<Size x="36" y="36" />
+					<Anchors>
+						<Anchor point="CENTER" />
+					</Anchors>
+				</Texture>
+			</Layer>
+			<Layer level="ARTWORK" >
+				<Texture name="LivestockCritterButtonTextureHighlight" file="Interface\Addons\Livestock\Textures\critterhighlight.tga" hidden="true">
+					<Size x="36" y="36" />
+					<Anchors>
+						<Anchor point="CENTER" />
+					</Anchors>
+				</Texture>
+			</Layer>
+		</Layers>
+		<Scripts>
+			<OnLoad>
+				self:RegisterForDrag("LeftButton", "RightButton")
+				self:RegisterForClicks("LeftButtonUp","RightButtonUp")
+			</OnLoad>
+			<OnDragStart>
+				if IsModifierKeyDown() then
+					self:StartMoving()
+				end
+			</OnDragStart>
+			<OnDragStop>
+				self:StopMovingOrSizing()
+				LivestockCritterButtonTextureHighlight:Hide()
+			</OnDragStop>
+			<OnMouseDown>
+				LivestockCritterButtonTextureHighlight:Show()
+			</OnMouseDown>
+			<OnMouseUp>
+				LivestockCritterButtonTextureHighlight:Hide()
+			</OnMouseUp>
+		</Scripts>
+	</Button>
+	
+	<Button name="LivestockSmartButton" inherits="SecureActionButtonTemplate" movable="true" parent="UIParent" hidden="true">
+		<Size x="36" y="36" />
+		<Anchors>
+			<Anchor point="CENTER">
+				<Offset x="0" y="-190"/>
+			</Anchor>
+		</Anchors>
+		<Attributes>
+			<Attribute name="type" value="macro" />
+			<Attribute name="macrotext" value="/click LivestockComboButton" />
+		</Attributes>
+		<Layers>
+			<Layer level="OVERLAY" >
+				<Texture name="LivestockSmartButtonTexture" file="Interface\Addons\Livestock\Textures\smart.tga">
+					<Size x="36" y="36" />
+					<Anchors>
+						<Anchor point="CENTER" />
+					</Anchors>
+				</Texture>
+			</Layer>
+			<Layer level="ARTWORK" >
+				<Texture name="LivestockSmartButtonTextureHighlight" file="Interface\Addons\Livestock\Textures\smarthighlight.tga" hidden="true">
+					<Size x="36" y="36" />
+					<Anchors>
+						<Anchor point="CENTER" />
+					</Anchors>
+				</Texture>
+			</Layer>
+		</Layers>
+		<Scripts>
+			<OnLoad>
+				self:RegisterForDrag("LeftButton","RightButton")
+				self:RegisterForClicks("LeftButtonUp")
+			</OnLoad>
+			<OnDragStart>
+				if IsModifierKeyDown() then
+					self:StartMoving()
+				end
+			</OnDragStart>
+			<OnDragStop>
+				self:StopMovingOrSizing()
+				LivestockSmartButtonTextureHighlight:Hide()
+			</OnDragStop>
+			<OnMouseDown>
+				LivestockSmartButtonTextureHighlight:Show()
+			</OnMouseDown>
+			<OnMouseUp>
+				LivestockSmartButtonTextureHighlight:Hide()
+			</OnMouseUp>
+		</Scripts>
+	</Button>
+	
+	<Button name="LivestockLandMountsButton" inherits="SecureActionButtonTemplate" movable="true" parent="UIParent" hidden="true">
+		<Size x="36" y="36" />
+		<Anchors>
+			<Anchor point="CENTER" >
+				<Offset x="0" y="-150" />
+			</Anchor>
+		</Anchors>
+		<Layers>
+			<Layer level="ARTWORK" >
+				<Texture name="$parentTextureHighlight" file="Interface\Addons\Livestock\Textures\landhighlight.tga" hidden="true">
+					<Size x="36" y="36" />
+					<Anchors>
+						<Anchor point="CENTER" />
+					</Anchors>
+				</Texture>
+			</Layer>
+			<Layer level="OVERLAY" >
+				<Texture name="$Texture" file="Interface\Minimap\Tracking\StableMaster">
+					<Size x="36" y="36" />
+					<Anchors>
+						<Anchor point="CENTER" />
+					</Anchors>
+				</Texture>
+			</Layer>
+		</Layers>
+		<Scripts>
+			<OnLoad>
+				self:RegisterForDrag("LeftButton","RightButton")
+				self:RegisterForClicks("LeftButtonUp")
+			</OnLoad>
+			<OnDragStart>
+				if IsModifierKeyDown() then
+					self:StartMoving()
+				end
+			</OnDragStart>
+			<OnDragStop>
+				self:StopMovingOrSizing()
+				LivestockLandMountsButtonTextureHighlight:Hide()
+			</OnDragStop>
+			<OnMouseDown>
+				LivestockLandMountsButtonTextureHighlight:Show()
+			</OnMouseDown>
+			<OnMouseUp>
+				LivestockLandMountsButtonTextureHighlight:Hide()
+			</OnMouseUp>
+			<PreClick>
+				Livestock.NonSmartPreClick(self)
+			</PreClick>
+			<PostClick>
+				Livestock.NonSmartPostClick(self)
+			</PostClick>
+		</Scripts>
+	</Button>
+	
+	<Button name="LivestockFlyingMountsButton" inherits="SecureActionButtonTemplate" movable="true" parent="UIParent" hidden="true">
+		<Size x="36" y="36" />
+		<Anchors>
+			<Anchor point="CENTER">
+				<Offset x="50" y="-150"/>
+			</Anchor>
+		</Anchors>
+		<Layers>
+			<Layer level="ARTWORK" >
+				<Texture name="$parentTextureHighlight" file="Interface\Addons\Livestock\Textures\flyinghighlight.tga" hidden="true">
+					<Size x="36" y="36" />
+					<Anchors>
+						<Anchor point="CENTER" />
+					</Anchors>
+				</Texture>
+			</Layer>
+			<Layer level="OVERLAY" >
+				<Texture name="$Texture" file="Interface\Minimap\Tracking\FlightMaster">
+					<Size x="36" y="36" />
+					<Anchors>
+						<Anchor point="CENTER" />
+					</Anchors>
+				</Texture>
+			</Layer>
+		</Layers>
+		<Scripts>
+			<OnLoad>
+				self:RegisterForDrag("LeftButton","RightButton")
+				self:RegisterForClicks("LeftButtonUp")
+			</OnLoad>
+			<OnDragStart>
+				if IsModifierKeyDown() then
+					self:StartMoving()
+				end
+			</OnDragStart>
+			<OnDragStop>
+				self:StopMovingOrSizing()
+				LivestockFlyingMountsButtonTextureHighlight:Hide()
+			</OnDragStop>
+			<OnMouseDown>
+				LivestockFlyingMountsButtonTextureHighlight:Show()
+			</OnMouseDown>
+			<OnMouseUp>
+				LivestockFlyingMountsButtonTextureHighlight:Hide()
+			</OnMouseUp>
+			<PreClick>
+				Livestock.NonSmartPreClick(self)
+			</PreClick>
+			<PostClick>
+				Livestock.NonSmartPostClick(self)
+			</PostClick>
+		</Scripts>
+	</Button>
+	
+	<Button name="LivestockComboButton" inherits="SecureActionButtonTemplate" parent="UIParent" hidden="true" >
+		<Scripts>
+			<PreClick>
+				Livestock.SmartPreClick(self)
+			</PreClick>
+			<PostClick>
+				Livestock.SmartPostClick(self)
+			</PostClick>
+		</Scripts>
+	</Button>
+	
+	<Button name="LivestockMenuButtonTemplate" virtual="true">
+		<Layers>
+			<Layer level="OVERLAY">
+				<FontString name="$parentText" inherits="GameFontHighlightSmall" justifyH="LEFT" />
+			</Layer>
+		</Layers>
+		<Scripts>
+			<OnEnter>
+				Livestock.MenuButtonOnEnter(self)
+			</OnEnter>
+			<OnClick>
+				Livestock.MenuButtonOnClick(self, button)
+			</OnClick>
+			<OnDoubleClick>
+				Livestock.MenuButtonOnDoubleClick(self)
+			</OnDoubleClick>
+			<OnLoad>
+				self:RegisterForClicks("LeftButtonUp","RightButtonUp")
+			</OnLoad>
+		</Scripts>
+	</Button>
+	
+	<Frame name="LivestockModelFrame" parent="LivestockMenuFrame" inherits="LivestockBlueFrameTemplate" hidden="true">
+		<Size x="275" y="190" />
+		<Anchors>
+			<Anchor point="TOPRIGHT" relativePoint="TOPLEFT" >
+				<Offset x="-5" y="0" />
+			</Anchor>
+		</Anchors>
+		<Layers>
+			<Layer level="OVERLAY" >
+				<FontString name="LivestockEasterEgg" inherits="GameFontNormal">
+					<Color r="0.4" g="1.0" b="0.4" />
+					<Anchors>
+						<Anchor point="BOTTOM" >
+							<Offset x="0" y="15" />
+						</Anchor>
+					</Anchors>
+				</FontString>
+			</Layer>
+		</Layers>
+		<Frames>
+			<PlayerModel name="LivestockModel" >
+				<Size x="225" y="150" />
+				<Anchors>
+					<Anchor point="TOP" />
+				</Anchors>
+				<Scripts>
+					<OnUpdate>
+						Livestock.SpinModel(self, elapsed)
+					</OnUpdate>
+				</Scripts>
+			</PlayerModel>
+			<Slider name="LivestockSpinSlider" orientation="HORIZONTAL">
+				<Size x="450" y="25" />
+				<Anchors>
+					<Anchor point="BOTTOMLEFT" >
+						<Offset x="0" y="5" />
+					</Anchor>
+				</Anchors>
+				<ThumbTexture file="Interface\Buttons\UI-SliderBar-Button-Horizontal" />
+				<Scripts>
+					<OnLoad>
+						self:SetMinMaxValues(0, 1)
+						self:SetValueStep(0.001)
+						self:SetValue(0)
+					</OnLoad>
+					<OnValueChanged>
+						Livestock.SpinSliderChanged(self)
+					</OnValueChanged>
+				</Scripts>
+			</Slider>
+		</Frames>
+		<Scripts>
+			<OnLoad>
+				self:SetBackdropColor(0.2, 0.2, 0.6, 1)
+			</OnLoad>
+		</Scripts>
+	</Frame>
+</Ui>

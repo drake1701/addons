@@ -1,0 +1,490 @@
+Version 1.8.0
+
+- Updates for patch 5.1
+- Another fix for SetWidth errors
+- Fixed Aspect of the Pack
+
+Version 1.7.12
+
+- Removed stealth code that should have been removed in 1.7.8
+
+Version 1.7.11
+
+- Pets that die during battle won't be removed from the list
+
+Version 1.7.10
+
+- Only summon flying mounts from the water's surface if you can actually fly
+
+Version 1.7.9
+
+- Another fix for nil errors
+
+Version 1.7.8
+
+- Stealth options now available to all classes to help with quests that
+  invoke stealth
+
+Version 1.7.7
+
+- New option: New companion pets are disabled by default
+
+Version 1.7.6
+
+- Strange lua behavior from 1.7.5 fixed
+- Fixed nil errors in GetWidth/SetWidth
+
+Version 1.7.5
+
+- Fixed pets you can't summon (faction-specific Moonkin Hatchling)
+
+Version 1.7.4
+
+- Second attempt to fix saved settings.
+- Chat messages when pets/mounts are added/deleted.
+
+Version 1.7.3
+
+- Attempt to fix issue where pet/mount selections wouldn't stick
+
+Version 1.7.2
+
+- Fixed Red Flying Cloud being listed as ground only
+- Error reporting for future unknown mount types
+- Support for cloud serpent mounts
+
+Version 1.7.1
+
+- Better handling of learning or deleting companion pets and mounts
+- Increased frame strata
+
+Version 1.7.0
+
+- New command line: /livestock mount/nomount/pet/nopet, allows you to add/remove pets and mounts
+  from the list of randoms. Pet or mount must be active when you issue the command.
+- Support for engineering, tailoring, and AQ40 mounts
+
+Version 1.6.9
+
+- Reclassify Sandstone Drake as flying only (Type /livestock redo
+  to remove it from your land menus)
+
+Version 1.6.8
+
+- Added alternate command line format for zone mounts/pets, you can use 
+  itemlinks or just type the name in brackets ie: /livestock zone [Squirrel]
+- Added pref to use AotC in groups instead of AotP
+
+Version 1.6.7
+
+- Resolve nil errors during login
+
+Version 1.6.6
+
+- Increased menu length to 45 critters/mounts
+
+Version 1.6.5
+
+- Fixed mount selection with mount journal zone changes
+- Fixed 3D models for critters
+- Fixed sorting of critters and mounts
+- Removed duplicates from critters menu
+- Fixed zone pets/mounts
+
+Version 1.6.4
+
+- New setting to change from Flight Form into Moonkin Form
+
+Version 1.6.3
+
+- Fixed Shaman Ghost Wolf indoors
+- No longer cancel Moonkin form when mounting
+
+Version 1.6.2
+
+- Updated German localization
+
+Version 1.6.1
+
+- Fixed double clicking to summon mounts
+- Attempt to fix the GlyphUI problem
+- Increased frame strata
+
+Version 1.6.0
+
+- Updates for MoP
+
+Version 1.5.4
+
+- Fixed Sandstone Drake
+
+Version 1.5.3
+
+- TOC update for WoW 4.3
+
+Version 1.5.2
+
+- Add support for camouflage
+
+Version 1.5.1
+
+- Added exceptions for swimming turtle mounts
+
+Version 1.5
+
+- Separated ground and flying mount selections (Thanks XDragonX)
+- Mount detection overhaul
+
+Version 1.4.2
+
+- Attempt to fix incorrect ground mount after login
+
+Version 1.4.1
+
+- Cleanup flying mounts that can also be ground mounts
+
+Version 1.4.0
+
+- TOC update for WoW 4.2.0
+- Added Winged Guardian
+
+Version 1.3.9
+
+- TOC update for WoW 4.1.0
+
+Version 1.3.8
+
+- Wintergrasp fix
+
+Version 1.3.7
+
+- Updated Spanish localization
+
+Version 1.3.6
+
+- Updated French localization
+
+Version 1.3.5
+
+- Fixed mounting in Outlands when you can't fly yet
+
+Version 1.3.4
+
+- Added Running Wild support (Thanks bwrader)
+- Fixed mount categories (Thanks bwrader)
+- Added Abyssal Seahorse and Sea Turtle support
+- Removed slow mounts since all mounts are now the same speed
+- Allow flying from the surface of the water
+
+Version 1.3.3
+
+- Increased menu size to 30
+
+Version 1.3.2
+
+- Added debug reporting to help solve problems
+
+Version 1.3.1
+
+- Small fix for the mount delay right after combat
+- Revert AotP/AotC in combat change due to same fix
+
+Version 1.3.0
+
+- Fixed ghostwolf when indoors
+- Fixed errors from trying to mount in combat
+
+Version 1.2.9
+
+- Allow hunters to cast AotP/AotC in combat to fix timing issue
+
+Version 1.2.8
+
+- Fixed secure state handler
+- Added mounting while swimming
+
+Version 1.2.7
+
+- Fixed mounts in Azeroth
+
+Version 1.2.6
+
+- Fixed CatForm, AotP/AotC, GhostWolf when indoors.
+
+Version 1.2.5
+
+- Fixed Shaman mounting.
+
+Version 1.2.4
+
+- Fixed Druid mounting.
+- Fixed corrupted mount tables when using NPCScan and locked creaturecache files.
+
+Version 1.2.3
+
+- Combined aberant's changes with a bunch of stuff that had been posted here to fix issues with vehicle UI taint and hunters not able to mount right after combat.
+
+Version 1.2.2:
+
+- Fixed a bug that caused hanging when using Smart Mount to change forms as a druid or shaman. It is probably also responsible for causing C stack overflows when zoning.
+- Localized the "Cloaking" buff for the Gnomish Cloaking Device so that non-enUS users will not have this buff broken by automatically summoning a pet.
+
+Version 1.2.1:
+
+- The zone / subzone option now has a GUI accessible through the addon's Interface -> Addons menu. Drag pets or mounts to the appropriate boxes to select them as preferred for your current zone or subzone.
+- The Gnomish Cloaking device buff is now added to the list of "stealth" buffs that Livestock can be set to restrict summons of pets or mounts.
+- Fixed some incorrect info in the ReadMe and clarified some of the output error messages printed to the chat frame.
+
+Version 1.2:
+
+- A new option for Livestock has been added: designating a mount or pet for a specific zone or subzone. This is currently done with the /livestock [zone/subzone] command. For more details, please see the ReadMe.
+- Most of the addon's functionality is now described in the ReadMe.txt file included with the addon rather than the page. This file is rewritten to be more of a walkthrough from the beginning for new users but documents everything for continuing users.
+- Donations enabled at the request of one of the users, but certainly not required.
+
+Version 1.1.8:
+
+- I forgot to enable the Russian and Spanish localizations. Thanks to madbit on WoWInterface for pointing this out.
+- There are some other changes that I forgot to write down... uhh... if there are any bugs, I blame Robby.
+
+Version 1.1.7:
+
+- When you are mounted on a land mount underwater and use the Livestock Smart Mount feature, you will dismount instead of doing nothing. (If you have Livestock configured to use a spell underwater, then the spell takes precedence.)
+- Wintergrasp Smart Mount support added so that during a battle, Smart Mount will pick a land mount and a flying mount with no battle. Thanks to Duman and magus424 on WoWInterface for reminding me that I needed to address this in a release
+- Adjusted the code by which Livestock decides if a land or flying mount should be used.
+- Livestock is no longer released under the GPL. All rights are now reserved to the author.
+- Preliminary Russian translation added (thanks to simply on Curse) and Spanish translation added (thanks to madbit on WoWInterface).
+
+Version 1.1.6:
+
+- UI for preferences reverted to use Blizzard's Interface Options Panel. Thanks to those who voiced their feedback for the experimental interface.
+- Added a new slash command, "/livestock prefs" to shortcut to the preferences in the Interface Options Panel.
+- Preferences for vanity pet summons and Smart Mounting behavior are split into two sub-sections of the preferences menu.
+- Hunters now have the option of tying Aspect of the Cheetah or Pack to Smart Mounting. You can select this option to happen when indoors, or while moving (and out of combat). You will cast Cheetah if you're playing solo, and Pack if you're in a group (and have learned the spell).
+- Mages and priests have the option to cast Slow Fall / Levitate on themselves with Smart Mounting if they're falling and not in combat.
+- When wearing the Bloodsail Admiral's Hat, Don Carlos's Hat, or while under the effect of any of the level 80 Jewelcrafting trinket buffs that summon a pet, Livestock's pet summoning features will be suppressed.
+- Druids mounted on a land mount who activate Smart Mounting when they move into a flyable area will shift to flight form (if they have this option selected and they are not in combat) instead of dismounting.
+- Druids who use Smart Mounting to cast Travel Form in combat while moving will see it recast instead of toggle. (Equivalent to /cast !Travel Form) This has not been tested on locales other than enUS, so please let me know if you see funny behavior with Travel Form in combat!
+- Levitate and Water Walking cast underwater using Smart Mounting are now self-cast instead of cast on target. This fixes the issue of using Smart Mounting when you had a friendly unit targeted who was not in your group.
+- The macros created with the Macro Generator no longer have the [nocombat] and [noflying] conditions attached to them. The conditions were interfering with some of the newer combat and flying mount behaviors of Livestock, and were leftover from earlier versions that needed them. All checks for combat and flight are now handled through the addon, respecting the Livestock preferences you've selected, rather than being filtered through the macro system. This cuts out potential undesirable behavior for preferences that only happened in flight or combat.
+- Fixed a bug where Death Knights and Priests who changed their underwater Smart Mounting options may not have seen the changes go into effect, and may have had unintended effects when they left the water.
+- Fixed a bug that may have been responsible for Livestock trying to summon flying mounts in areas where they are not allowed -- most particularly the old world continents. Feedback is appreciated as always.
+- Fixed a bug where players on the frFR client would not properly summon land mounts in Wintergrasp.
+- Fixed a bug where completing the quest "Blast the Gateway" would result in your character summoning a vanity pet from their checklist automatically even if the option to do so was not checked.
+
+Version 1.1.5:
+
+- New preference: if you have Livestock set to not summon a pet when you are PVP flagged, you can now set the addon to ignore your PVP flag in an instance and summon one automatically anyway.
+- Livestock will no longer automatically summon a pet when you are falling. (No more trying to cast Flight Form or Levitate to save yourself and dying because Livestock used your GCD to summon a pet!)
+- The option to dismiss pets when going into the air should no longer dismiss pets when you are mounting a land mount. It will still dismiss a pet if you enter a ground vehicle.
+- Livestock will no longer change your world map to your current zone when you are moving between zones.
+- French and German localizations updated to include all strings.
+- Changed the look of the settings frames to create a more integrated look -- heading toward a more complete UI solution as I have time for it.
+
+Version 1.1.4:
+
+ - Added buttons to the Livestock Interface menu and Preferences Menu to be able to exit the options menus and pull up the menu bar.
+ - If you have a Haunted Memento on, then Livestock's pet autosummon feature will no longer replace the Shade with a random pet for as long as the buff remains active.  When you remove the item (and remove the buff) then the autosummoning will resume.
+ - New Preference Added: Have your pet automatically dismiss whenever you summon a flying mount, get into a vehicle (land or flying), or cast Flight Form or Swift Flight Form.  This should cut down on the number of times your pet is forced to run off of cliffs to keep up with your flying self, or is continually summoned to your flying location to drop a few feet and be resummoned to you again.
+ - New Preference Added: Cast Ghost Wolf / Travel Form when moving and out of combat.  If you are a shaman or druid, you can use this option to enable Smart Mounting to cast these spells (which can be instant) when you're moving out of combat.  Druids, if you can fly in an area, then Smart Mounting while moving will use (Swift) Flight Form if you have the Flight Form behavior enabled (because it's faster).  For short hops when you only need a quick burst of a bit more speed, this option is for you!  Many thanks to Capfan (on Curse) for suggesting how to implement this.
+
+Version 1.1.3:
+
+ - There was a bug with shamans having Smart Mount get stuck on Ghost Wolf (again) after leaving combat if they had selected the option to use Ghost Wolf in combat.  This should be fixed now.
+ - Priests and Death Knights can now cast Levitate and Path of Frost when underwater via Smart Mounting.  This functionality is toggled in the Preferences screen.
+ - German localization brought up to date.
+
+Version 1.1.2: Mostly bug fixes.
+
+ - Shamans should be able to use Water Walking underwater again when the appropriate toggle is selected.
+ - Mages should now be able to access the preference to have Livestock mounting break stealth (invisibility).  They always were intended to have access to this feature, but the button and text were not properly enabled.
+ - Livestock now properly recognizes all instances of PVP flagging, including Grizzly Hills PVP quests.  This should affect the pet dismiss/summon options involving PVP flags.
+ - Changes made to the GUI in v1.1 have been localized for the French locale.
+
+Version 1.1.1: Bug fixes and some added functionality.
+
+ - Druids and shamans now have a toggle in the preferences screen for Ghost Wolf / Travel Form in combat.  It will, by default, be checked on to preserve the behavior of the addon in previous versions, but can easily be checked off.
+ - Paladins have an option to have Livestock automatically cast a Smart Mount after they use Crusader Aura.  This will occur just about 1.5 seconds after Crusader Aura is successfully cast.  If you have haste that lowers your GCD, you can adjust the delay by adjusting line 1354 of Livestock.lua (A big thanks to Phanx on WoWInterface for suggesting how to get this done!)
+ - Hunters should be able to use Smart Mounting when they Feign Death in combat and an enemy is attacking their pet, but their pet is not attacking back.
+ - A new option to restrict summoning of vanity pets when you are in a raid is in the preferences screen.  This setting will check to see if you are in a "real" raid, not a battleground raid.
+ - You should no longer be able to dismount the ghost mounts found in Northrend when you are on a corpse recovery run.
+ - Shamans should no longer see their Smart Mount buttons get "stuck" on Ghost Wolf, if they have selected the setting to use Ghost Wolf in combat.  (My apologies that this bug went unfixed for so long - I've been away from the 'net all week.)
+
+Version 1.1:
+
+ - Livestock is now free software under the Gnu GPLv3.  This mainly means you are free to modify it as you like without needing to ask my permission.  You may also distribute any modified versions as you see fit, provided that you release your versions under the Gnu GPLv3 (or a later version) as well.  For further details, see the gpl.txt file.
+ - Smart Mounting functionality should be restored in Northrend - i.e. using Smart Mounting when you don't have Cold Weather Flying should summon a land mount.  I haven't gotten a level 77 character to test it yet, but the code is taken from an earlier version which worked fine in the Beta.  Long story short: I think it should be fine; if it's not, please let me know.
+ - Livestock should no longer "automatically" summon a vanity pet under the following conditions:  when you are channeling a spell, when you are eating or drinking, or when you have Stealth / Prowl / Shadowmeld / Vanish / Invisiblity on.
+ - Added a new preference option for Shamans to have Smart Mounting cast Water Walking when underwater.
+ - Added a new preference option to disable "automatic" pet summoning whenever you are flagged for PVP.
+ - Double-clicking a pet or mount in the Livestock dropdown menus will summon that pet or mount.  (Unless you're a druid in a shapeshift form and you try to get on a mount.)
+
+Version 1.0.7a:
+
+ - Small code tweak: v1.0.7 had a bug where if you didn't have the checkbox checked for automatically summoning a pet, you'd still summon a pet until you checked and unchecked the box.  This was because of a change in the automatic-summoning code from v1.0.6.5 to v1.0.7 but is now fixed.
+ - Fixed an error that was causing some night elves to not have access to the option for dismissing a pet when you enter Stealth, which includes Shadowmeld.  All night elves, regardless of class, should now have access to this option.
+ - Fixed an issue where characters without pets would get spammed to select a pet to summon even if they had the "automatically summon" option unchecked.
+ - Livestock now lets you designate a favorite pet.  You indicate the pet by right-clicking it in the dropdown menu, and can then summon it with a separate keybind or by ALT-, CTRL-, or SHIFT-clicking the Livestock critters button.  See the macro section for how to make a macro to access the favorite button.
+ - Added a suboption for "summon a pet on moving" that lets you instead summon your favorite pet when you move.
+ - Added a suboption for "dismiss a pet when you stealth" that restricts your dismissing a pet to only occur when you are PVP flagged.  If for some reason you notice that your pet is NOT dismissing when you stealth and are flagged, please submit a bug report that lets me know your class, race, what spell you were using (Stealth, Prowl, Vanish, FD, Invis, or Shadowmeld), and how you became flagged (Arena, Battleground, typed /pvp, on a PVP server in a contested/hostile zone, you weren't flagged and you attacked someone who was, etc.)
+ - When you are on the Shattered Sun daily quest "Blast the Gateway" you should no longer see a random pet / favorite pet replace the 'Living Flare' companion if you have an automatic summon option checked.  Your random pet / favorite pet summoning should resume when your Living Flare successfully destroys the gateway.  This fix is currently only localized for the enUS client.
+
+Version 1.0.6.5:
+
+ - Minor change to the code to adjust for the fact that the tooltip parser was not reading non-English tooltips appropriately.  (Thanks, Vastilia at WoWInterface!)
+
+Version 1.0.6.5:
+
+ - Minor change to the code to adjust for the fact that the tooltip parser was not reading non-English tooltips appropriately.  (Thanks, Vastilia!)
+
+Version 1.0.6.4:
+
+ - Localized in French.
+ - Changed tooltip scanning so that a flying mount now needs only to have the word "Outland" or the word "Northrend" in it to be classified as a flying mount.  Before, both were needed, but there were enough tooltips (in many locales!) that had not been written to include Northrend in the tooltip.  /livestock redo will sort according to these new changes.
+
+Version 1.0.6.3:
+
+ - Druids in Flight form, Swift Flight Form, Moonkin Form, or Tree of Life form will no longer try to constantly summon vanity pets, even with the "Automatically summon when you move" checkbox checked.  Summoning pets in caster, Travel, Cat, Bear/Dire Bear, and Aquatic forms should be unaffected.
+ - Fixed a graphics error where menus that had 20, 40, 60, etc. items in them would display but not display properly.
+ - Livestock now recognizes the 310% speed flying mounts gained from arena titles, and will classify them as Epic Flying mounts.  If you have one of these, use /livestock redo to re-sort your mounts.
+
+Version 1.0.6.2:
+
+ - The "Autosummon when moving forward" preference has been broadened to the "Autosummon when moving" preference.  If you have this option checked and have no vanity pet out, you will now automatically summon a random pet when you move forward or backward, turn, or use the right or left mouse button.  This will not happen if you are in combat, stealthed, or mounted, and can be disabled at any time with the checkbox option in the preferences.  (As before, credit goes to Mikhael of Doomhammer for this code and idea.)
+ - German localization brought up to match v1.0.6, meaning that variable mounts should now work with German.  Use /livestock redo to reclassify your mounts if you have a variable mount and you are playing on the deDE client.
+
+Version 1.0.6.1:
+
+ - Missed a few things in v1.0.6 relating to localization and Smart Mounting.  NOW Smart Mounting should work in German (and any other locales when they are supported).
+ - When Livestock loads, it will now try to autodetect the bugged Snowy Gryphon and fix it to be a flying mount before the menus are constructed.  You no longer have to manually enter a command as the FAQ suggested prior to this version.
+
+Version 1.0.6:
+
+ - The "Autosummon on Rez" preference has been removed and replaced with the "Autosummon on Move Forward" option.  See the FAQ for more details.  This will default to "off" when you upgrade to version 1.0.6.  Credit for this idea and its code goes to Mikhael of Doomhammer on the WoWInterface site.
+ - For Druids, smart mounting while swimming has the effect of casting Aquatic Form.
+ - Smart mount functionality should be completely restored for Druids in the German locale.  Please let me know if this is not so!
+ - Added an override so that when you learn Snowy Gryphon, it will get placed properly.  If you have already learned Snowy Gryphon before upgrading to v1.0.6, please check the FAQ for how to force Livestock to categorize it as a flying mount.
+
+Version 1.0.5.3:
+
+ - Different code to try and detect the presence of a variable mount such as the Big Blizzard Bear or the Headless Horseman's Mount. Sorry for not nailing this on the first try - this is something I can't test! If you have one of these mounts, please use /livestock redo to have the mod try and detect the addition.  I'd also appreciate the feedback about how / if it's working.  Thanks to those that have already responded!  It *should* appear in both land and mount menus, and if you check it on/off in one, it should automatically check on/off in the other menu as well.
+ - /livestock redo now has a verification message to remind people that it puts all your mounts and vanity pets in a "selected" state (except those that don't appear in the menus, if they're slow mounts).
+ - Using Shadowmeld should now also dismiss your vanity pets if you have the appropriate option checked.
+
+Version 1.0.5.2:
+
+ - Fixed a small bug that was causing the sorting behavior to go haywire because of an adjustment that was made in version 1.0.5 to test something and then was not changed back.  Version 1.0.5.1 did not completely finish eliminating the errors.  /livestock redo now eliminates existing saved mount and critter data to start from a clean slate.
+ - The bug that was causing slow flying mounts to still be summoned even after checking the box to hide slow flying mounts.  This bug was supposed to be fixed in 1.0.3 but it was not correctly addressed in all portions of the code.
+
+Version 1.0.5:
+
+ - Smart mounting is now handled with a secure handler.  This means that druids will enjoy a bit more flexibility with smart mounting than before, especially in combat.  If you notice any unusual behavior with Smart Mounting, please report it!  I believe I covered all the possibilities of mounting behavior but I may have missed one or two.
+ - Because of the above change, Livestock now behaves as a macro that uses [flyable] and [noflyable].  While live users will not see a difference, this means that beta users may find that smart mounting fails to work in Wintergrasp and Dalaran if Blizzard has not adjusted how [flyable] and [noflyable] work in those areas.
+ - Partially localized in German.  Smart mount capabilities, especially for druids, may not yet be localized due to the above change in smart mount handling.
+ - Fixed a bug where if the number of pets or land mounts or flying mounts was a multiple of 20, the menus would not show properly.
+ - Trying to use mounting indoors should now give you errors less frequently.
+ - Druids who Prowl and have the option to dismiss vanity pets in Stealth should now see their pets be dismissed properly.
+ - Variable Mounts, such as the Big Blizzard Bear and the Headless Horseman's Mount, should now appear in both land and flying mount menus and be included in the random mount behavior of both types.  I was not able to test this, despite many attempts on the Horseman, so if you have one of these variable mounts, please let me know if that's working or not!
+ - Added /livestock redo, which should force Livestock to redraw your menus if they don't draw correctly when logged in.
+
+Version 1.0.4:
+
+ - Added a preferences interface pane to show checkboxes for a variety of preferences to customize Livestock's behavior.  See the description for more details on preferences.
+ - Removed most of the slash commands.  Toggling preferences should be done through the preferences window.  This was done to reduce the burden of localizing the addon.
+ - Macros created by the Macro Generator prior to this version did not dismount the player when they were mounted and in combat.  This version adjusts the macros so they will do that.  You should delete your macros and make new ones again if you use macros.
+ - Mounting will now check to see if you're indoors.  If you are, it doesn't even try, avoiding error messages.  (There is some lag between you crossing the inside/outside threshold and the game recognizing that you've crossed this threshold, so you may sometimes find that Livestock doesn't always get this quite right.)
+ - The Livestock buttons are now locked in place to prevent accidental dragging.  To move them, hold down Ctrl, Alt, or Shift while you drag them.
+
+Version 1.0.3:
+
+ - Adjusted the code for random land and flying mount summons.  For the player, this means you need to rebind your keys for these functions if you used them and should delete any macros you had automatically created for these functions and recreate them.
+ - Fixed a bug where using the interface checkbox to toggle druids' including Flight Forms in Smart Mounting did not actually change the setting.
+ - Fixed a bug where selecting the option not to show non-epic flying mounts resulted in their still being available to the random flying mount code.  If you choose to hide the non-epic flying mounts now, any selected ones will automatically become unselected and you can safely pick from only epic flying mounts.
+ - Druids will shift out of forms now if they try and use Land Mount summons or Flying Mount summons.  Before, you would only shift out of forms if you used Smart Mount summoning.
+ - Druids should find that they always dismount if they are mounted and use any type of mount summons.  They will only shift into flight forms if they have flight forms included and they are not mounted.  This change is intended to make Livestock always consistently dismount you whenever you use it while mounted.
+ - Druids and shamans should find that smart mounting still changes to Travel Form / Ghost Wolf in combat, but it should now always revert to its previous behavior when you leave combat.
+
+Version 1.0.2:
+
+ - Fixed a typo in the Interface options where "Include non-epic mounts in the land mount menu." was being displayed twice.
+ - Added slash commands for /livestock help (same as /livestock about).
+
+Version 1.0.1:
+
+ - Added a new option to the options pane which will automatically summon a random pet from your checklist when you return to life after dying.  You can also toggle this setting with "/livestock auto"
+ - Fixed a bug where druids in Bear, Dire Bear, Cat, Tree of Life, or Moonkin forms were getting stuck in those forms when they tried to smart mount.  You should now shift out of those forms and mount accordingly.  (If you are using Druid Logic and are in a flyable area, you will shift in and out of Flight Form / Swift Flight Form instead.)
+
+Version 1.0 (first release version):
+
+ - Smart Mounting now casts Ghost Wolf (for shamans) and Travel Form (for druids) if in combat.
+ - If you have no flying mounts and you try to use Smart Mounting or Flying Mounting in an area where you can fly, you will now randomly summon a land mount instead of getting a message about having learned no flying mounts.
+ - If you are in a vehicle (Mammoth mount, motorcycle mount, etc. as well as siege weapons in Northrend) then Smart Mounting should cause you to exit the vehicle.  Before, it gave an error.
+ - Delayed scanning for pet and mount information until an even later time to try to get around having empty menus appear when you click the dropdown buttons.
+ - Changes made in the beta versions of the addon, up to version 0.7.3.1, are located in a text file in the addon's .zip file.
+
+Version 0.7.3.1:
+
+- Last planned beta update, minor changes.
+- Delayed the time at which the dropdown menus are first created. This should solve the bug that occurs with pet and mount information not being completely ready when the menus are built.
+- The addon is now structured to handle localizations, but is only currently localized for the enUS client.
+- Shifted the position of the UI elements slightly to accommodate localization. (Localization help needed!)
+
+Version 0.7.3:
+
+- Smart mounting now works in Dalaran and Wintergrasp. See the description for more details.
+- The critters and land mounts checkboxes in the options window were switched. This has been fixed.
+- Druids now have the option of toggling whether or not they want their Flight Forms to be included in Smart Mount behavior.
+- Livestock no longer displays a message when you learn Cold Winter Flying. It will still check to see if you have the ability before trying to put you on a flying mount in Northrend.
+
+Version 0.7.2:
+
+- The options frame is now located in Blizzard's Interface options, under the "Addons" tab. There is no longer any way to access it on the main menu.
+- If you are mounted (and on the ground) and try to summon a mount, you will dismount - i.e. mounting now acts as a toggle instead of always mounting. If you are in the air, nothing will happen. (Druids: Flight forms aren't mounts, so if you use Livestock's smart mount feature while in a flight form, you'll toggle it off. Just toggle it back on again if you are about to fall to your death. I'm working on making Flight Form into an "only on" ability with Smart Mount, but it's not playing nicely.)
+- Code rewritten for greater performance. (Please report bugs!)
+
+Version 0.7.1:
+
+- Added a Livestock button for smart mounts. It can be shown / hidden just as the other three can.
+- Livestock should now update immediately when you learn Cold Weather Flying, and give you a confirmation notice to acknowledge that it knows you know the ability. Your smart mount button/macro/keybind should then behave correctly in Northrend.
+- The ability to force smart mounting to turn into land mounting by holding Control has been removed because it interferes with keybinding the ability. (The override was present as a workaround for Dalaran and Wintergrasp, but is sloppy and would have needed to be removed later anyway. Until Blizzard fixes their bug, you'll have to use the land mount capabilities instead of the smart mount ones in Wintergrasp / Dalaran.)
+
+Version 0.7:
+
+- Updated description to make it more sensible and showcase the addon better.
+- Tweaked code somewhat to make it more efficient.
+- Added Druid Flight Forms to the smart mounting feature.
+- Increased the capacity of your pets and mounts to complain if you treat them poorly.
+
+Version 0.6b:
+
+- Default behavior changed: Slow land and flying mounts are included by default in the lists to make the mod more lowbie-friendly. Also, when you learn a new critter, it is selected in your checklist by default. Mounts are also selected by default, subject to your filter settings. No more having to open the menu bar when you learn a new critter or mount to toggle it on.
+- Debug message commented out - the bug I couldn't replicate easily appears to be on Blizzard's end.
+- Keybind support added.
+- The 3D model now has variable rotation speed. Please treat your pets and mounts gently. They've been known to complain.
+
+Version 0.5b:
+
+- Created custom dropdown menus to make the addon look visually consistent. (Good riddance, blocky default dropdown lists!)
+- Mounts should break into lists of 20 as well as vanity pets.
+- Added a 3D model viewer so you can see what your critters look like without scrolling through Blizzard's pet window.
+- Some debug code added to try and catch a bug that I can't reliably track down - if you happen to get an "Error for mount / critter ..." message, please let me know!
+
+Version 0.4b:
+
+- Added "/livestock scale" to provide a way to resize the Livestock Buttons. I plan for this to eventually be a slider in the options window as opposed to a text entry.
+- "Check all" and "uncheck all" added to the mounts menus. "Check all" will respect your non-epic filter settings: if you aren't showing the non-epic mounts, "Check all" won't check them. Additionally, these menu elements are colored differently from the other selections to make them easier to find.
+- Tweaked the loading code so it should automatically adjust your saved variables file to keep up with version updates.
+
+Version 0.3b:
+
+- "/livestock reset" added to move all Livestock buttons back to the lower center of the screen.
+- Intelligent flying/land mount macro added that uses flying mounts when you can and land mounts when you can't. See the bug issue in the description under "Macro-creating Buttons" for a Blizzard bug that makes this macro slightly less intelligent for the moment.
+- The buttons now glow blue when you click or drag them. I'm not entirely happy with how they came out so this might get tweaked later.
+
+Version 0.2b:
+
+- Tooltip parsing implemented for identifying mount types. This means that you should never see a land mount appear in the flying mount column (yay for you!) and that I don't have to update the mod when new land mounts are released by Blizzard (yay for me!)
+- Added filtering in the main options window to automatically screen out non-epic mounts.
+
+Version 0.1b:
+
+- First beta release.

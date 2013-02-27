@@ -1,0 +1,6 @@
+﻿## Title: Give Me Bandage
+## Author: Mileg, MERK, Updated by Grimgrin
+## Notes: Creates and Updates Bandage Macro
+## Interface: 50100
+GiveMeBandage.xml
+

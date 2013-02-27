@@ -1,0 +1,14 @@
+## Title: Auc:Util:Price Level
+## Interface: 50100
+## Dependancies: Auc-Advanced
+##
+## Version: 5.15.5383 (LikeableLyrebird)
+## Revision: $Id: Auc-Util-PriceLevel.toc 5383 2012-11-27 20:05:32Z mentalpower $
+## Author: Norganna's AddOns
+## X-Part-Of: Auctioneer
+## X-Category: Auction House
+## X-Max-Interface: 50100
+## X-URL: http://auctioneeraddon.com/
+## X-Feedback: http://forums.norganna.org
+##
+Embed.xml

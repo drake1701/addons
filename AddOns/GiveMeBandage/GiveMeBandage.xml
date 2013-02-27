@@ -1,0 +1,20 @@
+﻿<Ui xmlns="http://www.blizzard.com/wow/ui" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance">
+  <Script file="Loc.lua" />
+  <Script file="BandageDB.lua" />
+  <Script file="GiveMeBandage.lua" />
+  <Frame name="GiveMeBandageFrame" parent="UIParent">
+    <Scripts>
+      <OnLoad>
+          GMBandage_OnLoad();
+		    self:RegisterEvent("PLAYER_LOGIN");
+			self:RegisterEvent("BAG_UPDATE");
+        </OnLoad>
+      <OnEvent>
+          GMBandage_OnEvent(event);
+        </OnEvent>
+      <OnUpdate>
+          GMBandage_OnUpdate(event);
+        </OnUpdate>
+    </Scripts>
+  </Frame>
+</Ui>

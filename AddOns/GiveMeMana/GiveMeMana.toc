@@ -1,0 +1,5 @@
+﻿## Title: Give Me Mana
+## Author: Mileg, MERK, Updated by Grimgrin
+## Notes: Creates and Updates Mana Macro
+## Interface: 50100
+GiveMeMana.xml

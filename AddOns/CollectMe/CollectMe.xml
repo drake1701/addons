@@ -1,0 +1,17 @@
+<Ui xsi:schemaLocation="http://www.blizzard.com/wow/ui/ ..\FrameXML\UI.xsd">
+    <Script file="src\Label.lua"/>
+    <Script file="src\Frame.lua"/>
+    <Script file="src\CollectMe.lua"/>
+    <Script file="DB\Zone.lua"/>
+    <Script file="DB\Mount.lua"/>
+    <Script file="DB\Title.lua"/>
+    <Script file="DB\Companion.lua"/>
+    <Script file="src\UI.lua"/>
+    <Script file="src\ModelPreview.lua"/>
+    <Script file="src\Tooltip.lua"/>
+    <Script file="src\PetBattle.lua"/>
+    <Script file="src\Macro.lua"/>
+    <Script file="src\RandomCompanion.lua"/>
+    <Script file="src\RandomMount.lua"/>
+    <Script file="src\LdbDisplay.lua"/>
+</Ui>

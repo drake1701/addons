@@ -1,0 +1,34 @@
+tag 2.0.0beta3
+846518617bdd9307422afb6979b6e9be56db128b
+mike <mike@broinitup.com>
+2013-01-17 00:20:09 -0500
+
+Tagging as 2.0.0beta3
+
+
+--------------------
+
+mike:
+	- some more updates to the docs
+	- some updates to the main page
+John Pasula:
+	- Fix a flag error typo.
+	- Numerous pet updates: mostly the weird ones that we on NA don't have access too.
+	- Update Spectral Cub to be a Blizzard Store pet as that's what the pet journal is.  We don't know where it's from so we'll use that for now.
+	- Add faction flags to the mounts from the rumble in the jungle quest line.
+	- Add some missing config option localizations.
+	- Make exclusion list collection specific.
+	- Make the error messages for outputing a linked item more clear.
+	- Variable renaming.
+	- Mech Pand Dragon is uncommon not rare.
+James D. Callahan III:
+	- Cleanup/simplification.
+	- Cleanup.
+John Pasula:
+	- Update Crow's drop location.
+Ressy:
+	- Continuing filling out Pet DB, and arranging by alphabetical name
+	- Zone AQ -> AQ: The Fallen Kingdom - ticket 166
+	- Adjust Collectibles with RETIRED flag -> remove other flags. Its retired, it doesn't matter how you used to be able to get it.
+John Pasula:
+	- Bring in 1.x history into the ChangeLog.

@@ -1,0 +1,6 @@
+﻿## Title: Give Me Buff
+## Author: Mileg, MERK Updated by Grimgrin
+## Notes: Creates and Updates Buff Food Macro
+## Interface: 50100
+## SavedVariables: GMBuff_Save
+GiveMeBuff.xml

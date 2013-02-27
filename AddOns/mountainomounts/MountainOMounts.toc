@@ -1,0 +1,13 @@
+## Interface: 50100
+## Title : Mountain O' Mounts
+## Author: Cigamit
+## Version: v1.2
+## Notes: Mountain O Mounts Achievement Helper
+## SavedVariables: MountainOOptions
+## X-Curse-Packaged-Version: 1.2
+## X-Curse-Project-Name: MountainOMounts
+## X-Curse-Project-ID: mountainomounts
+## X-Curse-Repository-ID: wow/mountainomounts/mainline
+
+Libs\lib-st\lib-st.xml
+MountainOMounts.lua

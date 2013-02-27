@@ -1,0 +1,12 @@
+## Interface: 50100
+## Title: FastQuest
+## Notes: Auto Accept and Complete Quests
+## Author: Miratu <EU-Hellfire>
+## Version: 1.4
+## Revision: $Id: FastQuest.toc 9 2010-01-26 10:30:28Z riskynet $
+## SavedVariables: FQDB
+## OptionalDeps: Ace3
+## X-Embeds: Ace3
+## X-Category: Quests
+
+embeds.xml

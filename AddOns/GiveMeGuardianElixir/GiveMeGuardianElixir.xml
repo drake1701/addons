@@ -1,0 +1,19 @@
+﻿<Ui xmlns="http://www.blizzard.com/wow/ui/" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:schemaLocation="http://www.blizzard.com/wow/ui/
+..\FrameXML\UI.xsd">
+  <Script file="Loc.lua"/>
+  <Script file="GuardianElixirDB.lua"/>
+  <Script file="GiveMeGuardianElixir.lua"/>
+    <Frame name="GiveMeGuardianElixirFrame" parent="UIParent" >
+      <Scripts>
+        <OnLoad>
+          GMGuardianElixir_OnLoad();
+		    self:RegisterEvent("PLAYER_LOGIN");
+			self:RegisterEvent("VARIABLES_LOADED");
+			self:RegisterEvent("BAG_UPDATE");
+        </OnLoad>
+        <OnEvent>
+          GMGuardianElixir_OnEvent(event);
+        </OnEvent>
+      </Scripts>
+    </Frame>
+</Ui>

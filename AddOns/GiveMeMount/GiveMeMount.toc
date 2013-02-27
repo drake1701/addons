@@ -1,0 +1,6 @@
+## Title: Give Me Mount
+## Author: merk66, Mileg, Updated by Grimgrin
+## Notes: Creates and Updates Mount Macro
+## Interface: 50100
+## SavedVariables: GMMount_Save
+GiveMeMount.xml

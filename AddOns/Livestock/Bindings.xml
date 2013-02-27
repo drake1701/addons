@@ -1,0 +1,22 @@
+<Bindings>
+
+<Binding name="Random Critter" header="LIVESTOCKHEADER">
+	Livestock.PickCritter();
+</Binding>
+<Binding name="Dismiss Critter">
+	Livestock.DismissCritter();
+</Binding>
+<Binding name="Favorite Critter">
+	Livestock.SummonFavoritePet();
+</Binding>
+<Binding name="CLICK LivestockLandMountsButton:LeftButton">
+	-- land mount
+</Binding>
+<Binding name="CLICK LivestockFlyingMountsButton:LeftButton">
+	-- flying mount
+</Binding>
+<Binding name="CLICK LivestockComboButton:LeftButton">
+	-- smart mount
+</Binding>
+
+</Bindings>
