@@ -1,6 +1,6 @@
 ﻿## Title: Give Me BattleElixir
 ## Author: Mileg, MERK, Updated by Grimgrin
 ## Notes: Creates and Updates Battle Elixir Macro
-## Interface: 50100
+## Interface: 50200
 ## SavedVariables: GMBattleElixir_Save
 GiveMeBattleElixir.xml

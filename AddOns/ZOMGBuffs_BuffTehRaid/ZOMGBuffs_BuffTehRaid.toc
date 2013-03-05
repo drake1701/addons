@@ -1,4 +1,4 @@
-## Interface: 50100
+## Interface: 50200
 ## Title: |cFFFF8080Z|cFFFFFF80O|cFF80FF80M|cFF8080FFG|cFEFFFFFFBuffs|r [|cFF80FF80Raid Buffer|r] by |cFFFF8080Zek|r
 ## Notes: ZOMGBuffs, Group Buffing Module
 ## Author: Zek

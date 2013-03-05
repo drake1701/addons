@@ -1,4 +1,4 @@
-## Interface: 50100
+## Interface: 50200
 ## Title: Tidy Plates
 ## Notes: Enjoys long walks on Darkshore 
 ## Author: Binbwen and Friends

@@ -1,4 +1,4 @@
-﻿## Interface: 50100
+## Interface: 50200
 ## Title: MogIt
 ## Author: Aelobin (The Maelstrom EU) & Lombra (Defias Brotherhood EU)
 ## Version: 3.1.0

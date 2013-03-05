@@ -1,4 +1,4 @@
-## Interface: 50100
+## Interface: 50200
 ## Title: Reputation Bars
 ## Notes: Allows you to watch one or more reputation bars.
 
