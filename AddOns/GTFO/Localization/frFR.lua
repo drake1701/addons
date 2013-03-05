@@ -4,29 +4,6 @@
 --[[
 GTFO French Localization
 Translator: Blubibulga, TrAsHeR
-
-Change Log:
-	v3.1.1
-		- Added French localization
-	v3.2.2
-		- Added untranslated strings
-	v3.3.2
-		- Added untranslated strings
-	v4.2.1
-		- Added untranslated strings
-	v4.4.1
-		- Added untranslated strings
-	v4.6.1
-		- Added untranslated strings
-	v4.10
-		- Updated French localization
-	v4.12
-		- Added untranslated strings
-	v4.12.3
-		- Updated French localization
-	v4.12.4
-		- Updated French localization
-
 ]]--
 
 if (GetLocale() == "frFR") then
@@ -36,7 +13,7 @@ GTFOLocal =
 	Active_Off = "Addon suspendu",
 	Active_On = "Addon actif",
 	AlertType_Fail = "Échec",
-	AlertType_FriendlyFire = "Ami enflammé",
+	AlertType_FriendlyFire = "Dégâts aux alliés",
 	AlertType_High = "Haut",
 	AlertType_Low = "Bas",
 	ClosePopup_Message = "Vous pouvez configurer vos paramètres de GTFO plus tard en tapant : %s",
@@ -49,7 +26,7 @@ GTFOLocal =
 	Help_Suspend = "Suspendre/Activer l'addon",
 	Help_Suspended = "L'addon est actuellement suspendu.",
 	Help_TestFail = "Jouer un test sonore (alerte d'échec)",
-	Help_TestFriendlyFire = "Jouer un test sonore (ami enflammé)",
+	Help_TestFriendlyFire = "Jouer un test sonore (dégâts aux alliés)",
 	Help_TestHigh = "Jouer un test sonore (dommage élevé)",
 	Help_TestLow = "Jouer un test sonore (dommage faible)",
 	Help_Version = "Afficher les autres attaquants exécutant cet addon",
@@ -67,8 +44,8 @@ GTFOLocal =
 	Skada_SpellList = "Sorts GTFO",
 	TestSound_Fail = "Test sonore (alerte d'échec) joué.",
 	TestSound_FailMuted = "Test sonore (alerte d'échec) joué. [|cFFFF4444MUET|r]",
-	TestSound_FriendlyFire = "Test sonore (ami enflammé) joué.",
-	TestSound_FriendlyFireMuted = "Test sonore (ami enflammé) joué. [|cFFFF4444MUET|r]",
+	TestSound_FriendlyFire = "Test sonore (dégâts aux alliés) joué.",
+	TestSound_FriendlyFireMuted = "Test sonore (dégâts aux alliés) joué. [|cFFFF4444MUET|r]",
 	TestSound_High = "Test sonore (dommage élevé) joué.",
 	TestSound_HighMuted = "Test sonore (dommage élevé) joué. [|cFFFF4444MUET|r]",
 	TestSound_Low = "Test sonore (dommage faible) joué.",
@@ -88,8 +65,8 @@ GTFOLocal =
 	UI_TestMode = "Mode Expérimental/Bêta",
 	UI_TestModeDescription = "Activer les alertes non testées/non vérifiées (Beta/PTR)",
 	UI_TestModeDescription2 = "Veuillez signaler tout problème à |cFF44FFFF%s@%s.%s|r",
-	UI_Trivial = "Alertes de contenu triviales",
-	UI_TrivialDescription = "Activer les alertes pour les rencontres de bas niveau qui seraient autrement jugés triviales pour niveau actuel du votre personnage.",
+	UI_Trivial = "Alertes de contenu futiles",
+	UI_TrivialDescription = "Activer les alertes pour les rencontres de bas niveau qui seraient autrement jugés futiles pour le niveau actuel du votre personnage.",
 	UI_Unmute = "Jouer les sons lorsque mis en sourdine",
 	UI_UnmuteDescription = "Si vous avez le son principal mis en sourdine, GTFO activera temporairement le son brièvement pour jouer les sons de GTFO.",
 	UI_UnmuteDescription2 = "Cela exige que le curseur du volume principal soit supérieur à 0 %.",
@@ -109,8 +86,8 @@ GTFOLocal =
 	Version_On = "Rappels de mise à jour de version Arrêt",
 	Version_Off = "Rappels de mise à jour de version Marche",
 	-- 4.19.1
-	UI_TrivialSlider = "Minimum % of HP",
-	UI_TrivialDescription2 = "Set the slider to the minimum % amount of HP damage taken for alerts to not be considered trivial.",
+	UI_TrivialSlider = "% Minimum de PV",
+	UI_TrivialDescription2 = "Réglez le curseur au montant minimum de % de dégâts de PV prises pour les alertes non considérées comme futiles.",
 }
 
 end

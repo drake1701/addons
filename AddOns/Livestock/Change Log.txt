@@ -1,3 +1,19 @@
+Version 1.9.1
+
+- Fixed flying detection code for Outlands
+- Slight update to the new scrolling code
+- Added /ls as a shortcut for /livestock
+
+Version 1.9.0
+
+- Added Azure Water Strider option
+- Added Zen Flight option
+- Added scrollable mount/pet lists
+- Fixed code that detects flying skill level and area
+- Cleanup Abyssal Seahorse code
+- Cleanup localizations
+- Removed Crusader Aura
+
 Version 1.8.0
 
 - Updates for patch 5.1

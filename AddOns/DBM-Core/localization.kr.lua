@@ -5,7 +5,8 @@ DBM_HOW_TO_USE_MOD					= "DBM 사용을 환영합니다. 대화창에서 /dbm he
 
 DBM_CORE_LOAD_MOD_ERROR				= "%s 경보를 불러오는 중 오류 발생: %s"
 DBM_CORE_LOAD_MOD_SUCCESS			= "'%s' 경보를 불러왔습니다 !"
-DBM_CORE_LOAD_GUI_ERROR				= "그래픽 설정 기능을 불러올 수 없습니다: %s"
+DBM_CORE_LOAD_GUI_ERROR				= "설정창을 불러올 수 없습니다: %s"
+DBM_CORE_LOAD_GUI_COMBAT			= "전투 중에는 설정창을 불러올 수 없습니다. 단, 전투 종료 후 설정창을 불러오고 난 이후에는 UI 재시작 또는 재접속전까지 전투 중에도 설정창을 불러올 수 있습니다."
 
 DBM_CORE_COMBAT_STARTED				= "%s 작동됨. 행운을 빕니다! :)";
 DBM_CORE_BOSS_DOWN					= "%s 전투에서 승리하였습니다! (전투 시간: %s)"
@@ -35,7 +36,7 @@ DBM_CORE_OPTION_CATEGORY_TIMERS		= "바"
 DBM_CORE_OPTION_CATEGORY_WARNINGS	= "알림"
 DBM_CORE_OPTION_CATEGORY_MISC		= "기타 추가 기능"
 
-DBM_CORE_AUTO_RESPONDED						= "전투중 받은 귓속말을 자동 응답합니다."
+DBM_CORE_AUTO_RESPONDED						= "전투중 받은 귓속말에 자동 응답합니다."
 DBM_CORE_STATUS_WHISPER						= "%s: %s, %d/%d 명이 생존해 있습니다."
 DBM_CORE_AUTO_RESPOND_WHISPER				= "%s 님은 현재 바쁩니다. %s 전투가 진행중입니다. (%s, %d/%d 명 생존중) 전투 종료후 다시 알림 메세지가 표시됩니다."
 DBM_CORE_WHISPER_COMBAT_END_KILL			= "%s 님의 %s 전투가 끝났습니다!"
@@ -59,7 +60,7 @@ DBM_PIZZA_SYNC_INFO					= "|Hplayer:%1$s|h[%1$s]|h님이 당신에게 DBM 바 �
 DBM_PIZZA_CONFIRM_IGNORE			= "현재 공격대에서 %s님이 보낸 DBM 바를 무시하도록 하겠습니까?"
 DBM_PIZZA_ERROR_USAGE				= "사용법: /dbm [broadcast] timer <시간> <글자>"
 
-DBM_CORE_ERROR_DBMV3_LOADED			= "DBMv3와 DBMv4가 동시에 실행중 입니다.\n\n\"수락\"을 클릭하시면 DBMv3를 차단하고, UI가 다시시작 될 것입니다.\n또한, 애드온 폴더내에 존재하고 있는 DBMv3 폴더를 삭제하시길 권장합니다."
+DBM_CORE_ERROR_DBMV3_LOADED			= "DBMv3와 DBMv4가 동시에 실행중 입니다.\n\n\"수락\"을 클릭하시면 DBMv3를 차단하고, UI가 다시시작 될 것입니다.\n이후, 애드온 폴더 내에서 DBMv3 폴더를 삭제하시길 권장합니다."
 
 DBM_CORE_MINIMAP_TOOLTIP_HEADER		= "죽이는 보스 모드"
 DBM_CORE_MINIMAP_TOOLTIP_FOOTER		= "Shift+클릭 또는 오른쪽 클릭으로 움직이세요.\nAlt+Shift+클릭으로 움직이면 자유롭게 배치할 수 있습니다."
@@ -114,6 +115,10 @@ DBM_CORE_ALLIANCE					= "얼라이언스"
 DBM_CORE_HORDE						= "호드"
 
 DBM_CORE_UNKNOWN					= "알 수 없음"
+DBM_CORE_LEFT						= "왼쪽"
+DBM_CORE_RIGHT						= "오른쪽"
+DBM_CORE_BACK						= "뒤쪽"
+DBM_CORE_FRONT						= "앞쪽"
 
 DBM_CORE_BREAK_START				= "쉬는 시간 시작 -- %s 분 남았습니다!"
 DBM_CORE_BREAK_MIN					= "%s 분 후 쉬는 시간이 끝납니다!"

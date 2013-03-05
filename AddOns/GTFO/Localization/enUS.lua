@@ -4,29 +4,6 @@
 --[[
 GTFO English Localization
 Author: Zensunim of Malygos
-
-Change Log:
-	v2.5
-		- Added localization support
-	v3.0
-		- Added new strings
-	v3.1
-		- Added new strings
-	v4.1
-		- Added new strings
-	v4.2.2
-		- Removed unused string
-	v4.3.1
-		- Updated strings
-	v4.6
-		- Added new strings
-	v4.12
-		- Added new strings
-	v4.12.3
-		- Added new strings
-	v4.19
-		- Added new strings
-	
 ]]--
 
 GTFOLocal = 

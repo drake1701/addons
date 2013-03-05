@@ -456,7 +456,6 @@ GTFO.SpellID["123812"] = {
 GTFO.SpellID["122336"] = {
 	--desc = "Sonic Ring (Imperial Vizier Zor'lok)";
 	sound = 1;
-	negatingDebuffSpellID = 122706; -- Noise Cancelling
 	trivialPercent = 0;
 };
 
@@ -647,6 +646,12 @@ GTFO.SpellID["116661"] = {
 
 -- TODO: Overcharged (Elegon) (Stack count varies by strategy, research needed for highest limit)
 
+GTFO.SpellID["118529"] = {
+	--desc = "Stone Block (Mogu'shan Secret-Keeper)";
+	sound = 1;
+	tankSound = 0;
+};
+
 -- TODO: Energy of Creation (Will of the Emperor) (Heroic only, FF too?)
 
 -- *****************************
@@ -664,7 +669,10 @@ GTFO.SpellID["118091"] = {
 	applicationOnly = true;
 };
 
--- TODO: Expel Corruption (Protector Kaolan) (FF damage based on distance, find out what the min distance is and amt dmg taken for it)
+GTFO.SpellID["117955"] = {
+	--desc = "Expelled Corruption (Protector Kaolan)";
+	sound = 1;
+};
 
 GTFO.SpellID["117398"] = {
 	--desc = "Lightning Prison (Elder Regail)";
@@ -931,6 +939,187 @@ GTFO.SpellID["133157"] = {
 -- TODO: Laser Disc? (Disruptron)
 -- TODO: Destructolaser (Epicus Maximus)
 
+-- *****************************
+-- * Trove of the Thunder King *
+-- *****************************
+
+GTFO.SpellID["139805"] = {
+	--desc = "Lightning Surge";
+	sound = 1;
+	alwaysAlert = true;
+};
+
+GTFO.SpellID["127473"] = {
+	--desc = "Arrow Trap (Trap)";
+	sound = 1;
+	trivialPercent = .5;
+};
+
+-- *********************
+-- * Throne of Thunder *
+-- *********************
+
+GTFO.SpellID["138006"] = {
+	--desc = "Electrified Waters (Jin'rokh the Breaker)";
+	sound = 1;
+};
+
+GTFO.SpellID["139210"] = {
+	--desc = "Focused Lightning - Pulse (Jin'rokh the Breaker)";
+	sound = 1;
+};
+
+GTFO.SpellID["137485"] = {
+	--desc = "Lightning Fissure (Jin'rokh the Breaker)";
+	sound = 1;
+};
+
+GTFO.SpellID["139461"] = {
+	--desc = "Spirit Light (Spirit Flayer)";
+	sound = 1;
+};
+
+GTFO.SpellID["133901"] = {
+	--desc = "Stormcloud (Strombringer Draz'kil)";
+	sound = 1;
+};
+
+GTFO.SpellID["136723"] = {
+	--desc = "Sand Trap (Horridon)";
+	sound = 1;
+};
+
+GTFO.SpellID["136646"] = {
+	--desc = "Living Poison (Horridon)";
+	sound = 1;
+};
+
+GTFO.SpellID["136573"] = {
+	--desc = "Frozen Bolt (Horridon)";
+	sound = 1;
+};
+
+GTFO.SpellID["136490"] = {
+	--desc = "Lightning Nova Totem (Horridon)";
+	sound = 1;
+};
+
+GTFO.SpellID["136991"] = {
+	--desc = "Biting Cold (Frost King Malakk)";
+	sound = 4;
+	negatingDebuffSpellID = 136992; -- Biting Cold
+	negatingIgnoreTime = 2;
+};
+
+GTFO.SpellID["136937"] = {
+	--desc = "Frostbite (Frost King Malakk)";
+	sound = 1;
+	soundFunction = function() 
+		local stacks = GTFO_DebuffStackCount("player", 136922);
+		if (stacks > 3) then
+			return 1;
+		elseif (stacks > 1) then
+			return 2;
+		end
+		return 0;
+	end;
+	affirmingDebuffSpellID = 136922; -- Biting Cold
+};
+
+GTFO.SpellID["136860"] = {
+	--desc = "Quicksand (Sul the Sandcrawler)";
+	sound = 1;
+};
+
+GTFO.SpellID["136878"] = {
+	--desc = "Ensnared (Sul the Sandcrawler)";
+	sound = 1;
+};
+
+-- TODO: Pool of Flames (Megaera)
+
+GTFO.SpellID["139889"] = {
+	--desc = "Torrent of Ice (Megaera)";
+	sound = 1;
+	test = true; -- Verify
+};
+
+GTFO.SpellID["138319"] = {
+	--desc = "Feed Pool (Ji-Kun)";
+	sound = 1;
+};
+
+GTFO.SpellID["134755"] = {
+	--desc = "Eye Sore (Durumu the Forgotten)";
+	sound = 1;
+};
+
+-- TODO: Stern Gaze (Durumu the Forgotten) -- Alert based on damage amount?
+
+GTFO.SpellID["133798"] = {
+	--desc = "Life Drain (Durumu the Forgotten)";
+	sound = 1;
+	tankSound = 0;
+	test = true; -- Verify
+};
+
+GTFO.SpellID["134044"] = {
+	--desc = "Lingering Gaze (Pool) (Durumu the Forgotten)";
+	sound = 1;
+};
+
+GTFO.SpellID["138485"] = {
+	--desc = "Crimson Wake (Large Anima Golem)";
+	sound = 1;
+	test = true; -- Verify
+};
+
+GTFO.SpellID["139313"] = {
+	--desc = "Frenzied Consumption (Rotting Scavenger)";
+	sound = 1;
+};
+
+GTFO.SpellID["134926"] = {
+	--desc = "Throw Spear (Iron Qon)";
+	sound = 1;
+};
+
+GTFO.SpellID["137668"] = {
+	--desc = "Burning Cinders (Iron Qon)";
+	sound = 1;
+	applicationOnly = true;
+};
+
+GTFO.SpellID["137669"] = {
+	--desc = "Storm Cloud (Iron Qon)";
+	sound = 1;
+	applicationOnly = true;
+};
+
+GTFO.SpellID["137664"] = {
+	--desc = "Frozen Blood (Iron Qon)";
+	sound = 1;
+	applicationOnly = true;
+};
+
+GTFO.SpellID["137417"] = {
+	--desc = "Flames of Passion (Suen)";
+	sound = 1;
+};
+
+GTFO.SpellID["138178"] = {
+	--desc = "Thunder Trap";
+	sound = 1;
+};
+
+-- TODO: Overloaded Circuit (Lei Shen)
+-- TODO: Lightning Bolt (Lei Shen)
+
+GTFO.SpellID["135153"] = {
+	--desc = "Crashing Thunder (Lei Shen)";
+	sound = 1;
+};
+
 -- ************
 -- * Pandaria *
 -- ************
@@ -1155,12 +1344,6 @@ GTFO.SpellID["127467"] = {
 	trivialPercent = 0;
 };
 
-GTFO.SpellID["127473"] = {
-	--desc = "Arrow Trap (Trap)";
-	sound = 1;
-	trivialPercent = .5;
-};
-
 GTFO.SpellID["127252"] = {
 	--desc = "Lightning Crash (Zhao-Jin the Bloodletter)";
 	sound = 1;
@@ -1214,6 +1397,128 @@ GTFO.SpellID["134771"] = {
 	sound = 1;
 	trivialPercent = 0;
 };
+
+GTFO.SpellID["131340"] = {
+	--desc = "Xaril's Fire Potion (Xaril the Poisoned Mind)";
+	sound = 1;
+	trivialPercent = 0;
+};
+
+GTFO.SpellID["131356"] = {
+	--desc = "Congealed Terror (Manifestation of Terror)";
+	sound = 1;
+	trivialPercent = 0;
+};
+
+GTFO.SpellID["126018"] = {
+	--desc = "Harsh Winds (Aetha)";
+	sound = 1;
+	trivialPercent = 0;
+};
+
+GTFO.SpellID["140315"] = {
+	--desc = "Hymn of Silence (Spirit Mask)";
+	sound = 1;
+};
+
+GTFO.SpellID["140675"] = {
+	--desc = "Spirit Gaze (Spirit Mask)";
+	sound = 2;
+	negatingDebuffSpellID = 140661; -- Arcanital's Barrier
+};
+
+GTFO.SpellID["138015"] = {
+	--desc = "Ancient Flames";
+	sound = 1;
+};
+
+GTFO.SpellID["139971"] = {
+	--desc = "Thermal Expansion, Pulse (Horgak the Enslaver)";
+	sound = 1;
+};
+
+GTFO.SpellID["139970"] = {
+	--desc = "Thermal Collapse, Pulse (Horgak the Enslaver)";
+	sound = 1;
+};
+
+GTFO.SpellID["140244"] = {
+	--desc = "Lightning Crack (Zandalari Colossus)";
+	sound = 1;
+};
+
+GTFO.SpellID["140460"] = {
+	--desc = "Vile Spit (Mighty Devilsaur)";
+	sound = 1;
+};
+
+GTFO.SpellID["140424"] = {
+	--desc = "Acidic Regurgitation (Mighty Devilsaur)";
+	sound = 1;
+};
+
+GTFO.SpellID["139185"] = {
+	--desc = "Lightning Pole (War-God Al'chukla)";
+	sound = 1;
+};
+
+GTFO.SpellID["140550"] = {
+	--desc = "Rivers of Blood (Fleshcrafter Hoku)";
+	sound = 1;
+};
+
+GTFO.SpellID["137115"] = {
+	--desc = "Lightning Surge (Ball Lightning)";
+	sound = 2;
+};
+
+GTFO.SpellID["137604"] = {
+	--desc = "Electrocution";
+	sound = 1;
+};
+
+GTFO.SpellID["137509"] = {
+	--desc = "Hail of Arrows (Beastmaster Horaki)";
+	sound = 1;
+	negatingDebuffSpellID = 137434; -- Frost Shot
+};
+
+GTFO.SpellID["135160"] = {
+	--desc = "Cannonball Spin (High Marshal Twinbraid)";
+	sound = 1;
+	tankSound = 0;
+};
+
+GTFO.SpellID["135318"] = {
+	--desc = "Powder Burn (High Marshal Twinbraid)";
+	sound = 1;
+};
+
+GTFO.SpellID["135470"] = {
+	--desc = "Chaingun (High Marshal Twinbraid)";
+	sound = 1;
+};
+
+GTFO.SpellID["114919"] = {
+	--desc = "Arcing Light (Light's Hammer)";
+	sound = 2;
+};
+
+GTFO.SpellID["131555"] = {
+	--desc = "Blizzard (Dmong Naruuk)";
+	sound = 2;
+};
+
+GTFO.SpellID["131274"] = {
+	--desc = "Bug Swarm (Sra'thik Hivelord)";
+	sound = 2;
+};
+
+GTFO.SpellID["126435"] = {
+	--desc = "Mist (Wulon)";
+	sound = 2;
+};
+
 
 -- ***********
 -- * Unknown *

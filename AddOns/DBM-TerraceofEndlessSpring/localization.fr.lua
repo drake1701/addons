@@ -86,10 +86,13 @@ L:SetOptionLocalization({
 })
 
 L:SetOptionLocalization({
+	warnThrash					= DBM_CORE_AUTO_ANNOUNCE_OPTIONS.spell:format(131996),
 	RangeFrame					= "Afficher le cadre de distance (2m) pour $spell:119519",
 	MoveWarningForward			= "Alerte spécial pour aller de l'autre côté quand $spell:120047 est lancé",
 	MoveWarningRight			= "Alerte spécial pour aller à droite quand $spell:120047 est lancé",
 	MoveWarningBack				= "Alerte spécial pour aller à la position précédente quand \n$spell:120047 est fini",
+	warnWaterspout				= DBM_CORE_AUTO_ANNOUNCE_OPTIONS.target:format(120519),
+	warnHuddleInTerror			= DBM_CORE_AUTO_ANNOUNCE_OPTIONS.target:format(120629),
 	timerSpecialAbilityCD		= "Délai pour la prochaine fois que la capacité spéciale est lancé",
 	timerSpoHudCD				= "Délai pour le prochain lancé de $spell:120629 ou $spell:120519",
 	timerSpoStrCD				= "Délai pour le prochain lancé de $spell:120519 ou $spell:120672",

@@ -1,9 +1,9 @@
 local mod	= DBM:NewMod(709, "DBM-TerraceofEndlessSpring", nil, 320)
 local L		= mod:GetLocalizedStrings()
 
-mod:SetRevision(("$Revision: 8592 $"):sub(12, -3))
+mod:SetRevision(("$Revision: 8769 $"):sub(12, -3))
 mod:SetCreatureID(60999)--61042 Cheng Kang, 61046 Jinlun Kun, 61038 Yang Guoshi, 61034 Terror Spawn
-mod:SetModelID(41772)
+mod:SetModelID(45065)
 mod:SetUsedIcons(8, 7, 6, 5, 4)
 
 mod:RegisterCombat("combat")
@@ -19,39 +19,46 @@ mod:RegisterEventsInCombat(
 )
 
 -- Normal and heroic Phase 1
-local warnThrash						= mod:NewSpellAnnounce(131996, 4, nil, mod:IsTank() or mod:IsHealer())
+mod:AddBoolOption("warnThrash", mod:IsTank() or mod:IsHealer(), "announce")
+local warnThrashNormal					= mod:NewSpellAnnounce(131996, 3, nil, true, false)
+local warnThrashHeroic					= mod:NewCountAnnounce(131996, 3, nil, true, false)
 local warnBreathOfFearSoon				= mod:NewPreWarnAnnounce(119414, 10, 3)
 local warnBreathOfFear					= mod:NewSpellAnnounce(119414, 4)
+mod:AddBoolOption("warnBreathOnPlatform", false, "announce")
 local warnOminousCackle					= mod:NewTargetAnnounce(129147, 3)--129147 is debuff, 119693 is cast. We do not reg warn cast cause we reg warn the actual targets instead. We special warn cast to give a little advanced heads up though.
 local warnDreadSpray					= mod:NewSpellAnnounce(120047, 2)
 -- Heroic Phase 2
 local warnPhase2						= mod:NewPhaseAnnounce(2)
 local warnDreadThrash					= mod:NewSpellAnnounce(132007, 4, nil, mod:IsTank() or mod:IsHealer())
 local warnNakedAndAfraid				= mod:NewTargetAnnounce(120669, 2, nil, mod:IsTank())
-local warnWaterspout					= mod:NewTargetAnnounce(120519, 3)
-local warnHuddleInTerror				= mod:NewTargetAnnounce(120629, 3)
-local warnImplacableStrike				= mod:NewSpellAnnounce(120672, 4)
+local warnWaterspout					= mod:NewAnnounce("warnWaterspout", 3, 120519)
+local warnHuddleInTerror				= mod:NewAnnounce("warnHuddleInTerror", 3, 120629)
+local warnImplacableStrike				= mod:NewCountAnnounce(120672, 4)
 local warnChampionOfTheLight			= mod:NewTargetAnnounce(120268, 3, nil, false)--seems spammy.
 local warnSubmerge						= mod:NewCountAnnounce(120455)
+local warnDreadSpawns					= mod:NewCountAnnounce(132018)
 --local warnEmerge						= mod:NewSpellAnnounce(120458)--do not match he actually emerges.
 
 -- Normal and heroic Phase 1
 local specWarnBreathOfFearSoon			= mod:NewSpecialWarning("specWarnBreathOfFearSoon")
 local specWarnThrash					= mod:NewSpecialWarningSpell(131996, mod:IsTank())
 local specWarnOminousCackleYou			= mod:NewSpecialWarningYou(129147)--You have debuff, just warns you.
-local specWarnDreadSpray				= mod:NewSpecialWarningSpell(120047, nil, nil, nil, true)--Platform ability, particularly nasty damage, and fear.
-local specWarnDeathBlossom				= mod:NewSpecialWarningSpell(119888, nil, nil, nil, true)--Cast, warns the entire raid.
-local MoveWarningForward				= mod:NewSpecialWarning("MoveWarningForward", false)--Warning to switch sites on platform
-local MoveWarningRight					= mod:NewSpecialWarning("MoveWarningRight", false)--Warning to move one eighth to the right
-local MoveWarningBack					= mod:NewSpecialWarning("MoveWarningBack", false)--Move back to starting position
+local specWarnDreadSpray				= mod:NewSpecialWarningSpell(120047, nil, nil, nil, 2)--Platform ability, particularly nasty damage, and fear.
+local specWarnDeathBlossom				= mod:NewSpecialWarningSpell(119888, nil, nil, nil, 2)--Cast, warns the entire raid.
+mod:AddBoolOption("specWarnMovement", false, "announce")--http://mysticalos.com/terraceofendlesssprings.jpg
+local MoveWarningForward				= mod:NewSpecialWarning("MoveForward", nil, false)--Warning to switch sites on platform
+local MoveWarningRight					= mod:NewSpecialWarning("MoveRight", nil, false)--Warning to move one eighth to the right
+local MoveWarningBack					= mod:NewSpecialWarning("MoveBack", nil, false)--Move back to starting position
 -- Heroic Phase 2
-local specWarnDreadThrash				= mod:NewSpecialWarningSpell(132007, mod:IsTank())
+local specWarnDreadThrash				= mod:NewSpecialWarningSpell(132007, mod:IsTank(), nil, nil, 3)--Extra emphesis special warning.
 local specWarnNakedAndAfraidOther		= mod:NewSpecialWarningTarget(120669, mod:IsTank())
+local specWarnWaterspoutCast			= mod:NewSpecialWarningSpell(120519, nil, nil, nil, 2)
 local specWarnWaterspout				= mod:NewSpecialWarningYou(120519)
+local specWarnWaterspoutNear			= mod:NewSpecialWarningClose(120519)
 local yellWaterspout					= mod:NewYell(120519)
 local specWarnImplacableStrike			= mod:NewSpecialWarningSpell(120672)
 local specWarnChampionOfTheLight		= mod:NewSpecialWarningYou(120268)
-local specWarnSubmerge					= mod:NewSpecialWarningSpell(120455, nil, nil, nil, true)
+local specWarnSubmerge					= mod:NewSpecialWarningSpell(120455, nil, nil, nil, 2)
 
 -- Normal and heroic Phase 1
 local timerThrashCD						= mod:NewCDTimer(9, 131996, nil, mod:IsTank() or mod:IsHealer())--Every 9-12 seconds.
@@ -63,39 +70,76 @@ local timerDeathBlossom					= mod:NewBuffActiveTimer(5, 119888)
 --local timerTerrorSpawnCD				= mod:NewNextTimer(60, 119108)--every 60 or so seconds, maybe a little more maybe a little less, not sure. this is just based on instinct after seeing where 30 fit.
 local timerFearless						= mod:NewBuffFadesTimer(30, 118977)
 -- Heroic Phase 2
-local timerDreadTrashCD					= mod:NewCDTimer(9, 132007)--Share Trash CD.
-local timerNakedAndAfraid				= mod:NewTargetTimer(25, 120669)-- EJ says that debuff duration 25 sec.
---local timerNakedAndAfraidCD			= mod:NewCDTimer(25, 120669)-- unconfirmed.
-local timerWaterspoutCD					= mod:NewCDTimer(10, 120519)
-local timerHuddleInTerrorCD				= mod:NewCDTimer(10, 120629)
-local timerImplacableStrikeCD			= mod:NewCDTimer(10, 120672)
+local timerDreadTrashCD					= mod:NewCDTimer(9, 132007, nil, mod:IsTank() or mod:IsHealer())--Share Trash CD.
+local timerNakedAndAfraid				= mod:NewTargetTimer(25, 120669, nil, mod:IsTank() or mod:IsHealer())--25 on 10 man, 50 on 25 (requiring 3 tanks)
+local timerNakedAndAfraidCD				= mod:NewCDTimer(30, 120669, nil, mod:IsTank() or mod:IsHealer())-- varies, but mostly 30. can get delayed upwards of 15 seconds though between submerge and specials
 local timerSubmergeCD					= mod:NewCDCountTimer(51.5, 120455)
-local timerSpecialAbilityCD				= mod:NewTimer(12, "timerSpecialAbilityCD", 1449)--1st Ability 12sec after Submerge
-local timerSpoHudCD						= mod:NewTimer(10, "timerSpoHudCD", 64044)--Waterspout or Huddle in Terror next
-local timerSpoStrCD						= mod:NewTimer(10, "timerSpoStrCD", 1953)--Waterspout or Implacable Strike next
-local timerHudStrCD						= mod:NewTimer(10, "timerHudStrCD", 64044)-- Huddle in Terror or Implacable Strike next
+mod:AddBoolOption("timerSpecialAbility", true, "timer")--Better to have one option for his shared special timer than 7
+local timerWaterspoutCD					= mod:NewCDTimer(10, 120519, nil, nil, false)
+local timerHuddleInTerrorCD				= mod:NewCDTimer(10, 120629, nil, nil, false)
+local timerImplacableStrikeCD			= mod:NewCDTimer(9.5, 120672, nil, nil, false)
+local timerSpecialAbilityCD				= mod:NewTimer(12, "timerSpecialAbilityCD", 1449, nil, false)--1st Ability 12sec after Submerge
+local timerSpoHudCD						= mod:NewTimer(10, "timerSpoHudCD", 64044, nil, false)--Waterspout or Huddle in Terror next
+local timerSpoStrCD						= mod:NewTimer(10, "timerSpoStrCD", 1953, nil, false)--Waterspout or Implacable Strike next
+local timerHudStrCD						= mod:NewTimer(10, "timerHudStrCD", 64044, nil, false)-- Huddle in Terror or Implacable Strike next
 
 local berserkTimer						= mod:NewBerserkTimer(900)
 
 local countdownBreathOfFear				= mod:NewCountdown(33.3, 119414, nil, nil, 10)
 
-mod:AddBoolOption("RangeFrame")--For Eerie Skull (2 yards)
+mod:AddBoolOption("RangeFrame")--For Eerie Skull (2 yards) and Unstable Bolt (3 yards)
 mod:AddBoolOption("SetIconOnHuddle")
 
 local wallLight = GetSpellInfo(117964)
 local fearless = GetSpellInfo(118977)
+local waterspout = GetSpellInfo(120519)
+local huddleinterror = GetSpellInfo(120629)
 local ominousCackleTargets = {}
 local platformGUIDs = {}
 local waterspoutTargets = {}
 local huddleInTerrorTargets = {}
+local huddleInTerrorIcons = {}
+local platformSent = false
 local onPlatform = false--Used to determine when YOU are sent to a platform, so we know to activate MobID on next shoot
 local phase2 = false
 local dreadSprayCounter = 0
 local thrashCount = 0
 local submergeCount = 0
+local specialCount = 0
 local huddleIcon = 8
 local MobID = 0
 local specialsCast = 000--Huddle(100), Spout(10), Strike(1)
+local guids = {}
+local guidTableBuilt = false--Entirely for DCs, so we don't need to reset between pulls cause it doesn't effect building table on combat start and after a DC then it will be reset to false always
+local function buildGuidTable()
+	table.wipe(guids)
+	for uId, i in DBM:GetGroupMembers() do
+		guids[UnitGUID(uId) or "none"] = GetRaidRosterInfo(i)
+	end
+end
+
+local Spawns = {
+	[1] = 1,
+	[2] = 2,
+	[3] = 2,
+	[4] = 3,--no idea, maybe this one is just random 33-40, rest are dead on though.
+	[5] = 3,
+	[6] = 4,
+	[7] = 4,
+	[8] = 5,
+	[9] = 5,
+	[10]= 6,
+	[11]= 6,
+	[12]= 7,
+	[13]= 7,
+	[14]= 8,
+	[15]= 8,
+	[16]= 9,
+	[17]= 9,
+	[18]= 10,
+	[19]= 10,
+	[20]= 11,
+}
 
 local function warnOminousCackleTargets()
 	warnOminousCackle:Show(table.concat(ominousCackleTargets, "<, >"))
@@ -103,34 +147,41 @@ local function warnOminousCackleTargets()
 end
 
 local function warnWaterspoutTargets()
-	warnWaterspout:Show(table.concat(waterspoutTargets, "<, >"))
+	warnWaterspout:Show(waterspout, specialCount, table.concat(waterspoutTargets, "<, >"))
 	table.wipe(waterspoutTargets)
 end
 
 local function warnHuddleInTerrorTargets()
-	warnHuddleInTerror:Show(table.concat(huddleInTerrorTargets, "<, >"))
+	warnHuddleInTerror:Show(huddleinterror, specialCount, table.concat(huddleInTerrorTargets, "<, >"))
 	table.wipe(huddleInTerrorTargets)
 	huddleIcon = 8
 end
 
 local function startSpecialTimers()
+	if not mod.Options.timerSpecialAbility then return end
+	--Huddle(100), Spout(10), Strike(1)
 	if specialsCast == 110 then
 		timerImplacableStrikeCD:Start()
 	end
 	if specialsCast == 101 then
 		timerWaterspoutCD:Start()
 	end
-	if specialsCast == 011 then
+	if specialsCast == 011 then--Should never happen but leaving in case.
 		timerHuddleInTerrorCD:Start()
+		print("Huddle CAN be cast Last!, tell DBM guys to fix 001 and 010")
+		print("Huddle CAN be cast Last!, tell DBM guys to fix 001 and 010")
+		print("Huddle CAN be cast Last!, tell DBM guys to fix 001 and 010")
 	end	
 	if specialsCast == 100 then
 		timerSpoStrCD:Start()
 	end
-	if specialsCast == 010 then
-		timerHudStrCD:Start()
+	if specialsCast == 010 then--It is believed and backed that huddle is NEVER cast 3rd. Good evidence suggests this is true so changing timers a bit
+--		timerHudStrCD:Start()
+		timerHuddleInTerrorCD:Start()
 	end
 	if specialsCast == 001 then
-		timerSpoHudCD:Start()
+--		timerSpoHudCD:Start()
+		timerHuddleInTerrorCD:Start()
 	end
 end
 
@@ -151,6 +202,7 @@ function mod:CheckPlatformLeaved()--Check you are leaved platform by Wall of Lig
 end
 
 function mod:LeavePlatform()
+	if not self:IsInCombat() then return end--Because sometimes this still gets scheduled on combat end
 	if onPlatform then
 		if DBM.BossHealth:IsShown() then
 			DBM.BossHealth:RemoveBoss(61038)
@@ -158,28 +210,33 @@ function mod:LeavePlatform()
 			DBM.BossHealth:RemoveBoss(61046)
 		end
 		table.wipe(platformGUIDs)
+		platformSent = false
 		onPlatform = false
 		MobID = nil
 		--Breath of fear timer recovery
-		local fearlessApplied = UnitBuff("player", fearless)
-		local shaPower = UnitPower("boss1") --Get Boss Power
-		shaPower = shaPower / 3 --Divide it by 3 (cause he gains 3 power per second and we need to know how many seconds to subtrack from fear CD)
-		if (not fearlessApplied and shaPower < 30.3) or (fearlessApplied and shaPower < 5) then--If you have no fearless and breath timer less then 3s, you may not reach to wall. So ignore below 3 sec. Also if you have fearless and breath timer less then 28.3s, not need to warn breath.
-			timerBreathOfFearCD:Start(33.3-shaPower)
-			countdownBreathOfFear:Start(33.3-shaPower)
-			if shaPower < 26.3 then
-				self:ScheduleMethod(26.3-shaPower, "CheckWall")
-			elseif not fearlessApplied then
-				specWarnBreathOfFearSoon:Show()
+		if not self.Options.warnBreathOnPlatform then
+			local fearlessApplied = UnitBuff("player", fearless)
+			local shaPower = UnitPower("boss1") --Get Boss Power
+			shaPower = shaPower / 3 --Divide it by 3 (cause he gains 3 power per second and we need to know how many seconds to subtrack from fear CD)
+			if (not fearlessApplied and shaPower < 30.3) or (fearlessApplied and shaPower < 5) then--If you have no fearless and breath timer less then 3s, you may not reach to wall. So ignore below 3 sec. Also if you have fearless and breath timer less then 28.3s, not need to warn breath.
+				timerBreathOfFearCD:Start(33.3-shaPower)
+				countdownBreathOfFear:Start(33.3-shaPower)
+				if shaPower < 26.3 then
+					self:ScheduleMethod(26.3-shaPower, "CheckWall")
+				elseif not fearlessApplied then
+					specWarnBreathOfFearSoon:Show()
+				end
 			end
 		end
 		if self.Options.RangeFrame then
-			DBM.RangeCheck:Show(2)
+			DBM.RangeCheck:Show(3)
 		end
 	end
 end
 
 function mod:OnCombatStart(delay)
+	buildGuidTable()
+	guidTableBuilt = true
 	if self:IsDifficulty("normal10", "heroic10", "lfr25") then
 		timerOminousCackleCD:Start(40-delay)
 	else
@@ -189,6 +246,7 @@ function mod:OnCombatStart(delay)
 	timerBreathOfFearCD:Start(-delay)
 	self:ScheduleMethod(26.3-delay, "CheckWall")
 	countdownBreathOfFear:Start(33.3-delay)
+	platformSent = false
 	onPlatform = false
 	phase2 = false
 	dreadSprayCounter = 0
@@ -201,9 +259,32 @@ function mod:OnCombatStart(delay)
 	table.wipe(platformGUIDs)
 	table.wipe(waterspoutTargets)
 	table.wipe(huddleInTerrorTargets)
+	table.wipe(huddleInTerrorIcons)
 	berserkTimer:Start(-delay)
 	if self.Options.RangeFrame then
-		DBM.RangeCheck:Show(2)
+		DBM.RangeCheck:Show(3)
+	end
+end
+
+local function ClearHuddleTargets()
+	table.wipe(huddleInTerrorIcons)
+end
+
+do
+	local function sort_by_group(v1, v2)
+		return DBM:GetRaidSubgroup(DBM:GetUnitFullName(v1)) < DBM:GetRaidSubgroup(DBM:GetUnitFullName(v2))
+	end
+	function mod:SetHuddleIcons()
+		table.sort(huddleInTerrorIcons, sort_by_group)
+		local huddleIcon = 8
+		for i, v in ipairs(huddleInTerrorIcons) do
+			-- DBM:SetIcon() is used because of follow reasons
+			--1. It checks to make sure you're on latest dbm version, if you are not, it disables icon setting so you don't screw up icons (ie example, a newer version of mod does icons differently)
+			--2. It checks global dbm option "DontSetIcons"
+			self:SetIcon(v, huddleIcon)
+			huddleIcon = huddleIcon - 1
+		end
+		self:Schedule(1.5, ClearHuddleTargets)--Table wipe delay so if icons go out too early do to low fps or bad latency, when they get new target on table, resort and reapplying should auto correct teh icon within .2-.4 seconds at most.
 	end
 end
 
@@ -214,9 +295,9 @@ function mod:OnCombatEnd()
 end
 
 function mod:SPELL_AURA_APPLIED(args)
-	if args:IsSpellID(119414) and self:AntiSpam(5, 1) then--using this with antispam is still better then registering SPELL_CAST_SUCCESS for a single event when we don't have to. Less cpu cause mod won't have to check every SPELL_CAST_SUCCESS event.
+	if args:IsSpellID(119414) and self:AntiSpam(5, 1) and not phase2 then--using this with antispam is still better then registering SPELL_CAST_SUCCESS for a single event when we don't have to. Less cpu cause mod won't have to check every SPELL_CAST_SUCCESS event.
 		warnBreathOfFear:Show()
-		if not onPlatform then--not in middle, not your problem
+		if not platformSent or self.Options.warnBreathOnPlatform then--not in middle, not your problem
 			timerBreathOfFearCD:Start()
 			countdownBreathOfFear:Start(33.3)
 			self:ScheduleMethod(26.3, "CheckWall")--check before 7s, 5s is too late.
@@ -225,11 +306,15 @@ function mod:SPELL_AURA_APPLIED(args)
 	elseif args:IsSpellID(129147) then
 		ominousCackleTargets[#ominousCackleTargets + 1] = args.destName
 		if args:IsPlayer() then
+			platformSent = true
+			timerThrashCD:Cancel()
 			specWarnOminousCackleYou:Show()
-			countdownBreathOfFear:Cancel()
-			timerBreathOfFearCD:Cancel()
-			self:UnscheduleMethod("CheckPlatformLeaved")
-			self:UnscheduleMethod("CheckWall")
+			if not self.Options.warnBreathOnPlatform then
+				countdownBreathOfFear:Cancel()
+				timerBreathOfFearCD:Cancel()
+				self:UnscheduleMethod("CheckPlatformLeaved")
+				self:UnscheduleMethod("CheckWall")
+			end
 			if self.Options.RangeFrame then
 				DBM.RangeCheck:Hide()
 			end
@@ -247,17 +332,22 @@ function mod:SPELL_AURA_APPLIED(args)
 		timerFearless:Start()
 		self:UnscheduleMethod("CheckPlatformLeaved")
 		self:LeavePlatform()
-	elseif args:IsSpellID(131996) and not onPlatform then
-		warnThrash:Show()
+	elseif args:IsSpellID(131996) and not platformSent then
 		specWarnThrash:Show()
 		if phase2 then
 			thrashCount = thrashCount + 1
+			if self.Options.warnThrash then
+				warnThrashHeroic:Show(thrashCount)
+			end
 			if thrashCount == 3 then
 				timerDreadTrashCD:Start()
 			else
 				timerThrashCD:Start()
 			end
 		else
+			if self.Options.warnThrash then
+				warnThrashNormal:Show()
+			end
 			timerThrashCD:Start()
 		end
 	elseif args:IsSpellID(132007) then
@@ -268,27 +358,58 @@ function mod:SPELL_AURA_APPLIED(args)
 	elseif args:IsSpellID(120669) then
 		warnNakedAndAfraid:Show(args.destName)
 		specWarnNakedAndAfraidOther:Show(args.destName)
-		timerNakedAndAfraid:Start(args.destName)
-		--timerNakedAndAfraidCD:Start()--unconfirmed yet.
+		timerNakedAndAfraidCD:Start()
+		if self:IsDifficulty("heroic25") then
+			timerNakedAndAfraid:Start(50, args.destName)
+		else
+			timerNakedAndAfraid:Start(args.destName)
+		end
 	elseif args:IsSpellID(120519) then--Waterspout
 		waterspoutTargets[#waterspoutTargets + 1] = args.destName
 		if args:IsPlayer() then
 			specWarnWaterspout:Show()
 			yellWaterspout:Yell()
+		else
+			local uId = DBM:GetRaidUnitId(args.destName)
+			if uId then
+				local inRange = CheckInteractDistance(uId, 2)
+				if inRange then
+					specWarnWaterspoutNear:Show(args.destName)
+				end
+			end
+		end
+		if self:AntiSpam(5, 3) then
+			if specialCount == 3 then specialCount = 0 end
+			specialCount = specialCount + 1
+			specialsCast = specialsCast + 10--Huddle (100), Spout(10), Strike(1)
 		end
 		self:Unschedule(warnWaterspoutTargets)
 		self:Schedule(0.3, warnWaterspoutTargets)
-		specialsCast = specialsCast + 10--Huddle (100), Spout(10), Strike(1)
 		startSpecialTimers()
 	elseif args:IsSpellID(120629) then-- Huddle In Terror
 		huddleInTerrorTargets[#huddleInTerrorTargets + 1] = args.destName
+		if not guidTableBuilt then
+			buildGuidTable()
+			guidTableBuilt = true
+		end
 		if self.Options.SetIconOnHuddle then
-			self:SetIcon(args.destName, huddleIcon)
-			huddleIcon = huddleIcon - 1
+			table.insert(huddleInTerrorIcons, DBM:GetRaidUnitId(guids[args.destGUID]))
+			self:UnscheduleMethod("SetHuddleIcons")
+			if self:LatencyCheck() then--lag can fail the icons so we check it before allowing.
+				if #huddleInTerrorIcons >= 5 and self:IsDifficulty("heroic25") or #huddleInTerrorIcons >= 3 and self:IsDifficulty("heroic10") then
+					self:SetHuddleIcons()
+				else
+					self:ScheduleMethod(0.5, "SetHuddleIcons")
+				end
+			end
+		end
+		if self:AntiSpam(5, 3) then
+			if specialCount == 3 then specialCount = 0 end
+			specialCount = specialCount + 1
+			specialsCast = specialsCast + 100--Huddle (100), Spout(10), Strike(1)
 		end
 		self:Unschedule(warnHuddleInTerrorTargets)
 		self:Schedule(0.5, warnHuddleInTerrorTargets)
-		specialsCast = specialsCast + 100--Huddle (100), Spout(10), Strike(1)
 		startSpecialTimers()
 	elseif args:IsSpellID(120268) then -- Champion Of The Light
 		warnChampionOfTheLight:Show(args.destName)
@@ -329,17 +450,24 @@ function mod:SPELL_CAST_START(args)
 		specWarnDeathBlossom:Show()
 		self:ScheduleMethod(40, "CheckPlatformLeaved")--you may leave platform soon after Death Blossom casted. failsafe for UNIT_DIED not fire, and fearless fails.
 	elseif args:IsSpellID(120672) then -- Implacable Strike
-		warnImplacableStrike:Show()
-		specWarnImplacableStrike:Show()
+		if specialCount == 3 then specialCount = 0 end
+		specialCount = specialCount + 1
 		specialsCast = specialsCast + 1--Huddle (100), Spout(10), Strike(1)
+		warnImplacableStrike:Show(specialCount)
+		specWarnImplacableStrike:Show()
 		startSpecialTimers()
 	elseif args:IsSpellID(120455) then
 		submergeCount = submergeCount + 1
 		warnSubmerge:Show(submergeCount)
+		warnDreadSpawns:Schedule(5, Spawns[submergeCount])
 		specWarnSubmerge:Show()
 		timerSubmergeCD:Start(nil, submergeCount+1)
 		specialsCast = 000
-		timerSpecialAbilityCD:Start()
+		if self.Options.timerSpecialAbility then
+			timerSpecialAbilityCD:Start()
+		end
+	elseif args:IsSpellID(120519) then--Waterspout
+		specWarnWaterspoutCast:Show()
 	--elseif args:IsSpellID(120458) then
 		--warnEmerge:Show()
 	end
@@ -349,6 +477,7 @@ function mod:SPELL_CAST_SUCCESS(args)--Handling Dread Sprays
 	if args:IsSpellID(120047) and onPlatform then
 		dreadSprayCounter = 0
 	elseif args:IsSpellID(119983) and onPlatform then
+		if not self.Options.specWarnMovement then return end
 		dreadSprayCounter = dreadSprayCounter+1
 		if MobID == 61046 then
 			if dreadSprayCounter == 6 then
@@ -383,12 +512,16 @@ function mod:UNIT_DIED(args)
 end
 
 function mod:UNIT_SPELLCAST_SUCCEEDED(uId, _, _, _, spellId)
-	if spellId == 114936 then--Heroic Phase 2
+	if spellId == 114936 and self:AntiSpam(10, 2) then--Heroic Phase 2
 		phase2 = true
+		platformSent = false
 		onPlatform = false
 		submergeCount = 0
+		thrashCount = 0
+		specialCount = 0
 		timerThrashCD:Cancel()
 		timerBreathOfFearCD:Cancel()
+		countdownBreathOfFear:Cancel()
 		timerOminousCackleCD:Cancel()
 		timerDreadSpray:Cancel()
 		timerDreadSprayCD:Cancel()

@@ -4,13 +4,6 @@
 --[[
 GTFO Boss Localization
 Author: Zensunim of Malygos
-
-Change Log:
-	v4.6
-		- Added boss localization for Nefarian - Phase 2
-	v4.10
-		- Added boss localization for Simplified Chinese
-	
 ]]--
 
 if (GetLocale() == "esES") then

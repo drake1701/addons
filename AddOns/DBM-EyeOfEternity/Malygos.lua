@@ -1,7 +1,7 @@
 local mod	= DBM:NewMod("Malygos", "DBM-EyeOfEternity")
 local L		= mod:GetLocalizedStrings()
 
-mod:SetRevision(("$Revision: 24 $"):sub(12, -3))
+mod:SetRevision(("$Revision: 27 $"):sub(12, -3))
 mod:SetCreatureID(28859)
 mod:SetModelID(26752)
 
@@ -44,7 +44,7 @@ local guids = {}
 local surgeTargets = {}
 
 local function buildGuidTable()
-	for i = 1, DBM:GetGroupMembers() do
+	for i = 1, DBM:GetNumGroupMembers() do
 		guids[UnitGUID("raid"..i.."pet") or "none"] = GetRaidRosterInfo(i)
 	end
 end

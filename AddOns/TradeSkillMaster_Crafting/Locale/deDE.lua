@@ -64,7 +64,7 @@ L["Can not set a max restock quantity below the minimum restock quantity of %d."
 -- L["Can not set a min restock quantity above the max restock quantity of %d."] = ""
 -- L["Category to put groups into:"] = ""
 L["Celestial Ink"] = "Firmamenttinte"
-L["Character(s) (comma-separated if necessary):"] = "Charakter(e) (mit Komma getrennt, wenn nötig):" -- Needs review
+L["Character(s) (comma-separated if necessary):"] = "Charakter(e) (mit Komma getrennt, wenn nötig):"
 L["Characters to include:"] = "Charaktere, die eingebunden werden sollen:"
 -- L["Character to Send Crafting Costs to:"] = ""
 L["Checking this box will allow you to set a custom, fixed price for this item."] = "Das Aktivieren dieser Option erlaubt Ihnen einen benutzerdefinierten Festpreis für diesen Gegenstand festzulegen."

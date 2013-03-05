@@ -1,3 +1,13 @@
+v1.2
+*Updated for patch 5.2.
+*Crafting can now use mail tracking data from ItemTracker.
+*Fixed a bug with TSM not showing MoP professions.
+*Added new MoP enchants.
+*Updated vendor trades and vendor items for MoP.
+*Fixed double-click queuing to be more intuitive.
+*Fixed a bug with estimated total cost / profit with crafts which make more than 1 item.
+*Many other minor bug fixes and improvements.
+
 v1.1
 *Added options for a secondary price source and for using the lower of two price sources.
 *Added more vendor items.

@@ -1,4 +1,4 @@
-## Interface: 50200
+## Interface: 40300
 ## Title: |cff00ff00TradeSkillMaster_Gathering|r
 ## Notes: Keeps track of where items are on player's alts / guild banks and gathers mats needed.
 ## Author: Sapu94

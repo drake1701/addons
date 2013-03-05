@@ -1,7 +1,7 @@
 local mod	= DBM:NewMod(745, "DBM-HeartofFear", nil, 330)
 local L		= mod:GetLocalizedStrings()
 
-mod:SetRevision(("$Revision: 8531 $"):sub(12, -3))
+mod:SetRevision(("$Revision: 8744 $"):sub(12, -3))
 mod:SetCreatureID(62980)--63554 (Special invisible Vizier that casts the direction based spellid versions of attenuation)
 mod:SetModelID(42807)
 mod:SetZone()
@@ -97,7 +97,7 @@ function mod:SPELL_AURA_APPLIED(args)
 			x, y = GetPlayerMapPosition(uId)
 		end
 		local inRange = DBM.RangeCheck:GetDistance("player", x, y)
-		if inRange and inRange < 40 then--Only show exhale warning if the target is near you (ie on same platform as you). Otherwise, we ignore it since we are likely with the echo somewhere else and this doesn't concern us
+		if (inRange and inRange < 40) or (x == 0 and y == 0) then--Only show exhale warning if the target is near you (ie on same platform as you). Otherwise, we ignore it since we are likely with the echo somewhere else and this doesn't concern us
 			warnExhale:Show(args.destName)
 			specwarnExhale:Show(args.destName)
 			timerExhale:Start(args.destName)
@@ -128,9 +128,9 @@ function mod:SPELL_CAST_START(args)
 	if args:IsSpellID(122713) then
 		timerForce:Start()
 	elseif args:IsSpellID(122474, 122496, 123721) then--All direction IDs are cast by an invisible version of Vizier.
-		lastDirection = L.Left
+		lastDirection = DBM_CORE_LEFT
 	elseif args:IsSpellID(122479, 122497, 123722) then--We monitor direction, but we need to announce off non invisible mob
-		lastDirection = L.Right
+		lastDirection = DBM_CORE_RIGHT
 	elseif args:IsSpellID(127834) then--This is only id that properly identifies CORRECT boss source
 		--Example
 		--http://worldoflogs.com/reports/rt-g8ncl718wga0jbuj/xe/?enc=bosses&boss=66791&x=%28spellid+%3D+127834+or+spellid+%3D+122496+or+spellid+%3D+122497%29+and+fulltype+%3D+SPELL_CAST_START
@@ -144,9 +144,9 @@ function mod:SPELL_CAST_START(args)
 				x, y = GetPlayerMapPosition(uId)
 			end
 			local inRange = DBM.RangeCheck:GetDistance("player", x, y)--We check how far we are from the tank who has that boss
-			if inRange and inRange < 60 then--Only show warning if we are near the boss casting it (or rathor, the player tanking that boss). I realize orbs go very far, but the special warning is for the dance, not stray discs, that's what normal warning is for
+			if (inRange and inRange < 60) or (x == 0 and y == 0) then--Only show warning if we are near the boss casting it (or rathor, the player tanking that boss). I realize orbs go very far, but the special warning is for the dance, not stray discs, that's what normal warning is for
 				if self.Options.ArrowOnAttenuation then
-					DBM.Arrow:ShowStatic(lastDirection == L.Left and 90 or 270, 12)
+					DBM.Arrow:ShowStatic(lastDirection == DBM_CORE_LEFT and 90 or 270, 12)
 				end
 				specwarnAttenuation:Show(args.spellName, args.sourceName, lastDirection)
 				timerAttenuation:Start()

@@ -39,4 +39,9 @@ GTFO.FFSpellID["113645"] = {
 -- * Terrace of Endless Spring *
 -- *****************************
 -- TODO: Expel Corruption (Protector Kaolan) (FF damage based on distance, find out what the min distance is and amt dmg taken for it)
--- TODO: Lightning Prison (Elder Regail) (FF Damage, but the player is imprisoned, so this alert might be unnecessary)
+
+-- ********************
+-- * Throne of Thunder *
+-- ********************
+-- TODO: Biting Cold (Frost King Malakk) (Is the player stunned?  If so, this alert is unnecessary) -- Biting Cold is not FF damage, so not detectable
+-- TODO: Frostbite (Frost King Malakk) (Alert when only 1 stack is left)

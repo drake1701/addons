@@ -1,7 +1,7 @@
 local mod	= DBM:NewMod(743, "DBM-HeartofFear", nil, 330)
 local L		= mod:GetLocalizedStrings()
 
-mod:SetRevision(("$Revision: 8595 $"):sub(12, -3))
+mod:SetRevision(("$Revision: 8765 $"):sub(12, -3))
 mod:SetCreatureID(62837)--62847 Dissonance Field, 63591 Kor'thik Reaver, 63589 Set'thik Windblade
 mod:SetModelID(42730)
 mod:SetZone()
@@ -75,6 +75,7 @@ local soundFixate				= mod:NewSound(125390)
 mod:AddBoolOption("InfoFrame")--On by default because these do more then just melee, they interrupt spellcasting (bad for healers)
 mod:AddBoolOption("RangeFrame", mod:IsRanged())
 mod:AddBoolOption("StickyResinIcons", true)
+mod:AddBoolOption("HeartOfFearIcon", true)
 
 local sentLowHP = {}
 local warnedLowHP = {}
@@ -155,7 +156,9 @@ function mod:SPELL_AURA_APPLIED(args)
 		visonsTargets[#visonsTargets + 1] = args.destName
 		if args:IsPlayer() then
 			specwarnVisions:Show()
-			yellVisions:Yell()
+			if not self:IsDifficulty("lfr25") then
+				yellVisions:Yell()
+			end
 		end
 		self:Unschedule(warnVisionsTargets)
 		self:Schedule(0.3, warnVisionsTargets)
@@ -190,6 +193,9 @@ function mod:SPELL_AURA_APPLIED(args)
 			yellHeartOfFear:Yell()
 			timerHeartOfFear:Start()
 		end
+		if self.Options.HeartOfFearIcon then
+			self:SetIcon(args.destName, 8)
+		end
 	end
 end
 mod.SPELL_AURA_APPLIED_DOSE = mod.SPELL_AURA_APPLIED
@@ -199,6 +205,10 @@ function mod:SPELL_AURA_REMOVED(args)
 		timerCryOfTerror:Cancel(args.destName)
 	elseif args:IsSpellID(124097) then
 		if self.Options.StickyResinIcons then
+			self:SetIcon(args.destName, 0)
+		end
+	elseif args:IsSpellID(123845) then
+		if self.Options.HeartOfFearIcon then
 			self:SetIcon(args.destName, 0)
 		end
 	end

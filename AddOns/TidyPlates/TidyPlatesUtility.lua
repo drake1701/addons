@@ -16,44 +16,43 @@ copytable = function(original)
 	return duplicate
 end
 
+
 local function RaidMemberCount()
-	return GetNumRaidMembers() 
-end
-
-local function PartyMemberCount()
-		return GetNumPartyMembers() 
-end
-
-local function RaidMemberCount_MoP()
 	if UnitInRaid("player") then 
 		return GetNumGroupMembers() 
 	end
 end
 
-local function PartyMemberCount_MoP()
+local function PartyMemberCount()
 	if UnitInParty("player") then 
 		return GetNumGroupMembers() 
 	end
 end
 
 local function GetSpec()
-	return GetActiveTalentGroup()
-end
-
-local function GetSpec_MoP()
 	return GetActiveSpecGroup()
 end
 
-if (tonumber((select(2, GetBuildInfo()))) >= 15799) then 
-	TidyPlatesUtility.GetNumRaidMembers = RaidMemberCount_MoP
-	TidyPlatesUtility.GetNumPartyMembers = PartyMemberCount_MoP
-	TidyPlatesUtility.GetSpec = GetSpec_MoP
+TidyPlatesUtility.GetNumRaidMembers = RaidMemberCount
+TidyPlatesUtility.GetNumPartyMembers = PartyMemberCount
+TidyPlatesUtility.GetSpec = GetSpec
+
+local function GetGroupInfo()
+	local groupType, groupCount
 	
-else
-	TidyPlatesUtility.GetNumRaidMembers = RaidMemberCount
-	TidyPlatesUtility.GetNumPartyMembers = PartyMemberCount
-	TidyPlatesUtility.GetSpec = GetSpec
+	if UnitInRaid("player") then groupType = "raid"
+		groupCount = GetNumGroupMembers() 
+			-- Unitids for raid groups go from raid1..to..raid40.  No errors.
+	elseif UnitInParty("player") then groupType = "party" 
+		groupCount = GetNumGroupMembers() - 1		
+			-- WHY?  Because the range for unitids are party1..to..party4.  GetNumGroupMembers() includes the Player, causing errors.
+	else return end
+
+	return groupType, groupCount
 end
+
+TidyPlatesUtility.GetGroupInfo = GetGroupInfo
+
 
 local function mergetable(master, mate)
 	local merged = {}

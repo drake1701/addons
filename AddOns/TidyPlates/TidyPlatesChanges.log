@@ -1,5 +1,31 @@
 Packer Note: Files to exclude: *.db *.png *.gif *.jpg *.tif *.txt *.psd *.bmp
 
+Beta 3
+---------------------------
+- Fixed Tanks.lua nil 'for' limit
+
+Beta 2
+---------------------------
+- Hub: Aura prefilter should work properly, instead of letting everything through
+- Hub: Multi-Mode Functions will cross-check the table index, preventing out-of-range values from throwing errors.
+- Aura Widget: Fixed Default Prefilter Errors
+
+6.9 Beta 1
+---------------------------
+- Aura Widget: 'TidyPlatesWidgets.SetAuraPrefilter(function) replaces 'TidyPlatesWidgets.SetDebuffPrefilter'
+- Aura Widget: 'TidyPlatesWidgets.SetAuraFilter(function)' replaces the previous method of assigning the Filter into each Widget instance via 'wiget.Filter'
+- Aura Widget: Filter function now accepts these return values:  [show, priority, r, g, b], where 'show' indicates that the aura should be displayed, 'priority' indicates how important the debuff is to display, and 'r',  'g', and 'b' indicate the vertex color of the border highlight.  This can be used to colorize auras for different schools or types.
+
+- Hub/Aura Widget: Removed prefix, "No"; Useless in the current evolution of the Hub Filter system.
+- Added Health/Optional Text Mode: By Arena ID. I have no clue if it works.
+- Added to Hub/Aura Widget: "Track Dispellable Debuffs on Friendly Units", which will allow you to track and highlight debuffs on friendly units that need to be dispelled. "Magic", "Poison", "Curse", or "Disease".  Have I tested it?  Hahahaha..he.. um, no.
+- Hub/Aura Widget: "CC" prefix will highlight the aura with a Yellow border
+- Removed/Replaced from Hub: Distinct "By Low Threat", "By High Threat", and similar Modes from Scale, Alpha, Name, and Color Spotlight functions.  These have been *replaced* by a single setting under the "Threat" Category, allowing you to control the Threat Mode for all Threat functions.
+- Raid Tank/Target Watcher: Fixed unitid/raidid issue. 
+- Aura Widget: Square/Small Auras will now terminate/expire properly, and call for a delegate update.
+- Raid Tank/Target Watcher: Added combat-log detection of melee attacks against non-tanks. (Untested)
+- GroupCache: Fixed an issue where class color was not available for the last friendly raid member to join a team.  (Note: The GROUP_ROSTER_UPDATE event is sometimes called before all the player data is available, leaving holes in the data table)
+
 6.8.3
 ---------------------------
 - Rogue Anticipation stacks are now displayed on the combo point widget

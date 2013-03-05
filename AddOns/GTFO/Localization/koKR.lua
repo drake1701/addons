@@ -4,23 +4,6 @@
 --[[
 GTFO Korean Localization
 Translators: Sunyruru, Maknae
-
-Change Log:
-	v3.5.1
-		- Added Korean localization
-	v3.5.2
-		- Updated Korean localization
-	v4.3
-		- Updated Korean localization
-	v4.7
-		- Fixed localization issues	
-	v4.9.4
-		- Updated Korean localization
-	v4.12
-		- Added untranslated strings
-	v4.17
-		- Added untranslated strings
-		
 ]]--
 
 if (GetLocale() == "koKR") then

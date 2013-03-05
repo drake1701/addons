@@ -1,7 +1,7 @@
 local mod	= DBM:NewMod("LurkerBelow", "DBM-Serpentshrine")
 local L		= mod:GetLocalizedStrings()
 
-mod:SetRevision(("$Revision: 432 $"):sub(12, -3))
+mod:SetRevision(("$Revision: 434 $"):sub(12, -3))
 mod:SetCreatureID(21217)
 mod:SetModelID(20216)
 mod:SetZone()
@@ -31,8 +31,8 @@ local timerWhirlCD		= mod:NewCDTimer(17, 37363)
 
 function mod:CheckDive()
 	self:ScheduleMethod(0.5, "CheckDive")
-	for i = 1, DBM:GetGroupMembers() do
-		if UnitName("raid"..i.."target") == L.name then
+	for uId in DBM:GetGroupMembers() do
+		if UnitName(uId .. "target") == L.name then
 			return
 		end
 	end

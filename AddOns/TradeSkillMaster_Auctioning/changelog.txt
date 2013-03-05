@@ -1,3 +1,12 @@
+v1.3
+*Updated for patch 5.2.
+*The cancel scan should no longer cause UI lag when requeuing items which didn't cancel correctly the first time.
+*Made the "___ as a ___" price source dropboxes slightly larger.
+*Fixed a global usage of _ which was causing taint in the glyph UI.
+*Added basic support for battle pets.
+*Added category management buttons for removing all category overrides and for removing all group overrides.
+*Many other minor bug fixes and improvements.
+
 v1.2
 *Added Auctioning group creation wizard.
 *Fixed some divide by zero issues for patch 5.0.4.

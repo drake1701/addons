@@ -1,4 +1,4 @@
-## Interface: 50200
+## Interface: 50001
 ## Title: Minimal Archaeology
 ## Author: Joseph O'Connor, Josef Drexler
 ## Email: jgmoconnor@gmail.com

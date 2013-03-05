@@ -1736,6 +1736,11 @@ GTFO.SpellID["92954"] = {
 	sound = 1;
 };
 
+GTFO.SpellID["92134"] = {
+	--desc = "Ignition (Magmaw, BWD H)";
+	sound = 1;
+};
+
 GTFO.SpellID["92197"] = {
 	--desc = "Ignition (Magmaw, BWD 10H)";
 	sound = 1;

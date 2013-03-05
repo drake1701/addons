@@ -644,6 +644,23 @@ Change Log:
 		- Added Pandaria spells for Pandaria (world)
 		- Added Pandaria spells for Brawler's Guild		
 		- Added Pandaria spells for Heart of Fear	
+	v4.20.1
+		- Added 5.2 support (PTR)
+		- Added French localization - Thanks Blubibulga
+		- Added Pandaria spells for Pandaria (world)
+		- Added Pandaria spells for Throne of Thunder
+	v4.21
+		- Fixed trivial alert slider settings
+		- Added Pandaria spells for Throne of Thunder
+		- Added Pandaria spells for Trove of the Thunder King
+		- Added Pandaria spells for Pandaria (world)
+		- Added Pandaria spells for Mogu'shan Vaults
+		- Added Pandaria spells for Terrace of Endless Spring
+	v4.22
+		- Updated for patch 5.2
+		- Added support for Brewmaster monk tanks
+		- Added Pandaria spells for Throne of Thunder
+		
 
 ]]--
 GTFO = {
@@ -660,8 +677,8 @@ GTFO = {
 		IgnoreOptions = { };
 		TrivialDamagePercent = .5; -- Minimum % of HP lost required for an alert to be trivial
 	};
-	Version = "4.20"; -- Version number (text format)
-	VersionNumber = 42000; -- Numeric version number for checking out-of-date clients
+	Version = "4.22"; -- Version number (text format)
+	VersionNumber = 42200; -- Numeric version number for checking out-of-date clients
 	DataLogging = nil; -- Indicate whether or not the addon needs to run the datalogging function (for hooking)
 	DataCode = "4"; -- Saved Variable versioning, change this value to force a reset to default
 	CanTank = nil; -- The active character is capable of tanking
@@ -670,6 +687,7 @@ GTFO = {
 	SpellID = { }; -- List of spell IDs
 	FFSpellID = { }; -- List of friendly fire spell IDs
 	IgnoreSpellCategory = { }; -- List of spell groups to ignore
+	IgnoreScan = { }; -- List of spell groups to ignore during scans
 	MobID = { }; -- List of mob IDs for melee attack detection
 	GroupGUID = { }; -- List of GUIDs of members in your group
 	UpdateFound = nil; -- Upgrade available?
@@ -703,7 +721,7 @@ GTFO = {
 GTFOData = {};
 
 --[[
-if (select(4, GetBuildInfo()) >= 50000) then
+if (select(4, GetBuildInfo()) >= 50200) then
 	GTFO.BetaMode = true;
 end
 ]]--
@@ -746,7 +764,7 @@ end
 
 function GTFO_GetMobId(GUID)
     if not GUID then return 0 end
-    return tonumber(GUID:sub(6, 10), 16)
+    return tonumber(GUID:sub(6, 10), 16) or 0
 end
 
 function GTFO_OnEvent(self, event, ...)
@@ -959,7 +977,7 @@ function GTFO_OnEvent(self, event, ...)
 			
 			SpellID = tostring(SpellID);
 
-			if (SpellID ~= "124255" and SpellID ~= "124275" and SpellID ~= "34650" and SpellID ~= "123051") then -- Hide Monk's "Stagger" and Priest's Mana Regen
+			if not (GTFO.IgnoreScan[SpellID]) then
 				if (vehicle) then
 					GTFO_ScanPrint("V: "..SpellType.." - "..SpellID.." - "..GetSpellLink(SpellID).." - "..SpellSourceName.." ("..GTFO_GetMobId(sourceGUID)..") >"..tostring(destName));
 				elseif (SpellType~="SPELL_ENERGIZE" or (SpellType=="SPELL_ENERGIZE" and sourceGUID ~= UnitGUID("player"))) then
@@ -1889,6 +1907,12 @@ function GTFO_CheckTankMode()
 					--GTFO_DebugPrint("Defensive stance found - tank mode activated");
 					return true;
 				end
+			elseif (class == "MONK") then
+				local spec = GetSpecialization();
+				if (spec and GetSpecializationRole(spec) == "TANK" and stance == 1) then
+					--GTFO_DebugPrint("Ox stance found - tank mode activated");
+					return true;
+				end
 			else
 				--GTFO_DebugPrint("Failed Tank Mode - This code shouldn't have ran");
 				GTFO.CanTank = nil;
@@ -1917,7 +1941,7 @@ function GTFO_IsTank(target)
 			if (GTFO_HasBuff(target, 48263)) then
 				return true;
 			end
-		elseif (class == "WARRIOR") then
+		elseif (class == "WARRIOR" or class == "MONK") then
 			-- No definitive way to determine...take a guess.
 			if (UnitGroupRolesAssigned(target) == "TANK" or GetPartyAssignment("MAINTANK", target)) then
 				return true;
@@ -1929,7 +1953,7 @@ end
 
 function GTFO_CanTankCheck(target)
 	local _, class = UnitClass(target);
-	if (class == "PALADIN" or class == "DRUID" or class == "DEATHKNIGHT" or class == "WARRIOR") then
+	if (class == "PALADIN" or class == "DRUID" or class == "DEATHKNIGHT" or class == "WARRIOR" or class == "MONK") then
 		----GTFO_DebugPrint("Possible tank detected for "..target);
 		return true;
 	else
@@ -1991,6 +2015,7 @@ function GTFO_SaveSettings()
 	GTFOData.TestMode = GTFO.Settings.TestMode;
 	GTFOData.UnmuteMode = GTFO.Settings.UnmuteMode;
 	GTFOData.TrivialMode = GTFO.Settings.TrivialMode;
+	GTFOData.TrivialDamagePercent = GTFO.Settings.TrivialDamagePercent
 	GTFOData.NoVersionReminder = GTFO.Settings.NoVersionReminder;
 	GTFOData.IgnoreOptions = { };
 	if (GTFO.Settings.IgnoreOptions) then
@@ -2101,15 +2126,15 @@ function GTFO_GetAlertID(alert, target)
 	end
 	
 	if (alert.soundHeroic or alert.soundChallenge or (tankAlert and (alert.tankSoundHeroic or alert.tankSoundChallenge))) then
-		local difficultyLevel = GetInstanceDifficulty();
-		if (difficultyLevel == 9) then
+		local isHeroic, isChallenge = select(3, GetDifficultyInfo(select(3, GetInstanceInfo())));
+		if (isChallenge == true) then
 			-- Challenge Mode
 			if (tankAlert and (alert.tankSoundChallenge or alert.tankSoundHeroic)) then
 				alertLevel = alert.tankSoundChallenge or alert.tankSoundHeroic;
 			elseif (alert.soundChallenge or alert.soundHeroic) then
 				alertLevel = alert.soundChallenge or alert.soundHeroic;
 			end
-		elseif (difficultyLevel == 3 or difficultyLevel == 6 or difficultyLevel == 7) then
+		elseif (isHeroic == true) then
 			-- Heroic Mode
 			if (tankAlert and alert.tankSoundHeroic) then
 				alertLevel = alert.tankSoundHeroic;

@@ -1,8 +1,14 @@
 
+local CopyTable = TidyPlatesUtility.copyTable
+
 TidyPlatesHubCache = {}
 TidyPlatesHubSettings = {}
 
 TidyPlatesHubDefaults = {
+	-- Profile
+	---------------------------------------
+	UseGlobalSet = false,
+	
 	-- Style
 	---------------------------------------
 	--ArtDefault = "Blizzard",
@@ -60,6 +66,7 @@ TidyPlatesHubDefaults = {
 	ColorEnableOffTank = false,
 	
 	-- Threat
+	ThreatMode = 1, 
 	ColorAttackingMe = {r = .8, g = 0, b = 0,},		-- Orange
 	ColorAggroTransition = {r = 255/255, g = 160/255, b = 0},	-- Yellow
 	--ColorAggroTransition = {r = 255/255, g = 128/255, b = 0},	-- Orange
@@ -94,12 +101,22 @@ TidyPlatesHubDefaults = {
 	WidgetsThreatIndicatorMode = 1,
 	WidgetsRangeIndicator = false,
 	WidgetsRangeMode = 1,
+	
+	-- Aura Widget
+	---------------------------------------
 	WidgetsDebuff = true,
 	WidgetsDebuffStyle = 1,
 	WidgetsAuraMode = 1,
 	WidgetsDebuffTrackList = "My Rake\nMy Rip\nMy Moonfire\nAll 339\nMy Regrowth\nMy Rejuvenation",
 	WidgetsDebuffLookup = {},
 	WidgetsDebuffPriority = {},	
+	WidgetAuraTrackDispelFriendly = false,
+	WidgetAuraTrackCurse = true, 
+	WidgetAuraTrackDisease = true, 
+	WidgetAuraTrackMagic = true, 
+	WidgetAuraTrackPoison = true,
+	
+	
 	
 	-- Frame
 	---------------------------------------
@@ -107,7 +124,7 @@ TidyPlatesHubDefaults = {
 	AdvancedEnableUnitCache = true,
 }
 
-
+TidyPlatesHubGlobal = CopyTable(TidyPlatesHubDefaults)
 
 
 

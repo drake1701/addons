@@ -26,6 +26,7 @@ local CachedUnitClass = TidyPlatesUtility.CachedUnitClass
 local IsFriend = TidyPlatesUtility.IsFriend
 local IsGuildmate = TidyPlatesUtility.IsGuildmate
 
+
 -- InstanceStatus, CachedUnitDescription, CachedUnitGuild, CachedUnitClass, IsFriend, IsGuildmate
 
 local isTanked = TidyPlatesWidgets.IsTankedByAnotherTank
@@ -40,7 +41,7 @@ local CreateRangeWidget = WidgetLib.CreateRangeWidget
 local CreateComboPointWidget = WidgetLib.CreateComboPointWidget
 local CreateTotemIconWidget = WidgetLib.CreateTotemIconWidget
 
-local function DummyFunction() end
+local function DummyFunction() return end
 
 local ReactionColors = {
 	["FRIENDLY"] = {
@@ -79,6 +80,10 @@ local NameReactionColors = {
 	
 	
 }
+
+local THREATMODE_AUTO = 1
+local THREATMODE_TANK = 2
+local THREATMODE_DPS  = 3
 
 --local NormalGrey = {r = .5, g = .5, b = .5, a = .3}
 --local EliteGrey = {r = .8, g = .7, b = .4, a = .5}
@@ -171,12 +176,13 @@ end
 local arenaUnitIDs = {"arena1", "arena2", "arena3", "arena4", "arena5"}
 
 local function GetArenaIndex(unitname)
+	-- Kinda hackish.  would be faster to cache the arena names using event handler.  later!
 	if IsActiveBattlefieldArena() then
 		local unitid, name
 		for i = 1, #arenaUnitIDs do
 			unitid = arenaUnitIDs[i]
 			name = UnitName(unitid)
-			if name and (name == unit.name) then return unitid end
+			if name and (name == unitname) then return i end
 		end
 	end
 end
@@ -270,8 +276,12 @@ end
 }
 
 local function StyleDelegate(unit)
-	if unit.reaction == "FRIENDLY" then return StyleModeFunctions[LocalVars.StyleFriendlyMode](unit)
-	else return StyleModeFunctions[LocalVars.StyleEnemyMode](unit) end
+	local func
+	
+	if unit.reaction == "FRIENDLY" then func = StyleModeFunctions[LocalVars.StyleFriendlyMode]
+	else func = StyleModeFunctions[LocalVars.StyleEnemyMode] end
+	
+	return func(unit)
 end
 
 
@@ -386,24 +396,16 @@ local function ColorFunctionTankSwapColors(unit)
 	end
 end
 
-local function ColorFunctionByThreatAutoDetect(unit)
-	if InCombatLockdown() and unit.reaction ~= "FRIENDLY" and unit.type == "NPC" then
-		if IsTankedByAnotherTank(unit) then return LocalVars.ColorAttackingOtherTank end
-		
-		if TidyPlatesWidgets.IsTankingAuraActive then 
-			return ColorFunctionTankSwapColors(unit)
-		else return ColorFunctionDamage(unit) end
-	end
-	
-end
 
-local function ColorFunctionByRawThreat(unit)
+local function ColorFunctionByThreat(unit)
 	if InCombatLockdown() and unit.reaction ~= "FRIENDLY" and unit.type == "NPC" then
 		if IsTankedByAnotherTank(unit) then return LocalVars.ColorAttackingOtherTank end
 		
-		if TidyPlatesWidgets.IsTankingAuraActive then 
+		if LocalVars.ThreatMode == THREATMODE_AUTO and TidyPlatesWidgets.IsTankingAuraActive then
+			return ColorFunctionTankSwapColors(unit)
+		elseif LocalVars.ThreatMode == THREATMODE_TANK then
 			return ColorFunctionRawTank(unit)
-		else return ColorFunctionDamage(unit) end
+		else return ColorFunctionDamage(unit) end		
 	end
 end
 
@@ -421,7 +423,7 @@ end
 
 
 	
-local ColorFunctions = {DummyFunction, ColorFunctionByClassEnemy, ColorFunctionByThreatAutoDetect, ColorFunctionByReaction, ColorFunctionByLevelColor, ColorFunctionByRaidIcon, ColorFunctionByHealth, ColorFunctionByRawThreat, ColorFunctionByClassFriendly }
+local ColorFunctions = {DummyFunction, ColorFunctionByClassEnemy, ColorFunctionByThreat, ColorFunctionByReaction, ColorFunctionByLevelColor, ColorFunctionByRaidIcon, ColorFunctionByHealth, ColorFunctionByClassFriendly }
 
 local function HealthColorDelegate(unit)	
 	local color, class
@@ -433,7 +435,10 @@ local function HealthColorDelegate(unit)
 		end
 	end
 	
-	if not color then color = ColorFunctions[LocalVars.ColorHealthBarMode](unit) end	
+	if not color then 
+		local func = ColorFunctions[LocalVars.ColorHealthBarMode] or DummyFunction
+		color = func(unit) 
+	end	
 
 	if color then 
 		return color.r, color.g, color.b 
@@ -470,16 +475,15 @@ local function WarningBorderFunctionByThreatTank(unit)
 end
 
 -- Warning Glow (Auto Detect)
-local function WarningBorderFunctionByThreatAutoDetect(unit) 
+local function WarningBorderFunctionByThreat(unit) 
 	if unit.InCombatLockdown and unit.reaction ~= "FRIENDLY" and unit.type == "NPC" then
 		
-		if TidyPlatesWidgets.IsTankingAuraActive then 
-			if IsTankedByAnotherTank(unit) then return
-			elseif unit.threatValue == 2 then return LocalVars.ColorAggroTransition
-			elseif unit.threatValue < 2 then return LocalVars.ColorAttackingMe	end
-		elseif unit.threatValue > 0 then
-			return ColorFunctionDamage(unit)
-		end	
+		if (LocalVars.ThreatMode == THREATMODE_AUTO and TidyPlatesWidgets.IsTankingAuraActive) 
+			or LocalVars.ThreatMode == THREATMODE_TANK then
+				if IsTankedByAnotherTank(unit) then return
+				elseif unit.threatValue == 2 then return LocalVars.ColorAggroTransition
+				elseif unit.threatValue < 2 then return LocalVars.ColorAttackingMe	end
+		elseif unit.threatValue > 0 then return ColorFunctionDamage(unit) end	
 	end
 end
 
@@ -496,8 +500,7 @@ local function WarningBorderFunctionByEnemyHealer(unit)
 	end
 end
 	
-local WarningBorderFunctionsUniversal = { DummyFunction, WarningBorderFunctionByThreatAutoDetect, 
-			WarningBorderFunctionByThreatDamage, WarningBorderFunctionByThreatTank, 
+local WarningBorderFunctionsUniversal = { DummyFunction, WarningBorderFunctionByThreat,
 			WarningBorderFunctionByEnemyHealer }
 
 local function ThreatColorDelegate(unit)
@@ -506,7 +509,8 @@ local function ThreatColorDelegate(unit)
 	if LocalVars.ColorShowPartyAggro and LocalVars.ColorPartyAggroGlow and unit.reaction == "FRIENDLY" then
 		if GetAggroCondition(unit.name) then color = LocalVars.ColorPartyAggro end
 	else
-		color = WarningBorderFunctionsUniversal[LocalVars.ColorDangerGlowMode](unit)
+		local func = WarningBorderFunctionsUniversal[LocalVars.ColorDangerGlowMode] or DummyFunction
+		color = func(unit)
 	end
 
 	if color then return color.r, color.g, color.b, 1
@@ -599,16 +603,10 @@ local function NameColorByEnemyClass(unit)
 end
 
 local function NameColorByThreat(unit)
-	if InCombatLockdown() then return ColorFunctionByRawThreat(unit)
+	if InCombatLockdown() then return ColorFunctionByThreat(unit)
 	else return NameReactionColors[unit.reaction][unit.type] end
 end
 
-local function NameColorByThreatAutoDetect(unit)
-	local color
-	if InCombatLockdown() then color = ColorFunctionByThreatAutoDetect(unit) end
-	if not color then color = NameReactionColors[unit.reaction][unit.type] end
-	return color
-end
 
 local NameColorFunctions = {
 	-- Default
@@ -617,7 +615,7 @@ local NameColorFunctions = {
 	NameColorByEnemyClass,
 	--NameColorByClass,
 	-- By Threat
-	NameColorByThreatAutoDetect,
+	NameColorByThreat,
 	-- By Reaction
 	NameColorByReaction,
 	-- By Level Color
@@ -626,8 +624,6 @@ local NameColorFunctions = {
 	ColorFunctionByHealth,
 	-- By Significance
 	NameColorBySignificance,
-	-- By Threat (Legacy)
-	NameColorByThreat,
 	-- By Friendly Class
 	NameColorByFriendlyClass,
 }
@@ -635,6 +631,8 @@ local NameColorFunctions = {
 local function SetNameColorDelegate(unit)
 	local color, colorMode
 		
+	
+	
 	if unit.reaction == "FRIENDLY" then
 		-- Party Aggro Coloring -- Overrides the normal coloring
 		if LocalVars.ColorShowPartyAggro and LocalVars.ColorPartyAggroText then
@@ -643,23 +641,24 @@ local function SetNameColorDelegate(unit)
 	end
 	
 	if not color then
-		--if unit.style == "NameOnly" then 
 		if StyleDelegate(unit) == 2 then
 			colorMode = tonumber(LocalVars.TextPlateNameColorMode)
 		else colorMode = tonumber(LocalVars.TextNameColorMode) end
 		
 		color = NameColorFunctions[colorMode or 1](unit)
 	end
-
-	if color then return color.r, color.g, color.b , (color.a or 1)
-	else return 1, 1, 1, 1 end
+	
+	if color then 
+		--if unit.guid == nil then return (color.r+.1)/2, (color.g+.1)/2, (color.b+.1)/2, (color.a or 1) end
+		return color.r, color.g, color.b , (color.a or 1) 
+	else return .2, .2, .2, 1 end
 end
 
 ------------------------------------------------------------------------------
 -- Optional/Health Text
 ------------------------------------------------------------------------------
 
-local function HealthAndMana(unit) 
+local function TextFunctionMana(unit) 
 	if unit.isTarget then
 		local power = ceil((UnitPower("target") / UnitPowerMax("target"))*100)
 		local powername = select(2, UnitPowerType("target"))
@@ -711,11 +710,18 @@ local function HealthFunctionLevel(unit)
 	if unit.isElite then level = level.." (Elite)" end
 	return level, unit.levelcolorRed, unit.levelcolorGreen, unit.levelcolorBlue, .70
 end
+
 -- Level and Health
 local function HealthFunctionLevelHealth(unit) 
 	local level = unit.level
 	if unit.isElite then level = level.."E" end
 	return level.."  |cffffffff"..HealthFunctionApprox(unit), unit.levelcolorRed, unit.levelcolorGreen, unit.levelcolorBlue, .70
+end
+
+-- Arena Vitals (ID, Mana, Health
+local function HealthFunctionArenaID(unit) 
+	--return GetArenaIndex(unit.name).. "# "..ShortenNumber(unit.health).."HP "..TextFunctionMana(unit)
+	return GetArenaIndex(unit.name)
 end
 
 
@@ -729,11 +735,12 @@ local HealthTextModeFunctions = {
 	HealthFunctionApprox,
 	HealthFunctionLevel,
 	HealthFunctionLevelHealth,
-	HealthAndMana,
+	HealthFunctionArenaID,
 }
 
 local function HealthTextDelegate(unit) 
-	return HealthTextModeFunctions[LocalVars.TextHealthTextMode](unit) 
+	local func = HealthTextModeFunctions[LocalVars.TextHealthTextMode] or DummyFunction
+	return func(unit) 
 end
 
 
@@ -830,7 +837,8 @@ local TextPlateFieldFunctions = {
 local function CustomTextBinaryDelegate(unit)
 	--if unit.style == "NameOnly" then
 	if StyleDelegate(unit) == 2 then
-		return TextPlateFieldFunctions[LocalVars.TextPlateFieldMode](unit)
+		local func = TextPlateFieldFunctions[LocalVars.TextPlateFieldMode] or DummyFunction
+		return func(unit)
 	end
 	return HealthTextDelegate(unit) 
 end
@@ -925,9 +933,12 @@ local function ScaleFunctionByBoss(unit)
 end
 
 -- By Threat (Auto Detect)
-local function ScaleFunctionByThreatAutoDetect(unit) 
-	if TidyPlatesWidgets.IsTankingAuraActive then return ScaleFunctionByThreatLow(unit)	-- tank mode
-	else return ScaleFunctionByThreatHigh(unit) end										-- dps mode
+local function ScaleFunctionByThreat(unit) 
+		if (LocalVars.ThreatMode == THREATMODE_AUTO and TidyPlatesWidgets.IsTankingAuraActive) 
+			or LocalVars.ThreatMode == THREATMODE_TANK then
+				return ScaleFunctionByThreatLow(unit)	-- tank mode
+		else return ScaleFunctionByThreatHigh(unit) end	
+		
 end
 
 -- Function List
@@ -936,7 +947,7 @@ end
 --local ScaleFunctionsTank = { DummyFunction, ScaleFunctionByElite, ScaleFunctionByTarget, ScaleFunctionByThreatLow, ScaleFunctionByActiveDebuffs, ScaleFunctionByEnemy, ScaleFunctionByNPC, ScaleFunctionByRaidIcon, ScaleFunctionByThreatAutoDetect}
 
 local ScaleFunctionsUniversal = { DummyFunction, ScaleFunctionByElite, ScaleFunctionByTarget, 
-		ScaleFunctionByThreatAutoDetect, ScaleFunctionByThreatHigh, ScaleFunctionByThreatLow, 
+		ScaleFunctionByThreat,
 		ScaleFunctionByActiveDebuffs, ScaleFunctionByEnemy,ScaleFunctionByNPC, ScaleFunctionByRaidIcon, 
 		ScaleFunctionByEnemyHealer, ScaleFunctionByLowHealth, ScaleFunctionByBoss}
 
@@ -955,7 +966,10 @@ local function ScaleDelegate(...)
 	else 
 				-- Filter
 		if UnitFilter(unit) then scale = LocalVars.ScaleFiltered 
-		else scale = ScaleFunctionsUniversal[LocalVars.ScaleSpotlightMode](...) end
+		else 
+			local func = ScaleFunctionsUniversal[LocalVars.ScaleSpotlightMode] or DummyFunction
+			scale = func(...) 
+		end
 	end
 	
 	return scale or LocalVars.ScaleStandard
@@ -1027,14 +1041,16 @@ local function AlphaFunctionByEnemyHealer(unit)
 end
 
 -- By Threat (Auto Detect)
-local function AlphaFunctionByThreatAutoDetect(unit) 
-	if TidyPlatesWidgets.IsTankingAuraActive then return AlphaFunctionByThreatLow(unit)	-- tank mode
-	else return AlphaFunctionByThreatHigh(unit) end										-- dps mode
+local function AlphaFunctionByThreat(unit) 
+		if (LocalVars.ThreatMode == THREATMODE_AUTO and TidyPlatesWidgets.IsTankingAuraActive) 
+			or LocalVars.ThreatMode == THREATMODE_TANK then
+				return AlphaFunctionByThreatLow(unit)	-- tank mode
+		else return AlphaFunctionByThreatHigh(unit) end	
 end
 
-local AlphaFunctionsUniversal = { DummyFunction, AlphaFunctionByThreatAutoDetect, AlphaFunctionByThreatHigh, 
-		AlphaFunctionByThreatLow,  AlphaFunctionByActiveDebuffs, AlphaFunctionByEnemy, AlphaFunctionByNPC, 
-		AlphaFunctionByRaidIcon, AlphaFunctionByActive, AlphaFunctionByEnemyHealer, AlphaFunctionByLowHealth}
+local AlphaFunctionsUniversal = { DummyFunction, AlphaFunctionByThreat, AlphaFunctionByActiveDebuffs, 
+	AlphaFunctionByEnemy, AlphaFunctionByNPC, AlphaFunctionByRaidIcon, AlphaFunctionByActive, 
+	AlphaFunctionByEnemyHealer, AlphaFunctionByLowHealth}
 
 -- Alpha Functions Listed by Role order: Damage, Tank, Heal
 local AlphaFunctions = {AlphaFunctionsDamage, AlphaFunctionsTank}
@@ -1057,7 +1073,10 @@ local function AlphaDelegate(...)
 		-- Filter
 		if UnitFilter(unit) then alpha = LocalVars.OpacityFiltered 
 		-- Spotlight
-		else alpha = AlphaFunctionsUniversal[LocalVars.OpacitySpotlightMode](...) end
+		else 
+			local func = AlphaFunctionsUniversal[LocalVars.OpacitySpotlightMode] or DummyFunction
+			alpha = func(...) 
+		end
 	end
 	
 	if alpha then return Diminish(alpha)
@@ -1067,115 +1086,180 @@ local function AlphaDelegate(...)
 	end
 end
 
-
-
 ------------------------------------------------------------------------------
--- Widgets
+-- Aura Widget
 ------------------------------------------------------------------------------
+TidyPlatesHubPrefixList = {
+	-- ALL
+	["ALL"] = 1,
+	["All"] = 1,
+	["all"] = 1,
+	
+	-- MY
+	["MY"] = 2,
+	["My"] = 2,
+	["my"] = 2,
+	
+	-- OTHER
+	["OTHER"] = 3,
+	["Other"] = 3,
+	["other"] = 3,
+	
+	-- CC
+	["CC"] = 4,
+	["cc"] = 4,
+	["Cc"] = 4,
+}
+
+--[[
+* Debuffs are color coded, with poison debuffs having a green border, 
+magic debuffs a blue border, physical debuffs a red border, diseases a 
+brown border, and curses a purple border
+
+Information from Widget:
+aura.spellid, aura.name, aura.expiration, aura.stacks, 
+aura.caster, aura.duration, aura.texture, 
+aura.type, aura.reaction
+--]]
+
+local AURA_TYPE_DEBUFF = 6
+local AURA_TYPE_BUFF = 1
+
+local AURA_TARGET_HOSTILE = 1
+local AURA_TARGET_FRIENDLY = 2
+
+local AURA_TYPE = { "Buff", "Curse", "Disease", "Magic", "Poison", "Debuff", }
+local AURA_TYPE_COLORS = { nil, {1,0,1}, {.5, .2, 0}, {0,.4,1}, {0,1,0}, nil, }
+
+--[[
+local AURA_TYPE_ALTS = { 
+	{"BUFF", "Buff", "Buffs"},
+	{"CURSE", "Curse", },
+	{"DISEASE", "Disease", },
+	{"MAGIC", "Magic",},
+	{"POISON", "Poison",},
+	{"DEBUFF", "Debuff", "Debuffs"},
+}
+
+local function PrefixLookupByType(auratype)
+	local names = AURA_TYPE_ALTS[auratype]
+	local prefix
+	for i = 1, #names do
+		prefix = LocalVars.WidgetsDebuffLookup[ (names[i]) ]
+		if prefix then return prefix end
+	end
+end
 
 
+local function PriorityLookupByType(auratype) 
+	return LocalVars.WidgetsDebuffPriority[ (AURA_TYPE[auratype]) ] or LocalVars.WidgetsDebuffPriority[ (AURA_TYPE_CAPS[auratype]) ]
+end
+--]]
 
-
-local function GetPrefixPriority(debuff)
-	local spellid = tostring(debuff.spellid)
-	local name = debuff.name
+local function GetPrefixPriority(aura)
+	local spellid = tostring(aura.spellid)
+	local name = aura.name
+	-- Lookup using the Prefix & Priority Lists
 	local prefix = LocalVars.WidgetsDebuffLookup[spellid] or LocalVars.WidgetsDebuffLookup[name]
 	local priority = LocalVars.WidgetsDebuffPriority[spellid] or LocalVars.WidgetsDebuffPriority[name]
+
 	return prefix, priority
+end
+
+local function GetAuraColor(aura)
+	local color = AURA_TYPE_COLORS[aura.type]
+	if color then return unpack(color) end
 end
 
 local DebuffPrefixModes = {
 	-- All
-	function(debuff)
+	function(aura)
 		return true
 	end,
 	-- My
-	function(debuff)
-		if debuff.caster == UnitGUID("player") then return true else return nil end
-	end,
-	-- No
-	function(debuff)
-		return nil
-	end,
-	-- CC
-	function(debuff)
-		return true
+	function(aura)
+		if aura.caster == UnitGUID("player") then return true end
 	end,
 	-- Other
-	function(debuff)
-		if debuff.caster ~= UnitGUID("player") then return true end
+	function(aura)
+		if aura.caster ~= UnitGUID("player") then return true end
+	end,
+	-- CC
+	function(aura)
+		--return true, .5, .4, 0
+		return true, 1, 1, 0
 	end,
 }
 
-local DebuffFilterModes = {
-			
-	--[[ 
-	aura.spellid, aura.name, aura.expiration, aura.stacks, aura.caster, aura.duration, aura.texture, aura.type, aura.target = GetAuraInstance(guid, instanceid)
-	local AURA_TYPE = {
-		["Buff"] = 1,
-		["Curse"] = 2,
-		["Disease"] = 3,
-		["Magic"] = 4,
-		["Poison"] = 5,
-		["Debuff"] = 6,
-	} --]]
-		
-	
+local DebuffFilterModes = {	
 	-- My Debuffs	
 	function(aura) 
-		if aura.caster == UnitGUID("player") and aura.type > 1 then return true end
-	end,
+		if aura.caster == UnitGUID("player") and aura.type ~= AURA_TYPE_BUFF then return true, 20 end
+	end, 
 	-- My Buffs	
 	function(aura) 
-		if aura.caster == UnitGUID("player") and aura.type == 1 and aura.duration < 120 then return true end
+		if aura.caster == UnitGUID("player") and aura.type == AURA_TYPE_BUFF and aura.duration < 120 then return true, 20 end
 	end,
 	-- By Prefix	
 	function(aura) 
 		local prefix, priority = GetPrefixPriority(aura)
-		if prefix then return DebuffPrefixModes[prefix](aura), priority end
+		if prefix then
+			local show, r, g, b = DebuffPrefixModes[prefix](aura)
+			return show, priority + 20, r, g, b 
+		end
+		
 	end,
 }
 
+	
+local DispelTypeHandlers = {
+	-- Curse
+	["Curse"] = function()
+		return LocalVars.WidgetAuraTrackCurse
+	end,
+	-- Disease
+	["Disease"] = function()
+		return LocalVars.WidgetAuraTrackDisease
+	end,
+	-- Magic
+	["Magic"] = function()
+		return LocalVars.WidgetAuraTrackMagic
+	end,
+	-- Poison
+	["Poison"] = function()
+		return LocalVars.WidgetAuraTrackPoison
+	end,
+	}
 
-
-local AURA_TYPE_DEBUFF = 6
-local AURA_TYPE_BUFF = 1
-local AURA_TARGET_HOSTILE = 1
-local AURA_TARGET_FRIENDLY = 2
-
-local AURA_TYPE = {
-	"Buff",
-	"Curse",
-	"Disease",
-	"Magic",
-	"Poison",
-	"Debuff",
-}
-
+local function TrackDispelType(auratype)
+	if auratype then
+		local handlerfunction = DispelTypeHandlers[auratype]
+		if handlerfunction then return handlerfunction() end
+	end
+end
 
 local function DebuffFilter(aura)
-	--[[
-	-- Buffs/Hots on Friendly Units
-	if aura.type == AURA_TYPE_BUFF then 
-		return true		-- false
-		--if aura.duration < 30 and aura.caster == UnitGUID("player") then return true else return false end
+	if LocalVars.WidgetAuraTrackDispelFriendly and aura.reaction == AURA_TARGET_FRIENDLY then
+		if TrackDispelType(AURA_TYPE[aura.type]) then 
+		local r, g, b = GetAuraColor(aura)
+		return true, 10, r, g, b end
 	end
-	--]]
 	
-	--print(aura.name, aura.spellid)
-	-- Debuffs on Friendly Units
-	if aura.target == AURA_TARGET_FRIENDLY then  
-		-- return TidyPlatesWidgets.CanPlayerDispel(AURA_TYPE[aura.type or 0] or "")
-		return false 
-	end
-
-	-- Debuffs on Hostile Units
-	return DebuffFilterModes[LocalVars.WidgetsAuraMode](aura)
+	-- Filter Mode
+	local func = DebuffFilterModes[LocalVars.WidgetsAuraMode] or DummyFunction
+	return func(aura)
 end
 
-local function Prefilter(spellid, spellname, auratype)
+local function Prefilter(spellid, spellname, auratype, auratargetreaction)
+	if (auratargetreaction == AURA_TARGET_FRIENDLY) and (auratype > 1) then return true end
 	return ((LocalVars.WidgetsDebuffLookup[tostring(spellid)] or LocalVars.WidgetsDebuffLookup[spellname]) ~= nil)
 end
+
+
+
+---------------------------------------------------------------------------------------------------------
+-- Widget Initializers
+---------------------------------------------------------------------------------------------------------
 
 	
 local function AddClassIcon(plate, enable, config)
@@ -1278,7 +1362,7 @@ local function AddDebuffWidget(plate, enable, config)
 			widget =  CreateAuraWidget(plate)
 			widget:SetPoint(config.anchor or "TOP", plate, config.x or 0, config.y or 0) --15, 20)
 			widget:SetFrameLevel(plate:GetFrameLevel()+1)
-			widget.Filter = DebuffFilter
+			--widget.Filter = DebuffFilter		-- this method of defining the filter function will be deprecated in 6.9
 			plate.widgets.DebuffWidget = widget
 		end
 	elseif plate.widgets.DebuffWidget then 
@@ -1332,19 +1416,11 @@ end
 
 -- Threat Functions List
 local ThreatFunctionList = {
-	[ScaleFunctionByThreatLow] = true,
-	[ScaleFunctionByThreatHigh] = true, 
-	[ScaleFunctionByThreatAutoDetect] = true,
-	[AlphaFunctionByThreatHigh] = true,
-	[AlphaFunctionByThreatLow] = true,
-	[AlphaFunctionByThreatAutoDetect] = true,
-	[ColorFunctionByThreatAutoDetect] = true,
-	[ColorFunctionByRawThreat] = true,
+	[ScaleFunctionByThreat] = true,
+	[AlphaFunctionByThreat] = true,
+	[ColorFunctionByThreat] = true,
 	[NameColorByThreat] = true,
-	[NameColorByThreatAutoDetect] = true,
-	[WarningBorderFunctionByThreatDamage] = true,
-	[WarningBorderFunctionByThreatTank] = true,
-	[WarningBorderFunctionByThreatAutoDetect] = true,
+	[WarningBorderFunctionByThreat] = true,
 }
 	
 local function EnableWatchers()
@@ -1365,6 +1441,7 @@ local function EnableWatchers()
 	--TidyPlatesUtility:EnableHealerTrack()		-- Force enable
 	
 	-- Aggro/Threat
+	-- Checks to see if the player is using any of the By Threat modes
 	if ThreatFunctionList[AlphaFunctionsUniversal[LocalVars.OpacitySpotlightMode]] or
 		ThreatFunctionList[ColorFunctions[LocalVars.ColorHealthBarMode]] or
 		ThreatFunctionList[WarningBorderFunctionsUniversal[LocalVars.ColorDangerGlowMode]] or
@@ -1375,13 +1452,17 @@ local function EnableWatchers()
 			SetCVar("threatWarning", 3)	
 	end
 	
-	-- /run print(GetCVar("threatWarning"))
-	
-	if LocalVars.WidgetsAuraMode == 3 then TidyPlatesWidgets.SetDebuffPrefilter(Prefilter) else TidyPlatesWidgets.SetDebuffPrefilter(nil) end
-	
 	TidyPlatesWidgets:EnableTankWatch()
 	TidyPlatesWidgets:EnableAggroWatch()		--SetCVar("threatWarning", 3)		-- Required for threat/aggro detection
-	if LocalVars.WidgetsDebuff then TidyPlatesWidgets:EnableAuraWatcher() else TidyPlatesWidgets:DisableAuraWatcher() end
+	
+	if LocalVars.WidgetsDebuff then 
+		TidyPlatesWidgets:EnableAuraWatcher() 
+		TidyPlatesWidgets.SetAuraFilter(DebuffFilter)
+	else TidyPlatesWidgets:DisableAuraWatcher() end
+	
+	if LocalVars.WidgetsAuraMode == 3 then 
+		TidyPlatesWidgets.SetAuraPrefilter(Prefilter) 
+	else TidyPlatesWidgets.SetAuraPrefilter(nil) end
 end
 
 local CreateVariableSet = TidyPlatesHubRapidPanel.CreateVariableSet

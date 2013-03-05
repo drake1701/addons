@@ -4,17 +4,6 @@
 --[[
 GTFO Spanish Localization
 Translator: Pablous
-
-Change Log:
-	v4.2.1
-		- Added Spanish localization
-	v4.7
-		- Fixed localization issues
-	v4.9
-		- Fixed localization issues
-	v4.12
-		- Added untranslated strings
-		
 ]]--
 
 if (GetLocale() == "esES") then

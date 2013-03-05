@@ -4,25 +4,6 @@
 --[[
 GTFO Simplified Chinese Localization
 Translator: wowuicn, xazhaoyang, lsjyzjl
-
-Change Log:
-	v3.0
-		- Added Simplified Chinese localization
-	v3.2.2
-		- Added untranslated strings
-	v4.2.3
-		- Added untranslated strings
-	v4.7
-		- Fixed localization issues
-	v4.8.7
-		- Added untranslated strings
-	v4.9.5
-		- Updated localization strings
-	v4.12
-		- Added untranslated strings
-	v4.19
-		- Added untranslated strings
-		
 ]]--
 
 if (GetLocale() == "zhCN") then

@@ -33,7 +33,87 @@
 			</OnUpdate>
 		</Scripts>
 	</Frame>
-	
+
+	<ScrollFrame name="LivestockCritterMenuScrollFrameTemplate" inherits="FauxScrollFrameTemplate" virtual="true">
+		<Anchors>
+			<Anchor point="TOPLEFT">
+				<Offset>
+					<AbsDimension x="0" y="-8"/>
+				</Offset>
+			</Anchor>
+			<Anchor point="BOTTOMRIGHT">
+				<Offset>
+					<AbsDimension x="-30" y="8"/>
+				</Offset>
+			</Anchor>
+		</Anchors>
+		<Scripts>
+			<OnVerticalScroll>
+				FauxScrollFrame_OnVerticalScroll(self, offset, 15, Livestock.CritterMenuUpdate)
+			</OnVerticalScroll>
+		</Scripts>
+	</ScrollFrame>
+
+	<ScrollFrame name="LivestockLandMenuScrollFrameTemplate" inherits="FauxScrollFrameTemplate" virtual="true">
+		<Anchors>
+			<Anchor point="TOPLEFT">
+				<Offset>
+					<AbsDimension x="0" y="-8"/>
+				</Offset>
+			</Anchor>
+			<Anchor point="BOTTOMRIGHT">
+				<Offset>
+					<AbsDimension x="-30" y="8"/>
+				</Offset>
+			</Anchor>
+		</Anchors>
+		<Scripts>
+			<OnVerticalScroll>
+				FauxScrollFrame_OnVerticalScroll(self, offset, 15, Livestock.LandMenuUpdate)
+			</OnVerticalScroll>
+		</Scripts>
+	</ScrollFrame>
+
+	<ScrollFrame name="LivestockFlyingMenuScrollFrameTemplate" inherits="FauxScrollFrameTemplate" virtual="true">
+		<Anchors>
+			<Anchor point="TOPLEFT">
+				<Offset>
+					<AbsDimension x="0" y="-8"/>
+				</Offset>
+			</Anchor>
+			<Anchor point="BOTTOMRIGHT">
+				<Offset>
+					<AbsDimension x="-30" y="8"/>
+				</Offset>
+			</Anchor>
+		</Anchors>
+		<Scripts>
+			<OnVerticalScroll>
+				FauxScrollFrame_OnVerticalScroll(self, offset, 15, Livestock.FlyingMenuUpdate)
+			</OnVerticalScroll>
+		</Scripts>
+	</ScrollFrame>
+
+	<ScrollFrame name="LivestockWaterMenuScrollFrameTemplate" inherits="FauxScrollFrameTemplate" virtual="true">
+		<Anchors>
+			<Anchor point="TOPLEFT">
+				<Offset>
+					<AbsDimension x="0" y="-8"/>
+				</Offset>
+			</Anchor>
+			<Anchor point="BOTTOMRIGHT">
+				<Offset>
+					<AbsDimension x="-30" y="8"/>
+				</Offset>
+			</Anchor>
+		</Anchors>
+		<Scripts>
+			<OnVerticalScroll>
+				FauxScrollFrame_OnVerticalScroll(self, offset, 15, Livestock.WaterMenuUpdate)
+			</OnVerticalScroll>
+		</Scripts>
+	</ScrollFrame>
+
 	<Frame name="LivestockMenuFrame" parent="UIParent" inherits="LivestockBlueFrameTemplate" movable="true" enableMouse="true" frameStrata="TOOLTIP" hidden="true">
 		<Size x="580" y="40" />
 		<Anchors>

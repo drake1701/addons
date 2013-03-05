@@ -1,7 +1,7 @@
 local mod	= DBM:NewMod(729, "DBM-TerraceofEndlessSpring", nil, 320)
 local L		= mod:GetLocalizedStrings()
 
-mod:SetRevision(("$Revision: 8572 $"):sub(12, -3))
+mod:SetRevision(("$Revision: 8777 $"):sub(12, -3))
 mod:SetCreatureID(62983)--62995 Animated Protector
 mod:SetModelID(42811)
 
@@ -15,7 +15,8 @@ mod:RegisterEventsInCombat(
 	"SPELL_AURA_REMOVED",
 	"SPELL_CAST_START",
 	"CHAT_MSG_TARGETICONS",
-	"UNIT_HEALTH"--UNIT_HEALTH_FREQUENT maybe not needed. It's too high cpu usage.
+	"UNIT_HEALTH",--UNIT_HEALTH_FREQUENT maybe not needed. It's too high cpu usage.
+	"UNIT_SPELLCAST_SUCCEEDED"
 )
 
 local warnProtect						= mod:NewSpellAnnounce(123250, 2)
@@ -26,8 +27,8 @@ local warnGetAway						= mod:NewCountAnnounce(123461, 3)
 local warnSpray							= mod:NewStackAnnounce(123121, 3, nil, mod:IsTank() or mod:IsHealer())
 
 local specWarnAnimatedProtector			= mod:NewSpecialWarningSwitch("ej6224", not mod:IsHealer())
-local specWarnHide						= mod:NewSpecialWarningSpell(123244, nil, nil, nil, true)
-local specWarnGetAway					= mod:NewSpecialWarningSpell(123461, nil, nil, nil, true)
+local specWarnHide						= mod:NewSpecialWarningSpell(123244, nil, nil, nil, 2)
+local specWarnGetAway					= mod:NewSpecialWarningSpell(123461, nil, nil, nil, 2)
 local specWarnSpray						= mod:NewSpecialWarningStack(123121, mod:IsTank(), 6)
 local specWarnSprayOther				= mod:NewSpecialWarningTarget(123121, mod:IsTank())
 
@@ -250,7 +251,7 @@ end
 
 mod:RegisterOnUpdateHandler(function(self)
 	if self.Options.SetIconOnProtector and guardActivated > 0 and DBM:GetRaidRank() > 0 then
-		for i = 1, DBM:GetGroupMembers() do
+		for i = 1, DBM:GetNumGroupMembers() do
 			local uId = "raid"..i.."target"
 			local guid = UnitGUID(uId)
 			if guards[guid] then
@@ -300,6 +301,7 @@ function mod:SPELL_CAST_START(args)
 		warnHide:Show(specialsCast)
 		specWarnHide:Show()
 		timerSpecialCD:Start(nil, specialsCast+1)
+		self:SetWipeTime(60)--If she hides at 1.6% or below, she will be killed during hide. In this situration, yell fires very slowly. This hack can prevent recording as wipe.
 		self:RegisterShortTermEvents(
 			"INSTANCE_ENCOUNTER_ENGAGE_UNIT",--We register on hide, because it also fires just before hide, every time and don't want to trigger "hide over" at same time as hide.
 			"SPELL_DAMAGE",
@@ -332,6 +334,12 @@ function mod:UNIT_HEALTH(uId)
 	end
 end
 
+function mod:UNIT_SPELLCAST_SUCCEEDED(uId, _, _, _, spellId)
+	if spellId == 127524 then
+		DBM:EndCombat(self)
+	end	
+end
+
 function mod:SPELL_DAMAGE(_, _, _, _, destGUID, destName, _, _, spellId, _, _, spellDamage)
 	local cid = self:GetCIDFromGUID(destGUID)
 	if cid == 63099 then--Custom CID lei shi only uses while hiding
@@ -354,6 +362,7 @@ mod.RANGE_DAMAGE = mod.SPELL_DAMAGE
 --"<233.9> [INSTANCE_ENCOUNTER_ENGAGE_UNIT] Fake Args:#nil#nil#Unknown#0xF130F6070000006C#normal#0#nil#nil#nil#nil#normal#0#nil#nil#nil#nil#normal#0#nil#nil#nil#nil#normal#0#Real Args:", -- [14168]
 function mod:INSTANCE_ENCOUNTER_ENGAGE_UNIT(event)
 	hideActive = false
+	self:SetWipeTime(3)
 	self:UnregisterShortTermEvents()--Once boss appears, unregister event, so we ignore the next two that will happen, which will be 2nd time after reappear, and right before next Hide.
 	warnHideOver:Show(GetSpellInfo(123244))
 	warnHideProgress:Cancel()

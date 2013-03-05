@@ -275,6 +275,16 @@ local ConvertStringToTable = TidyPlatesHubHelpers.ConvertStringToTable
 local ConvertDebuffListTable = TidyPlatesHubHelpers.ConvertDebuffListTable
 local CopyTable = TidyPlatesUtility.copyTable
 
+--[[
+local function GetGlobalSettings()
+
+end
+
+local function SetGlobalSettings()
+
+end
+
+--]]
 
 local function CheckVariableIntegrity(objectName)
 	for i,v in pairs(TidyPlatesHubDefaults) do
@@ -515,7 +525,7 @@ local function CreateInterfacePanel( objectName, panelTitle, parentTitle)
 	end)
 	
 
-	-- Bookmarks
+	-- Bookmark/Table of Contents Button
 	local BookmarkButton = CreateFrame("Button", objectName.."BookmarkButton", panel, "TidyPlatesPanelButtonTemplate")
 	BookmarkButton:SetPoint("TOPRIGHT", ReloadThemeDataButton, "TOPLEFT", -4, 0)
 	BookmarkButton:SetWidth(110)
@@ -544,6 +554,39 @@ local function CreateInterfacePanel( objectName, panelTitle, parentTitle)
 		ToggleDropDownMenu(1, nil, DropdownFrame, frame)
 		PlaySound("igMainMenuOptionCheckBoxOn")
 	end)
+	
+	--[[
+	-- Bookmark/Table of Contents Button
+	local BookmarkButton = CreateFrame("Button", objectName.."BookmarkButton", panel, "TidyPlatesPanelButtonTemplate")
+	BookmarkButton:SetPoint("TOPRIGHT", ReloadThemeDataButton, "TOPLEFT", -4, 0)
+	BookmarkButton:SetWidth(110)
+	BookmarkButton:SetScale(.85)
+	BookmarkButton:SetText("Bookmarks...")
+	
+	local function InitializeDropdownMenu()	
+		AddDropdownTitle("Bookmarks")
+		-- Populate List with Categories
+		local CatgegoryHeading = {}
+		for index, name in pairs(panel.AlignmentColumn.Headings) do
+			CatgegoryHeading.text = name
+			CatgegoryHeading.padding = 16
+			CatgegoryHeading.notCheckable = 1
+			--CatgegoryHeading.keepShownOnClick = 1
+			CatgegoryHeading.func = function(self) 
+				local scrollTo = panel.AlignmentColumn.HeadingBookmarks[self:GetText()]:GetHeight()
+				panel.ScrollFrame:SetVerticalScroll(ceil(scrollTo - 27))
+			end 
+			UIDropDownMenu_AddButton(CatgegoryHeading)
+		end
+	end
+	
+	BookmarkButton:SetScript("OnClick", function(frame)
+		UIDropDownMenu_Initialize(DropdownFrame, InitializeDropdownMenu, "MENU")
+		ToggleDropDownMenu(1, nil, DropdownFrame, frame)
+		PlaySound("igMainMenuOptionCheckBoxOn")
+	end)
+	
+	--]]
 
 	
 	local function SetMaximizeButtonTexture(frame)

@@ -5,6 +5,7 @@ DBM_HOW_TO_USE_MOD					= "Welcome to DBM. Type /dbm help for a list of supported
 DBM_CORE_LOAD_MOD_ERROR				= "Error while loading boss mods for %s: %s"
 DBM_CORE_LOAD_MOD_SUCCESS			= "Loaded '%s' mods. For more options, type /dbm or /dbm help in your chat."
 DBM_CORE_LOAD_GUI_ERROR				= "Could not load GUI: %s"
+DBM_CORE_LOAD_GUI_COMBAT			= "GUI cannot be initially loaded in combat. Please load GUI/configure options out of combat first, then it will be available in combat after that."
 
 DBM_CORE_COMBAT_STARTED				= "%s engaged. Good luck and have fun! :)"
 DBM_CORE_BOSS_DOWN					= "%s down after %s!"
@@ -113,6 +114,10 @@ DBM_CORE_ALLIANCE					= "Alliance"
 DBM_CORE_HORDE						= "Horde"
 
 DBM_CORE_UNKNOWN					= "unknown"
+DBM_CORE_LEFT						= "Left"
+DBM_CORE_RIGHT						= "Right"
+DBM_CORE_BACK						= "Back"
+DBM_CORE_FRONT						= "Front"
 
 DBM_CORE_BREAK_START				= "Break starting now -- you have %s minute(s)!"
 DBM_CORE_BREAK_MIN					= "Break ends in %s minute(s)!"

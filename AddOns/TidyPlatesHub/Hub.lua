@@ -22,11 +22,12 @@ local OpacityModes = TidyPlatesHubModes.OpacityModes
 local ScaleModes = TidyPlatesHubModes.ScaleModes
 local HealthColorModes = TidyPlatesHubModes.HealthColorModes
 local WarningGlowModes = TidyPlatesHubModes.WarningGlowModes
-local ThreatModes = TidyPlatesHubModes.ThreatModes
+local ThreatWidgetModes = TidyPlatesHubModes.ThreatWidgetModes
 local NameColorModes = TidyPlatesHubModes.NameColorModes
 local TextPlateFieldModes = TidyPlatesHubModes.TextPlateFieldModes
 local ArtStyles = TidyPlatesHubModes.ArtStyles
 local ArtModes = TidyPlatesHubModes.ArtModes
+local ThreatModes = TidyPlatesHubModes.ThreatModes
 
 ------------------------------------------------------------------
 -- Generate Panel
@@ -170,7 +171,8 @@ local function CreateInterfacePanelWidgets(panel)
 	-- Threat
 	------------------------------
 	panel.ThreatLabel = CreateQuickHeadingLabel(nil, "Threat", AlignmentColumn, panel.ScaleCastingSpotlight, 0, 5)	
-	panel.ColorThreatColorLabels = CreateQuickItemLabel(nil, "Threat Colors:", AlignmentColumn, panel.ThreatLabel, 0)
+	panel.ThreatMode =  CreateQuickDropdown(objectName.."ThreatMode", "Threat Mode:", ThreatModes, 1, AlignmentColumn, panel.ThreatLabel, 0, 2)
+	panel.ColorThreatColorLabels = CreateQuickItemLabel(nil, "Threat Colors:", AlignmentColumn, panel.ThreatMode, 0, 2)
 	panel.ColorAttackingMe = CreateQuickColorbox(objectName.."ColorAttackingMe", "Warning", AlignmentColumn, panel.ColorThreatColorLabels , 16)
 	panel.ColorAggroTransition = CreateQuickColorbox(objectName.."ColorAggroTransition", "Transition", AlignmentColumn, panel.ColorAttackingMe , 16)
 	panel.ColorAttackingOthers = CreateQuickColorbox(objectName.."ColorAttackingOthers", "Safe", AlignmentColumn, panel.ColorAggroTransition, 16)
@@ -204,24 +206,25 @@ local function CreateInterfacePanelWidgets(panel)
 	panel.WidgetsAuraMode =  CreateQuickDropdown(objectName.."WidgetsAuraMode", "Filter Mode:", AuraWidgetModes, 1, AlignmentColumn, panel.WidgetsDebuffStyle, 16)		-- used to be WidgetsDebuffMode
 	panel.WidgetsDebuffListLabel = CreateQuickItemLabel(nil, "Aura List:", AlignmentColumn, panel.WidgetsAuraMode, 16)	
 	panel.WidgetsDebuffTrackList = CreateQuickEditbox(objectName.."WidgetsDebuffTrackList", AlignmentColumn, panel.WidgetsDebuffListLabel, 16)
-
-		-- Debuff Help Tip
-		panel.DebuffHelpTip = CreateQuickItemLabel(nil, "Tip: |cffCCCCCCAuras should be listed with the exact name, or a spell ID number. "..
-			"You can use the prefixes, 'My' or 'All', to distinguish personal damage spells from global crowd control spells. "..
-			"Auras at the top of the list will get displayed before lower ones.", AlignmentColumn, panel.WidgetsDebuffListLabel, 225) -- 210, 275, )	
-		panel.DebuffHelpTip:SetHeight(128)
-		panel.DebuffHelpTip:SetWidth(200)
-		panel.DebuffHelpTip.Text:SetJustifyV("TOP")
+	
+	panel.WidgetAuraTrackDispelFriendly = CreateQuickCheckbutton(objectName.."WidgetAuraTrackDispelFriendly", "Track Dispellable Debuffs on Friendly Units", AlignmentColumn, panel.WidgetsDebuffTrackList, 0, 4)
+	panel.WidgetAuraTrackCurse = CreateQuickCheckbutton(objectName.."WidgetAuraTrackCurse", "Curse", AlignmentColumn, panel.WidgetAuraTrackDispelFriendly, 16, -2)
+	panel.WidgetAuraTrackDisease = CreateQuickCheckbutton(objectName.."WidgetAuraTrackDisease", "Disease", AlignmentColumn, panel.WidgetAuraTrackCurse, 16, -2)
+	panel.WidgetAuraTrackMagic = CreateQuickCheckbutton(objectName.."WidgetAuraTrackMagic", "Magic", AlignmentColumn, panel.WidgetAuraTrackDisease, 16, -2)
+	panel.WidgetAuraTrackPoison = CreateQuickCheckbutton(objectName.."WidgetAuraTrackPoison", "Poison", AlignmentColumn, panel.WidgetAuraTrackMagic, 16, -2)
+	--panel.WidgetAuraColorDispelFriendly = CreateQuickCheckbutton(objectName.."WidgetAuraColorDispelFriendly", "Colored Highlight ", AlignmentColumn, panel.WidgetAuraTrackMagic, 16, -2)
+	
+	------------------------------
+	-- Debuff Help Tip
+	panel.DebuffHelpTip = CreateQuickItemLabel(nil, "Tip: |cffCCCCCCAuras should be listed with the exact name, or a spell ID number. "..
+		"You can use the prefixes, 'My' or 'All', to distinguish personal damage spells from global crowd control spells. "..
+		"Auras at the top of the list will get displayed before lower ones.", AlignmentColumn, panel.WidgetsDebuffListLabel, 225) -- 210, 275, )	
+	panel.DebuffHelpTip:SetHeight(128)
+	panel.DebuffHelpTip:SetWidth(200)
+	panel.DebuffHelpTip.Text:SetJustifyV("TOP")
 		
 		
 	--[[
-		Stage 1:
-			TidyPlatesHubModes.AuraModes = { 
-				{ text = "Show All Debuffs", notCheckable = 1 } ,
-				{ text = "Show All Buffs", notCheckable = 1 } , 
-				{ text = "Show Specific Auras...", notCheckable = 1 } ,						
-				}
-				
 		Stage 2:
 			- Expand Options
 			- Filtering mode: Show raid targets, show only my target
@@ -231,7 +234,7 @@ local function CreateInterfacePanelWidgets(panel)
 	------------------------------
 	--Widgets
 	------------------------------
-	panel.WidgetsLabel = CreateQuickHeadingLabel(nil, "Widgets", AlignmentColumn, panel.WidgetsDebuffTrackList, 0, 5)
+	panel.WidgetsLabel = CreateQuickHeadingLabel(nil, "Other Widgets", AlignmentColumn, panel.WidgetAuraTrackPoison, 0, 5)
 	panel.WidgetTargetHighlight = CreateQuickCheckbutton(objectName.."WidgetTargetHighlight", "Show Highlight on Current Target", AlignmentColumn, panel.WidgetsLabel)
 	panel.WidgetEliteIndicator = CreateQuickCheckbutton(objectName.."WidgetEliteIndicator", "Show Elite Indicator", AlignmentColumn, panel.WidgetTargetHighlight)
 	panel.ClassEnemyIcon = CreateQuickCheckbutton(objectName.."ClassEnemyIcon", "Show Enemy Class Icons", AlignmentColumn, panel.WidgetEliteIndicator)
@@ -239,7 +242,7 @@ local function CreateInterfacePanelWidgets(panel)
 	panel.WidgetsTotemIcon = CreateQuickCheckbutton(objectName.."WidgetsTotemIcon", "Show Totem Icons", AlignmentColumn, panel.ClassPartyIcon)
 	panel.WidgetsComboPoints = CreateQuickCheckbutton(objectName.."WidgetsComboPoints", "Show Combo Points", AlignmentColumn, panel.WidgetsTotemIcon)
 	panel.WidgetsThreatIndicator = CreateQuickCheckbutton(objectName.."WidgetsThreatIndicator", "Show Threat Indicator", AlignmentColumn, panel.WidgetsComboPoints)
-	panel.WidgetsThreatIndicatorMode =  CreateQuickDropdown(objectName.."WidgetsThreatIndicatorMode", "Threat Indicator:", ThreatModes, 1, AlignmentColumn, panel.WidgetsThreatIndicator, 16)
+	panel.WidgetsThreatIndicatorMode =  CreateQuickDropdown(objectName.."WidgetsThreatIndicatorMode", "Threat Indicator:", ThreatWidgetModes, 1, AlignmentColumn, panel.WidgetsThreatIndicator, 16)
 	panel.WidgetsRangeIndicator = CreateQuickCheckbutton(objectName.."WidgetsRangeIndicator", "Show Party Range Warning", AlignmentColumn, panel.WidgetsThreatIndicatorMode)
 	panel.WidgetsRangeMode =  CreateQuickDropdown(objectName.."WidgetsRangeMode", "Range:", RangeModes, 1, AlignmentColumn, panel.WidgetsRangeIndicator, 16)
 	

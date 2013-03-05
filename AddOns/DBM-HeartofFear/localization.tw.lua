@@ -26,9 +26,7 @@ L:SetOptionLocalization({
 
 L:SetMiscLocalization({
 	Platform			= "飛向他的其中一個露臺!",
-	Defeat				= "我們不會居服於黑暗虛空的絕望之下。如果她的意志要我們滅亡，那麼我們就該滅亡。",
-	Left				= "往左",
-	Right				= "往右"
+	Defeat				= "我們不會居服於黑暗虛空的絕望之下。如果她的意志要我們滅亡，那麼我們就該滅亡。"
 })
 
 
@@ -129,7 +127,8 @@ L:SetOptionLocalization({
 	warnAmberTrap		= "為$spell:125826的製作進度顯示警告", -- maybe bad translation.
 	InfoFrame			= "為受到$spell:125390的玩家顯示訊息框架",
 	RangeFrame			= "為$spell:123735顯示距離框架(5碼)",
-	StickyResinIcons	= DBM_CORE_AUTO_ICONS_OPTION_TEXT:format(124097)
+	StickyResinIcons	= DBM_CORE_AUTO_ICONS_OPTION_TEXT:format(124097),
+	HeartOfFearIcon		= DBM_CORE_AUTO_ICONS_OPTION_TEXT:format(123845)
 })
 
 L:SetMiscLocalization({

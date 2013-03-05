@@ -1,4 +1,4 @@
-## Interface: 50200
+## Interface: 50001
 ## Title: QuestHelper
 ## Author: zorbathut, smariot, vipersniper, nesher, nconantj
 ## Notes: Calculates an optimal route for you to follow while questing.

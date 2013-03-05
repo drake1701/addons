@@ -665,6 +665,224 @@ GTFO.SpellID["133234"] = {
 -- TODO: Blue Crush (Epicus Maximus)
 -- TODO: Pure Rock'n Roll (Epicus Maximus)
 
+-- *****************************
+-- * Trove of the Thunder King *
+-- *****************************
+
+GTFO.SpellID["139777"] = {
+	--desc = "Stone Smash (Stone Sentinel)";
+	sound = 3;
+};
+
+GTFO.SpellID["139798"] = {
+	--desc = "Rune Trap";
+	sound = 3;
+};
+
+GTFO.SpellID["139799"] = {
+	--desc = "Flame Tile";
+	sound = 3;
+	applicationOnly = true;
+};
+
+GTFO.SpellID["139800"] = {
+	--desc = "Cloud Tile";
+	sound = 3;
+};
+
+GTFO.SpellID["139801"] = {
+	--desc = "Lightning Tile";
+	sound = 3;
+};
+
+-- *********************
+-- * Throne of Thunder *
+-- *********************
+
+-- TODO: Focused Lightning [Detonation] (Jin'rokh the Breaker) -- Fail for non-targets, but unable to accurately detect this? :/
+
+GTFO.SpellID["138990"] = {
+	--desc = "Violent Detonation (Jin'rokh the Breaker)";
+	sound = 3;
+};
+
+GTFO.SpellID["137167"] = {
+	--desc = "Thundering Throw (Jin'rokh the Breaker)";
+	sound = 3;
+	tankSound = 0;
+};
+
+-- TODO: Ionization (Jin'rokh the Breaker) -- Fail when standing near the explosion
+-- TODO: Lightning Strike [Diffusion] (Jin'rokh the Breaker) -- Lightning residue?
+
+GTFO.SpellID["136739"] = {
+	--desc = "Double Swipe - Front (Horridon)";
+	sound = 3;
+	tankSound = 0;
+};
+
+GTFO.SpellID["136740"] = {
+	--desc = "Double Swipe - Back (Horridon)";
+	sound = 3;
+};
+
+GTFO.SpellID["137390"] = {
+	--desc = "Shadowed Gift (High Priestess Mar'li)";
+	sound = 3;
+};
+
+-- TODO: Spinning Shell (Tortos)
+-- TODO: Shell Concussion (Tortos)
+-- TODO: Rockfall (Tortos) -- Close damage fail only
+
+GTFO.SpellID["137730"] = {
+	--desc = "Ignite Flesh (Megaera)";
+	sound = 3;
+	tankSound = 0;
+	test = true; -- Verify
+};
+
+GTFO.SpellID["139842"] = {
+	--desc = "Arctic Freeze (Megaera)";
+	sound = 3;
+	tankSound = 0;
+	test = true; -- Verify
+};
+
+-- TODO: Acid Rain (Megaera) -- Fail based on damage amount
+
+GTFO.SpellID["139839"] = {
+	--desc = "Rot Armor (Megaera)";
+	sound = 3;
+	tankSound = 0;
+	test = true; -- Verify
+};
+
+GTFO.SpellID["139992"] = {
+	--desc = "Diffusion (Megaera)";
+	sound = 3;
+	tankSound = 0;
+	test = true; -- Verify, tactic may include giving this to a non-tank?
+};
+
+-- TODO: Talon Strike (Ji-Kun) -- Heroic only, Avoidable?
+
+GTFO.SpellID["134375"] = {
+	--desc = "Caw (Ji-Kun)"; -- Check to see if you should completely avoid this in normal/heroic
+	soundFunction = function() -- Warn only if you get hit more than once within 5 seconds
+		if (GTFO_FindEvent("JiKunCaw")) then
+			return 3;
+		end
+		GTFO_AddEvent("JiKunCaw", 5);
+		return 0;
+	end
+};
+
+-- TODO: Disintegration Beam (Durumu the Forgotten) -- No combat log entry for this one! >:(
+-- TODO: Force of Will (Durumu the Forgotten) -- No combat log entry for this one :(
+-- TODO: Lingering Gaze (Impact) (Durumu the Forgotten) -- Impact damage only, avoidable?
+
+GTFO.SpellID["137663"] = {
+	--desc = "Acidic Splash (Durumu the Forgotten)";
+	sound = 3;
+};
+
+-- TODO: Acidic Spines (Primordius) -- Avoidable?
+-- TODO: Erupting Pustules (Primordius) -- Avoidable?
+
+GTFO.SpellID["136178"] = {
+	--desc = "Mutation (Primordius)";
+	sound = 3;
+	alwaysAlert = true;
+	affirmingDebuffSpellID = 140546; -- Fully Mutated
+};
+
+GTFO.SpellID["140508"] = {
+	--desc = "Volatile Mutation (Primordius)";
+	sound = 3;
+	alwaysAlert = true;
+};
+
+-- TODO: Crimson Wake (Large Anima Golem)
+-- TODO: Explosive Slam (Massive Anima Golem) -- Non-tank fail only?
+-- TODO: Anima Ring (Dark Animus) -- Tank fail
+-- TODO: Anima Bolt (Dark Animus) -- Avoidable?
+-- TODO: FULL POWER (Dark Animus)
+
+GTFO.SpellID["139803"] = {
+	--desc = "Triumphant Rush (Manchu)";
+	sound = 3;
+};
+
+GTFO.SpellID["139797"] = {
+	--desc = "Wild Smash (Manchu)";
+	sound = 3;
+};
+
+-- TODO: Unleashed Flame (Iron Qon) -- Fail when "Scorched" debuff is up
+
+GTFO.SpellID["137654"] = {
+	--desc = "Rushing Winds (Iron Qon)";
+	applicationOnly = true;
+	soundFunction = function() 
+		-- Only alert on the first wind hit, ignore until thrown
+		GTFO_AddEvent("RushingWinds", 4);
+		return 3;
+	end;
+	ignoreEvent = "RushingWinds";
+};
+
+GTFO.SpellID["134759"] = {
+	--desc = "Ground Rupture (Iron Qon)";
+	sound = 3;
+};
+
+GTFO.SpellID["136498"] = {
+	--desc = "Storm Surge (Iron Qon)";
+	sound = 3;
+};
+
+
+-- TODO: Whirling Winds (Iron Qon)
+-- TODO: Frost Spike (Iron Qon) -- Avoidable?
+-- TODO: Freeze Spear (Iron Qon) -- Avoidable?
+-- TODO: Ignite Cyclone (Iron Qon)
+
+GTFO.SpellID["136892"] = {
+	--desc = "Frozen Solid (Iron Qon)";
+	sound = 3;
+};
+
+GTFO.SpellID["136722"] = {
+	--desc = "Slumber Spores (Lu'lin)";
+	sound = 3;
+};
+
+GTFO.SpellID["134916"] = {
+	--desc = "Decapitate (Lei Shen)";
+	sound = 3;
+};
+
+GTFO.SpellID["135096"] = {
+	--desc = "Thunderstruck (Lei Shen)";
+	sound = 3;
+	damageMinimum = 300000; -- Adjust for heroics?
+};
+
+-- TODO: Summon Ball Lightning (Lei Shen) -- Avoidable?
+
+GTFO.SpellID["136850"] = {
+	--desc = "Lightning Whip (Lei Shen)";
+	sound = 3;
+	test = true; -- Verify
+};
+
+GTFO.SpellID["136326"] = {
+	--desc = "Overcharged (Lei Shen)";
+	sound = 3;
+	test = true; -- Verify
+};
+
 
 -- ************
 -- * Pandaria *
@@ -870,5 +1088,111 @@ GTFO.SpellID["134788"] = {
 
 GTFO.SpellID["134829"] = {
 	--desc = "Sha Crash (Korune Sha-weaver/Shan Kien)";
+	sound = 3;
+};
+
+GTFO.SpellID["131383"] = {
+	--desc = "Pool of Pheromones (Akkolon)";
+	sound = 3;
+};
+
+GTFO.SpellID["128022"] = {
+	--desc = "Dread Slash (Akkolon)";
+	sound = 3;
+};
+
+GTFO.SpellID["137685"] = {
+	--desc = "Impale (Zandalari Spearthrower)";
+	sound = 3;
+};
+
+GTFO.SpellID["140081"] = {
+	--desc = "Wild Leap (Kresh the Ripper)";
+	sound = 3;
+};
+
+GTFO.SpellID["140079"] = {
+	--desc = "Berserker Rush (Kresh the Ripper)";
+	sound = 3;
+};
+
+GTFO.SpellID["139645"] = {
+	--desc = "Thermal Collapse, Explosion (Horgak the Enslaver)";
+	sound = 3;
+};
+
+GTFO.SpellID["139921"] = {
+	--desc = "Thermal Expansion, Explosion (Horgak the Enslaver)";
+	sound = 3;
+};
+
+GTFO.SpellID["140257"] = {
+	--desc = "Wave of Might (Zandalari Colossus)";
+	sound = 3;
+};
+
+GTFO.SpellID["140221"] = {
+	--desc = "Reverberating Smash, Close (Zandalari Colossus)";
+	sound = 3;
+	tank
+};
+
+GTFO.SpellID["140224"] = {
+	--desc = "Reverberating Smash, Mid (Zandalari Colossus)";
+	sound = 3;
+};
+
+GTFO.SpellID["140225"] = {
+	--desc = "Reverberating Smash, Far (Zandalari Colossus)";
+	sound = 3;
+};
+
+GTFO.SpellID["136730"] = {
+	--desc = "Lightning Strike (Shan'ze Thundercaller)";
+	sound = 3;
+};
+
+GTFO.SpellID["140405"] = {
+	--desc = "Fetid Quake (Might Devilsaur)";
+	sound = 3;
+};
+
+GTFO.SpellID["140406"] = {
+	--desc = "Fetid Quake (Might Devilsaur)";
+	sound = 3;
+};
+
+GTFO.SpellID["140407"] = {
+	--desc = "Fetid Quake (Might Devilsaur)";
+	sound = 3;
+};
+
+GTFO.SpellID["137132"] = {
+	--desc = "Column of Thunder (Itoka)";
+	sound = 3;
+};
+
+GTFO.SpellID["137142"] = {
+	--desc = "Ring of Thunder (Itoka)";
+	sound = 3;
+};
+
+GTFO.SpellID["137434"] = {
+	--desc = "Frost Shot (Beastmaster Horaki)";
+	sound = 3;
+};
+
+GTFO.SpellID["126001"] = {
+	--desc = "Air Strike (Jack Arrow)";
+	sound = 3;
+};
+
+GTFO.SpellID["131377"] = {
+	--desc = "Crushing Slam (Voress'thalik)";
+	sound = 3;
+};
+
+GTFO.SpellID["129244"] = {
+	--desc = "Bombard";
 	sound = 3;
 };

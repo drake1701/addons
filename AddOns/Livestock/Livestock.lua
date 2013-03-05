@@ -21,8 +21,6 @@ local defaults = {
 	showland = 0, -- show or hide the Land Mounts button
 	showflying = 0, -- show or hide the Flying Mounts button
 	showsmart = 0, -- show or hide the Smart Mounts button
---	useslowland = 1, -- enable / disable seeing non-epic land mounts in the land mount menu
---	useslowflight = 1, -- enable / disable seeing non-epic flying mounts in the flying mount menu
 	scale = 1, --  scale of the Livestock buttons
 	druidlogic = 0, -- enable / disable including Flight Forms in Smart Mount behavior (for druids only)
 	worgenlogic = 0, -- enable / disable including Running Wild in Smart Mount behavior (worgens only)
@@ -39,7 +37,6 @@ local defaults = {
 	favoritepet = 0, -- index for a user-defined favorite pet
 	waterwalking = 0, -- for shamans to use Water Walking when underwater or not
 	combatforms = 1, -- whether or not combat should switch Smart Mounting for shamans / druids
-	crusadermount = 0, -- for paladins, toggles if Crusader Aura should trigger a Smart Mount Summon afterward
 	donotsummoninraid = 0, -- do not automatically summon a pet if you are in a raid
 	movingform = 0, -- check for movement to assume an instant-cast travel form
 	indooraspects = 0, -- Smart Mounting casts AotC / AotP when inside
@@ -49,6 +46,9 @@ local defaults = {
 	useweights = 0, -- Whether or not Smart Mounting should use weighted summons
 	moonkin = 0, -- Cast Moonkin Form when dismounting from Flight Form (balance druids)
 	newpet = 0, -- New companion pets are disabled by default
+	waterstrider = 0, -- Use Azure Water Strider on water when you can't fly
+	waterstrider2 = 0, -- Use Azure Water Strider while underwater
+	zenflight = 0, -- Smart Mounting casts Zen Flight when moving (outdoors, out of combat)
 	version = 1.6, -- MoP updates
 	}
 	
@@ -62,14 +62,11 @@ local stringstable = { -- strings to be localized in the GUI.  This table is ind
 	["LivestockMenuFrame3DLabel"] = L.LIVESTOCK_FONTSTRING_3DLABEL,
 	["LivestockMainPreferencesFrameButtonsToggleTitle"] = L.LIVESTOCK_FONTSTRING_BUTTONSTOGGLETITLE,
 	["LivestockMainPreferencesFrameMacroTitle"] = L.LIVESTOCK_FONTSTRING_MACROBUTTONTITLE,
-	--["LivestockMainPreferencesFrameOtherTitle"] = L.LIVESTOCK_FONTSTRING_OTHERTITLE,
 	["LivestockMainPreferencesFrameShowCrittersLabel"] = L.LIVESTOCK_FONTSTRING_SHOWCRITTERSLABEL,
 	["LivestockMainPreferencesFrameShowLandMountsLabel"] = L.LIVESTOCK_FONTSTRING_SHOWLANDLABEL,
 	["LivestockMainPreferencesFrameShowFlyingMountsLabel"] = L.LIVESTOCK_FONTSTRING_SHOWFLYINGLABEL,
 	["LivestockMainPreferencesFrameShowSmartMountsLabel"] = L.LIVESTOCK_FONTSTRING_SHOWSMARTLABEL,
 	["LivestockMainPreferencesFrameMacroText"] = L.LIVESTOCK_FONTSTRING_MACROBUTTONSTITLE,
-	--["LivestockMainPreferencesFrameUseSlowLandText"] = L.LIVESTOCK_FONTSTRING_USESLOWLANDLABEL,
-	--["LivestockMainPreferencesFrameUseSlowFlyingText"] = L.LIVESTOCK_FONTSTRING_USESLOWFLYINGLABEL,
 	["LivestockMainPreferencesFrameOpenLivestockMenuButton"] = L.LIVESTOCK_FONTSTRING_LIVESTOCKMENU,
 	["LivestockPetPreferencesFrameAutoSummonOnMoveText"] = L.LIVESTOCK_FONTSTRING_AUTOSUMMONONMOVELABEL,
 	["LivestockPetPreferencesFrameAutoSummonOnMoveFavoriteText"] = L.LIVESTOCK_FONTSTRING_AUTOSUMMONONMOVEFAVELABEL,
@@ -96,13 +93,15 @@ local stringstable = { -- strings to be localized in the GUI.  This table is ind
 	["LivestockSmartPreferencesFrameToggleWaterWalkingText"] = L.LIVESTOCK_FONTSTRING_WATERWALKINGLABEL,
 	["LivestockSmartPreferencesFrameToggleCombatFormsText"] = L.LIVESTOCK_FONTSTRING_USECOMBATFORMSLABEL,
 	["LivestockSmartPreferencesFrameToggleMovingFormsText"] = L.LIVESTOCK_FONTSTRING_USEMOVINGFORMSLABEL,
-	["LivestockSmartPreferencesFrameToggleCrusaderMountText"] = L.LIVESTOCK_FONTSTRING_CRUSADERSUMMONLABEL,
 	["LivestockSmartPreferencesFrameIndoorHunterAspectsText"] = L.LIVESTOCK_FONTSTRING_INDOORHUNTERASPECTSLABEL,
 	["LivestockSmartPreferencesFrameMovingHunterAspectsText"] = L.LIVESTOCK_FONTSTRING_MOVINGHUNTERASPECTSLABEL,
 	["LivestockSmartPreferencesFrameGroupHunterAspectsText"] = L.LIVESTOCK_FONTSTRING_GROUPHUNTERASPECTSLABEL,
 	["LivestockSmartPreferencesFrameSlowFallWhileFallingText"] = L.LIVESTOCK_FONTSTRING_SLOWFALLLABEL,
 	["LivestockSmartPreferencesFrameMoonkinText"] = L.LIVESTOCK_FONTSTRING_MOONKINLABEL,
 	["LivestockSmartPreferencesFrameNewPetText"] = L.LIVESTOCK_FONTSTRING_NEWPETLABEL,
+	["LivestockSmartPreferencesFrameWaterStriderText"] = L.LIVESTOCK_FONTSTRING_WATERSTRIDERLABEL,
+	["LivestockSmartPreferencesFrameWaterStrider2Text"] = L.LIVESTOCK_FONTSTRING_WATERSTRIDER2LABEL,
+	["LivestockSmartPreferencesFrameZenFlightText"] = L.LIVESTOCK_FONTSTRING_ZENFLIGHTLABEL,
 	}
 	
 local restrictSummonForTheseBuffs = { -- buffs that, when present, should prevent autosummoning from happening
@@ -149,7 +148,6 @@ local donotsummon = true
 local debug = false
 local modelcounter, class = 0
 local mountfail, critterfail
-local NUMBER_OF_CRITTER_MENUS, NUMBER_OF_LAND_MENUS, NUMBER_OF_FLYING_MENUS, NUMBER_OF_WATER_MENUS = 1, 1, 1, 1  -- constants for menu appearance and building
 local crittersText, landText, flyingText, waterText, mountstable, critterstable, temp = {}, {}, {}, {}, {}, {}, {} -- tables that will be reused
 local buildtable = { -- this table contains information that we will use for building and rebuilding menus as well as hiding menus
 	["CRITTER"] = {token = "Critter", text = crittersText, settings = LivestockSettings.Critters},
@@ -157,9 +155,10 @@ local buildtable = { -- this table contains information that we will use for bui
 	["FLYING"] = { token = "Flying", text = flyingText, settings = LivestockSettings.Mounts},
 	["WATER"] = { token = "Water", text = waterText, settings = LivestockSettings.Mounts},
 	}
-local menuLength = 45
+local menuLength = 30
 local buttonHeight = 15
-
+local maxWidth = 250
+			
 local sayings = {
 	"Please... no more...",
 	"Can I get a new master?",
@@ -240,11 +239,10 @@ function Livestock.CompanionEvent(self, event, ...)
 		class = select(2, UnitClass("player"))
 		return
 	elseif event == "COMPANION_LEARNED" or event == "PET_JOURNAL_PET_DELETED" or event == "UPDATE_SUMMONPETS_ACTION" then -- when a new companion is learned, sort out the companions again and then rebuild the three menus
+		if debug then
+			print(event..": Rebuilding Livestock menus...")
+		end
 		Livestock.RenumberCompanions()
-		Livestock.RebuildMenu("CRITTER")
-		Livestock.RebuildMenu("LAND")
-		Livestock.RebuildMenu("FLYING")
-		Livestock.RebuildMenu("WATER")
 		return
 	elseif event == "UNIT_SPELLCAST_SUCCEEDED" then
 		if unit == "player" then
@@ -259,13 +257,6 @@ function Livestock.CompanionEvent(self, event, ...)
 				end
 			elseif spell == L.LIVESTOCK_SPELL_CAMOUFLAGE or spell == L.LIVESTOCK_SPELL_INVISIBILITY then
 				self:RegisterEvent("UNIT_AURA")				
-			elseif spell == L.LIVESTOCK_SPELL_CRUSADERAURA and LivestockSettings.crusadermount == 1 and not IsMounted() then
-				Livestock.RenumberCompanions()
-				if Livestock.LandOrFlying() == "FLYING" then
-					Livestock.PickFlyingMount()
-				else
-					Livestock.PickLandMount()
-				end
 			elseif (spell == L.LIVESTOCK_SPELL_FLIGHTFORM or spell == L.LIVESTOCK_SPELL_SWIFTFLIGHTFORM) and LivestockSettings.dismisspetonmount == 1 then
 				Livestock.DismissCritter()
 			end
@@ -301,40 +292,48 @@ function Livestock.CompanionEvent(self, event, ...)
 	end
 end
 
+function Livestock.CritterMenuUpdate()
+	Livestock.BuildMenu("CRITTER")
+end
+
+function Livestock.LandMenuUpdate()
+	Livestock.BuildMenu("LAND")
+end
+
+function Livestock.FlyingMenuUpdate()
+	Livestock.BuildMenu("FLYING")
+end
+
+function Livestock.WaterMenuUpdate()
+	Livestock.BuildMenu("WATER")
+end
+
 -- Menu creation:
 
 function Livestock.BuildMenu(kind) -- type is a string, either "CRITTER", "LAND", "FLYING", or "WATER"
-	local token, texttable = buildtable[kind].token, buildtable[kind].text -- buildtable contains references and variables that are specific to each type of menu, indexed by the same string as the variable type
-	local settings, mounts, critters, MENUS = LivestockSettings.Mounts
-	local lastCritter = nil
+	kind = string.upper(kind)
+	local token = buildtable[kind].token -- buildtable contains references and variables that are specific to each type of menu, indexed by the same string as the variable type
+	local settings, mounts, critters = LivestockSettings.Mounts
 	
 	Livestock.RecycleTable(mountstable)
 	Livestock.RecycleTable(critterstable)
-	Livestock.RecycleTable(texttable)
 	
 	if kind == "CRITTER" then
 		critters = 0 -- reset critters to 0 so we can start counting critters
 		settings = LivestockSettings.Critters
 		for k in orderedPairs(settings) do -- Check the list of critters, increment critters, and add the index of the critters to critterstable
-			if k ~= lastCritter then -- filter out duplicates
-				critters = critters + 1
-				tinsert(critterstable, settings[k].index)
-				lastCritter = k
-			end
+			critters = critters + 1
+			tinsert(critterstable, settings[k].index)
 		end
-		NUMBER_OF_CRITTER_MENUS = math.ceil( critters / menuLength ) -- break the number of critters into groups of menuLength
-		MENUS = NUMBER_OF_CRITTER_MENUS -- make the local MENUS equal to the constant
 		
 	elseif kind == "LAND" then
 		mounts = 0 -- reset mounts to 0 so we can start counting land mounts
-		for k in orderedPairs(settings) do -- Check the list of mounts, pull out fast land mounts (or slow ones if the filter lets them through), increment mounts, and add the index of the mounts to mountstable
+		for k in orderedPairs(settings) do -- Check the list of mounts, increment mounts, and add the index of the mounts to mountstable
 			if (settings[k].type == "land") then
 				mounts = mounts + 1
 				tinsert(mountstable, settings[k].index)
 			end
 		end
-		NUMBER_OF_LAND_MENUS = math.ceil( mounts / menuLength ) -- break land mounts into groups of menuLength
-		MENUS = NUMBER_OF_LAND_MENUS -- same as above
 
 	elseif kind == "FLYING" then -- code is the same for flying mounts with the appropriate changes; perhaps this could be a function call?
 		mounts = 0
@@ -344,8 +343,6 @@ function Livestock.BuildMenu(kind) -- type is a string, either "CRITTER", "LAND"
 				tinsert(mountstable, settings[k].index)
 			end
 		end
-		NUMBER_OF_FLYING_MENUS = math.ceil( mounts / menuLength)
-		MENUS = NUMBER_OF_FLYING_MENUS --  same as above
 		
 	elseif kind == "WATER" then -- code is the same for water mounts with the appropriate changes; perhaps this could be a function call?
 		mounts = 0
@@ -355,73 +352,56 @@ function Livestock.BuildMenu(kind) -- type is a string, either "CRITTER", "LAND"
 				tinsert(mountstable, settings[k].index)
 			end
 		end
-		NUMBER_OF_WATER_MENUS = math.ceil( mounts / menuLength)
-		MENUS = NUMBER_OF_WATER_MENUS --  same as above
 	end
 	
-	
-	for currentMenu = 1, MENUS do -- iterate over however many menus we're going to need
-	
-		local menuframe = _G["Livestock"..token.."Menu"..currentMenu] or CreateFrame("Frame","Livestock"..token.."Menu"..currentMenu, LivestockMenuFrame, "LivestockBlueFrameTemplate") -- make the background of the menu (or reference it if it already exists), naming it with the proper token and number
-		menuframe:SetID(currentMenu) -- associate the number of the menu with the frame in a way that's unrelated to the name
-		
-		if currentMenu == 1 then -- if this is the first menu in a group, we need to parent it to the button that called it
-			local header
-			if kind == "CRITTER" then
-				header = "LivestockCritterMenuButton"
-			elseif kind == "LAND" then
-				header = "LivestockLandMountMenuButton"
-			elseif kind == "FLYING" then
-				header = "LivestockFlyingMountMenuButton"
-			elseif kind == "WATER" then
-				header = "LivestockWaterMountMenuButton"
-			end
-			menuframe:SetPoint("TOPLEFT", header ,"BOTTOMLEFT",0,-10) -- set the first menu to appear below the associated button
-		else
-			local lastmenu = "Livestock"..token.."Menu"..(currentMenu-1)
-			menuframe:SetPoint("TOPLEFT",lastmenu,"TOPRIGHT",3,0)  -- set other menus to appear to the right of the previous menu
-		end
-		
-		if currentMenu == 1 and MENUS > 1 then  -- if there's more than 1 menu and this is the first menu, we'll have menuLength animals, 1 "More", and Check / Uncheck All
-			menuframe:SetHeight(((menuLength + 3) * buttonHeight) + 21)
-		elseif currentMenu ~= MENUS then -- the middle menus need menuLength + 1 blocks total (menuLength animals, 1 More)
-			menuframe:SetHeight(((menuLength + 1) * buttonHeight) + 21)
-		elseif MENUS > 1 then -- the last menu , which doesn't have check / uncheck all, depends on the number of companions.  If it's a multiple of menuLength, we need menuLength buttons.  If not, it depends on how many there are
-			if (mounts or critters) % menuLength ~= 0 then
-				menuframe:SetHeight(((mounts or critters) % menuLength * buttonHeight) + 21)
-			else
-				menuframe:SetHeight(menuLength * buttonHeight + 21)
-			end
-		else -- there's only one menu, so no "More", but check and uncheck are needed
-			menuframe:SetHeight((((mounts or critters) + 2) * buttonHeight) + 21)
-		end
-		
-		local endButton -- this is the number of buttons in the menu...
-		
-		if currentMenu ~= MENUS then
-			endButton = menuLength -- menuLength if it's not the last menu
-		elseif MENUS > 1 then
-			if (mounts or critters) % menuLength ~= 0 then
-				endButton = (mounts or critters) % menuLength -- last menu will be the remainder from the other groups of menuLength if its not a multiple of menuLength
-			else
-				endButton = menuLength -- if it is a multiple of menuLength, then there will be menuLength buttons in the last menu
-			end
-		elseif MENUS == 1 then
-			endButton = (mounts or critters) -- if there's only one menu, it has the number of mounts or critters in it
-		end
-			
-		local maxWidth = 100 -- default width of the buttons
-			
-		for button = 1, endButton do -- iterate over the buttons we need
-			local menubutton = _G["Livestock"..token.."Menu"..currentMenu.."Button"..button] or CreateFrame("Button", "Livestock"..token.."Menu"..currentMenu.."Button"..button, menuframe, "LivestockMenuButtonTemplate") -- create or reference the button, with the appropriate name and number
-			menubutton:Show()
-			local text = _G["Livestock"..token.."Menu"..currentMenu.."Button"..button.."Text"] -- reference the text of the button
-			
+	local menuframe = _G["Livestock"..token.."Menu"] or CreateFrame("Frame","Livestock"..token.."Menu", LivestockMenuFrame, "LivestockBlueFrameTemplate") -- make the background of the menu (or reference it if it already exists), naming it with the proper token and number
+	local scrollframe = _G["Livestock"..token.."MenuScrollFrame"] or CreateFrame("ScrollFrame", "Livestock"..token.."MenuScrollFrame", menuframe, "Livestock"..token.."MenuScrollFrameTemplate")
+	scrollframe:Show()
+
+	local header
+	if kind == "CRITTER" then
+		header = "LivestockCritterMenuButton"
+	elseif kind == "LAND" then
+		header = "LivestockLandMountMenuButton"
+	elseif kind == "FLYING" then
+		header = "LivestockFlyingMountMenuButton"
+	elseif kind == "WATER" then
+		header = "LivestockWaterMountMenuButton"
+	end
+	menuframe:SetPoint("TOPLEFT", header ,"BOTTOMLEFT",0,-10) -- set the first menu to appear below the associated button
+
+	if (mounts or critters) <= menuLength then
+		menuframe:SetHeight((((mounts or critters) + 2) * buttonHeight) + 21)
+	else
+		menuframe:SetHeight((menuLength + 2) * buttonHeight + 21)
+	end
+
+	local endButton -- this is the number of buttons in the menu...
+	if (mounts or critters) <= menuLength then
+		endButton = (mounts or critters)
+	else
+		endButton = menuLength
+	end
+
+	local buttonplusoffset; -- an index into our data calculated from the scroll offset
+	FauxScrollFrame_Update(scrollframe,(mounts or critters),endButton,15);
+	if debug then
+		DEFAULT_CHAT_FRAME:AddMessage("We're at "..FauxScrollFrame_GetOffset(scrollframe));
+	end
+
+	for button = 1, endButton do -- iterate over the buttons we need
+		local menubutton = _G["Livestock"..token.."Menu".."Button"..button] or CreateFrame("Button", "Livestock"..token.."Menu".."Button"..button, menuframe, "LivestockMenuButtonTemplate") -- create or reference the button, with the appropriate name and number
+		menubutton:Show()
+		local text = _G["Livestock"..token.."Menu".."Button"..button.."Text"] -- reference the text of the button
+
+		buttonplusoffset = button + FauxScrollFrame_GetOffset(scrollframe);
+
+		if buttonplusoffset <= (mounts or critters) then
 			local name, creatureID, _
 			if kind == "CRITTER" then
-				_, _, _, _, _, _, _, name, _, _, creatureID = C_PetJournal.GetPetInfoByIndex(critterstable[(currentMenu - 1) * menuLength + button])
+				_, _, _, _, _, _, _, name, _, _, creatureID = C_PetJournal.GetPetInfoByIndex(critterstable[buttonplusoffset])
 			elseif kind == "LAND" or kind == "FLYING" or kind == "WATER" then
-				creatureID, name = GetCompanionInfo("MOUNT", mountstable[(currentMenu - 1) * menuLength + button] )
+				creatureID, name = GetCompanionInfo("MOUNT", mountstable[buttonplusoffset])
 			end -- get the ID and name of the companion for the button by mapping the position of the button in the menus(s) to the index of the companion
 
 			if name and creatureID then
@@ -433,10 +413,9 @@ function Livestock.BuildMenu(kind) -- type is a string, either "CRITTER", "LAND"
 					if text.SetText ~= nil then
 						text:SetText(name)
 					end
-					tinsert(texttable, text) -- set the text of the button to reflect the name of the companion, and store the fontstring itself in a table of fontstrings
 				end
 			end
-			
+
 			if name and kind == "LAND" then
 				local name2 = strconcat(name, "-")
 				if settings[name2] then
@@ -452,24 +431,24 @@ function Livestock.BuildMenu(kind) -- type is a string, either "CRITTER", "LAND"
 				if text.SetTextColor ~= nil then
 					text:SetTextColor(0.4, 0.4, 0.4) -- otherwise set the color to be grey
 				end
-			elseif not name then -- debug message if the name is nil
+			elseif not name and debug then -- debug message if the name is nil
 				local which, index
 				local creatureID, creatureName, spellID
 				local numPets, numOwned = C_PetJournal.GetNumPets(true)
 				if mounts then 
 					which = "MOUNT"
-					index = mountstable[(currentMenu - 1) * menuLength + button]
+					index = mountstable[buttonplusoffset]
 					creatureID, creatureName, spellID = GetCompanionInfo(which, index)
 					DEFAULT_CHAT_FRAME:AddMessage("Max "..kind.." "..which.." is " .. (mounts or "nil"))
 				else
 					which = "CRITTER"
-					index = critterstable[(currentMenu - 1) * menuLength + button]
-					spellID, _, _, _, _, _, _, creatureName, _, _, creatureID = C_PetJournal.GetPetInfoByIndex(critterstable[(currentMenu - 1) * menuLength + button])
+					index = critterstable[buttonplusoffset]
+					spellID, _, _, _, _, _, _, creatureName, _, _, creatureID = C_PetJournal.GetPetInfoByIndex(critterstable[buttonplusoffset])
 					DEFAULT_CHAT_FRAME:AddMessage("Max "..which.." is " .. (critters or "nil"))
 				end
 				DEFAULT_CHAT_FRAME:AddMessage(string.format("Error for "..which.." %u at menu build, ID: %s, name: %s, spellID: %s", index, (creatureID or "nil"), (creatureName or "nil"), (spellID or "nil")))
 			end
-			
+
 			menubutton:SetHeight(buttonHeight) -- give the button a height
 			if button == 1 then -- parent it to the menu's TOPLEFT corner if it's the first button, else underneath the previous button
 				menubutton:SetPoint("TOPLEFT", menuframe, "TOPLEFT", 20, -10)
@@ -477,86 +456,31 @@ function Livestock.BuildMenu(kind) -- type is a string, either "CRITTER", "LAND"
 				menubutton:SetPoint("TOPLEFT", _G[menuframe:GetName().."Button"..(button - 1)], "BOTTOMLEFT")
 			end
 
-			if button == endButton and token and currentMenu then -- set all the buttons to have the same width as the widest button.  Do this by iterating over the buttons, getting the width of their text, and then setting the buttons' width to be the width of the text plus a cushion of 50
+			if button == endButton and token then -- set all the buttons to have the same width
 				for i = 1, endButton do
-					local textWidth = 0
-					if _G["Livestock"..token.."Menu"..currentMenu.."Button"..i.."Text"].GetWidth ~= nil then
-						textWidth = _G["Livestock"..token.."Menu"..currentMenu.."Button"..i.."Text"]:GetWidth()
-					else
-						textWidth = maxWidth
-					end
-					if textWidth > maxWidth then
-						maxWidth = textWidth + 20
-					end
-				end
-				for i = 1, endButton do
-					if _G["Livestock"..token.."Menu"..currentMenu.."Button"..i].SetWidth ~= nil then
-						_G["Livestock"..token.."Menu"..currentMenu.."Button"..i]:SetWidth(maxWidth)
+					if _G["Livestock"..token.."Menu".."Button"..i].SetWidth ~= nil then
+						_G["Livestock"..token.."Menu".."Button"..i]:SetWidth(maxWidth)
 					end
 				end
 			end
-			menuframe:SetWidth(maxWidth + 30) -- bump up the size of the menu frame background to compensate and make sure the border and background look nice
 		end
+		menuframe:SetWidth(maxWidth + 30) -- bump up the size of the menu frame background to compensate and make sure the border and background look nice
 		
-		if currentMenu ~= MENUS then -- if we're not at the last menu, we need a "More" button
-			local moreframe = _G["Livestock"..token.."Menu"..currentMenu.."MoreButton"] or CreateFrame("Button", "Livestock"..token.."Menu"..currentMenu.."MoreButton", _G["Livestock"..token.."Menu"..currentMenu], "LivestockMenuButtonTemplate") --  reference or create the button
-			moreframe:SetHeight(buttonHeight)
-			moreframe:SetWidth(maxWidth) -- height and width match those of the other buttons
-			local t = _G[moreframe:GetName().."Text"]
-			t:SetText(L.LIVESTOCK_MENU_MORE)
-			moreframe:SetPoint("TOPLEFT", "Livestock"..token.."Menu"..currentMenu.."Button"..endButton, "BOTTOMLEFT") -- stick it underneath the last button in the menu
-			moreframe.which = "more"..kind -- associate a string with the frame to use for mouseover
-		end
-		
-		if currentMenu == 1 then -- the first menu needs "Select all / none" buttons
-			local check = _G["Livestock"..token.."MenuCheckButton"] or CreateFrame("Button", "Livestock"..token.."MenuCheckButton", _G["Livestock"..token.."Menu1"], "LivestockMenuButtonTemplate")
-			check.which = "check"..kind
-			local uncheck = _G["Livestock"..token.."MenuUncheckButton"] or CreateFrame("Button", "Livestock"..token.."MenuUncheckButton", _G["Livestock"..token.."Menu1"], "LivestockMenuButtonTemplate")
-			uncheck.which = "uncheck"..kind
-			check:SetHeight(buttonHeight)
-			check:SetWidth(maxWidth)
-			uncheck:SetHeight(buttonHeight)
-			uncheck:SetWidth(maxWidth) -- reference them or make them, show them, set their heights and widths, associate info with the frame, etc.
-			_G[check:GetName().."Text"]:SetText(L.LIVESTOCK_MENU_SELECTALL)
-			_G[check:GetName().."Text"]:SetTextColor(1, 1, 0)
-			_G[uncheck:GetName().."Text"]:SetText(L.LIVESTOCK_MENU_SELECTNONE)
-			_G[uncheck:GetName().."Text"]:SetTextColor(1, 1, 0) -- set their text and color (yellow to stand out)
-			if _G["Livestock"..token.."Menu1MoreButton"] then -- if the first menu has a More button, stick the Check All button under the More button.  Otherwise, stick it under the last menu button.
-				check:SetPoint("TOPLEFT", _G["Livestock"..token.."Menu1MoreButton"], "BOTTOMLEFT")
-			else
-				check:SetPoint("TOPLEFT", _G["Livestock"..token.."Menu1Button"..endButton], "BOTTOMLEFT")
-			end
-			uncheck:SetPoint("TOPLEFT", check, "BOTTOMLEFT") -- stick the Uncheck All button under the Check All button... and we're done!
-		end
+		local check = _G["Livestock"..token.."MenuCheckButton"] or CreateFrame("Button", "Livestock"..token.."MenuCheckButton", _G["Livestock"..token.."Menu"], "LivestockMenuButtonTemplate")
+		check.which = "check"..kind
+		local uncheck = _G["Livestock"..token.."MenuUncheckButton"] or CreateFrame("Button", "Livestock"..token.."MenuUncheckButton", _G["Livestock"..token.."Menu"], "LivestockMenuButtonTemplate")
+		uncheck.which = "uncheck"..kind
+		check:SetHeight(buttonHeight)
+		check:SetWidth(maxWidth)
+		uncheck:SetHeight(buttonHeight)
+		uncheck:SetWidth(maxWidth) -- reference them or make them, show them, set their heights and widths, associate info with the frame, etc.
+		_G[check:GetName().."Text"]:SetText(L.LIVESTOCK_MENU_SELECTALL)
+		_G[check:GetName().."Text"]:SetTextColor(1, 1, 0)
+		_G[uncheck:GetName().."Text"]:SetText(L.LIVESTOCK_MENU_SELECTNONE)
+		_G[uncheck:GetName().."Text"]:SetTextColor(1, 1, 0) -- set their text and color (yellow to stand out)
+		check:SetPoint("TOPLEFT", _G["Livestock"..token.."MenuButton"..endButton], "BOTTOMLEFT")
+		uncheck:SetPoint("TOPLEFT", check, "BOTTOMLEFT") -- stick the Uncheck All button under the Check All button... and we're done!
 	end
-end
-
-function Livestock.BuildMenus() -- call the build menu function on all three menus to initialize them
-	Livestock.BuildMenu("CRITTER")
-	Livestock.BuildMenu("LAND")
-	Livestock.BuildMenu("FLYING")
-	Livestock.BuildMenu("WATER")
-end
-
-function Livestock.RebuildMenu(kind) -- the menus change when you learn new companions, so we need to rebuild them occasionally.  kind is a string as before, either "CRITTER", "LAND", "FLYING", or "WATER"
- 
-	for i = 1, 8 do  -- iterate over 8 menus, which is definitely more than we need right now
-		for j = 1, menuLength do -- it's easiest just to assume menuLength animals in each menu and break when there aren't than to see how many animals there actually are
-			if _G["Livestock"..buildtable[kind].token.."Menu"..i.."Button"..j] then -- if the button exists, then hide it
-				_G["Livestock"..buildtable[kind].token.."Menu"..i.."Button"..j]:Hide()
-			else -- if it doesn't exist, we are out of animals and should stop looping
-				break
-			end
-		end
-		if _G["Livestock"..buildtable[kind].token.."Menu"..i] then
-			_G["Livestock"..buildtable[kind].token.."Menu"..i]:Hide() -- once all the buttons are hidden, check to see if the menu exists.  if it does, hide it as well.  If not, stop looping.
-		else
-			break
-		end
-	end
-	
-	Livestock.BuildMenu(kind) -- call BuildMenu to create the new button, adjust the old ones, resize things if needed, create a new menu if needed, etc.
-	
 end
 
 -- GUI functions:
@@ -584,23 +508,25 @@ function Livestock.RestoreUI(self, elapsed)
 	["LivestockPetPreferencesFrameIgnorePVPRestrictionInInstances"] = LivestockSettings.ignorepvprestrictionininstances,
 	["LivestockPetPreferencesFrameRestrictAutoSummonOnRaid"] = LivestockSettings.donotsummoninraid,
 	["LivestockPetPreferencesFrameDismissPetOnMount"] = LivestockSettings.dismisspetonmount,
+	["LivestockPetPreferencesFrameToggleDismissOnStealth"] = LivestockSettings.dismissonstealth,
+	["LivestockPetPreferencesFrameToggleDismissOnStealthPVPOnly"] = LivestockSettings.PVPdismiss,
+	["LivestockPetPreferencesFrameNewPet"] = LivestockSettings.newpet,
 	["LivestockSmartPreferencesFrameToggleDruidLogic"] = LivestockSettings.druidlogic,
 	["LivestockSmartPreferencesFrameToggleWorgenLogic"] = LivestockSettings.worgenlogic,
 	["LivestockSmartPreferencesFrameToggleSafeFlying"] = LivestockSettings.safeflying,
-	["LivestockPetPreferencesFrameToggleDismissOnStealth"] = LivestockSettings.dismissonstealth,
-	["LivestockPetPreferencesFrameToggleDismissOnStealthPVPOnly"] = LivestockSettings.PVPdismiss,
 	["LivestockSmartPreferencesFrameToggleMountInStealth"] = LivestockSettings.mountinstealth,
 	["LivestockSmartPreferencesFrameToggleSmartCatForm"] = LivestockSettings.smartcatform,
 	["LivestockSmartPreferencesFrameToggleWaterWalking"] = LivestockSettings.waterwalking,
 	["LivestockSmartPreferencesFrameToggleCombatForms"] = LivestockSettings.combatforms,
 	["LivestockSmartPreferencesFrameToggleMovingForms"] = LivestockSettings.movingform,
-	["LivestockSmartPreferencesFrameToggleCrusaderMount"] = LivestockSettings.crusadermount,
 	["LivestockSmartPreferencesFrameIndoorHunterAspects"] = LivestockSettings.indooraspects,
 	["LivestockSmartPreferencesFrameMovingHunterAspects"] = LivestockSettings.movingaspects,
 	["LivestockSmartPreferencesFrameGroupHunterAspects"] = LivestockSettings.groupaspects,
 	["LivestockSmartPreferencesFrameSlowFallWhileFalling"] = LivestockSettings.slowfall,
 	["LivestockSmartPreferencesFrameMoonkin"] = LivestockSettings.moonkin,
-	["LivestockPetPreferencesFrameNewPet"] = LivestockSettings.newpet,
+	["LivestockSmartPreferencesFrameWaterStrider"] = LivestockSettings.waterstrider,
+	["LivestockSmartPreferencesFrameWaterStrider2"] = LivestockSettings.waterstrider2,
+	["LivestockSmartPreferencesFrameZenFlight"] = LivestockSettings.zenflight,
 	}
 
 	for k, v in pairs(buttonstable) do -- show and scale each of the buttons if its setting is saved as 1 (shown)
@@ -646,15 +572,15 @@ function Livestock.RestoreUI(self, elapsed)
 		LivestockSmartPreferencesFrameSlowFallWhileFallingText:SetTextColor(0.4, 0.4, 0.4)
 	end
 	
+	if class ~= "MONK" then
+		LivestockSmartPreferencesFrameZenFlightText:SetTextColor(0.4, 0.4, 0.4)
+	end
+	
 	local text = format(L.LIVESTOCK_FONTSTRING_WATERWALKINGLABEL, (class == "PRIEST" and L.LIVESTOCK_SPELL_LEVITATE) or (class == "DEATHKNIGHT" and L.LIVESTOCK_SPELL_PATHOFFROST) or L.LIVESTOCK_SPELL_WATERWALKING)
 	LivestockSmartPreferencesFrameToggleWaterWalkingText:SetText(text)
 
 	if class ~= "SHAMAN" and class ~= "DEATHKNIGHT" and class ~= "PRIEST" then
 		LivestockSmartPreferencesFrameToggleWaterWalkingText:SetTextColor(0.4, 0.4, 0.4)
-	end
-	
-	if class ~= "PALADIN" then
-		LivestockSmartPreferencesFrameToggleCrusaderMountText:SetTextColor(0.4, 0.4, 0.4)
 	end
 	
 	local race = select(2, UnitRace("player"))
@@ -687,19 +613,17 @@ end
 
 function Livestock.HideDropdowns() --  hide all the visible dropdown menus
 	for k in pairs(buildtable) do
-		for j = 1, 8 do -- the number of menus may change per type, but it's certainly not more than 8
-			if _G["Livestock"..buildtable[k].token.."Menu"..j] and _G["Livestock"..buildtable[k].token.."Menu"..j]:IsVisible() then
-				_G["Livestock"..buildtable[k].token.."Menu"..j]:Hide()
-			end
+		if _G["Livestock"..buildtable[k].token.."Menu"] and _G["Livestock"..buildtable[k].token.."Menu"]:IsVisible() then
+			_G["Livestock"..buildtable[k].token.."Menu"]:Hide()
 		end
 	end
 end
 
 function Livestock.HeaderButtonOnClick(token) -- when we click a main menu button, we should hide all dropdowns (so they don't overlap) and show the relevant menu, but only if it wasn't visible in the first place.  This lets the buttons act as true toggles.
 	Livestock.RenumberCompanions()
-	Livestock.BuildMenus()
+	Livestock.BuildMenu(token)
 
-	local menu, visible = _G["Livestock"..token.."Menu1"]
+	local menu, visible = _G["Livestock"..token.."Menu"]
 	if menu and menu:IsVisible() then
 		visible = true
 	end
@@ -761,7 +685,7 @@ function Livestock.MenuButtonOnClick(self, button) -- self is the button clicked
 		for _, v in ipairs(buildtable[companionType].text) do -- iterate over the fontstrings and set them all to white
 			v:SetTextColor(1, 1, 1)
 		end
-		
+
 	elseif action == "uncheck" then --  otherwise it should be an "uncheck all" button
 		
 		for k in pairs(settings) do -- if these or critters or if the mounts in the settings have the same type as the companionType, lowercased (either "land" or "flying") then toggle them on
@@ -782,6 +706,7 @@ function Livestock.MenuButtonOnClick(self, button) -- self is the button clicked
 			v:SetTextColor(0.4, 0.4, 0.4)
 		end
 	end
+	Livestock.BuildMenu(companionType)
 end
 
 function Livestock.MenuButtonOnDoubleClick(self)
@@ -808,9 +733,6 @@ function Livestock.MenuButtonOnEnter(self) -- code for mousing over a menu butto
 			LivestockModel:SetCreature(id)
 			LivestockModel.angle = 0.71
 		end
-	
-	elseif strsub(which, 1, 4) == "more" then -- if this is a more button, mousing over needs to show the next menu
-		_G["Livestock"..buildtable[strsub(which, 5, strlen(which))].token.."Menu"..(self:GetParent():GetID() + 1)]:Show() -- find the menu associated with the button by getting its parent, adding 1 to the number of the menu, and then showing the resulting menu.  The table reference looks up the right token for the name of the menu based on the end of the "which" string
 	end
 end
 
@@ -914,7 +836,7 @@ function Livestock.CreateStateMaps(self)
 	self:SetAttribute("worgenlogic", LivestockSettings.worgenlogic)
 	self:SetAttribute("playerclass", select(2, UnitClass("player")))
 	self:SetAttribute("flightspell", GetSpellInfo(L.LIVESTOCK_SPELL_SWIFTFLIGHTFORM) or GetSpellInfo(L.LIVESTOCK_SPELL_FLIGHTFORM) or "nil")
-	self:SetAttribute("bearspell", GetSpellInfo(L.LIVESTOCK_SPELL_DIREBEARFORM) or L.LIVESTOCK_SPELL_BEARFORM)
+	self:SetAttribute("bearspell", GetSpellInfo(L.LIVESTOCK_SPELL_BEARFORM))
 	self:SetAttribute("form5", GetSpellInfo(L.LIVESTOCK_SPELL_TREEOFLIFE) or GetSpellInfo(L.LIVESTOCK_SPELL_MOONKINFORM) or GetSpellInfo(L.LIVESTOCK_SPELL_SWIFTFLIGHTFORM) or GetSpellInfo(L.LIVESTOCK_SPELL_FLIGHTFORM) or "nil")
 	self:SetAttribute("form6", ( GetSpellInfo(L.LIVESTOCK_SPELL_TREEOFLIFE) or GetSpellInfo(L.LIVESTOCK_SPELL_MOONKINFORM) ) and (GetSpellInfo(L.LIVESTOCK_SPELL_SWIFTFLIGHTFORM) or GetSpellInfo(L.LIVESTOCK_SPELL_FLIGHTFORM)))
 	self:SetAttribute("sealspell", L.LIVESTOCK_SPELL_AQUATICFORM)
@@ -934,6 +856,7 @@ function Livestock.CreateStateMaps(self)
 	self:SetAttribute("movingaspects", LivestockSettings.movingaspects)
 	self:SetAttribute("groupaspects", LivestockSettings.groupaspects)
 	self:SetAttribute("moonkin", LivestockSettings.moonkin)
+	self:SetAttribute("zenflight", LivestockSettings.zenflight)
 	
 --	Wrap the following script to occur when the attribute of the ComboButton changes.  This will happen whenever the user toggles a setting, changes forms, or adjusts their indoor/outdoor, swimming, combat, flyable, or mounted status.
 --	Essentially, it changes the button to have different behaviors according to the classification above of the states.  It also sets a flag in the button's mounttype attribute that indicates whether the PostClick handler should summon a mount or not.
@@ -952,9 +875,10 @@ function Livestock.CreateStateMaps(self)
 	local groupaspects = self:GetAttribute("groupaspects")
 	local moonkinspell = self:GetAttribute("moonkinspell")
 	local moonkin = self:GetAttribute("moonkin")
+	local zenflight = self:GetAttribute("zenflight")
 	
 	if name == "state-form" or name == "catform" or name == "druidlogic" or name == "worgenlogic" or name == "waterwalkingtoggle" or name == "combatformstoggle" or name == "indooraspects" 
-	   or name == "safeflying" or name == "mountinstealth" or name == "movingform" or name == "movingaspects" or name == "groupaspects" or name == "moonkin" then
+	   or name == "safeflying" or name == "mountinstealth" or name == "movingform" or name == "movingaspects" or name == "groupaspects" or name == "moonkin" or name == "zenflight" then
 		self:SetAttribute("state-smartmap",self:GetAttribute("state-smartmap"))
 		
 	elseif name == "state-smartmap" then
@@ -1174,13 +1098,13 @@ function Livestock.LandOrFlying() -- since [flyable] has been fixed, check for f
 	SetMapToCurrentZone() -- make sure that the map accurately reflects the zone you're in
 	local continent = GetCurrentMapContinent()
 	local flightForm = GetSpellInfo(L.LIVESTOCK_SPELL_SWIFTFLIGHTFORM) or GetSpellInfo(L.LIVESTOCK_SPELL_FLIGHTFORM)
-	local _,_,_,expertRiding = GetAchievementInfo(890) -- Expert Riding achievement
-	local CWF = IsUsableSpell(54197) -- Cold Weather Flying
-	local mflying = IsUsableSpell(90267) -- flight master's license
-	local pandaFlying = IsUsableSpell(115913) -- Wisdom of the Four Winds
+	local _, _, _, expertRiding, _, _, _, _, _, _, _, _, wasEarnedByMe = GetAchievementInfo(890) -- Expert Riding achievement
+	local CWF = IsUsableSpell(L.LIVESTOCK_SPELL_COLDWEATHER) -- Cold Weather Flying
+	local mflying = IsUsableSpell(L.LIVESTOCK_SPELL_FLIGHTMASTER) -- Flight Master's License
+	local pandaFlying = IsUsableSpell(L.LIVESTOCK_SPELL_WISDOMWINDS) -- Wisdom of the Four Winds
 
 	if continent == L.LIVESTOCK_CONTINENT_OUTLAND then -- if we're in Outland
-		if (expertRiding or flightForm) and IsFlyableArea() then
+		if ((expertRiding and wasEarnedByMe) or flightForm) and IsFlyableArea() then
 			return "FLYING"
 		else
 			return "LAND"
@@ -1192,7 +1116,7 @@ function Livestock.LandOrFlying() -- since [flyable] has been fixed, check for f
 				return "LAND"
 			end
 			local _, _, isActive = GetWorldPVPAreaInfo(1)
-			return ((zone == L.LIVESTOCK_ZONE_WINTERGRASP and isActive == true) and "LAND") or "FLYING" -- check to see if a battle is in progress and if so, we're on a land mount.  If not, flying mount.and if so, we're on a land mount.  If not, flying mount.
+			return ((zone == L.LIVESTOCK_ZONE_WINTERGRASP and isActive == true) and "LAND") or "FLYING" -- check to see if a battle is in progress and if so, we're on a land mount.  If not, flying mount.
 		else
 			return "LAND"
 		end
@@ -1271,6 +1195,14 @@ function Livestock.SmartPreClick(self)
 				self.mounttype = nil
 			end
 		
+			if LivestockSettings.zenflight == 1 and GetUnitSpeed("player") ~= 0 and self.mounttype == "FLYING" then
+				if GetSpellInfo(L.LIVESTOCK_SPELL_ZENFLIGHT) then
+					self:SetAttribute("type", "spell")
+					self:SetAttribute("spell", L.LIVESTOCK_SPELL_ZENFLIGHT)
+					self.mounttype = nil
+				end
+			end
+		
 			if LivestockSettings.dismisspetonmount == 1 and self.mounttype == "FLYING" then
 				Livestock.DismissCritter()
 			end
@@ -1286,6 +1218,14 @@ function Livestock.SmartPreClick(self)
 			self.mounttype = nil
 		end
 		
+		if LivestockSettings.zenflight == 1 and GetUnitSpeed("player") ~= 0 and self.mounttype == "FLYING" then
+			if GetSpellInfo(L.LIVESTOCK_SPELL_ZENFLIGHT) then
+				self:SetAttribute("type", "spell")
+				self:SetAttribute("spell", L.LIVESTOCK_SPELL_ZENFLIGHT)
+				self.mounttype = nil
+			end
+		end
+
 		if LivestockSettings.dismisspetonmount == 1 and self.mounttype == "FLYING" then
 			Livestock.DismissCritter()
 		end
@@ -1441,7 +1381,7 @@ function Livestock.NonSmartPreClick(self)
 		repeat
 			buffs = buffs + 1
 			name = UnitBuff("player", buffs)
-		until not name or name == L.LIVESTOCK_SPELL_BEARFORM or name == L.LIVESTOCK_SPELL_DIREBEARFORM or name == L.LIVESTOCK_SPELL_CATFORM or name == L.LIVESTOCK_SPELL_TRAVELFORM or name == L.LIVESTOCK_SPELL_TREEOFLIFE or name == L.LIVESTOCK_SPELL_FLIGHTFORM or name == L.LIVESTOCK_SPELL_SWIFTFLIGHTFORM
+		until not name or name == L.LIVESTOCK_SPELL_BEARFORM or name == L.LIVESTOCK_SPELL_CATFORM or name == L.LIVESTOCK_SPELL_TRAVELFORM or name == L.LIVESTOCK_SPELL_TREEOFLIFE or name == L.LIVESTOCK_SPELL_FLIGHTFORM or name == L.LIVESTOCK_SPELL_SWIFTFLIGHTFORM
 		if name then -- name will be the name of the form at this point
 			self:SetAttribute("type","spell")
 			self:SetAttribute("spell",name) -- by casting the spell that we had on in the first place, we effectively remove the spell.
@@ -1563,7 +1503,6 @@ end
 function Livestock.PickLandMount()
 	local engineeringLevel = Livestock.GetProfSkillLevel(L.LIVESTOCK_SKILL_ENGR)
 	local tailoringLevel = Livestock.GetProfSkillLevel(L.LIVESTOCK_SKILL_TAILOR)
-	local serpentFlying = IsUsableSpell(130487) -- Cloud Serpent Riding
 
 	SetMapToCurrentZone()
 	local zoneID = GetCurrentMapAreaID()
@@ -1604,21 +1543,6 @@ function Livestock.PickLandMount()
 				LivestockSettings.Mounts[k].spellID == 26054 or
 				LivestockSettings.Mounts[k].spellID == 26055) and zoneID ~= 766 then
 				-- don't try to use the AQ40 mounts
-			elseif (LivestockSettings.Mounts[k].spellID == 127170 or
-				LivestockSettings.Mounts[k].spellID == 123992 or
-				LivestockSettings.Mounts[k].spellID == 127156 or
-				LivestockSettings.Mounts[k].spellID == 123993 or
-				LivestockSettings.Mounts[k].spellID == 127169 or
-				LivestockSettings.Mounts[k].spellID == 127161 or
-				LivestockSettings.Mounts[k].spellID == 127164 or
-				LivestockSettings.Mounts[k].spellID == 127165 or
-				LivestockSettings.Mounts[k].spellID == 127158 or
-				LivestockSettings.Mounts[k].spellID == 113199 or
-				LivestockSettings.Mounts[k].spellID == 127154 or
-				LivestockSettings.Mounts[k].spellID == 129918 or
-				LivestockSettings.Mounts[k].spellID == 124408 or
-				LivestockSettings.Mounts[k].spellID == 132036) and not serpentFlying then
-				-- don't try to use the cloud serpent mounts
 			else
 				tinsert(temp, LivestockSettings.Mounts[k].index)
 			end
@@ -1643,7 +1567,7 @@ end
 function Livestock.PickFlyingMount()
 	local engineeringLevel = Livestock.GetProfSkillLevel(L.LIVESTOCK_SKILL_ENGR)
 	local tailoringLevel = Livestock.GetProfSkillLevel(L.LIVESTOCK_SKILL_TAILOR)
-	local serpentFlying = IsUsableSpell(130487) -- Cloud Serpent Riding
+	local serpentFlying = IsUsableSpell(L.LIVESTOCK_SPELL_CLOUDSERPENT) -- Cloud Serpent Riding
 
 	if IsFlying() and LivestockSettings.safeflying == 1 then -- if we're already flying, don't do anything; if we're not and mounted, we're on the ground on a flying mount so dismount instead of summoning another mount
 		return
@@ -1748,17 +1672,28 @@ function Livestock.PickWaterMount()
 	local spellName = UnitBuff("player", L.LIVESTOCK_SPELL_SEALEGS, nil )
 
 	if (spellName) then
-		tinsert(temp, LivestockSettings.Mounts["Abyssal Seahorse"].index)
+		for k in pairs(LivestockSettings.Mounts) do -- see if we have the Abyssal Seahorse
+			if (LivestockSettings.Mounts[k].type == "water" and LivestockSettings.Mounts[k].spellID == 75207) then
+				tinsert(temp, LivestockSettings.Mounts[k].index)
+			end
+		end
 	elseif (breath == false) then
 		if Livestock.LandOrFlying() == "FLYING" then
 			Livestock.PickFlyingMount()
+			return
 		else
-			Livestock.PickLandMount()
+			for k in pairs(LivestockSettings.Mounts) do -- see if we have the Azure Water Strider
+				if (LivestockSettings.Mounts[k].type == "land" and LivestockSettings.Mounts[k].spellID == 118089 and LivestockSettings.waterstrider == 1) then
+					tinsert(temp, LivestockSettings.Mounts[k].index)
+				end
+			end
 		end
-		return
 	else
-		for k in pairs(LivestockSettings.Mounts) do -- go through the water mounts and add the ones that are selected to the temp table
-			if (LivestockSettings.Mounts[k].type == "water" and LivestockSettings.Mounts[k].show == 1 and k ~= "Abyssal Seahorse") then
+		for k in pairs(LivestockSettings.Mounts) do -- go through the water mounts and add the ones that are selected to the temp table (minus the Abyssal Seahorse)
+			if (LivestockSettings.Mounts[k].type == "water" and LivestockSettings.Mounts[k].show == 1 and LivestockSettings.Mounts[k].spellID ~= 75207) then
+				tinsert(temp, LivestockSettings.Mounts[k].index)
+			end
+			if (LivestockSettings.Mounts[k].type == "land" and LivestockSettings.Mounts[k].spellID == 118089 and LivestockSettings.waterstrider2 == 1) then
 				tinsert(temp, LivestockSettings.Mounts[k].index)
 			end
 		end
@@ -1888,10 +1823,6 @@ function Livestock.Slash(arg)
 		LivestockSettings.Critters = {}
 		LivestockSettings.Mounts = {}
 		Livestock.RenumberCompanions()
-		Livestock.RebuildMenu("CRITTER")
-		Livestock.RebuildMenu("LAND")
-		Livestock.RebuildMenu("FLYING")
-		Livestock.RebuildMenu("WATER")
 	elseif cmd == "zone" or cmd == "subzone" then
 		Livestock.AddToZone(cmd, args)
 	elseif cmd == "nomount" or cmd == "mount" then
@@ -1946,6 +1877,11 @@ function Livestock.Slash(arg)
 		return
 	elseif cmd == "debug" then
 		debug = not(debug)
+		if debug then
+			print("Livestock: Debugging output is enabled.")
+		else
+			print("Livestock: Debugging output is disabled.")
+		end
 	else -- toggle the Livestock menu frame
 		if LivestockMenuFrame:IsVisible() then
 			LivestockMenuFrame:Hide()
@@ -2034,4 +1970,5 @@ Livestock.companionFrame:RegisterEvent("UI_INFO_MESSAGE")
 Livestock.companionFrame:SetScript("OnEvent", Livestock.CompanionEvent)
 
 SLASH_LIVESTOCK1 = LIVESTOCK_INTERFACE_SLASHSTRING
+SLASH_LIVESTOCK2 = LIVESTOCK_INTERFACE_SLASHSTRING_SHORT
 SlashCmdList["LIVESTOCK"] = Livestock.Slash

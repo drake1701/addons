@@ -25,9 +25,7 @@ L:SetOptionLocalization({
 
 L:SetMiscLocalization({
 	Platform			= "flies to one of his platforms!",
-	Defeat				= "We will not give in to the despair of the dark void. If Her will for us is to perish, then it shall be so.",
-	Left				= "Left",
-	Right				= "Right"
+	Defeat				= "We will not give in to the despair of the dark void. If Her will for us is to perish, then it shall be so."
 })
 
 
@@ -130,7 +128,8 @@ L:SetOptionLocalization({
 	warnAmberTrap		= "Show warning (with progress) when $spell:125826 is making", -- maybe bad translation.
 	InfoFrame			= "Show info frame for players affected by $spell:125390",
 	RangeFrame			= "Show range frame (5) for $spell:123735",
-	StickyResinIcons	= DBM_CORE_AUTO_ICONS_OPTION_TEXT:format(124097)
+	StickyResinIcons	= DBM_CORE_AUTO_ICONS_OPTION_TEXT:format(124097),
+	HeartOfFearIcon		= DBM_CORE_AUTO_ICONS_OPTION_TEXT:format(123845)
 })
 
 L:SetMiscLocalization({

@@ -98,7 +98,7 @@ function Scan:ProcessAuctionData(scanData, newItem)
 	auction:PopulateCompactRecords()
 	auction:SetAlts(TSM.db.factionrealm.player)
 	if #auction.records > 0 then
-		auction:SetMarketValue(TSMAPI:GetData("market", auction:GetItemID()))
+		auction:SetMarketValue(TSMAPI:GetItemValue(auction:GetItemID(), "DBMarket"))
 		auctionData[newItem] = auction
 	end
 end

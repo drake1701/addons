@@ -59,8 +59,14 @@ local TargetOfGroupMembers = {}
 local DebuffColumns = 3
 local inArena = false
 
-local function DefaultDebuffPreFilter() return true end
-local DebuffPrefilter = DefaultDebuffPreFilter
+local GetCombatEventResults = TidyPlatesUtility.GetCombatEventResults
+
+local function DefaultPreFilterFunction() return true end
+local function DefaultFilterFunction(aura, unit) if (aura.duration < 30) then return true end end
+
+local AuraPrefilterFunction = DefaultPreFilterFunction
+local AuraFilterFunction = DefaultFilterFunction
+local AuraHookFunction
 
 local AURA_TARGET_HOSTILE = 1
 local AURA_TARGET_FRIENDLY = 2
@@ -245,7 +251,7 @@ local Aura_Target = {}
 
 local function SetAuraInstance(guid, spellid, spellname, expiration, stacks, caster, duration, texture, auratype, auratarget)
 	if guid and spellid and caster and texture then
-		if DebuffPrefilter(spellid, spellname, auratype) ~= true then return end
+		if AuraPrefilterFunction(spellid, spellname, auratype, auratarget) ~= true then return end
 		
 		--print("SetAuraInstance", guid, spellid, spellname, expiration, stacks, caster, duration, texture, auratype, auratarget)
 		local aura_id = spellid..(tostring(caster or "UNKNOWN_CASTER"))
@@ -612,14 +618,7 @@ local function GuidIsLocalUnitId(guid)
 	end
 end
  
-local GetCombatEventResults
---if (tonumber((select(2, GetBuildInfo()))) >= 14299) then else end
 
-function GetCombatEventResults(...)
-	local timestamp, combatevent, hideCaster, sourceGUID, sourceName, sourceFlags, sourceRaidFlags, destGUID, destName, destFlags, destRaidFlag, spellid, spellname  = ...		-- WoW 4.2
-	local auraType, stackCount = select(15, ...)
-	return timestamp, combatevent, sourceGUID, destGUID, destName, destFlags, destRaidFlag, auraType, spellid, spellname, stackCount
-end
 
 local function CombatEventHandler(frame, event, ...)	
 	-- General Events, Passthrough
@@ -678,11 +677,6 @@ end
 -------------------------------------------------------------
 -- Widget Object Functions
 -------------------------------------------------------------
-local function DefaultFilterFunction(debuff, unit) 
-	if (debuff.duration < auraDurationFilter) then
-		return true
-	end
-end
 
 local function UpdateWidgetTime(frame, expiration)
 	local timeleft = expiration-GetTime()
@@ -695,17 +689,21 @@ local function UpdateWidgetTime(frame, expiration)
 end
 
 
-local function UpdateIcon(frame, texture, expiration, stacks, useHighlight)
-	if frame and texture and expiration then
-		if useHighlight then frame.Highlight:Show(); frame.Border:Hide()
-		else frame.Highlight:Hide(); frame.Border:Show() end
-		
+local function UpdateIcon(frame, texture, expiration, stacks, r, g, b)
+	if frame and texture and expiration then		
 		-- Icon
 		frame.Icon:SetTexture(texture)
 		
 		-- Stacks
 		if stacks > 1 then frame.Stacks:SetText(stacks)
 		else frame.Stacks:SetText("") end
+		
+		-- Highlight Coloring
+		if r then
+			frame.Highlight:SetVertexColor(r, g or 1, b or 1)
+			frame.Highlight:Show()
+			frame.Border:Hide()
+		else frame.Highlight:Hide(); frame.Border:Show()	end
 		
 		-- Expiration
 		UpdateWidgetTime(frame, expiration)
@@ -734,16 +732,18 @@ local function UpdateIconGrid(frame, guid)
 		
 		DebuffCache = wipe(DebuffCache)
 		local debuffCount = 0
-		local currentAuraIndex = 0
-		local aura
+
 		
+		--  if AuraHookFunction then debuffCount = AuraHookFunction(DebuffCache) end
 		
 		-- Cache displayable auras
 		------------------------------------------------------------------------------------------------------
 		-- This block will go through the auras on the unit and make a list of those that should
 		-- be displayed, listed by priority.
 		if AurasOnUnit then
-			frame:Show()
+			local currentAuraIndex = 0
+			local aura
+			
 			for instanceid in pairs(AurasOnUnit) do
 				currentAuraIndex = debuffCount + 1
 
@@ -753,14 +753,20 @@ local function UpdateIconGrid(frame, guid)
 				aura.spellid, aura.name, aura.expiration, aura.stacks, aura.caster, aura.duration, aura.texture, aura.type, aura.reaction = GetAuraInstance(guid, instanceid)
 				
 				if tonumber(aura.spellid) then
+					local show, priority, r, g, b
 					aura.unit = frame.unit
 					
 					-- Call Filter Function
-					local show, priority = frame.Filter(aura)
-					aura.priority = priority or 10
-					
+					--if frame.Filter then show, priority, r, g, b = frame.Filter(aura)		-- This method will be depricated
+					--else 
+					show, priority, r, g, b = AuraFilterFunction(aura) 
+					--print(aura.name, show, priority, r, g, b )
+					--end				-- This method will replace it
+
 					-- Get Order/Priority
 					if show and aura.expiration > GetTime() then
+						aura.priority = priority or 10
+						aura.r, aura.g, aura.b = r, g, b
 						debuffCount = debuffCount + 1
 						DebuffCache[debuffCount] = aura
 					end
@@ -768,17 +774,26 @@ local function UpdateIconGrid(frame, guid)
 				end
 			end
 		end
+
 		
-		--[[
-		-- Personal Aura Tracker
-		-- For displaying the presence of an aura on your character, using current target's aura widget --
-		-- = DebuffLimit
-		if frame.unit.isTarget and frame.unit.reaction ~= "FRIENDLY" then --  and InCombatLockdown()
-			local plName, _, plIcon, plCount, _, _, plExpiration = UnitAura("player", "Slice and Dice")
-			
-			if plName then
-				UpdateIcon(AuraIconFrames[AuraSlotIndex], plIcon, plExpiration, plCount) 
-				AuraSlotIndex = 2
+		
+		-- Debuff Cache Format
+		-- DebuffCache[i] = {'spellid', 'name', 'expiration', 'stacks', 'caster', 'duration', 'texture', 'type', 'reaction', 'priority', 'r', 'g', 'b'}
+		-- How to use: You have control over the DebuffCache before it's sorted and displayed, particularly by adding and removing items.
+		
+		--[[ Personal Aura Tracker: For displaying the presence of an aura on your character via target's aura widget...
+		local PersonalAuraList = {"Rejuvenation"}
+		
+		if frame.unit.isTarget then --  and InCombatLockdown()
+		--if frame.unit.isTarget and frame.unit.reaction ~= "FRIENDLY" then --  and InCombatLockdown()
+			for i, n in pairs(PersonalAuraList) do
+				if AuraSlotIndex > DebuffLimit then break end
+				local pName, _, pIcon, pCount, _, _, pEnd = UnitAura("player", n)
+				print(n, pName, _, pIcon, pCount, _, _, pEnd)
+				if pName then
+					UpdateIcon(AuraIconFrames[AuraSlotIndex], pIcon, pEnd, pCount, 1,.9,0) 
+					AuraSlotIndex = AuraSlotIndex + 1
+				end
 			end
 		end
 		--]]
@@ -786,43 +801,25 @@ local function UpdateIconGrid(frame, guid)
 		-- Display Auras
 		------------------------------------------------------------------------------------------------------
 		if debuffCount > 0 then 
-			local useHighlight
+			frame:Show()
 			sort(DebuffCache, debuffSort)
+			
 			for index = 1,  #DebuffCache do
-				local cachedaura = DebuffCache[index]
-				if cachedaura.spellid and cachedaura.expiration then 
-					--[[
-						-- Personal Ability Reminder
-						--if the aura has been self-cast...
-						--Check current aura for availability
-						usable, nomana = IsUsableSpell(spellid);
-						
-						IsSpellInRange(...)
-						
-						local spell = %s;
-						local spellName = GetSpellInfo(spell);
-						local startTime, duration = WeakAuras.GetSpellCooldown(spell);
-						startTime = startTime or 0;
-						duration = duration or 0;
-						local onCooldown = duration > 1.51;
-						local active = IsUsableSpell(spell) and not onCooldown
-						
+				if AuraSlotIndex > DebuffLimit then break end
+				local aura = DebuffCache[index]
+				if aura.spellid and aura.expiration then 
 
-					--]]
-					
-					
-					--print(cachedaura.name, IsUsableSpell(cachedaura.spellid), select(2, GetSpellCooldown(cachedaura.spellid)) == 0)
 					--[[
-					--if IsUsableSpell(cachedaura.spellid) and select(2, GetSpellCooldown(cachedaura.spellid)) == 0 then 
-					if select(2, GetSpellCooldown(cachedaura.spellid)) == 0 then 
-						useHighlight = true
-					else useHighlight = false end
+					--if IsUsableSpell(aura.spellid) and select(2, GetSpellCooldown(aura.spellid)) == 0 then 
+					if select(2, GetSpellCooldown(aura.spellid)) == 0 then 
+						aura.r, aura.g, aura.b = 1,.9,0
+					else aura.r, aura.g, aura.b = nil, nil, nil end
 					--]]
 					
-					UpdateIcon(AuraIconFrames[AuraSlotIndex], cachedaura.texture, cachedaura.expiration, cachedaura.stacks, useHighlight) 
+					UpdateIcon(AuraIconFrames[AuraSlotIndex], aura.texture, aura.expiration, aura.stacks, aura.r, aura.g, aura.b) 
 					AuraSlotIndex = AuraSlotIndex + 1
 				end
-				if AuraSlotIndex > DebuffLimit then break end
+				
 			end
 		end
 		
@@ -911,7 +908,7 @@ end
 -------------------------------------------------------------
 local WideArt = "Interface\\AddOns\\TidyPlatesWidgets\\Aura\\AuraFrameWide"
 local SquareArt = "Interface\\AddOns\\TidyPlatesWidgets\\Aura\\AuraFrameSquare"
-local WideHighlightArt = "Interface\\AddOns\\TidyPlatesWidgets\\Aura\\AuraFrameHighlightSquare"	
+local WideHighlightArt = "Interface\\AddOns\\TidyPlatesWidgets\\Aura\\AuraFrameHighlightWide"	
 local SquareHighlightArt = "Interface\\AddOns\\TidyPlatesWidgets\\Aura\\AuraFrameHighlightSquare"
 local AuraFont = "FONTS\\ARIALN.TTF"
 
@@ -1047,6 +1044,7 @@ local function CreateSquareAuraIconFrame(parent)
 		Type = "",
 	}		
 	--frame.Poll = UpdateWidgetTime
+	frame.Expire = ExpireFunction
 	frame.Poll = parent.PollFunction
 	frame:Hide()
 	return frame
@@ -1077,7 +1075,7 @@ local function CreateAuraWidget(parent, style)
 	frame._Hide = frame.Hide
 	frame.Hide = function() ClearWidgetContext(frame); frame:_Hide() end
 	frame:SetScript("OnHide", function() for index = 1, 4 do PolledHideIn(AuraIconFrames[index], 0) end end)	
-	frame.Filter = DefaultFilterFunction
+	frame.Filter = nil
 	frame.UpdateContext = UpdateWidgetContext
 	frame.Update = UpdateWidgetContext
 	frame.UpdateTarget = UpdateWidgetTarget
@@ -1097,7 +1095,21 @@ local function UseWideDebuffIcon()
 end
 
 local function SetPrefilter(func)
-	DebuffPrefilter = func or DefaultDebuffPreFilter
+	if func and type(func) == 'function' then
+		AuraPrefilterFunction = func or DefaultPrefilterFunction
+	end
+end
+
+local function SetAuraFilter(func)
+	if func and type(func) == 'function' then
+		AuraFilterFunction = func 
+	end
+end
+
+local function SetAuraHook(func)
+	if func and type(func) == 'function' then
+		AuraHookFunction = func
+	end
 end
 
 -----------------------------------------------------
@@ -1109,35 +1121,16 @@ TidyPlatesWidgets.CanPlayerDispel = CanPlayerDispel
 
 TidyPlatesWidgets.UseSquareDebuffIcon = UseSquareDebuffIcon
 TidyPlatesWidgets.UseWideDebuffIcon = UseWideDebuffIcon
-TidyPlatesWidgets.SetDebuffPrefilter = SetPrefilter
+TidyPlatesWidgets.SetAuraPrefilter = SetPrefilter
+TidyPlatesWidgets.SetDebuffPrefilter = SetPrefilter				-- Will be deprecated; "Debuff" is now "Aura"
+TidyPlatesWidgets.SetAuraFilter = SetAuraFilter
+TidyPlatesWidgets.SetAuraHook = SetAuraHook
 
 TidyPlatesWidgets.CreateAuraWidget = CreateAuraWidget
 
 TidyPlatesWidgets.EnableAuraWatcher = Enable
 TidyPlatesWidgets.EnableAuraWatcherTargetOnly = EnableForTargetOnly
 TidyPlatesWidgets.DisableAuraWatcher = Disable
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
 
 
 

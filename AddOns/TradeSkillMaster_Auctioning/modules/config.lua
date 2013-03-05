@@ -1,12 +1,9 @@
--- ------------------------------------------------------------------------------------- --
--- 					TradeSkillMaster_Auctioning - AddOn by Sapu94							 	  --
---   http://wow.curse.com/downloads/wow-addons/details/tradeskillmaster_auctioning.aspx  --
---																													  --
---		This addon is licensed under the CC BY-NC-ND 3.0 license as described at the		  --
---				following url: http://creativecommons.org/licenses/by-nc-nd/3.0/			 	  --
--- 	Please contact the author via email at sapu94@gmail.com with any questions or		  --
---		concerns regarding this license.																	  --
--- ------------------------------------------------------------------------------------- --
+-- ----------------------------------------------------------------------------- --
+--									TradeSkillMaster_Crafting										--
+--					A TradeSkillMaster Addon (http://tradeskillmaster.com)				--
+--		All Rights Reserved - Detailed license information included with addon		--
+--				http://www.curse.com/addons/wow/tradeskillmaster_crafting				--
+-- ----------------------------------------------------------------------------- --
 
 
 local TSM = select(2, ...)

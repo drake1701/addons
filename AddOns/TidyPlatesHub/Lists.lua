@@ -1,5 +1,6 @@
 TidyPlatesHubLocalization = TidyPlatesHubLocalization or {} 
 
+
 ----------------------------------------------------------------------
 -- Localization
 ----------------------------------------------------------------------
@@ -73,6 +74,7 @@ TidyPlatesHubModes.TextModes = {
 				{ text = L("Approximate Health"), notCheckable = 1 } ,
 				{ text = L("Level"), notCheckable = 1 } ,
 				{ text = L("Level and Health"), notCheckable = 1 } ,
+				{ text = L("Arena Vitals"), notCheckable = 1 } ,
 				--{ text = "Health and Power", notCheckable = 1 } ,
 			}
 				
@@ -104,72 +106,62 @@ TidyPlatesHubModes.AuraWidgetModes = {
 
 TidyPlatesHubModes.ScaleModes = {
 				{ text = L("None"), notCheckable = 1 } ,
-				{ text = L("By Elite"), notCheckable = 1 } ,
-				{ text = L("By Target"), notCheckable = 1 } ,
-				{ text = L("By Threat (Auto-Detect)"), notCheckable = 1 } ,
-				{ text = L("By High Threat (Aggro Gained)"), notCheckable = 1 } ,
-				{ text = L("By Low Threat (Aggro Lost)"), notCheckable = 1 } ,
-				{ text = L("By Active Debuff Widget"), notCheckable = 1 } ,
-				{ text = L("By Enemy"), notCheckable = 1 } ,
-				{ text = L("By NPC"), notCheckable = 1 } ,
-				{ text = L("By Raid Icon"), notCheckable = 1 } ,
-				{ text = L("By Enemy Healer"), notCheckable = 1 } ,
-				{ text = L("By Low Health"), notCheckable = 1 } ,
-				{ text = L("By Boss"), notCheckable = 1 } ,
+				{ text = L("On Elite Units"), notCheckable = 1 } ,
+				{ text = L("On Target"), notCheckable = 1 } ,
+				{ text = L("By Threat"), notCheckable = 1 } ,
+				{ text = L("On Active Auras"), notCheckable = 1 } ,
+				{ text = L("On Enemy Units"), notCheckable = 1 } ,
+				{ text = L("On NPCs"), notCheckable = 1 } ,
+				{ text = L("On Raid Targets"), notCheckable = 1 } ,
+				{ text = L("On Enemy Healers"), notCheckable = 1 } ,
+				{ text = L("On Low-Health Units"), notCheckable = 1 } ,
+				{ text = L("On Bosses"), notCheckable = 1 } ,
 				}
 					
 TidyPlatesHubModes.OpacityModes = {
 				{ text = L("None"), notCheckable = 1 } ,
-				{ text = L("By Threat (Auto-Detect)"), notCheckable = 1 } ,
-				{ text = L("By High Threat (Aggro Gained)"), notCheckable = 1 } ,
-				{ text = L("By Low Threat (Aggro Lost)"), notCheckable = 1 } ,
-				{ text = L("By Debuff Widget"), notCheckable = 1 } ,
-				{ text = L("By Enemy"), notCheckable = 1 } ,
-				{ text = L("By NPC"), notCheckable = 1 } ,
-				{ text = L("By Raid Icon"), notCheckable = 1 } ,
-				{ text = L("By Active/Damaged"), notCheckable = 1 } ,
-				{ text = L("By Enemy Healer"), notCheckable = 1 } ,
-				{ text = L("By Low Health"), notCheckable = 1 } ,
-				--{ text = "By Mouseover", notCheckable = 1 } ,
+				{ text = L("By Threat"), notCheckable = 1 } ,
+				{ text = L("On Active Auras"), notCheckable = 1 } ,
+				{ text = L("On Enemy Units"), notCheckable = 1 } ,
+				{ text = L("On NPCs"), notCheckable = 1 } ,
+				{ text = L("On Raid Targets"), notCheckable = 1 } ,
+				{ text = L("On Active/Damaged Units"), notCheckable = 1 } ,
+				{ text = L("On Enemy Healers"), notCheckable = 1 } ,
+				{ text = L("On Low-Health Units"), notCheckable = 1 } ,
 				}
 					
 TidyPlatesHubModes.HealthColorModes = {
 				{ text = L("Default"), notCheckable = 1 } ,
 				{ text = L("By Enemy Class"), notCheckable = 1 } ,
-				{ text = L("By Threat (Detect Role, Swap Colors for Tanking)"), notCheckable = 1 } ,
+				{ text = L("By Threat"), notCheckable = 1 } ,
 				{ text = L("By Reaction"), notCheckable = 1 } ,
 				{ text = L("By Level Color"), notCheckable = 1 } ,
 				{ text = L("By Raid Icon"), notCheckable = 1 } ,
 				{ text = L("By Health"), notCheckable = 1 } ,
-				{ text = L("By Threat (Raw Aggro, No Color Swapping)"), notCheckable = 1 } ,
 				{ text = L("By Friendly Class"), notCheckable = 1 } ,
 				}
 
 TidyPlatesHubModes.NameColorModes = {
 				{ text = L("Default"), notCheckable = 1 } ,
 				{ text = L("By Enemy Class"), notCheckable = 1 } ,
-				{ text = L("By Threat (Detect Role, Swap Colors for Tanking)"), notCheckable = 1 } ,
+				{ text = L("By Threat"), notCheckable = 1 } ,
 				{ text = L("By Reaction"), notCheckable = 1 } ,
 				{ text = L("By Level Color"), notCheckable = 1 } ,
 				{ text = L("By Health"), notCheckable = 1 } ,
-				{ text = L("By Elite/Bosss"), notCheckable = 1 } ,
-				{ text = L("By Threat (Raw Aggro, No Color Swapping)"), notCheckable = 1 },
+				{ text = L("By Normal/Elite/Boss"), notCheckable = 1 } ,
 				{ text = L("By Friendly Class"), notCheckable = 1 } ,
 				}
 				
 TidyPlatesHubModes.WarningGlowModes = {
 				{ text = L("None"), notCheckable = 1 } ,
-				{ text = L("By Threat (Auto-Detect)"), notCheckable = 1 } ,
-				{ text = L("By High Threat (Aggro Gained)"), notCheckable = 1 } ,
-				{ text = L("By Low Threat (Aggro Lost)"), notCheckable = 1 } ,
-				{ text = L("By Enemy Healer"), notCheckable = 1 } ,
+				{ text = L("By Threat"), notCheckable = 1 } ,
+				{ text = L("On Enemy Healers"), notCheckable = 1 } ,
 				}
-					
-
+				
 				
 TidyPlatesHubModes.TextPlateFieldModes = {
 				{ text = L("None"), notCheckable = 1 } ,
-				{ text = L("Health Percent"), notCheckable = 1 } ,
+				{ text = L("Percent Health"), notCheckable = 1 } ,		-- 
 				{ text = L("Role, Guild or Level"), notCheckable = 1 } ,
 				{ text = L("Role or Guild"), notCheckable = 1 } ,
 				{ text = L("NPC Role"), notCheckable = 1 } ,
@@ -177,8 +169,13 @@ TidyPlatesHubModes.TextPlateFieldModes = {
 				{ text = L("Role, Guild, Level or Health Percent"), notCheckable = 1 } ,
 				}
 				
-TidyPlatesHubModes.ThreatModes = {
+TidyPlatesHubModes.ThreatWidgetModes = {
 					{ text = L("Tug-o-Threat"), notCheckable = 1 } ,
 					{ text = L("Threat Wheel"), notCheckable = 1 } ,
 					}
 					
+TidyPlatesHubModes.ThreatModes = {
+					{ text = L("Auto (Color Swap)"), notCheckable = 1 } ,
+					{ text = L("Tank"), notCheckable = 1 } ,
+					{ text = L("DPS/Healer"), notCheckable = 1 } ,
+					}

@@ -1,3 +1,12 @@
+v1.4
+*Updated for patch 5.2.
+*Fixed some bugs with linking items into the search bar.
+*Added the "Quick Posting" window and corresponding options.
+*Added support for new quick buyout feature.
+*Fixed various battle pet issues.
+*Fixed an issue with quick posting auction duration.
+*Many other minor bug fixes and improvements.
+
 v1.3
 *The search should now be smarter when selecting the next item to buy.
 *Moved the dealfinding search to the "special searches" frame.

@@ -5,13 +5,13 @@
 local L = LibStub("AceLocale-3.0"):NewLocale("TradeSkillMaster", "frFR")
 if not L then return end
 
-L["Additional error suppressed"] = "Erreur(s) additionelle(s) supprimée(s)" -- Needs review
+L["Additional error suppressed"] = "Erreur(s) additionelle(s) supprimée(s)"
 L["Allows you to build a queue of crafts that will produce a profitable, see what materials you need to obtain, and actually craft the items."] = "Vous permet de créer une file de craft qui produira un objet, de voir quel matériaux vous avez besoin et de créer les objets."
 L["Allows you to quickly and easily empty your mailbox as well as automatically send items to other characters with the single click of a button."] = "Vous permet de vider rapidement et facilement votre boite aux lettres ainsi que d'envoyer automatiquement des objets à d'autres personnages d'un simple clic."
 -- L["Allows you to use data from http://wowuction.com in other TSM modules and view its various price points in your item tooltips."] = ""
 -- L["Appearance Data"] = ""
 -- L["Application and Addon Developer:"] = ""
--- L["Attach TSM Tab"] = ""
+L["Attach TSM Tab"] = "Attacher l'onglet TSM"
 L["Auctionator - Auction Value"] = "Auctionator - Valeur de l'enchère"
 L["AuctionDB - Market Value"] = "AuctionDB - Valeur marchande"
 L["AuctionDB - Minimum Buyout"] = "AuctionDB - Achat minimum"
@@ -19,7 +19,7 @@ L["AuctionDB - Minimum Buyout"] = "AuctionDB - Achat minimum"
 L["Auctioneer - Market Value"] = "Auctioneer - Valeur du marché"
 L["Auctioneer - Minimum Buyout"] = "Auctioneer - Achat minimum"
 L["Auction Frame Scale"] = "Echelle de la fenêtre des métiers"
--- L["Auction House Tab Settings"] = ""
+L["Auction House Tab Settings"] = "Option de l'onglet HDV"
 L["Author(s):"] = "Auteur(s):"
 L["BC - Blue Quality"] = "BC - Qualité bleu (rare)"
 L["BC Gems"] = "BC - Gemmes"
@@ -38,7 +38,7 @@ Please visit http://wow.curse.com/downloads/wow-addons/details/tradeskill-master
 
 Please visit http://wow.curse.com/downloads/wow-addons/details/tradeskill-master.aspx and check the project description for links to download modules.]=] ] = "" ]==]
 -- L["Changes how many rows are shown in the auction results tables."] = ""
--- L["Changes the size of the auction frame. The size of the detached TSM auction frame will always be the same as the main auction frame."] = ""
+L["Changes the size of the auction frame. The size of the detached TSM auction frame will always be the same as the main auction frame."] = "Changer la taille de la fenêtre HDV. La taille de la fenêtre TSM sera toujours la même que celle de l'HDV."
 L["Changes the tip showing at the bottom of the main TSM window."] = "Change l'astuce montrée en bas de la fenêtre principale de TSM"
 L["Click this button to detach the TradeSkillMaster tab from the rest of the auction house."] = "Cliquez ce bouton pour séparer l'onglet TradeSkillMaster de l'ensemble de l'Hotel des Ventes"
 L["Click this button to re-attach the TradeSkillMaster tab to the auction house."] = "Cliquez sur ce bouton pour ré-attacher la fenêtre de TradeSkillMaster à l'Hôtel des ventes."
@@ -53,12 +53,14 @@ L["Crafting Cost"] = "Coût du craft"
 L["Description:"] = "Description:"
 L["Detach TSM Tab"] = "Détacher le panneau de TSM"
 -- L["Detach TSM Tab by Default"] = ""
---[==[ L[ [=[Double-click to collapse this item and show only the cheapest auction.
+L[ [=[Double-click to collapse this item and show only the cheapest auction.
 
-Right-click to open the quick action menu.]=] ] = "" ]==]
---[==[ L[ [=[Double-click to expand this item and show all the auctions.
+Right-click to open the quick action menu.]=] ] = [=[Double clic pour réduire l'item et ne voir que la meilleur enchère.
+Clic droit pour ouvrir le menu rapide.]=]
+L[ [=[Double-click to expand this item and show all the auctions.
 
-Right-click to open the quick action menu.]=] ] = "" ]==]
+Right-click to open the quick action menu.]=] ] = [=[Double clic pour développer l'item et voir toutes les enchères.
+Clic droit pour ouvrir le menu rapide.]=]
 L["Dust"] = "Poussière"
 L["Elemental - Eternals"] = "Élémentaires - Éternels"
 -- L["Elemental - Motes"] = ""
@@ -92,18 +94,18 @@ L["Just incase you didn't read this the first time:"] = "Au cas ou vous n'auriez
 -- L["Light (by Ravanys - The Consortium)"] = ""
 -- L["Link Text 2 (Requires Reload)"] = ""
 -- L["Link Text (Requires Reload)"] = ""
--- L["Looks like TradeSkillMaster has encountered an error. Please help the author fix this error by copying the entire error below and following the instructions for reporting bugs listed here (unless told elsewhere by the author):"] = ""
+L["Looks like TradeSkillMaster has encountered an error. Please help the author fix this error by copying the entire error below and following the instructions for reporting bugs listed here (unless told elsewhere by the author):"] = "Il semble que TSM ait rencontré une erreur. Merci d'aider le développeur de TSM en copiant l'ensemble du message d'erreur et en suivant les instructions permettant de faire remonter les bugs."
 L["Looks like TradeSkillMaster has encountered an error. Please help the author fix this error by following the instructions shown."] = "Il semblerait que TradeSkillMaster ai rencontré une erreur. Merci d'aider l'auteur à corriger cette erreur en suivant les instructions affichées."
--- L["Make Auction Frame Movable"] = ""
--- L["Make TSM Default Auction House Tab"] = ""
+L["Make Auction Frame Movable"] = "Déverrouiller la frame"
+L["Make TSM Default Auction House Tab"] = "Faire de TSM l'onglet par défaut de l'HDV."
 L["Manages your inventory by allowing you to easily move stuff between your bags, bank, and guild bank."] = "Gérez votre inventaire en vous permettant de bouger facilement les objets entre vos sacs, banque et banque de guilde."
--- L["Mills, prospects, and disenchants items at super speed!"] = ""
+L["Mills, prospects, and disenchants items at super speed!"] = "Moudre, prospecter et désenchanter de manière rapide."
 L["Module:"] = "Module: "
 L["Module \"%s\" is out of date. Please update."] = "Le module \"%s\" est périmé. Merci de le mettre à jour."
 -- L["Mop - Blue Quality"] = ""
 -- L["Mop Gems"] = ""
 -- L["Mop - Green Quality"] = ""
--- L["Need help with TSM? Check out the following resources!"] = ""
+L["Need help with TSM? Check out the following resources!"] = "Besoin d'aide avec TSM? Consulter les liens suivants!"
 L["New Tip"] = "Nouvelle astuce"
 L["No help provided."] = "Aucune aide n'est fournie."
 L["No modules are currently loaded.  Enable or download some for full functionality!"] = "Aucun module n'est actuellement chargé. Activez ou téléchargez en certains pour une fonctionnalité intégrale !"
@@ -113,8 +115,8 @@ L["Official TradeSkillMaster Forum:"] = "Forum officiel de TradeSkillMaster: "
 -- L["Open All Bags with Auction House"] = ""
 L["Options"] = "Options"
 L["Past Contributors:"] = "Derniers Contributeurs: "
--- L["Performs scans of the auction house and calculates the market value of items as well as the minimum buyout. This information can be shown in items' tooltips as well as used by other modules."] = ""
--- L["Posts and cancels your auctions to / from the auction house accorder to pre-set rules. Also, this module can show you markets which are ripe for being reset for a profit."] = ""
+L["Performs scans of the auction house and calculates the market value of items as well as the minimum buyout. This information can be shown in items' tooltips as well as used by other modules."] = "Scan de l'HSV en cours et calcul des prix du marché des objets ainsi que leur prix le plus bas. Ces informations peuvent être visibles dans le tooltip des objets et également utilisées par d'autres modules."
+L["Posts and cancels your auctions to / from the auction house accorder to pre-set rules. Also, this module can show you markets which are ripe for being reset for a profit."] = "Mise en vente et annulation de vos enchères à l'HDV en tenant compte des règles préétablies. De plus, ce module vous signale les objets dont le prix peut être réévalué pour augmenter le profit."
 -- L["Provides interfaces for efficiently searching for items on the auction house. When an item is found, it can easily be bought, canceled (if it's yours), or even posted from your bags."] = ""
 L["Provides the main central frame as well as APIs for all TSM modules."] = "Fourni le cadre central principal ainsi que les API pour tous les autres modules."
 L["Quick Action Menu:"] = "Menu d'actions rapide: "
@@ -165,7 +167,7 @@ L["Uncommon Inks"] = "Encres inhabituelles"
 -- L["Use the options below to change and tweak the appearance of TSM."] = ""
 L["Vendor Sell Price"] = "Prix de vente au PNJ"
 L["Version:"] = "Version:"
-L["Visit %s for information about the different TradeSkillMaster modules as well as download links."] = "Visiter %s pour plus d'information sur les modules TradeSkillMaster ainsi que les liens de téléchargement." -- Needs review
+L["Visit %s for information about the different TradeSkillMaster modules as well as download links."] = "Visiter %s pour plus d'information sur les modules TradeSkillMaster ainsi que les liens de téléchargement."
 -- L["Web Master and Addon Developer:"] = ""
 L[ [=[Welcome to the release version of TradeSkillMaster!
 

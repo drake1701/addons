@@ -4,23 +4,6 @@
 --[[
 GTFO German Localization
 Translator: Freydis88, GusBackus, Zaephyr81
-
-Change Log:
-	v2.8.1
-		- Added German localization
-	v3.1
-		- Updated German localization for 3.0
-	v3.2.2
-		- Added untranslated strings
-	v3.5.1
-		- Updated German localization
-	v4.7
-		- Fixed localization issues
-	v4.8.6
-		- Updated German localization
-	v4.12
-		- Added untranslated strings
-		
 ]]--
 
 if (GetLocale() == "deDE") then

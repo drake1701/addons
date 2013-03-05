@@ -26,9 +26,7 @@ L:SetOptionLocalization({
 
 L:SetMiscLocalization({
 	Platform			= "황실 장로 조르로크가 단상으로 날아갑니다!",
-	Defeat				= "우리는 어두운 공허의 절망에 지지 않으리라. 우리가 죽는 것이 그분의 뜻이라면, 그대로 따르리라.",
-	Left				= "왼쪽",
-	Right				= "오른쪽"
+	Defeat				= "우리는 어두운 공허의 절망에 지지 않으리라. 우리가 죽는 것이 그분의 뜻이라면, 그대로 따르리라."
 })
 
 ------------
@@ -129,7 +127,8 @@ L:SetOptionLocalization({
 	warnAmberTrap		= "$spell:125826 생성 과정 알림 보기", 
 	InfoFrame			= "$spell:125390 주문의 영향을 받은 대상을 정보 창에서 보기",
 	RangeFrame			= "$spell:123735 주문에 대한 거리 창 보기(5m)",
-	StickyResinIcons	= DBM_CORE_AUTO_ICONS_OPTION_TEXT:format(124097)
+	StickyResinIcons	= DBM_CORE_AUTO_ICONS_OPTION_TEXT:format(124097),
+	HeartOfFearIcon		= DBM_CORE_AUTO_ICONS_OPTION_TEXT:format(123845)
 })
 
 L:SetMiscLocalization({

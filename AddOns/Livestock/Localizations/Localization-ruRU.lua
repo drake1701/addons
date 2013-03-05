@@ -1,4 +1,4 @@
-﻿if GetLocale() == "ruRU" then
+if GetLocale() == "ruRU" then
 
 	if not LivestockLocalizations then
 		LivestockLocalizations = {}
@@ -9,14 +9,11 @@
 	L.LIVESTOCK_FONTSTRING_3DLABEL = "3D Модель"
 	L.LIVESTOCK_FONTSTRING_BUTTONSTOGGLETITLE = "Показать / Спрятать кнопки"
 	L.LIVESTOCK_FONTSTRING_MACROBUTTONTITLE = "Генерация макроса Livestock"
-	L.LIVESTOCK_FONTSTRING_OTHERTITLE = "Опции фильтра"
 	L.LIVESTOCK_FONTSTRING_SHOWCRITTERSLABEL = "Спутники"
 	L.LIVESTOCK_FONTSTRING_SHOWLANDLABEL = "Наземный транспорт"
 	L.LIVESTOCK_FONTSTRING_SHOWFLYINGLABEL = "Летающий транспорт"
 	L.LIVESTOCK_FONTSTRING_SHOWSMARTLABEL = "Smart"
 	L.LIVESTOCK_FONTSTRING_MACROBUTTONSTITLE = "Ознакомьтесь с документацией прежде чем нажимать эти кнопки!"
-	L.LIVESTOCK_FONTSTRING_USESLOWLANDLABEL = "Включать медленный траспорт в меню наземных."
-	L.LIVESTOCK_FONTSTRING_USESLOWFLYINGLABEL = "Включать медленнй транспорт в меню летающих."
 	L.LIVESTOCK_FONTSTRING_AUTOSUMMONONMOVELABEL = "Автоматически вызывать спуника при движении."
 	L.LIVESTOCK_FONTSTRING_AUTOSUMMONONMOVEFAVELABEL = "Вызывать выбранного спутника вместо случайного."
 
@@ -30,36 +27,12 @@
 	L.LIVESTOCK_FONTSTRING_USECOMBATFORMSLABEL = "Функция Smart должна использовать 'Призрачного волка' или 'Походную форму' в бою." 		L.LIVESTOCK_FONTSTRING_SMARTCATFORMLABEL = "Функция Smart может использовать 'Облик кошки' в помещениях."
 	L.LIVESTOCK_FONTSTRING_WATERWALKINGLABEL = "Функция Smart может использовать заклинание 'Хождение по воде' под водой."
 	L.LIVESTOCK_FONTSTRING_CRUSADERSUMMONLABEL = "Автоматически вызывать Smart-транспорт после использования 'Ауры воина Света'."
+
 	L.LIVESTOCK_MENU_MORE = "Еще   >>>"
 	L.LIVESTOCK_MENU_SELECTALL = "Включить все"
 	L.LIVESTOCK_MENU_SELECTNONE = "Отключить все"
-	L.LIVESTOCK_ZONE_DALARAN = "Даларан"
+
 	L.LIVESTOCK_ZONE_WINTERGRASP = "Ледяных Оков"
-	L.LIVESTOCK_SUBZONE_LANDING = "Площадка Краса"
-	L.LIVESTOCK_SUBZONE_UNDERBELLY = "Клоака"
-	L.LIVESTOCK_SPELL_SWIFTFLIGHTFORM = "Облик стремительной птицы"
-	L.LIVESTOCK_SPELL_FLIGHTFORM = "Облик птицы"
-	L.LIVESTOCK_SPELL_TRAVELFORM = "Походный облик"
-	L.LIVESTOCK_SPELL_BEARFORM = "Облик медведя"
-	L.LIVESTOCK_SPELL_DIREBEARFORM = "Облик лютого медведя"
-	L.LIVESTOCK_SPELL_CATFORM = "Облик кошки"
-	L.LIVESTOCK_SPELL_TREEOFLIFE = "Древо жизни"
-	L.LIVESTOCK_SPELL_MOONKINFORM = "Облик лунного совуха"
-	L.LIVESTOCK_SPELL_GHOSTWOLF = "Призрачный волк"
-	L.LIVESTOCK_SPELL_STEALTH = "Незаметность"
-	L.LIVESTOCK_SPELL_FEIGNDEATH = "Притвориться мертвым"
-	L.LIVESTOCK_SPELL_INVISIBILITY = "Невидимость"
-	L.LIVESTOCK_SPELL_VANISH = "Изчезновение"
-	L.LIVESTOCK_SPELL_CLOAKING = "Незримость"
-	L.LIVESTOCK_SPELL_PROWL = "Крадущийся зверь"
-	L.LIVESTOCK_SPELL_SHADOWMELD = "Слиться с тенью"
-	L.LIVESTOCK_SPELL_AQUATICFORM = "Водный облик"
-	L.LIVESTOCK_SPELL_WATERWALKING = "Хождение по воде"
-
-	L.LIVESTOCK_SPELL_CRUSADERAURA = "Аура воина Света" 
-	L.LIVESTOCK_SPELL_FOOD = "Food"
-
-	L.LIVESTOCK_SPELL_DRINK = "Drink"
 
 	L.LIVESTOCK_TOOLTIP_VERY = "очень"
 	L.LIVESTOCK_TOOLTIP_EXTREMELY = "невероятно"
@@ -68,6 +41,7 @@
 	L.LIVESTOCK_TOOLTIP_CHANGES = "меняется"
 	L.LIVESTOCK_TOOLTIP_NORTHREND = "Нордскол"
 	L.LIVESTOCK_TOOLTIP_OUTLAND = "Запределье"
+
 	L.LIVESTOCK_INTERFACE_CRITTERMACROCREATED = "|cFF4444DDLivestock:|r Макрос вызова случайного спутника создан среди макросов персонажа!"
 	L.LIVESTOCK_INTERFACE_LANDMACROCREATED = "|cFF4444DDLivestock:|r Макрос вызова случайного наземного транспорта создан среди макросов персонажа!"
 	L.LIVESTOCK_INTERFACE_FLYINGMACROCREATED = "|cFF4444DDLivestock:|r Макрос вызова случайного летающего транспорта создан среди макросов персонажа!"

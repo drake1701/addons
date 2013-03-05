@@ -4,17 +4,6 @@
 --[[
 GTFO Spanish Localization
 Translator: Pablous (Copied from esES)
-
-Change Log:
-	v4.2.2
-		- Added Latin American Spanish localization
-	v4.7
-		- Fixed localization issues
-	v4.9
-		- Fixed localization issues
-	v4.12
-		- Added untranslated strings
-		
 ]]--
 
 if (GetLocale() == "esMX") then

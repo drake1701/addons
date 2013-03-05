@@ -23,6 +23,10 @@ L:SetOptionLocalization({
 ------------
 L= DBM:GetModLocalization(742)
 
+L:SetOptionLocalization({
+	warnLightOfDay	= DBM_CORE_AUTO_ANNOUNCE_OPTIONS.target:format(123716)
+})
+
 L:SetMiscLocalization{
 	Victory	= "I thank you, strangers. I have been freed."
 }
@@ -62,9 +66,11 @@ L:SetMiscLocalization{
 L= DBM:GetModLocalization(709)
 
 L:SetWarningLocalization({
-	MoveWarningForward			= "Move Through",
-	MoveWarningRight			= "Move Right",
-	MoveWarningBack				= "Move To Old Position",
+	warnWaterspout				= "%s (%d) : >%s<",
+	warnHuddleInTerror			= "%s (%d) : >%s<",
+	MoveForward					= "Move Through",
+	MoveRight					= "Move Right",
+	MoveBack					= "Move To Old Position",
 	specWarnBreathOfFearSoon	= "Breath of Fear soon - MOVE into wall!"
 })
 
@@ -76,17 +82,13 @@ L:SetTimerLocalization({
 })
 
 L:SetOptionLocalization({
+	warnThrash					= DBM_CORE_AUTO_ANNOUNCE_OPTIONS.spell:format(131996),
+	warnBreathOnPlatform		= "Show $spell:119414 warning when you are on platform\n(not recommanded, for raid leader)",
 	specWarnBreathOfFearSoon	= "Show pre-special warning for $spell:119414 if you not have a $spell:117964 buff",
-	SetIconOnHuddle				= DBM_CORE_AUTO_ICONS_OPTION_TEXT:format(120629)
-})
-
-L:SetOptionLocalization({
+	specWarnMovement			= "Show special warning to move when $spell:120047 is being fired\n(http://mysticalos.com/terraceofendlesssprings.jpg)",
+	warnWaterspout				= DBM_CORE_AUTO_ANNOUNCE_OPTIONS.target:format(120519),
+	warnHuddleInTerror			= DBM_CORE_AUTO_ANNOUNCE_OPTIONS.target:format(120629),
+	timerSpecialAbility			= "Show timer for when next special ability will be cast",
 	RangeFrame					= "Show range frame (2) for $spell:119519",
-	MoveWarningForward			= "Show special warning to move through when $spell:120047 is being fired",
-	MoveWarningRight			= "Show special warning to move right when $spell:120047 is being fired",
-	MoveWarningBack				= "Show special warning to move back to old position when $spell:120047 has ended",
-	timerSpecialAbilityCD		= "Show timer for when next special ability will be cast",
-	timerSpoHudCD				= "Show timer for next possible $spell:120629 or $spell:120519 cast",
-	timerSpoStrCD				= "Show timer for next possible $spell:120519 or $spell:120672 cast",
-	timerHudStrCD				= "Show timer for next possible $spell:120629 or $spell:120672 cast"
+	SetIconOnHuddle				= DBM_CORE_AUTO_ICONS_OPTION_TEXT:format(120629)
 })

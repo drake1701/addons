@@ -10,7 +10,7 @@ L["Allows you to build a queue of crafts that will produce a profitable, see wha
 L["Allows you to quickly and easily empty your mailbox as well as automatically send items to other characters with the single click of a button."] = "允许你简单快速的清空你的收件箱，并可单击按钮来自动发送物品给其他角色。" -- Needs review
 -- L["Allows you to use data from http://wowuction.com in other TSM modules and view its various price points in your item tooltips."] = ""
 -- L["Appearance Data"] = ""
--- L["Application and Addon Developer:"] = ""
+L["Application and Addon Developer:"] = "应用及插件开发者：" -- Needs review
 L["Attach TSM Tab"] = "吸附 TSM 标签" -- Needs review
 L["Auctionator - Auction Value"] = "Auctionator - 拍卖价格" -- Needs review
 L["AuctionDB - Market Value"] = "AuctionDB - 市场价格" -- Needs review
@@ -24,7 +24,7 @@ L["Author(s):"] = "作者："
 L["BC - Blue Quality"] = "燃烧远征 - 蓝色品质" -- Needs review
 L["BC Gems"] = "燃烧远征的宝石" -- Needs review
 L["BC - Green Quality"] = "燃烧远征 - 绿色品质" -- Needs review
--- L["Border Thickness (Requires Reload)"] = ""
+L["Border Thickness (Requires Reload)"] = "边框厚度 （需要重载）" -- Needs review
 L["Careful where you click!"] = "小心点击的地方！" -- Needs review
 L["Cata - Blue Quality"] = "大灾变 - 蓝色品质" -- Needs review
 L["Cata Gems"] = "大灾变的宝石" -- Needs review
@@ -49,7 +49,7 @@ L["Click this button to re-attach the TradeSkillMaster tab to the auction house.
 -- L["Co-Founder:"] = ""
 L["Common Inks"] = "普通墨水" -- Needs review
 -- L["Content - Backdrop"] = ""
--- L["Content - Border"] = ""
+L["Content - Border"] = "内容 - 边框" -- Needs review
 -- L["Content Text - Disabled"] = ""
 -- L["Content Text - Enabled"] = ""
 L["Crafting Cost"] = "制作花费" -- Needs review

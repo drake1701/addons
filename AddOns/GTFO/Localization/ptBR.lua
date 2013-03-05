@@ -4,15 +4,6 @@
 --[[
 GTFO Brazilian Portuguese Localization
 Translator: Phalk, Omukeka
-
-Change Log:
-	v4.9.5
-		- Added Brazilian Portuguese localization
-	v4.12
-		- Added untranslated strings
-	v4.17
-		- Added untranslated strings
-		
 ]]--
 
 if (GetLocale() == "ptBR") then

@@ -31,7 +31,6 @@ L.Button_OK 				= '확인'
 L.Button_Cancel 			= '취소'
 L.Button_LoadMod 			= '불러오기'
 L.Mod_Enabled				= "우두머리 경보 사용"
-L.Mod_EnableAnnounce		= "공격대 경보로 알리기(공격대장 권한 필요)"
 L.Reset 					= "초기화"
 
 L.Enable  					= "켜기"
@@ -100,6 +99,7 @@ L.RaidWarnSound				= "알림 소리"
 L.CountdownVoice			= "초읽기 및 지속시간 읽기 소리 설정"
 L.SpecialWarnSound			= "특수 경고 소리(주로 당신이나 특정 직업군이 영향을 받는 주문)"
 L.SpecialWarnSound2			= "특수 경고 소리(주로 공격대원 전체가 영향을 받는 주문)"
+L.SpecialWarnSound3			= "특수 경고 소리(당신 또는 공격대의 전멸을 불러 올 수 있는 주문)"
 
 -- Tab: Generalwarnings
 L.Tab_GeneralMessages 		= "메세지 설정"
@@ -162,19 +162,24 @@ L.BarWidth					= "바 길이: %d"
 L.Panel_SpamFilter				= "숨김 설정"
 L.Area_SpamFilter				= "일반 설정"
 L.HideBossEmoteFrame			= "블리자드 기본 레이드 경보 숨기기"
-L.SpamBlockRaidWarning			= "DBM 또는 다른 공격대 경보 애드온이 알리는 공격대 경보 대화 감추기" 
 L.SpamBlockBossWhispers			= "전투 중 다른 공격대원 또는 파티원이 보내는 <DBM> 귓속말 감추기"
 L.BlockVersionUpdateNotice		= "업데이트 알림 창 끄기"
 L.ShowBigBrotherOnCombatStart	= "전투 시작시 BigBrother 버프 체크 실행하기"
 L.BigBrotherAnnounceToRaid		= "Big Brother 버프 체크 결과를 공격대에 알리기"
+L.SpamBlockSayYell				= "전투 중 대화 말풍선 숨기기"
+
 
 L.Area_SpamFilter_Outgoing		= "공통 설정(각 우두머리별 설정 무시)"
 L.SpamBlockNoShowAnnounce		= "알림 또는 경고 소리 끄기"
-L.SpamBlockNoSendAnnounce		= "공격대 경보 알림 대화를 보내지 않기"
 L.SpamBlockNoSendWhisper		= "다른 공격대원 또는 파티원에게 귓속말 알림을 보내지 않기"
 L.SpamBlockNoSetIcon			= "전술 목표 아이콘 설정하지 않기"
 L.SpamBlockNoRangeFrame			= "거리 창 표시하지 않기"
 L.SpamBlockNoInfoFrame			= "정보 창 표시하지 않기"
+
+L.Area_PullTimer				= "전투 시작 예정 설정"
+L.DontShowPT					= "전투 시작 예정 바 숨기기"
+L.DontShowPTCountdownText		= "전투 시작 예정 초읽기 글자 숨기기"
+L.DontPlayPTCountdown			= "전투 시작 예정 초읽기 소리 숨기기"
 
 -- Misc
 L.FontHeight = 16

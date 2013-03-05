@@ -2,10 +2,10 @@ if select(4, GetBuildInfo()) < 50200 then return end--Don't load on live
 local mod	= DBM:NewMod(826, "DBM-Pandaria", nil, 322)
 local L		= mod:GetLocalizedStrings()
 
-mod:SetRevision(("$Revision: 8525 $"):sub(12, -3))
+mod:SetRevision(("$Revision: 8773 $"):sub(12, -3))
 mod:SetCreatureID(69161)--Not yet available in PTR, CID not known
 --mod:SetModelID(41448)
-mod:SetZone(929)--No map ID for area yet. Lightning Isle
+mod:SetZone(929)--Isle of Giants
 
 mod:RegisterCombat("combat")
 mod:SetWipeTime(120)
@@ -39,14 +39,16 @@ local numberTanks = 0
 local function isTank(unit)
 	-- 1. check blizzard tanks first
 	-- 2. check blizzard roles second
-	-- 3. check boss1's highest threat target
+	-- 3. check boss's current target
 	if GetPartyAssignment("MAINTANK", unit, 1) then
 		return true
 	end
 	if UnitGroupRolesAssigned(unit) == "TANK" then
 		return true
 	end
-	if UnitExists("boss1target") and UnitDetailedThreatSituation(unit, "boss1") then
+	--Since this is checked on pull, it will fail if someone other than tank facepulls it (or rathor think that dps is a tank
+	local targetname, uId = mod:GetBossTarget(69161)
+	if targetname and UnitIsUnit(unit, uId) then
 		return true
 	end
 	return false

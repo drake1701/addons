@@ -1,4 +1,4 @@
-## Interface: 50200
+## Interface: 50001
 ## Title: QuestHelper Data (ruRU)
 ## Author: zorbathut, smariot, vipersniper, nesher, nconantj
 ## Notes: Contains the data needed by QuestHelper

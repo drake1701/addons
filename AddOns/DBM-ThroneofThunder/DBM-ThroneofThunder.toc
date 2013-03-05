@@ -1,4 +1,4 @@
-## Interface: 50200
+﻿## Interface: 50200
 ## X-Min-Interface: 50200
 ## Title:|cffffe00a<|r|cffff7d0aDBM|r|cffffe00a>|r |cff69ccf0Throne of Thunder|r
 ## Title-ruRU:|cffffe00a<|r|cffff7d0aDBM|r|cffffe00a>|r |cff69ccf0Throne of Thunder|r
@@ -19,7 +19,7 @@
 ## X-DBM-Mod-Name-zhCN: 雷电王座
 ## X-DBM-Mod-Name-frFR: Trône du tonnerre
 ## X-DBM-Mod-Name-deDE: Thron des Donners
-## X-DBM-Mod-Name-zhTW: 雷電王座
+## X-DBM-Mod-Name-zhTW: 雷霆王座
 ## X-DBM-Mod-Sort: 1
 ## X-DBM-Mod-LoadZoneID: 930
 localization.en.lua
@@ -43,3 +43,4 @@ IronQon.lua
 TwinConsorts.lua
 LeiShen.lua
 Raden.lua
+ToTTrash.lua
