@@ -6,7 +6,7 @@ esES localization strings for Collectinator
 File date: 2012-09-12T01:10:19Z 
 File revision: @file-revision@ 
 Project revision: @project-revision@
-Project version: 2.0.0beta3
+Project version: 2.0.1
 ************************************************************************
 Currently maintained by:
 http://www.wowace.com/addons/collectinator/localization/translators/
@@ -34,6 +34,7 @@ L["Aeonaxx"] = true
 L["Aldraan"] = true
 L["ALL_FILTERED"] = "Tus filtros están impidiendo que las entradas se muestren. Por favor cambia la configuración de los filtros y vuelve a intentarlo."
 L["ALT_CLICK"] = "Alt-Click para agregar/quitar esta montura/mascota de tu lista de ignorados."
+L["Apothecary Furrows"] = "Boticario Furrows"
 L["Apothecary Hummel"] = "Boticario Hummel"
 L["Astrid Langstrump"] = true
 L["Ayla Shadowstorm"] = "Ayla Ventiscaumbría"
@@ -47,6 +48,7 @@ L["BOA_DESC"] = "Monturas/Mascotas que son objetos Ligados a la Cuenta serán in
 L["BOAFilter"] = "Ligado a la Cuenta"
 L["BOE_DESC"] = "Monturas/Mascotas que son objetos Ligados al Equipar serán incluidos en el análisis."
 L["BOEFilter"] = "Ligado al Equipar"
+L["Bogflare Needler"] = "Aguja cienagosa"
 L["BOP_DESC"] = "Monturas/Mascotas que son objetos Ligados al Recoger serán incluidos en el análisis."
 L["BOPFilter"] = "Ligado al Recogerlo"
 L["Breanni"] = true
@@ -54,6 +56,9 @@ L["Briarthorn"] = "Brezospina"
 L["Brunn Flamebeard"] = "Brunn Barballamas"
 L["Chub"] = true
 L["Cielstrasza"] = true
+L["Clear Exclusion List"] = "Limpiar Lista de Exclusión"
+L["CLEAR_EXCLUSION_LIST_DESC"] = "Elimina todas las entradas de la lista de exclusión."
+L["Clockwork Assistant"] = "Ayudante robot cohete de cuerda"
 L["CLOSE_DESC"] = "Cierre la ventana de Collectinator."
 L["CONTRACTALL_DESC"] = "Minimiza todas las entradas que figuran a continuación."
 L["Coreiel"] = true
@@ -64,6 +69,7 @@ L["Dama Wildmane"] = "Dama Ferocrín"
 L["Dame Evniki Kapsalis"] = "Dama Evniki Kapsalis"
 L["Darahir"] = true
 L["Dealer Rashaad"] = "Tratante Rashaad"
+L["Defias Pirate"] = "Pirata Defias"
 L["Demisette Cloyce"] = true
 L["Derrick Brindlebeard"] = "Derrick Barba Berrenda"
 L["Deviate Guardian"] = "Guardián descarriado"
@@ -81,9 +87,11 @@ L["Dread Commander Thalanor"] = "Comandante aterrador Thalanor"
 L["Driz Tumblequick"] = "Driz Pataplaf"
 L["Durgan Thunderbeak"] = "Durgan Truenopico"
 L["Eliza Killian"] = true
+L["EXCLUDECOUNT_DESC"] = "Incluir entradas excluidas en el número de entradas totales."
 L["EXPANDALL_DESC"] = "Expandir todas las entradas que figuran a continuación."
 L["Fedryen Swiftspear"] = "Fedryen Lanza Presta"
 L["FILTER_CLOSE_DESC"] = "Cerrar panel de filtros."
+L["FILTERCOUNT_DESC"] = "Tratar los elementos filtrados como inexistentes. Al seleccionar esta opción cambiará el número de objetos coleccionables conocidos y desconocidos."
 L["FILTERING_BINDING_DESC"] = "Configuración de que tipos de ligados están incluidos en el análisis."
 L["FILTERING_GENERAL_DESC"] = "Configuración para varios tipos generales de filtros."
 L["FILTERING_MISC_DESC"] = "Configuración de opciones varias que también están presentes en las opciones de visualización."
@@ -94,19 +102,24 @@ L["Flik"] = true
 L["FONT_SIZE_DESC"] = "Cambiar el tamaño de las fuentes."
 L["Freka Bloodaxe"] = "Freka Hacha de Sangre"
 L["Gaelden Hammersmith"] = "Gaelden Martillero"
+L["Geen"] = true
 L["Gregor MacVince"] = true
 L["Grella"] = "Grella "
 L["Grol'dar"] = true
 L["Grunda Bronzewing"] = "Grunda Alabronce"
 L["Grunnda Wolfheart"] = "Grunnda Corazón de Lobo"
+L["Gundrak Raptor"] = "Raptor de Grundrak"
 L["Halpa"] = true
 L["Harb Clawhoof"] = "Harb Garrapezuña"
 L["Hide Pop-Up"] = "Ocultar Pop-Up"
 L["HIDEPOPUP_DESC"] = [=[Evita los pop-ups que notifican porque la ventana de análisis está vacia. Los Pop-ups siempre se mostrarán la primera vez después de haber instalado una nueva versión.
 ]=]
 L["Hiren Loresong"] = "Hiren Romanza"
+L["Include Excluded"] = "Incluir Excluidos"
+L["Include Filtered"] = "Incluir Filtrados"
 L["Irisee"] = true
 L["Jadefang"] = "Colmillo de Jade"
+L["Jepetto Joybuzz"] = "Jepetto Jugarreta"
 L["Jeremiah Payson"] = true
 L["Jilanne"] = true
 L["Kall Worthaton"] = "Kall Valemil"
@@ -120,6 +133,10 @@ L["Lieutenant Karter"] = "Teniente Karter"
 L["Lillehoff"] = true
 L["Lil Timmy"] = "Pequeño Timmy"
 L["Location"] = "Localización"
+L["Main Filter Options"] = "Opciones de filtro generales"
+L["MAINFILTER_OPTIONS_DESC"] = "Te permite especificar cuantos filtros diferentes son gestionados."
+L["Main Options"] = "Opciones generales"
+L["MAIN_OPTIONS_DESC"] = "Opciones de configuración principal"
 L["Maximillian Crowe"] = true
 L["Mei Francis"] = true
 L["Michelle De Rum"] = "Michelle De Ron"
@@ -127,6 +144,7 @@ L["Midsummer Merchant"] = "Mercader del solsticio de verano"
 L["Midsummer Supplier"] = true
 L["Milli Featherwhistle"] = "Milli Plumasilba"
 L["Mirket"] = true
+L["Miscellaneous"] = "Miscelánea"
 L["Mob Drop"] = true
 L["Mycah"] = true
 L["Narkk"] = true
@@ -136,6 +154,7 @@ L["NO_DISPLAY"] = "No hay entradas para mostrar. Si recibes este mensaje por fav
 L["NoItemLink"] = "Este objeto parece no tener un enlace de objeto o no está en tu caché."
 L["NOTSCANNED"] = "No has analizado este coleccionable. Por favor abre la interfaz y haz clic en análisis. Recuerda que el análisis de monturas/mascotas se realiza al mismo tiempo."
 L["NOT_YET_SCANNED"] = "Todavía no ha sido analizado!"
+L["Noxious Whelp"] = "Cría nociva"
 L["Obtained From"] = "Obtenido de"
 L["Ogunaro Wolfrunner"] = "Ogunaro Correlobo"
 L["\"Plucky\" Johnson"] = [=["Desplumado" Johnson
@@ -191,6 +210,8 @@ L["Valadar Starsong"] = "Valadar Cantoestelar"
 L["Varlan Highbough"] = "Varlan Ramaalta"
 L["Vasarin Redmorn"] = "Vasarin Rojoalbor"
 L["Veron Amberstill"] = "Veron Semperámbar"
+L["View Exclusion List"] = "Ver lista de exclusión"
+L["VIEW_EXCLUSION_LIST_DESC"] = "Imprime una lista de todas las entradas en la lista de exclusión."
 L["Winaestra"] = true
 L["World Drop"] = true
 L["Xan'tish"] = true

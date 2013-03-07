@@ -1,8 +1,8 @@
-## Interface: 50100
+## Interface: 50200
 ## Title: Livestock
 ## Notes: Enables easy random summoning of vanity pets and mounts, including the option of "smart mounting"
 ## Author: Kharthus - Deathwing(US)
-## Version: 1.9.1
+## Version: 1.9.2
 ## SavedVariablesPerCharacter: LivestockSettings
 
 LibRecompense\RecompenseTools.lua

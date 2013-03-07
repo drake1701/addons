@@ -18,6 +18,17 @@ local L = LibStub("AceLocale-3.0"):GetLocale("TradeSkillMaster_Crafting") -- loa
 local scanCoroutine
 local modeLookup = {}
 
+local scanTooltip
+function GetTradeSkillReagentItemLink(skillIndex, reagentLink)
+	if not scanTooltip then
+		scanTooltip = CreateFrame("GameTooltip", "TSMCraftingScanTooltip", UIParent, "GameTooltipTemplate")
+		scanTooltip:SetOwner(UIParent, "ANCHOR_NONE")
+	end
+	scanTooltip:ClearLines()
+	scanTooltip:SetTradeSkillItem(skillIndex, reagentLink)
+	return select(2, scanTooltip:GetItem())
+end
+
 function Scan:OnInitialize()
 	Scan:RegisterEvent("CHAT_MSG_SYSTEM")
 	for _, data in ipairs(TSM.tradeSkills) do

@@ -2,10 +2,10 @@
 ************************************************************************
 Quest.lua
 ************************************************************************
-File date: 2012-12-09T18:52:13Z
-File hash: c358871
-Project hash: b336f20
-Project version: 2.0.0beta3
+File date: 2013-03-05T05:07:50Z
+File hash: 153e8ff
+Project hash: 421d12d
+Project version: 2.0.1
 ************************************************************************
 Please see http://www.wowace.com/addons/arl/ for more information.
 ************************************************************************
@@ -58,6 +58,7 @@ function addon:InitQuest()
 	AddQuest(3721,	Z.THE_CAPE_OF_STRANGLETHORN,		43.0,	72.0,	"Neutral")
 	AddQuest(3861,	Z.WESTFALL,				56.0,	31.6,	"Neutral")
 	AddQuest(5502,	Z.ORGRIMMAR,				58.0,	57.6,	"Horde")
+	AddQuest(7946,	Z.DARKMOON_ISLAND,			55.8,	70.6,	"Neutral")
 	AddQuest(8743,	Z.AHNQIRAJ_THE_FALLEN_KINGDOM,		0,	0,	"Neutral")
 	AddQuest(10898,	Z.TEROKKAR_FOREST,			56.6,	72.8,	"Neutral")
 	AddQuest(10966,	Z.SHATTRATH_CITY,			74.8,	47.8,	"Alliance")
@@ -80,10 +81,12 @@ function addon:InitQuest()
 	AddQuest(13702,	Z.ICECROWN,				76.6,	19.2,	"Alliance") -- Quest IDs 13702, 13732-13735
 	AddQuest(13736,	Z.ICECROWN,				76.6,	24.4,	"Horde") -- Quest IDs 13736-13740
 	AddQuest(13906,	Z.UNGORO_CRATER,			71.4,	73.8,	"Horde")
+	AddQuest(13959,	Z.DALARN,				 0.0,	 0.0,	"Neutral")
 	AddQuest(24915,	Z.ICECROWN_CITADEL,			 0.0,	 0.0,	"Neutral")
 	AddQuest(25371,	Z.KELPTHAR_FOREST,			46.0,	46.8,	"Neutral")
 	AddQuest(25560,	Z.MOUNT_HYJAL,				39.1,	58.3,	"Neutral")
 	AddQuest(28415, Z.BURNING_STEPPES,			71.8,	68.0,	"Alliance")
+	AddQuest(28491, Z.BURNING_STEPPES,			54.8,	22.6,	"Horde")
 	AddQuest(28748,	Z.HILLSBRAD_FOOTHILLS,			33.6,	49.2,	"Neutral")
 	AddQuest(29034,	Z.WINTERSPRING,				46.6,	17.6,	"Alliance")
 	AddQuest(29208,	Z.NORTHERN_STRANGLETHORN,		0.0,	0.0,	"Neutral")
@@ -105,6 +108,10 @@ function addon:InitQuest()
 	AddQuest(32440,	Z.THE_JADE_FOREST,			28.8,	36.0,	"Neutral")
 	AddQuest(32441,	Z.KUN_LAI_SUMMIT,			64.8,	93.6,	"Neutral")
 	AddQuest(32455,	Z.KRASARANG_WILDS,			00.0,	00.0,	"Alliance")
+	AddQuest(32603,	Z.PANDARIA,				00.0,	00.0,	"Neutral")
+	AddQuest(32604,	Z.PANDARIA,				00.0,	00.0,	"Neutral")
+	AddQuest(32616,	Z.ISLE_OF_GIANTS,			00.0,	00.0,	"Neutral")
+	AddQuest(32617,	Z.ISLE_OF_GIANTS,			00.0,	00.0,	"Neutral")
 
 	self.InitQuest = nil
 end

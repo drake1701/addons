@@ -6,7 +6,7 @@ esMX localization strings for Collectinator
 File date: 2012-09-12T01:10:19Z 
 File revision: @file-revision@ 
 Project revision: @project-revision@
-Project version: 2.0.0beta3
+Project version: 2.0.1
 ************************************************************************
 Currently maintained by:
 http://www.wowace.com/addons/collectinator/localization/translators/

@@ -125,11 +125,7 @@ local SetTextColor = private.SetTextColor
 function private.InitializeListFrame()
 	local MainPanel	= addon.Frame
 	local ListFrame = _G.CreateFrame("Frame", nil, MainPanel)
-
-	MainPanel.list_frame = ListFrame
-
-	ListFrame:SetHeight(335)
-	ListFrame:SetWidth(LISTFRAME_WIDTH)
+	ListFrame:SetSize(LISTFRAME_WIDTH, 335)
 	ListFrame:SetPoint("TOPLEFT", MainPanel, "TOPLEFT", 22, -75)
 	ListFrame:SetBackdrop({
 				      bgFile = [[Interface\DialogFrame\UI-DialogBox-Background-Dark]],
@@ -139,6 +135,11 @@ function private.InitializeListFrame()
 	ListFrame:SetBackdropColor(1, 1, 1)
 	ListFrame:EnableMouse(true)
 	ListFrame:EnableMouseWheel(true)
+	ListFrame:SetScript("OnHide", function(self)
+		QTip:Release(acquire_tooltip)
+		self.selected_entry = nil
+	end)
+	MainPanel.list_frame = ListFrame
 
 	-------------------------------------------------------------------------------
 	-- Scroll bar.
@@ -234,20 +235,35 @@ function private.InitializeListFrame()
 		ListFrame:Update(nil, true)
 	end)
 
-	local function Button_OnEnter(self)
-		ListItem_ShowTooltip(self, ListFrame.entries[self.string_index])
-	end
-
-	local function Button_OnLeave()
-		QTip:Release(acquire_tooltip)
-	end
-
 	local function Bar_OnEnter(self)
+		if ListFrame.selected_entry then
+			return
+		end
 		ListItem_ShowTooltip(self, ListFrame.entries[self.string_index])
 	end
 
-	local function Bar_OnLeave()
+	local function Bar_OnLeave(self)
+		if ListFrame.selected_entry then
+			return
+		end
 		QTip:Release(acquire_tooltip)
+	end
+
+	local function Bar_OnClick(self, mouse_button, is_down)
+		local old_selected = ListFrame.selected_entry
+		ListFrame.selected_entry = nil
+
+		if old_selected then
+			old_selected.button.selected_texture:Hide()
+			Bar_OnLeave(old_selected.button)
+		end
+		Bar_OnEnter(self)
+
+		local entry = ListFrame.entries[self.string_index]
+		if old_selected ~= entry then
+			self.selected_texture:Show()
+			ListFrame.selected_entry = entry
+		end
 	end
 
 	local function ListItem_OnClick(self, button, down)
@@ -358,8 +374,6 @@ function private.InitializeListFrame()
 				addon:Debug("Error: clicked_line (%s) has no parent.", clicked_line.type or _G.UNKNOWN)
 			end
 		end
-		QTip:Release(acquire_tooltip)
-
 		ListFrame:Update(nil, true)
 	end
 
@@ -373,18 +387,13 @@ function private.InitializeListFrame()
 
 	for index = 1, NUM_COLLECTABLE_LINES do
 		local cur_container = _G.CreateFrame("Frame", nil, ListFrame)
-
-		cur_container:SetHeight(16)
-		cur_container:SetWidth(LIST_ENTRY_WIDTH)
+		cur_container:SetSize(LIST_ENTRY_WIDTH, 16)
 
 		local cur_state = _G.CreateFrame("Button", nil, ListFrame)
-		cur_state:SetWidth(16)
-		cur_state:SetHeight(16)
+		cur_state:SetSize(16, 16)
 
-		local entry_name = ("%s_ListEntryButton%d"):format(FOLDER_NAME, index)
-		local cur_entry = _G.CreateFrame("Button", entry_name, cur_container)
-		cur_entry:SetWidth(LIST_ENTRY_WIDTH)
-		cur_entry:SetHeight(16)
+		local cur_entry = _G.CreateFrame("Button", ("%s_ListEntryButton%d"):format(FOLDER_NAME, index), cur_container)
+		cur_entry:SetSize(LIST_ENTRY_WIDTH, 16)
 
 		local highlight_texture = cur_entry:CreateTexture(nil, "BORDER")
 		highlight_texture:SetTexture([[Interface\ClassTrainerFrame\TrainerTextures]])
@@ -393,6 +402,14 @@ function private.InitializeListFrame()
 		highlight_texture:SetPoint("TOPLEFT", 2, 0)
 		highlight_texture:SetPoint("BOTTOMRIGHT", -2, 1)
 		cur_entry:SetHighlightTexture(highlight_texture)
+
+		local selected_texture = cur_entry:CreateTexture(nil, "BORDER")
+		selected_texture:SetTexture([[Interface\ClassTrainerFrame\TrainerTextures]])
+		selected_texture:SetTexCoord(0.00195313, 0.57421875, 0.84960938, 0.94140625)
+		selected_texture:SetBlendMode("ADD")
+		selected_texture:SetPoint("TOPLEFT", 2, 0)
+		selected_texture:SetPoint("BOTTOMRIGHT", -2, 1)
+		cur_entry.selected_texture = selected_texture
 
 		local emphasis_texture = cur_entry:CreateTexture(nil, "BORDER")
 		emphasis_texture:SetTexture([[Interface\QUESTFRAME\Ui-QuestLogTitleHighlight]])
@@ -424,7 +441,6 @@ function private.InitializeListFrame()
 		cur_state.container = cur_container
 
 		cur_state:SetScript("OnClick", ListItem_OnClick)
-		cur_entry:SetScript("OnClick", ListItem_OnClick)
 
 		ListFrame.button_containers[index] = cur_container
 		ListFrame.state_buttons[index] = cur_state
@@ -600,6 +616,7 @@ function private.InitializeListFrame()
 			[REP2.PANDACOMMON2]			= "pandacommon2",
 			[REP2.GUILD]				= "guild",
 			[REP2.NETHERWING]			= "netherwing",
+			[REP2.BRAWLERS]				= "brawler",
 		}
 
 		-- Returns true if any of the filter flags are turned on.
@@ -805,15 +822,16 @@ function private.InitializeListFrame()
 			entry:SetText("")
 			entry:SetScript("OnEnter", nil)
 			entry:SetScript("OnLeave", nil)
+			entry:SetScript("OnClick", nil)
 			entry:SetWidth(LIST_ENTRY_WIDTH)
 			entry.emphasis_texture:Hide()
+			entry.selected_texture:Hide()
 			entry:Disable()
+			entry.button = nil
 
 			state.string_index = 0
 
 			state:Hide()
-			state:SetScript("OnEnter", nil)
-			state:SetScript("OnLeave", nil)
 			state:Disable()
 
 			state:ClearAllPoints()
@@ -927,8 +945,6 @@ function private.InitializeListFrame()
 					cur_state:SetHighlightTexture([[Interface\MINIMAP\UI-Minimap-ZoomButton-Highlight]])
 				end
 				cur_state.string_index = string_index
-				cur_state:SetScript("OnEnter", Button_OnEnter)
-				cur_state:SetScript("OnLeave", Button_OnLeave)
 				cur_state:Enable()
 			else
 				cur_state:Hide()
@@ -936,6 +952,10 @@ function private.InitializeListFrame()
 			end
 			local cur_container = cur_state.container
 			local cur_button = self.entry_buttons[button_index]
+
+			if cur_entry == ListFrame.selected_entry then
+				cur_button.selected_texture:Show()
+			end
 
 			if cur_entry.emphasized then
 				cur_button.emphasis_texture:Show()
@@ -947,17 +967,17 @@ function private.InitializeListFrame()
 				cur_state:SetPoint("TOPLEFT", cur_container, "TOPLEFT", 15, 0)
 				cur_button:SetWidth(LIST_ENTRY_WIDTH - 15)
 			end
+			cur_entry.button = cur_button
 			cur_button.string_index = string_index
 			cur_button:SetText(cur_entry.text)
 			cur_button:SetScript("OnEnter", Bar_OnEnter)
 			cur_button:SetScript("OnLeave", Bar_OnLeave)
+			cur_button:SetScript("OnClick", Bar_OnClick)
 			cur_button:Enable()
 
 			-- This function could possibly have been called from a mouse click or by scrolling. Since, in those cases, the list entries have
 			-- changed, the mouse is likely over a different entry - a tooltip should be generated for it.
-			if cur_state:IsMouseOver() then
-				Button_OnEnter(cur_state)
-			elseif cur_button:IsMouseOver() then
+			if cur_button:IsMouseOver() then
 				Bar_OnEnter(cur_button)
 			end
 			button_index = button_index + 1
@@ -1082,6 +1102,13 @@ function private.InitializeListFrame()
 		entry.collectable = collectable
 		entry.npc_id = id_num
 
+		if collectable:HasFilter("common1", "RETIRED") then
+			entry = AcquireTable()
+			entry.text = (L["RETIRED_COLLECTABLE_SHORT"])
+			entry.collectable = collectable
+			entry.npc_id = id_num
+		end
+
 		return ListFrame:InsertEntry(entry, parent_entry, entry_index, entry_type, true)
 	end
 
@@ -1111,14 +1138,28 @@ function private.InitializeListFrame()
 		entry.text = ("%s%s%s %s"):format(PADDING, PADDING, hide_location and "" or SetTextColor(CATEGORY_COLORS["location"], quest.location), coord_text)
 		entry.collectable = collectable
 
+		if collectable:HasFilter("common1", "RETIRED") then
+			entry = AcquireTable()
+			entry.text = (L["RETIRED_COLLECTABLE_SHORT"])
+			entry.collectable = collectable
+		end
+
 		return ListFrame:InsertEntry(entry, parent_entry, entry_index, entry_type, true)
 	end
 
 	local function ExpandWorldEventsData(entry_index, entry_type, parent_entry, id_num, collectable, hide_location, hide_type)
 		local hex_color = CATEGORY_COLORS["world_events"]
 		local entry = AcquireTable()
+
 		entry.text = ("%s%s %s"):format(PADDING, hide_type and "" or SetTextColor(hex_color, private.ACQUIRE_NAMES[A.WORLD_EVENTS]) .. ":", SetTextColor(hex_color, private.world_events_list[id_num].name))
 		entry.collectable = collectable
+
+		if collectable:HasFilter("common1", "RETIRED") then
+			entry = AcquireTable()
+			entry.text = (L["RETIRED_COLLECTABLE_SHORT"])
+			entry.collectable = collectable
+		end
+
 		return ListFrame:InsertEntry(entry, parent_entry, entry_index, entry_type, true)
 	end
 
@@ -1172,6 +1213,13 @@ function private.InitializeListFrame()
 		entry.collectable = collectable
 		entry.npc_id = vendor_id
 
+		if collectable:HasFilter("common1", "RETIRED") then
+			entry = AcquireTable()
+			entry.text = (L["RETIRED_COLLECTABLE_SHORT"])
+			entry.collectable = collectable
+			entry.npc_id = vendor_id
+		end
+
 		return ListFrame:InsertEntry(entry, parent_entry, entry_index, entry_type, true)
 	end
 
@@ -1194,6 +1242,12 @@ function private.InitializeListFrame()
 		entry.text = ("%s|c%s%s|r%s"):format(PADDING, select(4, _G.GetItemQualityColor(collectable.quality)), L["World Drop"], drop_location)
 		entry.collectable = collectable
 
+		if collectable:HasFilter("common1", "RETIRED") then
+			entry = AcquireTable()
+			entry.text = (L["RETIRED_COLLECTABLE_SHORT"])
+			entry.collectable = collectable
+		end
+
 		return ListFrame:InsertEntry(entry, parent_entry, entry_index, entry_type, true)
 	end
 
@@ -1201,6 +1255,12 @@ function private.InitializeListFrame()
 		local entry = AcquireTable()
 		entry.text = PADDING .. SetTextColor(CATEGORY_COLORS["custom"], private.custom_list[id_num].name)
 		entry.collectable = collectable
+
+		if collectable:HasFilter("common1", "RETIRED") then
+			entry = AcquireTable()
+			entry.text = (L["RETIRED_COLLECTABLE_SHORT"])
+			entry.collectable = collectable
+		end
 
 		return ListFrame:InsertEntry(entry, parent_entry, entry_index, entry_type, true)
 	end
@@ -1211,6 +1271,12 @@ function private.InitializeListFrame()
 			SetTextColor(BASIC_COLORS["normal"], id_num))
 		entry.collectable = collectable
 
+		if collectable:HasFilter("common1", "RETIRED") then
+			entry = AcquireTable()
+			entry.text = (L["RETIRED_COLLECTABLE_SHORT"])
+			entry.collectable = collectable
+		end
+
 		return ListFrame:InsertEntry(entry, parent_entry, entry_index, entry_type, true)
 	end
 
@@ -1219,6 +1285,12 @@ function private.InitializeListFrame()
 		entry.text = ("%s%s %s"):format(PADDING, hide_type and "" or SetTextColor(CATEGORY_COLORS["achievement"], _G.ACHIEVEMENTS) .. ":",
 					    SetTextColor(BASIC_COLORS["normal"], select(2, _G.GetAchievementInfo(id_num))))
 		entry.collectable = collectable
+
+		if collectable:HasFilter("common1", "RETIRED") then
+			entry = AcquireTable()
+			entry.text = (L["RETIRED_COLLECTABLE_SHORT"])
+			entry.collectable = collectable
+		end
 
 		return ListFrame:InsertEntry(entry, parent_entry, entry_index, entry_type, true)
 	end
@@ -1257,7 +1329,7 @@ function private.InitializeListFrame()
 				end
 			elseif acquire_type == A.PROFESSION and obtain_filters.profession then
 				func = ExpandProfessionData
-				--[===[@alpha@
+				--@alpha@
 			elseif acquire_type == A.ACHIEVEMENT and obtain_filters.achievement then
 				func = ExpandAchievementData
 			elseif acquire_type > num_acquire_types then
@@ -1266,7 +1338,7 @@ function private.InitializeListFrame()
 				entry.collectable = collectable
 
 				entry_index = ListFrame:InsertEntry(entry, parent_entry, entry_index, entry_type, true)
-				--@end-alpha@]===]
+				--@end-alpha@
 			end
 
 			if func then
@@ -1632,16 +1704,7 @@ do
 			if location and drop_location ~= location then
 				return
 			end
-			local collectable_item_id = collectable:ItemID()
-			local collectable_item_level = collectable_item_id and select(4, _G.GetItemInfo(collectable_item_id))
 			local quality_color = select(4, _G.GetItemQualityColor(collectable.quality)):sub(3)
-			local location_text
-
-			if collectable_item_level then
-				location_text = ("%s (%d - %d)"):format(drop_location, collectable_item_level - 5, collectable_item_level + 5)
-			else
-				location_text = drop_location
-			end
 			addline_func(0, -1, false, L["World Drop"], quality_color, location_text, CATEGORY_COLORS["location"])
 		end,
 
@@ -1797,6 +1860,10 @@ do
 		end
 		addon:DisplayAcquireData(list_entry.collectable, list_entry.acquire_id, list_entry.location_id, ttAdd)
 
+		if collectable:HasFilter("common1", "RETIRED") then
+			ttAdd(0, -1, false, L["RETIRED_COLLECTABLE_LONG"], BASIC_COLORS["normal"])
+		end
+
 		if not addon.db.profile.hide_tooltip_hint then
 			local HINT_COLOR = "c9c781"
 			local acquire_id = list_entry.acquire_id
@@ -1813,5 +1880,6 @@ do
 			end
 		end
 		acquire_tooltip:Show()
+		acquire_tooltip:UpdateScrolling(addon.Frame:GetHeight())
 	end
 end	-- do

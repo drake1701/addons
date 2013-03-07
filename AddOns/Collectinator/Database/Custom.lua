@@ -2,10 +2,10 @@
 ************************************************************************
 Custom.lua
 ************************************************************************
-File date: 2012-12-09T18:52:13Z
-File hash: c358871
-Project hash: b336f20
-Project version: 2.0.0beta3
+File date: 2013-03-05T05:07:50Z
+File hash: 153e8ff
+Project hash: 421d12d
+Project version: 2.0.1
 ************************************************************************
 Please see http://www.wowace.com/addons/arl/ for more information.
 ************************************************************************
@@ -58,11 +58,17 @@ function addon:InitCustom()
 	AddCustom("BATTLEMERGE")
 	AddCustom("TAKKSNEST",		Z.NORTHERN_BARRENS)
 	AddCustom("RAZORMAWNEST",	Z.WETLANDS,			69.9,	29.1)
+	AddCustom("DARTSNEST",		Z.DUSTWALLOW_MARSH,		48.0,	14.5)
+	AddCustom("MATRIARCHNEST",	Z.UNGORO_CRATER,		62.0,	73.6)
 	AddCustom("EUPROMO")
 	AddCustom("SHOEXALTED")
 	AddCustom("PETBATTLEDAILY")
 	AddCustom("COT",			Z.TANARIS)
 	AddCustom("PETTAMER")
+	AddCustom("MOUNTAIN_DEW")
+	AddCustom("FIONA'S_CHARM",	Z.EASTERN_PLAGUELANDS,		34.8,	69.2)
+	AddCustom("OOZING_BAG")
+	AddCustom("PRIMAL_EGG",		Z.PANDARIA)
 
 	self.InitCustom = nil
 end

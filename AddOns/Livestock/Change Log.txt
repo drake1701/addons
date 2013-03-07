@@ -1,3 +1,7 @@
+Version 1.9.2
+
+- Updates for patch 5.2
+
 Version 1.9.1
 
 - Fixed flying detection code for Outlands

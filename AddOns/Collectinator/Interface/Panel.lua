@@ -2,10 +2,10 @@
 ************************************************************************
 Panel.lua
 ************************************************************************
-File date: 2012-10-17T03:15:23Z
-File hash: a2de767
-Project hash: b336f20
-Project version: 2.0.0beta3
+File date: 2013-03-06T03:33:43Z
+File hash: 421d12d
+Project hash: 421d12d
+Project version: 2.0.1
 ************************************************************************
 Please see http://www.wowace.com/addons/col/ for more information.
 ************************************************************************
@@ -19,10 +19,9 @@ This source code is released under All Rights Reserved.
 local _G = getfenv(0)
 
 local string = _G.string
+local table = _G.table
 
 local select = _G.select
-
-local table = _G.table
 
 local ipairs, pairs = _G.ipairs, _G.pairs
 

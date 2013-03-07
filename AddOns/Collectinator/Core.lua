@@ -3,10 +3,10 @@
 Core.lua
 Core functions for Collectinator
 ************************************************************************
-File date: 2012-12-05T21:29:00Z
-File hash: 12ce98a
-Project hash: b336f20
-Project version: 2.0.0beta3
+File date: 2013-03-04T19:55:51Z
+File hash: 1dade60
+Project hash: 421d12d
+Project version: 2.0.1
 ************************************************************************
 Please see http://www.wowace.com/addons/collectinator/ for more information.
 ************************************************************************
@@ -39,9 +39,9 @@ local LibStub = _G.LibStub
 local addon = LibStub("AceAddon-3.0"):NewAddon(private.addon_name, "AceConsole-3.0", "AceEvent-3.0")
 _G.Collectinator = addon
 
---[===[@alpha@
+--@alpha@
 _G.COL = addon
---@end-alpha@]===]
+--@end-alpha@
 
 local L = LibStub("AceLocale-3.0"):GetLocale(private.addon_name)
 local Toast = LibStub("LibToast-1.0")
@@ -295,6 +295,8 @@ function addon:OnInitialize()
 					pandacommon2 = true,
 					guild = true,
 					netherwing = true,
+					brawlers = true,
+					pandacommon3 = true,
 				},
 				-- Populated later via CONSTANTS
 				item = {
@@ -322,9 +324,9 @@ function addon:OnInitialize()
 	debug_version = true
 	--@end-debug@]===]
 
-	--[===[@alpha@
+	--@alpha@
 	alpha_version = true
-	--@end-alpha@]===]
+	--@end-alpha@
 
 	version = debug_version and "Devel" or (alpha_version and version .. "-Alpha") or version
 

@@ -5,8 +5,8 @@ Waypoing integration for Collectinator
 ************************************************************************
 File date: 2012-09-24T23:54:29Z
 File hash: 33d5a8f
-Project hash: b336f20
-Project version: 2.0.0beta3
+Project hash: 421d12d
+Project version: 2.0.1
 ************************************************************************
 Please see http://www.wowace.com/addons/collectinator/ for more information.
 ************************************************************************

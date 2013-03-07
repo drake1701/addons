@@ -2,10 +2,10 @@
 ************************************************************************
 Vendor.lua
 ************************************************************************
-File date: 2012-12-09T04:13:56Z
-File hash: 5af6e5a
-Project hash: b336f20
-Project version: 2.0.0beta3
+File date: 2013-03-05T05:07:50Z
+File hash: 153e8ff
+Project hash: 421d12d
+Project version: 2.0.1
 ************************************************************************
 Please see http://www.wowace.com/addons/arl/ for more information.
 ************************************************************************
@@ -92,8 +92,11 @@ function addon:InitVendor()
 	AddVendor(27478,	L["Larkin Thunderbrew"],	Z.IRONFORGE,			19.8,	53.2,	"Alliance")
 	AddVendor(27489,	L["Ray'ma"],			Z.ORGRIMMAR,			50.6,	73.6,	"Horde")
 	AddVendor(28951,	L["Breanni"],			Z.DALARAN,			40.5,	35.2,	"Neutral")
+	AddVendor(29478,	L["Jepetto Joybuzz"],		Z.DALARAN,			44.6,	46.0,	"Neutral")
 	AddVendor(29537,	L["Darahir"],			Z.DALARAN,			63.8,	16.6,	"Neutral")
 	AddVendor(29587,	L["Dread Commander Thalanor"],	Z.EASTERN_PLAGUELANDS,		84.0,	49.8,	"Neutral")
+	AddVendor(29716,	L["Clockwork Assistant"],	Z.DALARAN,			44.8,	46.2,	"Neutral")
+	AddVendor(31910,	L["Geen"],			Z.SHOLAZAR_BASIN,		54.6, 	56.2,	"Neutral")
 	AddVendor(31916,	L["Tanaika"],			Z.HOWLING_FJORD,		25.4,	58.6,	"Neutral")
 	AddVendor(32216,	L["Mei Francis"],		Z.DALARAN,			58.6,	43.2,	"Neutral")
 	AddVendor(32294,	L["Knight Dameron"],		Z.WINTERGRASP,			51.6,	17.6,	"Alliance")
@@ -113,6 +116,7 @@ function addon:InitVendor()
 	AddVendor(33650,	L["Rillie Spindlenut"],		Z.ICECROWN,			76.4,	19.6,	"Alliance")
 	AddVendor(33653,	L["Rook Hawkfist"],		Z.ICECROWN,			76.2,	19.2,	"Alliance")
 	AddVendor(33657,	L["Irisee"],			Z.ICECROWN,			76.2,	19.2,	"Alliance")
+	AddVendor(33980,	L["Apothecary Furrows"],	Z.DARKSHORE,			57.2,	33.8,	"Horde")
 	AddVendor(34772,	L["Vasarin Redmorn"],		Z.ICECROWN,			76.2,	24.0,	"Horde")
 	AddVendor(34881,	L["Hiren Loresong"],		Z.ICECROWN,			76.2,	19.6,	"Alliance")
 	AddVendor(34882,	L["Vasarin Redmorn"],		Z.ICECROWN,			76.2,	24.0,	"Horde")
@@ -139,6 +143,8 @@ function addon:InitVendor()
 	AddVendor(51504,	L["Velia Moonbow"],		Z.DARNASSUS,			64.6,	37.6,	"Alliance")
 	AddVendor(51512,	L["Mirla Silverblaze"],		Z.DALARAN,			52.6,	56.6,	"Neutral")
 	AddVendor(52268,	L["Riha"],			Z.SHATTRATH_CITY,		58.6,	46.6,	"Neutral")
+	AddVendor(52358,	L["Craggle Wobbletop"],		Z.STORMWIND_CITY,		57.6,	73.4,	"Alliance")
+	AddVendor(52809,	L["Blax Bottlerocket"],		Z.ORGRIMMAR,			58.8,	59.6,	"Horde")
 	AddVendor(52822,	L["Zen'Vorka"],			Z.MOLTEN_FRONT,			47.0,	90.6,	"Neutral")
 	AddVendor(52830,	L["Michelle De Rum"],		Z.WINTERSPRING,			59.8,	51.6,	"Neutral")
 	AddVendor(53728,	L["Dorothy"],			Z.ELWYNN_FOREST,		31.8,	50.0,	"Alliance")
@@ -151,6 +157,7 @@ function addon:InitVendor()
 	AddVendor(58706,	L["Gina Mudclaw"],		Z.VALLEY_OF_THE_FOUR_WINDS,	53.2,	51.6,	"Neutral")
 	AddVendor(59908,	L["Jaluu the Generous"],	Z.VALE_OF_ETERNAL_BLOSSOMS,	74.2,	42.6,	"Neutral")
 	AddVendor(63194,	L["Steven Lisbane"],		Z.NORTHERN_STRANGLETHORN,	46.0,	40.6,	"Alliance")
+	AddVendor(63596,	L["Audrey Burnhep"],		Z.STORMWIND_CITY,		69.6,	25.8,	"Alliance")
 	AddVendor(63721,	FN.NAT_PAGLE,			Z.KRASARANG_WILDS,		68.4,	43.4,	"Neutral")
 	AddVendor(63994,	L["Challenger Wuli"],		Z.SHRINE_OF_TWO_MOONS,		61.0,	21.0,	"Horde")
 	AddVendor(64001,	L["Sage Lotusbloom"],		Z.SHRINE_OF_TWO_MOONS,		62.6,	23.2,	"Horde")
@@ -163,6 +170,8 @@ function addon:InitVendor()
 	AddVendor(65068,	L["Old Whitenose"],		Z.STORMWIND_CITY,		67.8,	18.6,	"Alliance")
 	AddVendor(66022,	L["Turtlemaster Odai"],		Z.ORGRIMMAR,			69.8,	41.0,	"Horde")
 	AddVendor(66973,	L["Kay Featherfall"],		Z.VALE_OF_ETERNAL_BLOSSOMS,	82.2,	34.0,	"Neutral")
+	AddVendor(67672,	L["Vasarin Redmorn"],		Z.ISLE_OF_THUNDER,		33.4,	32.4,	"Horde")
+	AddVendor(68000,	L["Hiren Loresong"],		Z.ISLE_OF_THUNDER,		64.8,	74.4,	"Alliance")
 	AddVendor(68363,	L["Quackenbush"],		Z.DEEPRUN_TRAM,			53.9,	26.3,	"Alliance")
 	AddVendor(68364,	L["Paul North"],		Z.BRAWLGAR_ARENA,		50.8,	31.8,	"Horde")
 	AddVendor(69059,	L["Agent Malley"],		Z.KRASARANG_WILDS,		89.6,	33.4,	"Alliance")

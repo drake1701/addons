@@ -3,10 +3,10 @@
 Utilities.lua
 Utilitiy functions used for Collectinator
 ************************************************************************
-File date: 2012-11-02T01:16:56Z
-File hash: cd0c772
-Project hash: b336f20
-Project version: 2.0.0beta3
+File date: 2013-01-27T04:27:43Z
+File hash: 2be3d04
+Project hash: 421d12d
+Project version: 2.0.1
 ************************************************************************
 Please see http://www.wowace.com/addons/collectinator/ for more information.
 ************************************************************************
@@ -62,7 +62,7 @@ function private:AddListEntry(lookup_list, identifier, name, location, coord_x, 
 		entry.coord_y = coord_y
 	end
 
-	--[===[@alpha@
+	--@alpha@
 	if not NO_LOCATION_LISTS then
 		NO_LOCATION_LISTS = {
 			[self.custom_list] = true,
@@ -77,7 +77,7 @@ function private:AddListEntry(lookup_list, identifier, name, location, coord_x, 
 	if faction and lookup_list == self.mob_list then
 		addon:Debug("Mob %d (%s) has been assigned to faction %s.", identifier, name, entry.faction)
 	end
-	--@end-alpha@]===]
+	--@end-alpha@
 	lookup_list[identifier] = entry
 	return entry
 end

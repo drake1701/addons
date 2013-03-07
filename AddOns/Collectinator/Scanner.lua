@@ -5,8 +5,8 @@ Database scanning for Collectinator
 ************************************************************************
 File date: 2013-01-05T03:49:44Z
 File hash: 91b6a1c
-Project hash: b336f20
-Project version: 2.0.0beta3
+Project hash: 421d12d
+Project version: 2.0.1
 ************************************************************************
 Please see http://www.wowace.com/addons/collectinator/ for more information.
 ************************************************************************

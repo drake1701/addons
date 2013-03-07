@@ -3,10 +3,10 @@
 Constants.lua
 Constants used within Collectinator
 ************************************************************************
-File date: 2013-01-05T03:50:35Z
-File hash: be79dba
-Project hash: b336f20
-Project version: 2.0.0beta3
+File date: 2013-03-05T05:07:50Z
+File hash: 153e8ff
+Project hash: 421d12d
+Project version: 2.0.1
 ************************************************************************
 Please see http://www.wowace.com/addons/collectinator/ for more information.
 ************************************************************************
@@ -206,11 +206,11 @@ private.REP_FLAGS_WORD1 = {
 	THE_KALUAK			= 0x01000000,	-- 25
 	THE_ORACLES			= 0x02000000,	-- 26
 	THE_WYRMREST_ACCORD		= 0x04000000,	-- 27
-	WRATHCOMMON1			= 0x08000000,	-- 28  -- Silver Covenant / Sunreavers
-	WRATHCOMMON2			= 0x10000000,	-- 29
-	WRATHCOMMON3			= 0x20000000,	-- 30
-	WRATHCOMMON4			= 0x40000000,	-- 31
-	WRATHCOMMON5			= 0x80000000,	-- 32
+	WRATHCOMMON1			= 0x08000000,	-- 28 -- Vanguard / Expedition
+	WRATHCOMMON2			= 0x10000000,	-- 29 -- Silver Covenant / Sunreavers
+	WRATHCOMMON3			= 0x20000000,	-- 30 -- Valiance / Warsong
+	WRATHCOMMON4			= 0x40000000,	-- 31 -- Frostbourne / Taunka
+	WRATHCOMMON5			= 0x80000000,	-- 32 -- Explorer's League / Hand of Vengeance
 }
 
 -------------------------------------------------------------------------------
@@ -238,8 +238,10 @@ private.REP_FLAGS_WORD2 = {
 	THE_BLACK_PRINCE		= 0X00040000,	-- 19
 	SHANG_XIS_ACADEMY		= 0X00080000,	-- 20
 	PANDACOMMON1			= 0X00100000,	-- 21 -- Huojin Pandaren / Tushui Pandaren
-	GUILD				= 0X00200000,	-- 22.
+	GUILD				= 0X00200000,	-- 22
 	NETHERWING			= 0x00400000,	-- 23
+	BRAWLERS			= 0x00800000,	-- 24 -- Bizmo's Brawlpub / Brawl'gar Arena
+	PANDACOMMON3			= 0x01000000,	-- 25 -- Kirin Tor Offensive / Sunreaver Onslaught
 }
 
 -------------------------------------------------------------------------------
@@ -453,6 +455,11 @@ private.FACTION_IDS = {
 	TUSHUI_PANDAREN = 1353,
 	NAT_PAGLE = 1358,
 	THE_BLACK_PRINCE = 1359,
+	BRAWLGAR_ARENA = 1374,
+	KIRIN_TOR_OFFENSIVE = 1387,
+	SUNREAVER_ONSLAUGHT = 1388,
+	BIZMOS_BRAWLPUB = 1419,
+
 }
 
 private.FACTION_STRINGS = {}
@@ -652,7 +659,10 @@ private.ZONE_NAMES = {
 	SHRINE_OF_TWO_MOONS = _G.GetMapNameByID(903),
 	SHRINE_OF_SEVEN_STARS = _G.GetMapNameByID(905),
 	DEEPRUN_TRAM = _G.GetMapNameByID(922),
-	BRAWLGAR_ARENA = _G.GetMapNameByID(925)
+	BRAWLGAR_ARENA = _G.GetMapNameByID(925),
+	ISLE_OF_GIANTS = _G.GetMapNameByID(929),
+	THRONE_OF_THUNDER = _G.GetMapNameByID(930),
+	ISLE_OF_THUNDER = _G.GetMapNameByID(933)
 }
 
 do
@@ -695,6 +705,8 @@ private.BOSS_NAMES = {
 	RAGNAROS = _G.EJ_GetEncounterInfo(198),
 	ULTRAXION = _G.EJ_GetEncounterInfo(331),
 	MADNESS_OF_DEATHWING = _G.EJ_GetEncounterInfo(333),
+	MOTHER_SMOLDERWEB = _G.EJ_GetEncounterInfo(391),
+	QUARTERMASTER_ZIGRIS = _G.EJ_GetEncounterInfo(393),
 	LORD_AURIUS_RIVENDARE = _G.EJ_GetEncounterInfo(456),
 	KAELTHAS_SUNSTRIDER = _G.EJ_GetEncounterInfo(533),
 	ANZU = _G.EJ_GetEncounterInfo(542),
@@ -703,6 +715,9 @@ private.BOSS_NAMES = {
 	SKADI_THE_RUTHLESS = _G.EJ_GetEncounterInfo(643),
 	SHA_OF_ANGER = _G.EJ_GetEncounterInfo(691),
 	ELEGON = _G.EJ_GetEncounterInfo(726),
+	DARK_ANIMUS = _G.EJ_GetEncounterInfo(824),
+	JI_KUN = _G.EJ_GetEncounterInfo(828)
+	
 }
 
 -------------------------------------------------------------------------------

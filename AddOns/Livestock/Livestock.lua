@@ -231,7 +231,7 @@ function Livestock.CompanionEvent(self, event, ...)
 --	if event == "PET_JOURNAL_LIST_UPDATE" or event == "COMPANION_LEARNED" or event == "PET_JOURNAL_PET_DELETED" or event == "UPDATE_SUMMONPETS_ACTION" then print(event) end
 
 	if event == "PLAYER_LOGIN" then -- when the player logs in, make sure the map is set right for Smart Detection and sort out the companions
-		local numPets, numOwned = C_PetJournal.GetNumPets(true)
+		local numPets, numOwned = C_PetJournal.GetNumPets()
 		if numOwned == 0 then
 			donotsummon = true
 		end
@@ -434,7 +434,7 @@ function Livestock.BuildMenu(kind) -- type is a string, either "CRITTER", "LAND"
 			elseif not name and debug then -- debug message if the name is nil
 				local which, index
 				local creatureID, creatureName, spellID
-				local numPets, numOwned = C_PetJournal.GetNumPets(true)
+				local numPets, numOwned = C_PetJournal.GetNumPets()
 				if mounts then 
 					which = "MOUNT"
 					index = mountstable[buttonplusoffset]
@@ -968,7 +968,7 @@ function Livestock.CreateStateMaps(self)
 end
 
 function Livestock.RenumberCompanions() -- because the game does not distinguish between learning a new mount or a new critter, it's safest just to redo both indices
-	local numPets, numOwned = C_PetJournal.GetNumPets(true)
+	local numPets, numOwned = C_PetJournal.GetNumPets()
 
 	Livestock.RecycleTable(mountstable)
 	Livestock.RecycleTable(critterstable)
@@ -1733,7 +1733,7 @@ function Livestock.Dismount()
 end
 
 function Livestock.MoveSummon() -- idea and code provided by Mikhael of Doomhammer on the WoWInterface forums, modified by Scott Snowman (author).  Checks to see if you have a vanity pet out, and if you don't, it summons one (or your favorite).  Used as a hook on movement functions.
-	local numPets, numOwned = C_PetJournal.GetNumPets(true)
+	local numPets, numOwned = C_PetJournal.GetNumPets()
 
 	if LivestockSettings.summononmove == 0 or donotsummon or UnitChannelInfo("player") or UnitCastingInfo("player") or IsFalling() or Recompense.CheckBuffsAgainstTable(restrictSummonForTheseBuffs) or Recompense.CheckEquipmentAgainstTable(restrictSummonForThisEquipment) then
 		return -- return if the flag to not summon is checked, if you're channeling or casting, or if you have a buff on you that indicates you're in a situation where you shouldn't be summoning.
