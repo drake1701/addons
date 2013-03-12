@@ -4,8 +4,8 @@
 ## SavedVariables: DailyGrindQuests
 ## SavedVariablesPerCharacter: DailyGrindSettings
 ## Title: Daily Grind
-## Version: 1.8.1
-## X-Curse-Packaged-Version: 1.8.1
+## Version: 1.8.2
+## X-Curse-Packaged-Version: 1.8.2
 ## X-Curse-Project-Name: Daily Grind
 ## X-Curse-Project-ID: daily-grind
 ## X-Curse-Repository-ID: wow/daily-grind/mainline

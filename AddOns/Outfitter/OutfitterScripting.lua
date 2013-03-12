@@ -1245,7 +1245,7 @@ end
 -- $SETTING EquipChallenge={label="Equip in challenge mode", type="boolean"}
 -- $SETTING EquipNormal40={label="Equip in 40 player", type="boolean"}
 
-local difficulty = GetInstanceDifficulty() or 1
+local _, _, difficulty = GetInstanceInfo()
 if setting.EquipSolo
 and difficulty == 1 then
     equip = true

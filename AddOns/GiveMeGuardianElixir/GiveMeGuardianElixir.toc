@@ -1,6 +1,0 @@
-﻿## Title: Give Me GuardianElixir
-## Author: Mileg, MERK, Updated by Grimgrin
-## Notes: Creates and Updates Guardian Elixir Macro
-## Interface: 50200
-## SavedVariables: GMGuardianElixir_Save
-GiveMeGuardianElixir.xml

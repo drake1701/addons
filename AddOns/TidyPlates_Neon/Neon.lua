@@ -102,7 +102,6 @@ DefaultStyle.spelltext = {
 --]]
 
 DefaultStyle.threatborder = {
-	-- [[
 	texture =				ArtworkPath.."Neon_AggroOverlayWhite",
 	width = 256,
 	height = 64,

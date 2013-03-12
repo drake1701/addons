@@ -1,5 +1,0 @@
-﻿## Title: Give Me Health
-## Author: Mileg, MERK, Updated by Grimgrin
-## Notes: Creates and Updates Health Macro
-## Interface: 50200
-GiveMeHealth.xml

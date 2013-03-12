@@ -180,6 +180,12 @@ StyleDefault.raidicon = {
 	x = -35,
 	y = 12+nameplate_verticalOffset,
 	anchor = "TOP",
+		-- Texture Coordinates
+	left = 0,
+	right = 1,
+	top = 0,
+	bottom = 1,
+	--show = false,
 }
 
 StyleDefault.skullicon = {

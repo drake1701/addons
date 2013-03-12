@@ -44,8 +44,8 @@
 --  Globals/Default Options  --
 -------------------------------
 DBM = {
-	Revision = tonumber(("$Revision: 8829 $"):sub(12, -3)),
-	DisplayVersion = "5.2.0", -- the string that is shown as version
+	Revision = tonumber(("$Revision: 8884 $"):sub(12, -3)),
+	DisplayVersion = "5.2.1 alpha", -- the string that is shown as version
 	ReleaseRevision = 8828 -- the revision of the latest stable version that is available
 }
 
@@ -101,6 +101,8 @@ DBM.DefaultOptions = {
 	ShowLHFrame = true,
 	AlwaysShowHealthFrame = false,
 	ShowBigBrotherOnCombatStart = false,
+	AutologBosses = false,
+	AdvancedAutologBosses = false,
 	UseMasterVolume = true,
 	EnableModels = true,
 	RangeFrameFrames = "radar",
@@ -1131,30 +1133,6 @@ do
 	end
 end
 
---invoke using /script DBM:TaintTest()
---This will taint all 4 indexes
---Once done, just try to change a glyph. ;)
-local indexChanger = 0
-function DBM:TaintTest()
-	indexChanger = indexChanger + 1
-	StaticPopupDialogs["DBM_TAINT_TEST"] = {
-		preferredIndex = indexChanger,
-		text = "I am tainting your UI. ".."index: "..indexChanger,
-		button1 = DBM_CORE_OK,
-		OnAccept = function()
-			if indexChanger < 4 then
-				DBM:TaintTest()
-			else
-				indexChanger = 0
-			end
-		end,
-		timeout = 0,
-		exclusive = 1,
-		whileDead = 1
-	}
-	StaticPopup_Show("DBM_TAINT_TEST")
-end
-
 
 ----------------------
 --  Minimap Button  --
@@ -1890,6 +1868,18 @@ end
 --  Handle Incoming Syncs  --
 -----------------------------
 do
+	local function checkForActualPull()
+		if #inCombat == 0 then
+			if DBM.Options.AutologBosses and LoggingCombat() then
+				LoggingCombat(0)
+				print(COMBATLOGDISABLED)
+			end
+			if DBM.Options.AdvancedAutologBosses and IsAddOnLoaded("Transcriptor") then
+				Transcriptor:StopLog()
+			end
+		end
+	end
+
 	local syncHandlers = {}
 	local whisperSyncHandlers = {}
 
@@ -1965,6 +1955,17 @@ do
 		end
 		if not DBM.Options.DontShowPTCountdownText then
 			TimerTracker_OnEvent(TimerTracker, "START_TIMER", 2, timer, timer)--Hopefully this doesn't taint. Initial tests show positive even though it is an intrusive way of calling a blizzard timer. It's too bad the max value doesn't seem to actually work
+		end
+		if DBM.Options.AutologBosses and not LoggingCombat() then--Start logging here to catch pre pots.
+			LoggingCombat(1)
+			print(COMBATLOGENABLED)
+			DBM:Unschedule(checkForActualPull)
+			DBM:Schedule(timer+10, checkForActualPull)--But if pull was canceled and we don't have a boss engaged within 10 seconds of pull timer ending, abort log
+		end
+		if DBM.Options.AdvancedAutologBosses and IsAddOnLoaded("Transcriptor") then
+			Transcriptor:StartLog()
+			DBM:Unschedule(checkForActualPull)
+			DBM:Schedule(timer+10, checkForActualPull)--But if pull was canceled and we don't have a boss engaged within 10 seconds of pull timer ending, abort log
 		end
 	end
 
@@ -2682,6 +2683,7 @@ function DBM:StartCombat(mod, delay, synced)
 			sendSync("C", (delay or 0).."\t"..mod.id.."\t"..(mod.revision or 0))
 		end
 		fireEvent("pull", mod, delay, synced)
+		DBM:ToggleRaidBossEmoteFrame(1)
 		if DBM.Options.ShowBigBrotherOnCombatStart and BigBrother and type(BigBrother.ConsumableCheck) == "function" then
 			if DBM.Options.BigBrotherAnnounceToRaid then
 				BigBrother:ConsumableCheck("RAID")
@@ -2689,7 +2691,13 @@ function DBM:StartCombat(mod, delay, synced)
 				BigBrother:ConsumableCheck("SELF")
 			end
 		end
-		DBM:ToggleRaidBossEmoteFrame(1)
+		if DBM.Options.AutologBosses and not LoggingCombat() then
+			LoggingCombat(1)
+			print(COMBATLOGENABLED)
+		end
+		if DBM.Options.AdvancedAutologBosses and IsAddOnLoaded("Transcriptor") then
+			Transcriptor:StartLog()
+		end
 	end
 end
 
@@ -2715,8 +2723,11 @@ function DBM:EndCombat(mod, wipe)
 		if not wipe then
 			mod.lastKillTime = GetTime()
 			if mod.inCombatOnlyEvents then
+				--Timer issues not super rare (At lease for me). It causes every time for me at lfr Tsulong (if we kill him at night, he changes to day phase on die. This fires UNIT_SPELLCAST_SUCCEEDED/spellid 123532 event. If this evert fires after he yells (die trigger), this can cause bad timer starts.)
 				--mod:UnregisterInCombatEvents()
-				DBM:Schedule(3, mod.UnregisterInCombatEvents, mod) -- Delay unregister events to make sure icon clear functions get to run their course. We want to catch some SPELL_AURA_REMOVED events that fire after boss death and get those icons cleared
+				DBM:Schedule(1.5, mod.UnregisterInCombatEvents, mod) -- Delay unregister events to make sure icon clear functions get to run their course. We want to catch some SPELL_AURA_REMOVED events that fire after boss death and get those icons cleared
+				--Remove bad started timer after boss dies.
+				DBM:Schedule(1.6, mod.Stop, mod)
 				mod.inCombatOnlyEventsRegistered = nil
 			end
 		end
@@ -2878,6 +2889,13 @@ function DBM:EndCombat(mod, wipe)
 		DBM.BossHealth:Hide()
 		DBM.Arrow:Hide(true)
 		DBM:ToggleRaidBossEmoteFrame(0)
+		if DBM.Options.AutologBosses and LoggingCombat() then
+			LoggingCombat(0)
+			print(COMBATLOGDISABLED)
+		end
+		if DBM.Options.AdvancedAutologBosses and IsAddOnLoaded("Transcriptor") then
+			Transcriptor:StopLog()
+		end
 	end
 end
 

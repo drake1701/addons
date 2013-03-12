@@ -62,7 +62,7 @@ local inArena = false
 local GetCombatEventResults = TidyPlatesUtility.GetCombatEventResults
 
 local function DefaultPreFilterFunction() return true end
-local function DefaultFilterFunction(aura, unit) if (aura.duration < 30) then return true end end
+local function DefaultFilterFunction(aura, unit) if aura and aura.duration and (aura.duration < 30) then return true end end
 
 local AuraPrefilterFunction = DefaultPreFilterFunction
 local AuraFilterFunction = DefaultFilterFunction
@@ -653,7 +653,7 @@ local function CombatEventHandler(frame, event, ...)
 				
 				local name, raidicon
 				-- Cache Unit Name for alternative lookup strategy
-				if bit.band(destFlags, COMBATLOG_OBJECT_CONTROL_PLAYER) > 0 then 
+				if (bit.band(destFlags, COMBATLOG_OBJECT_CONTROL_PLAYER) > 0) and destName then 
 					local rawName = strsplit("-", destName)			-- Strip server name from players
 					ByName[rawName] = destGUID
 					name = rawName

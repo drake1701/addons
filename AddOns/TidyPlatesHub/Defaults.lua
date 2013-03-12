@@ -34,8 +34,10 @@ TidyPlatesHubDefaults = {
 	OpacityFilterNeutralUnits = false,		-- OpacityHideNeutral = false,
 	OpacityFilterNonElite = false,			-- OpacityHideNonElites = false,
 	OpacityFilterNPC = false,
+	OpacityFilterPlayers = false,
 	OpacityFilterFriendlyNPC = false,
 	OpacityFilterInactive = false,
+	OpacityFilterMini = false,
 	OpacityFilterList = "Fanged Pit Viper",
 	OpacityFilterLookup = {},
 

@@ -1,6 +1,6 @@
 -- (c) 2006-2012, all rights reserved.
--- $Revision: 1076 $
--- $Date: 2013-03-06 19:22:59 +1100 (Wed, 06 Mar 2013) $
+-- $Revision: 1083 $
+-- $Date: 2013-03-07 19:12:14 +1100 (Thu, 07 Mar 2013) $
 
 
 local _G = _G
@@ -1380,7 +1380,7 @@ ArkInventory.Global = { -- globals
 	},
 	
 	Thread = {
-		WhileInCombat = false,
+		WhileInCombat = true,
 		Restack = { },
 		Window = { },
 		WindowState = { },
@@ -4508,7 +4508,7 @@ function ArkInventory.Frame_Main_Draw( frame )
 	end
 	
 	if ( not ArkInventory.Global.Thread.WhileInCombat ) then
-		-- debugging only
+		-- should only be set to false while debugging any errors
 		ArkInventory.Frame_Main_DrawThreadStart( frame )
 		return
 	end

@@ -1,3 +1,14 @@
+## 2.3.2
+ * Fixed performance issues on tabs using the zone dropdown list
+ * Added several 5.2 mounts, zones and titles
+ * Fixed info for Swift Windsteed (Mount)
+ * Fixed info for Albino Riding Crane (Mount)
+ * Fixed info for Crimson Riding Crane (Mount)
+ * Fixed info for several Water Strider mounts (Mount)
+ * Added filters for unknown method of obtaining Yaks, Clound Serpents, Water Striders, Riding Cranes (Mount)
+ * Removed [BoE] tags from Tailoring mounts (Mount)
+ * Fixed duplicate LICENSE.TXT in zip
+
 ## 2.3.1
  * Added Swift Windsteed
  * Fixed zone filtering in AQ40

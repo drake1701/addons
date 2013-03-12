@@ -1,5 +1,0 @@
-## Title: Give Me Pet
-## Author: Mileg, MERK, Updated by Grimgrin
-## Notes: Creates and Updates Pet Macro
-## Interface: 50200
-GiveMePet.xml

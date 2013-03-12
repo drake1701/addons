@@ -1,14 +1,10 @@
 ## Interface: 50200
-## X-Curse-Packaged-Version: 3.03.26
-## X-Curse-Project-Name: ArkInventory
-## X-Curse-Project-ID: ark-inventory
-## X-Curse-Repository-ID: wow/ark-inventory/mainline
 
 ## Title: ArkInventory
 ## Title-zhCN: [背包]ArkInventory 整合背包银行
 ## Author: Arkayenro - Khaz'goroth
 ## Email: arkayenro at gmail dot com
-## Version: 30326
+## Version: 30327
 ## SavedVariables: ARKINVDB
 
 ## Notes: Allows you to view all items from all your characters on the same realm, when-ever and where-ever you want.

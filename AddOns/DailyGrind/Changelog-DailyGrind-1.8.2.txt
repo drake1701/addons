@@ -1,0 +1,13 @@
+------------------------------------------------------------------------
+r127 | deldinor | 2013-03-07 00:53:48 +0000 (Thu, 07 Mar 2013) | 1 line
+Changed paths:
+   A /tags/1.8.2 (from /trunk:126)
+
+Tagging as 1.8.2
+------------------------------------------------------------------------
+r126 | deldinor | 2013-03-07 00:52:54 +0000 (Thu, 07 Mar 2013) | 1 line
+Changed paths:
+   M /trunk/DailyGrind.toc
+
+Just a compatibility version increment, no new features yet!
+------------------------------------------------------------------------

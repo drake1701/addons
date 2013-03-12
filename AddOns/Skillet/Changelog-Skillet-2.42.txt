@@ -1,0 +1,36 @@
+------------------------------------------------------------------------
+r311 | yossa | 2013-03-07 08:40:49 +0000 (Thu, 07 Mar 2013) | 1 line
+Changed paths:
+   A /tags/2.42 (from /trunk:310)
+
+Tagging as 2.42
+------------------------------------------------------------------------
+r310 | yossa | 2013-03-07 08:39:03 +0000 (Thu, 07 Mar 2013) | 3 lines
+Changed paths:
+   M /trunk/Skillet.lua
+   M /trunk/Skillet.toc
+   M /trunk/SkilletData.lua
+
+Skillet:
+-
+
+------------------------------------------------------------------------
+r308 | yossa | 2013-03-06 11:58:15 +0000 (Wed, 06 Mar 2013) | 3 lines
+Changed paths:
+   M /trunk/SkilletData.lua
+
+Skillet:
+- fix GetTradeSkillReagentItemLink
+
+------------------------------------------------------------------------
+r307 | yossa | 2013-03-05 17:51:53 +0000 (Tue, 05 Mar 2013) | 4 lines
+Changed paths:
+   M /trunk/Skillet.lua
+   M /trunk/Skillet.toc
+   M /trunk/SkilletQueue.lua
+
+Skillet:
+- nil fixes
+- 5.2
+
+------------------------------------------------------------------------

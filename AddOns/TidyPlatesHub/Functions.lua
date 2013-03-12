@@ -441,7 +441,8 @@ local function HealthColorDelegate(unit)
 	end	
 
 	if color then 
-		return color.r, color.g, color.b 
+		--return color.r, color.g, color.b, 1, 0, 0, 0, 1
+		return color.r, color.g, color.b, 1	--, color.r/4, color.g/4, color.b/4, 1
 	else return unit.red, unit.green, unit.blue end
 end
 
@@ -631,8 +632,6 @@ local NameColorFunctions = {
 local function SetNameColorDelegate(unit)
 	local color, colorMode
 		
-	
-	
 	if unit.reaction == "FRIENDLY" then
 		-- Party Aggro Coloring -- Overrides the normal coloring
 		if LocalVars.ColorShowPartyAggro and LocalVars.ColorPartyAggroText then
@@ -645,7 +644,8 @@ local function SetNameColorDelegate(unit)
 			colorMode = tonumber(LocalVars.TextPlateNameColorMode)
 		else colorMode = tonumber(LocalVars.TextNameColorMode) end
 		
-		color = NameColorFunctions[colorMode or 1](unit)
+		local func = NameColorFunctions[colorMode or 1] or DummyFunction
+		color = func(unit)
 	end
 	
 	if color then 
@@ -851,6 +851,9 @@ local function UnitFilter(unit)
 	elseif LocalVars.OpacityFilterNeutralUnits and unit.reaction == "NEUTRAL" then return true
 	elseif LocalVars.OpacityFilterFriendlyNPC and unit.type == "NPC" and unit.reaction == "FRIENDLY" then return true
 	elseif LocalVars.OpacityFilterNPC and unit.type == "NPC" then return true
+	elseif LocalVars.OpacityFilterPlayers and unit.type == "PLAYER" then return true
+	elseif LocalVars.OpacityFilterMini and unit.platetype == 2 then return true
+		
 	elseif LocalVars.OpacityFilterNonElite and (not unit.isElite) then return true
 	elseif LocalVars.OpacityFilterInactive then 
 		if unit.reaction ~= "FRIENDLY" and not (unit.isMarked or unit.isInCombat or unit.threatValue > 0 or unit.health < unit.healthmax) then return true end
