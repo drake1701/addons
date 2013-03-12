@@ -246,6 +246,13 @@ do
                 else
                     extended:SetAlpha(extended.requestedAlpha or 1)   
                 end
+                
+                -- Better Layering
+                if unit.isMouseover then
+                    extended:SetFrameLevel(1)
+                elseif not unit.isTarget then
+                    extended:SetFrameLevel(0)
+                end
 	end
 
 	-- UpdateIndicator_CustomScaleText: Updates the custom indicators (text, image, alpha, scale)
@@ -356,8 +363,8 @@ do
 			if blue < .01 and green > .99 then return "NEUTRAL", "NPC"
 			elseif blue < .01 and green < .01 then return "HOSTILE", "NPC"
 			end
-		elseif red > .53 then
-			if green > .5 and green < .6 and blue > .99 then return "TAPPED", "NPC" end 	-- .533, .533, .99	-- Tapped Mob
+		elseif red > .5 and red < .6 then
+			if green > .5 and green < .6 and blue > .5 and blue < .6 then return "TAPPED", "NPC" end 	-- .533, .533, .99	-- Tapped Mob
 		end
 		return "HOSTILE", "PLAYER"
 	end
@@ -365,7 +372,7 @@ do
 	-- Raid Icon Lookup table
 	local ux, uy
 	local RaidIconCoordinate = { --from GetTexCoord. input is ULx and ULy (first 2 values).
-		[0]		= { [0]		= "STAR", [0.25]	= "MOON", },
+		[0]	= { [0]		= "STAR", [0.25]	= "MOON", },
 		[0.25]	= { [0]		= "CIRCLE", [0.25]	= "SQUARE",	},
 		[0.5]	= { [0]		= "DIAMOND", [0.25]	= "CROSS", },
 		[0.75]	= { [0]		= "TRIANGLE", [0.25]	= "SKULL", }, }
@@ -398,11 +405,13 @@ do
 				unit.guid = UnitGUID("target")
 				if unit.guid then GUID[unit.guid] = plate end
 			end
-		else
+
+                else
 			extended:SetFrameLevel(0)
 		end
 
 		UpdateIndicator_Target()
+                
 		if activetheme.OnContextUpdate then activetheme.OnContextUpdate(extended, unit) end
 	end
 
@@ -832,6 +841,33 @@ do
 		local upperlayer = CreateFrame("Frame", nil, healthbar)
 		visual = extended.visual
 
+                
+                --[[
+                Proposed Layer Order
+                --------------------
+                .customlayer
+                customtext      - Overlay
+                customart       - Artwork
+                
+                .upperlayer
+                Raid Icon       - Overlay
+                Level           - Overlay
+                Name            - Artwork
+                Skull Icon      - Artwork
+                Elite Icon      - Background
+                
+                .extended
+                Highlight           - Overlay
+                ThreatAggro Border  - Artwork
+                
+                .healthbar
+                Target          - Overlay
+                Health Border   - Artwork
+                Health Bar
+                
+                --------------------                
+                --]]
+                
                 -- Top Level
 		visual.target = extended:CreateTexture(nil, "ARTWORK")
                 

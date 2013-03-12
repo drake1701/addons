@@ -1,7 +1,14 @@
 Packer Note: Files to exclude: *.db *.png *.gif *.jpg *.tif *.txt *.psd *.bmp
 
+6.9.3
+---------------------------
+- Tapped Mobs now apparently have the color: 0.53, 053, 0.53.... so I've updated the core to properly ID tapped mobs
+- Mousing over a nameplate will temporarily bring that frame to FrameLevel 1, which should help targeting in crowds.
+- A few other little things that I can't recall now.  I need sleep!
 
-- More bug fixing, which seems to be a blessing in-disguise, since it's yeilding some removal of redundancies, and improvement in performance.
+6.9.2
+---------------------------
+- More bug fixing, which seems to be a blessing in-disguise, since it's yeilding some removal of redundancies, and (hopefully) incremental improvement in performance.
 
 6.9.1
 ---------------------------

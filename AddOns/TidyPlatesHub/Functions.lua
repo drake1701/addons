@@ -229,6 +229,7 @@ local StyleModeFunctions = {
 	end,
 		-- player chars
 	function(unit)
+		
 		if unit.type == "PLAYER" then 
 			return BARMODE 
 		else return HEADLINEMODE end

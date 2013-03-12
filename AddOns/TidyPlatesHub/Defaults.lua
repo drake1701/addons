@@ -24,7 +24,7 @@ TidyPlatesHubDefaults = {
 	OpacitySpotlight = 1,
 	OpacityFullSpell = false,				-- Bring Casting units to Full Opacity
 	OpacityFullNoTarget = true,				-- Use full opacity when No Target
-	OpacityFullMouseover = false,
+	OpacityFullMouseover = true,
 	
 	-- Filter
 	---------------------------------------
