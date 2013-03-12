@@ -1,0 +1,11 @@
+## Interface: 50100
+## LoadOnDemand: 1
+## Title: Lib: LibPetBreedInfo-1.0
+## Notes: 
+## Author: Nullberri
+## X-Curse-Packaged-Version: 1.1.4-release5.2
+## X-Curse-Project-Name: Pokemon Trainer: The Pet Battle Mod
+## X-Curse-Project-ID: pokemon-trainer
+## X-Curse-Repository-ID: wow/pokemon-trainer/mainline
+LibStub.lua
+LibPetBreedInfo-1.0.lua

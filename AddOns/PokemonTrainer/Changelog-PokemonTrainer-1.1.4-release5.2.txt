@@ -1,0 +1,24 @@
+------------------------------------------------------------------------
+r121 | grdn | 2013-03-05 19:44:39 +0000 (Tue, 05 Mar 2013) | 1 line
+Changed paths:
+   A /tags/1.1.4-release5.2 (from /trunk:120)
+
+5.2 ready
+------------------------------------------------------------------------
+r120 | grdn | 2013-03-05 19:43:59 +0000 (Tue, 05 Mar 2013) | 2 lines
+Changed paths:
+   M /trunk/PokemonTrainer.toc
+   M /trunk/_scripts/Developer.lua
+   M /trunk/_scripts/pack_data.pl
+
+- Bumped TOC to 5.2
+- New pet data is still missing, I'll add it on weekend
+------------------------------------------------------------------------
+r118 | grdn | 2013-02-09 10:05:26 +0000 (Sat, 09 Feb 2013) | 2 lines
+Changed paths:
+   M /trunk/Core.lua
+   M /trunk/PokemonTrainer.toc
+
+- Raised version to 1.1.4
+- Some pets under level 4 actually have their third ability slot enabled. PT know takes care of this. =)
+------------------------------------------------------------------------
