@@ -1,4 +1,4 @@
-local E, L, V, P, G, _ = unpack(select(2, ...)); --Inport: Engine, Locales, PrivateDB, ProfileDB, GlobalDB, Localize Underscore
+local E, L, V, P, G = unpack(select(2, ...)); --Inport: Engine, Locales, PrivateDB, ProfileDB, GlobalDB
 local _, ns = ...
 local ElvUF = ns.oUF
 assert(ElvUF, "ElvUI was unable to locate oUF.")
@@ -446,4 +446,124 @@ ElvUF.Tags.Methods['incomingheals'] = function(unit)
 	else
 		return E:ShortValue(heal)
 	end
+end
+
+local MapData = LibStub("LibMapData-1.0")
+local GroupUnits = {}
+local f = CreateFrame("Frame")
+
+f:RegisterEvent("GROUP_ROSTER_UPDATE")
+f:SetScript("OnEvent", function()
+	local groupType, groupSize
+	twipe(GroupUnits)
+
+	if IsInRaid() then
+		groupType = "raid"
+		groupSize = GetNumGroupMembers()
+	elseif IsInGroup() then
+		groupType = "party"
+		groupSize = GetNumGroupMembers() - 1
+		GroupUnits["player"] = true
+	else
+		groupType = "solo"
+		groupSize = 1
+	end
+
+	for index = 1, groupSize do
+		local unit = groupType..index
+		if not UnitIsUnit(unit, "player") then
+			GroupUnits[unit] = true
+		end
+	end
+end)
+
+ElvUF.Tags.Methods['nearbyplayers'] = function(unit)
+	local px, py, tx, ty, d
+	px, py = GetPlayerMapPosition(unit)
+	local unitsInRange = 0
+	if UnitIsConnected(unit) then
+		for groupUnit, _ in pairs(GroupUnits) do
+			if not UnitIsUnit(unit, groupUnit) and UnitIsConnected(groupUnit) then
+				tx, ty = GetPlayerMapPosition(groupUnit)
+				d = E:GetDistance(px, py, tx, ty)
+				if d <= 8 then
+					unitsInRange = unitsInRange + 1
+				end
+			end
+		end
+	end
+
+	return unitsInRange
+end
+
+ElvUF.Tags.Methods['nearbyplayers:8'] = function(unit)
+	local px, py, tx, ty, d
+	px, py = GetPlayerMapPosition(unit)
+	local unitsInRange = 0
+	if UnitIsConnected(unit) then
+		for groupUnit, _ in pairs(GroupUnits) do
+			if not UnitIsUnit(unit, groupUnit) and UnitIsConnected(groupUnit) then
+				tx, ty = GetPlayerMapPosition(groupUnit)
+				d = E:GetDistance(px, py, tx, ty)
+				if d and d <= 8 then
+					unitsInRange = unitsInRange + 1
+				end
+			end
+		end
+	end
+	
+	return unitsInRange
+end
+
+ElvUF.Tags.Methods['nearbyplayers:10'] = function(unit)
+	local px, py, tx, ty, d
+	px, py = GetPlayerMapPosition(unit)
+	local unitsInRange = 0
+	if UnitIsConnected(unit) then
+		for groupUnit, _ in pairs(GroupUnits) do
+			if not UnitIsUnit(unit, groupUnit) and UnitIsConnected(groupUnit) then
+				tx, ty = GetPlayerMapPosition(groupUnit)
+				d = E:GetDistance(px, py, tx, ty)
+				if d and d <= 10 then
+					unitsInRange = unitsInRange + 1
+				end
+			end
+		end
+	end
+	
+	return unitsInRange
+end
+
+ElvUF.Tags.Methods['nearbyplayers:30'] = function(unit)
+	local px, py, tx, ty, d
+	px, py = GetPlayerMapPosition(unit)
+	local unitsInRange = 0
+	if UnitIsConnected(unit) then
+		for groupUnit, _ in pairs(GroupUnits) do
+			if not UnitIsUnit(unit, groupUnit) and UnitIsConnected(groupUnit) then
+				tx, ty = GetPlayerMapPosition(groupUnit)
+				d = E:GetDistance(px, py, tx, ty)
+				if d and d <= 30 then
+					unitsInRange = unitsInRange + 1
+				end
+			end
+		end
+	end
+	
+	return unitsInRange
+end
+
+ElvUF.Tags.Methods['distance'] = function(unit)
+	local px, py, tx, ty, d
+	px, py = GetPlayerMapPosition('player')
+
+	if UnitIsConnected(unit) and not UnitIsUnit(unit, 'player') then
+		tx, ty = GetPlayerMapPosition(unit)
+		d = E:GetDistance(px, py, tx, ty)
+		if d then
+			d = format("%.1f", d)
+		end
+	end
+	
+	return d or ''
 end

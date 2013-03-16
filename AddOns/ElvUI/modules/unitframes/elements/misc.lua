@@ -1,4 +1,4 @@
-local E, L, V, P, G, _ = unpack(select(2, ...)); --Inport: Engine, Locales, PrivateDB, ProfileDB, GlobalDB, Localize Underscore
+local E, L, V, P, G = unpack(select(2, ...)); --Inport: Engine, Locales, PrivateDB, ProfileDB, GlobalDB
 local UF = E:GetModule('UnitFrames');
 
 local random, floor, ceil = math.random, math.floor, math.ceil
@@ -49,7 +49,7 @@ function UF:Construct_CombatIndicator(frame)
 end
 
 function UF:Construct_PvPIndicator(frame)
-	local pvp = frame:CreateFontString(nil, 'OVERLAY')
+	local pvp = frame.RaisedElementParent:CreateFontString(nil, 'OVERLAY')
 	UF:Configure_FontString(pvp)
 
 	return pvp

@@ -1,5 +1,7 @@
-local E, L, V, P, G, _ = unpack(select(2, ...)); --Inport: Engine, Locales, PrivateDB, ProfileDB, GlobalDB, Localize Underscore
+local E, L, V, P, G = unpack(select(2, ...)); --Inport: Engine, Locales, PrivateDB, ProfileDB, GlobalDB
 
+
+local MapData = LibStub("LibMapData-1.0")
 local format = string.format
 local sub = string.sub
 local upper = string.upper
@@ -7,13 +9,16 @@ local upper = string.upper
 local modf = math.modf
 local ceil = math.ceil
 local floor = math.floor
+local mapFile, mapFloor
 
 --Return short value of a number
 function E:ShortValue(v)
-	if v >= 1e6 then
-		return ("%.1fm"):format(v / 1e6):gsub("%.?0+([km])$", "%1")
+	if v >= 1e9 then
+		return ("%.1fb"):format(v / 1e9):gsub("%.?0+([kmb])$", "%1")
+	elseif v >= 1e6 then
+		return ("%.1fm"):format(v / 1e6):gsub("%.?0+([kmb])$", "%1")
 	elseif v >= 1e3 or v <= -1e3 then
-		return ("%.1fk"):format(v / 1e3):gsub("%.?0+([km])$", "%1")
+		return ("%.1fk"):format(v / 1e3):gsub("%.?0+([kmb])$", "%1")
 	else
 		return v
 	end
@@ -261,4 +266,15 @@ function E:GetTimeInfo(s, threshhold)
 		local days = tonumber(E:Round(s/DAY))
 		return ceil(s / DAY), 0,  days > 1 and (s - (days*DAY - HALFDAYISH)) or (s - DAYISH)
 	end
+end
+
+MapData:RegisterCallback("MapChanged", function (event, map, floor, w, h)
+	mapFile = map
+	mapFloor = floor
+end)
+
+function E:GetDistance(x1, y1, x2, y2)
+	if (x1 == 0 and y1 == 0) or (x2 == 0 and y2 == 0) then return end
+	
+	return MapData:Distance(mapFile, mapFloor, x1, y1, x2, y2)
 end

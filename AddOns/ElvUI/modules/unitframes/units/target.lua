@@ -1,4 +1,4 @@
-local E, L, V, P, G, _ = unpack(select(2, ...)); --Inport: Engine, Locales, PrivateDB, ProfileDB, GlobalDB, Localize Underscore
+local E, L, V, P, G = unpack(select(2, ...)); --Inport: Engine, Locales, PrivateDB, ProfileDB, GlobalDB
 local UF = E:GetModule('UnitFrames');
 local _, ns = ...
 local ElvUF = ns.oUF
@@ -77,10 +77,12 @@ function UF:Update_TargetFrame(frame, db)
 	frame:Size(UNIT_WIDTH, UNIT_HEIGHT)
 	_G[frame:GetName()..'Mover']:Size(frame:GetSize())
 	
-	if db.middleClickFocus then
-		frame:SetAttribute("type3", "focus")
-	else
-		frame:SetAttribute("type3", nil)
+	if not IsAddOnLoaded("Clique") then
+		if db.middleClickFocus then
+			frame:SetAttribute("type3", "focus")
+		elseif frame:GetAttribute("type3") == "focus" then
+			frame:SetAttribute("type3", nil)
+		end
 	end
 	
 	--Adjust some variables
@@ -518,12 +520,12 @@ function UF:Update_TargetFrame(frame, db)
 	--OverHealing
 	do
 		local healPrediction = frame.HealPrediction
-		
+		local c = UF.db.colors.healPrediction
 		if db.healPrediction then
 			if not frame:IsElementEnabled('HealPrediction') then
 				frame:EnableElement('HealPrediction')
-			end
-
+			end		
+			
 			if not USE_PORTRAIT_OVERLAY then
 				healPrediction.myBar:SetParent(frame)
 				healPrediction.otherBar:SetParent(frame)
@@ -533,6 +535,9 @@ function UF:Update_TargetFrame(frame, db)
 				healPrediction.otherBar:SetParent(frame.Portrait.overlay)	
 				healPrediction.absorbBar:SetParent(frame.Portrait.overlay)
 			end
+			healPrediction.myBar:SetStatusBarColor(c.personal.r, c.personal.g, c.personal.b, c.personal.a)
+			healPrediction.otherBar:SetStatusBarColor(c.others.r, c.others.g, c.others.b, c.others.a)
+			healPrediction.absorbBar:SetStatusBarColor(c.absorbs.r, c.absorbs.g, c.absorbs.b, c.absorbs.a)				
 		else
 			if frame:IsElementEnabled('HealPrediction') then
 				frame:DisableElement('HealPrediction')

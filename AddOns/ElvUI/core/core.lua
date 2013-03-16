@@ -1,4 +1,4 @@
-local E, L, V, P, G, _ = unpack(select(2, ...)); --Inport: Engine, Locales, PrivateDB, ProfileDB, GlobalDB, Localize Underscore
+local E, L, V, P, G = unpack(select(2, ...)); --Inport: Engine, Locales, PrivateDB, ProfileDB, GlobalDB
 local LSM = LibStub("LibSharedMedia-3.0")
 
 local format = string.format
@@ -471,6 +471,7 @@ function E:UpdateAll(ignoreInstall)
 	self.data.RegisterCallback(self, "OnProfileChanged", "UpdateAll")
 	self.data.RegisterCallback(self, "OnProfileCopied", "UpdateAll")
 	self.data.RegisterCallback(self, "OnProfileReset", "OnProfileReset")
+	LibStub('LibDualSpec-1.0'):EnhanceDatabase(self.data, "ElvUI")
 	self.db = self.data.profile;
 	self.global = self.data.global;
 	
@@ -664,7 +665,7 @@ function E:MassiveShake()
 	ElvUI_StaticPopup1Button1:Enable()
 	
 	for _, object in pairs(self["massiveShakeObjects"]) do
-		if object then
+		if object and object:IsShown() then
 			self:Shake(object)
 		end
 	end
@@ -732,7 +733,7 @@ function E:Initialize()
 	self.data.RegisterCallback(self, "OnProfileChanged", "UpdateAll")
 	self.data.RegisterCallback(self, "OnProfileCopied", "UpdateAll")
 	self.data.RegisterCallback(self, "OnProfileReset", "OnProfileReset")
-	
+	LibStub('LibDualSpec-1.0'):EnhanceDatabase(self.data, "ElvUI")
 	self.charSettings = LibStub("AceDB-3.0"):New("ElvPrivateDB", self.privateVars);	
 	self.private = self.charSettings.profile
 	self.db = self.data.profile;
