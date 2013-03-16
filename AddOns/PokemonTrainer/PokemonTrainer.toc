@@ -1,21 +1,21 @@
 ## Interface: 50200
 ## Title: Pokemon Trainer
-## Version: 1.1.4
+## Version: 1.1.5
 ## Notes: The pet battle addon with many helpers!
 ## Author: grdn
 ## X-Crew: grdn, Possible, Detritis
 ## SavedVariables: PokemonTrainerDB, PTDevDB
 ## Dependencies: Blizzard_PetJournal, Blizzard_PetBattleUI
 ## OptionalDeps: Ace3, iLib, LibCrayon-3.0, LibPetBreedInfo-1.0, LibPetJournal-2.0
-## X-Curse-Packaged-Version: 1.1.4-release5.2
+## X-Curse-Packaged-Version: 1.1.5
 ## X-Curse-Project-Name: Pokemon Trainer: The Pet Battle Mod
 ## X-Curse-Project-ID: pokemon-trainer
 ## X-Curse-Repository-ID: wow/pokemon-trainer/mainline
 
 
 # Libraries
-Libs\CallbackHandler-1.0\CallbackHandler-1.0.xml
 Libs\LibStub\Libstub.lua
+Libs\CallbackHandler-1.0\CallbackHandler-1.0.xml
 
 Libs\iLib\lib.xml
 Libs\LibCrayon-3.0\lib.xml

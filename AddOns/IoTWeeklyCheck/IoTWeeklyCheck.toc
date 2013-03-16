@@ -1,0 +1,13 @@
+## Interface: 50200
+## Title: IoT Weekly Check
+## Author: Fluffies  EU-Well of Eternity
+## Notes: Tracks your character's weekly business in the Isle of Thunder.
+## eMail: n_rhygar@yahoo.it
+## DefaultState: Enabled
+## LoadOnDemand: 0
+## SavedVariables: IoTWeeklyItems_Options
+lib\LibStub.lua
+lib\CallbackHandler-1.0.lua
+lib\LibDataBroker-1.1.lua
+lib\LibDBIcon-1.0.lua
+ioTWeeklyCheck.lua
