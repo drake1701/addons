@@ -1,9 +1,9 @@
 local mod	= DBM:NewMod(826, "DBM-Pandaria", nil, 322)
 local L		= mod:GetLocalizedStrings()
 
-mod:SetRevision(("$Revision: 8862 $"):sub(12, -3))
+mod:SetRevision(("$Revision: 8909 $"):sub(12, -3))
 mod:SetCreatureID(69161)
---mod:SetModelID(41448)
+mod:SetModelID(47257)
 mod:SetZone(929)--Isle of Giants
 
 mod:RegisterCombat("combat")
@@ -28,6 +28,7 @@ local warnFrillBlast			= mod:NewSpellAnnounce(137505, 4)--While this SHOULD be a
 
 local specWarnCrush				= mod:NewSpecialWarningStack(137504, mod:IsTank(), 2)
 local specWarnCrushOther		= mod:NewSpecialWarningTarget(137504, mod:IsTank())--This should not go over 1 stack so don't need stack warning just a "taunt the boss" warning
+local specWarnPiercingRoar		= mod:NewSpecialWarningCast(137457, mod:IsRanged() or mod:IsHealer())
 local specWarnFrillBlast		= mod:NewSpecialWarningSpell(137505, nil, nil, nil, 2)
 
 local timerCrush				= mod:NewTargetTimer(60, 137504, nil, mod:IsTank() or mod:IsHealer())
@@ -57,6 +58,7 @@ end
 function mod:SPELL_CAST_START(args)
 	if args:IsSpellID(137457) then
 		warnPiercingRoar:Show()
+		specWarnPiercingRoar:Show()
 		timerPiercingRoarCD:Start()
 	elseif args:IsSpellID(137505) then
 		warnFrillBlast:Show()

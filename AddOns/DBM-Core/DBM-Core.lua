@@ -44,9 +44,9 @@
 --  Globals/Default Options  --
 -------------------------------
 DBM = {
-	Revision = tonumber(("$Revision: 8884 $"):sub(12, -3)),
-	DisplayVersion = "5.2.1 alpha", -- the string that is shown as version
-	ReleaseRevision = 8828 -- the revision of the latest stable version that is available
+	Revision = tonumber(("$Revision: 8922 $"):sub(12, -3)),
+	DisplayVersion = "5.2.2 alpha", -- the string that is shown as version
+	ReleaseRevision = 8892 -- the revision of the latest stable version that is available
 }
 
 -- Legacy crap; that stupid "Version" field was never a good idea.
@@ -434,15 +434,17 @@ do
 		end
 	end
 
-	function DBM:UnregisterInCombatEvents()
+	function DBM:UnregisterInCombatEvents(ignore)
 		for event, mods in pairs(registeredEvents) do
-			for i = #mods, 1, -1 do
-				if mods[i] == self and checkEntry(self.inCombatOnlyEvents, event)  then
-					tremove(mods, i)
+			if event ~= ignore then
+				for i = #mods, 1, -1 do
+					if mods[i] == self and checkEntry(self.inCombatOnlyEvents, event)  then
+						tremove(mods, i)
+					end
 				end
-			end
-			if #mods == 0 then
-				unregisterEvent(event)
+				if #mods == 0 then
+					unregisterEvent(event)
+				end
 			end
 		end
 	end
@@ -1875,7 +1877,9 @@ do
 				print(COMBATLOGDISABLED)
 			end
 			if DBM.Options.AdvancedAutologBosses and IsAddOnLoaded("Transcriptor") then
-				Transcriptor:StopLog()
+				if Transcriptor:IsLogging() then
+					Transcriptor:StopLog()
+				end
 			end
 		end
 	end
@@ -1963,7 +1967,9 @@ do
 			DBM:Schedule(timer+10, checkForActualPull)--But if pull was canceled and we don't have a boss engaged within 10 seconds of pull timer ending, abort log
 		end
 		if DBM.Options.AdvancedAutologBosses and IsAddOnLoaded("Transcriptor") then
-			Transcriptor:StartLog()
+			if not Transcriptor:IsLogging() then
+				Transcriptor:StartLog()
+			end
 			DBM:Unschedule(checkForActualPull)
 			DBM:Schedule(timer+10, checkForActualPull)--But if pull was canceled and we don't have a boss engaged within 10 seconds of pull timer ending, abort log
 		end
@@ -2696,7 +2702,9 @@ function DBM:StartCombat(mod, delay, synced)
 			print(COMBATLOGENABLED)
 		end
 		if DBM.Options.AdvancedAutologBosses and IsAddOnLoaded("Transcriptor") then
-			Transcriptor:StartLog()
+			if not Transcriptor:IsLogging() then
+				Transcriptor:StartLog()
+			end
 		end
 	end
 end
@@ -2723,11 +2731,10 @@ function DBM:EndCombat(mod, wipe)
 		if not wipe then
 			mod.lastKillTime = GetTime()
 			if mod.inCombatOnlyEvents then
-				--Timer issues not super rare (At lease for me). It causes every time for me at lfr Tsulong (if we kill him at night, he changes to day phase on die. This fires UNIT_SPELLCAST_SUCCEEDED/spellid 123532 event. If this evert fires after he yells (die trigger), this can cause bad timer starts.)
-				--mod:UnregisterInCombatEvents()
-				DBM:Schedule(1.5, mod.UnregisterInCombatEvents, mod) -- Delay unregister events to make sure icon clear functions get to run their course. We want to catch some SPELL_AURA_REMOVED events that fire after boss death and get those icons cleared
-				--Remove bad started timer after boss dies.
-				DBM:Schedule(1.6, mod.Stop, mod)
+				-- unregister all events except for SPELL_AURA_REMOVED events (might still be needed to remove icons etc...)
+				mod:UnregisterInCombatEvents("SPELL_AURA_REMOVED")
+				DBM:Schedule(2, mod.UnregisterInCombatEvents, mod) -- 2 seconds should be enough for all auras to fade
+				DBM:Schedule(2.1, mod.Stop, mod) -- Remove accident started timers.
 				mod.inCombatOnlyEventsRegistered = nil
 			end
 		end
@@ -2894,7 +2901,9 @@ function DBM:EndCombat(mod, wipe)
 			print(COMBATLOGDISABLED)
 		end
 		if DBM.Options.AdvancedAutologBosses and IsAddOnLoaded("Transcriptor") then
-			Transcriptor:StopLog()
+			if Transcriptor:IsLogging() then
+				Transcriptor:StopLog()
+			end
 		end
 	end
 end
@@ -3280,6 +3289,8 @@ do
 	ChatFrame_AddMessageEventFilter("CHAT_MSG_RAID_WARNING", filterRaidWarning)
 	ChatFrame_AddMessageEventFilter("CHAT_MSG_PARTY", filterRaidWarning)
 	ChatFrame_AddMessageEventFilter("CHAT_MSG_PARTY_LEADER", filterRaidWarning)
+	ChatFrame_AddMessageEventFilter("CHAT_MSG_INSTANCE_CHAT", filterRaidWarning)
+	ChatFrame_AddMessageEventFilter("CHAT_MSG_INSTANCE_CHAT_LEADER", filterRaidWarning)
 	ChatFrame_AddMessageEventFilter("CHAT_MSG_SAY", filterSayYell)
 	ChatFrame_AddMessageEventFilter("CHAT_MSG_YELL", filterSayYell)
 end
@@ -3760,21 +3771,40 @@ function bossModPrototype:IsMelee()
 	return class == "ROGUE"
 	or class == "WARRIOR"
 	or class == "DEATHKNIGHT"
-	or class == "MONK"--Monk always melee, including healer
-	or (class == "PALADIN" and not IsSpellKnown(112859))--Meditation Check (False)
-    or (class == "SHAMAN" and IsSpellKnown(86629))--Dual Wield Check (True)
-	or (class == "DRUID" and IsSpellKnown(84840))--Vengeance Check (True)
+	or class == "MONK"--Iffy slope, monk healers will be ranged and melee. :\
+	or (class == "PALADIN" and (GetSpecialization() ~= 1))
+    or (class == "SHAMAN" and (GetSpecialization() == 2))
+	or (class == "DRUID" and (GetSpecialization() == 2 or GetSpecialization() == 3))
 end
 
-function bossModPrototype:IsRanged()
+function bossModPrototype:IsMeleeDps()
+	return class == "ROGUE"
+	or (class == "WARRIOR" and (GetSpecialization() ~= 3))
+	or (class == "DEATHKNIGHT" and (GetSpecialization() ~= 1))
+	or (class == "MONK" and (GetSpecialization() == 3))
+	or (class == "PALADIN" and (GetSpecialization() == 3))
+    or (class == "SHAMAN" and (GetSpecialization() == 2))
+	or (class == "DRUID" and (GetSpecialization() == 2))
+end
+
+function bossModPrototype:IsRanged()--Including healer
 	return class == "MAGE"
 	or class == "HUNTER"
 	or class == "WARLOCK"
 	or class == "PRIEST"
-	or (class == "PALADIN" and IsSpellKnown(112859))--Meditation Check (True)
-    or (class == "SHAMAN" and not IsSpellKnown(86629))--Dual Wield Check (False)
-	or (class == "DRUID" and not IsSpellKnown(84840))--Vengeance Check (False)
-	or (class == "MONK" and IsSpellKnown(121278))--Iffy slope, monk healers will be ranged and melee. :\
+	or (class == "PALADIN" and (GetSpecialization() == 1))
+    or (class == "SHAMAN" and (GetSpecialization() ~= 2))
+	or (class == "DRUID" and (GetSpecialization() == 1 or GetSpecialization() == 4))
+	or (class == "MONK" and (GetSpecialization() == 2))--Iffy slope, monk healers will be ranged and melee. :\
+end
+
+function bossModPrototype:IsRangedDps()
+	return class == "MAGE"
+	or class == "HUNTER"
+	or class == "WARLOCK"
+	or (class == "PRIEST" and (GetSpecialization() == 3))
+    or (class == "SHAMAN" and (GetSpecialization() == 1))
+	or (class == "DRUID" and (GetSpecialization() == 1))
 end
 
 function bossModPrototype:IsManaUser()--Similar to ranged, but includes all paladins and all shaman
@@ -3783,41 +3813,38 @@ function bossModPrototype:IsManaUser()--Similar to ranged, but includes all pala
 	or class == "PRIEST"
 	or class == "PALADIN"
     or class == "SHAMAN"
-	or (class == "DRUID" and not IsSpellKnown(84840))--Vengeance Check (False)
-	or (class == "MONK" and IsSpellKnown(121278))
+	or (class == "DRUID" and (GetSpecialization() == 1 or GetSpecialization() == 4))
+	or (class == "MONK" and (GetSpecialization() == 2))
 end
 
 function bossModPrototype:IsDps()--For features that simply should only be on for dps and not healers or tanks and without me having to use "not is heal or not is tank" rules :)
-	return (class == "WARRIOR" and not IsSpellKnown(93098))--Veangeance Check (false)
-	or (class == "DEATHKNIGHT" and not IsSpellKnown(93099))--Veangeance Check (false)
-	or (class == "PALADIN" and IsSpellKnown(53503))--Sheath of Light (true)
-	or (class == "DRUID" and not IsSpellKnown(85101))--Vengeance Check (False)
-    or (class == "SHAMAN" and not IsSpellKnown(95862))--Meditation Check (False)
-   	or (class == "PRIEST" and IsSpellKnown(95740))--Shadow Orbs Check (true)
-	or class == "WARLOCK"
+	return class == "WARLOCK"
 	or class == "MAGE"
 	or class == "HUNTER"
 	or class == "ROGUE"
-	or (class == "MONK" and IsSpellKnown(113656))--Fists of Fury (True)
+	or (class == "WARRIOR" and (GetSpecialization() ~= 3))
+	or (class == "DEATHKNIGHT" and (GetSpecialization() ~= 1))
+	or (class == "PALADIN" and (GetSpecialization() == 3))
+	or (class == "DRUID" and (GetSpecialization() == 1 or GetSpecialization() == 2))
+	or (class == "SHAMAN" and (GetSpecialization() ~= 3))
+   	or (class == "PRIEST" and (GetSpecialization() == 3))
+	or (class == "MONK" and (GetSpecialization() == 3))
 end
 
-
---A simple check to see if these classes know "Vengeance".
 function bossModPrototype:IsTank()
-	return (class == "WARRIOR" and IsSpellKnown(93098))
-	or (class == "DEATHKNIGHT" and IsSpellKnown(93099))
-	or (class == "PALADIN" and IsSpellKnown(84839))
-	or (class == "DRUID" and IsSpellKnown(84840))
-	or (class == "MONK" and IsSpellKnown(120267))
+	return (class == "WARRIOR" and (GetSpecialization() == 3))
+	or (class == "DEATHKNIGHT" and (GetSpecialization() == 1))
+	or (class == "PALADIN" and (GetSpecialization() == 2))
+	or (class == "DRUID" and (GetSpecialization() == 3))
+	or (class == "MONK" and (GetSpecialization() == 1))
 end
 
---A simple check to see if these classes know "Meditation".
 function bossModPrototype:IsHealer()
-	return (class == "PALADIN" and IsSpellKnown(112859))
-	or (class == "SHAMAN" and IsSpellKnown(95862))
-	or (class == "DRUID" and IsSpellKnown(85101))
-	or (class == "PRIEST" and (IsSpellKnown(95860) or IsSpellKnown(95861)))
-	or (class == "MONK" and IsSpellKnown(121278))
+	return (class == "PALADIN" and (GetSpecialization() == 1))
+	or (class == "SHAMAN" and (GetSpecialization() == 3))
+	or (class == "DRUID" and (GetSpecialization() == 4))
+	or (class == "PRIEST" and (GetSpecialization() ~= 3))
+	or (class == "MONK" and (GetSpecialization() == 2))
 end
 
 --These don't matter since they don't check talents
@@ -3878,7 +3905,7 @@ do
 					for i = 1, select("#", GetFramesRegisteredForEvent("CHAT_MSG_RAID_WARNING")) do
 						local frame = select(i, GetFramesRegisteredForEvent("CHAT_MSG_RAID_WARNING"))
 						if frame ~= RaidWarningFrame and frame:GetScript("OnEvent") then
-							frame:GetScript("OnEvent")(frame, "CHAT_MSG_RAID_WARNING", text, UnitName("player"), GetDefaultLanguage("player"), "", UnitName("player"), "", 0, 0, "", 0, 99, "")
+							frame:GetScript("OnEvent")(frame, "CHAT_MSG_RAID_WARNING", text, UnitName("player"), GetDefaultLanguage("player"), "", UnitName("player"), "", 0, 0, "", 0, 99, UnitGUID("player"))
 						end
 					end
 				else

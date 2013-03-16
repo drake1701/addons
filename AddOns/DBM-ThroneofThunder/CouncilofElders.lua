@@ -1,7 +1,7 @@
 local mod	= DBM:NewMod(816, "DBM-ThroneofThunder", nil, 362)
 local L		= mod:GetLocalizedStrings()
 
-mod:SetRevision(("$Revision: 8862 $"):sub(12, -3))
+mod:SetRevision(("$Revision: 8918 $"):sub(12, -3))
 mod:SetCreatureID(69078, 69132, 69134, 69131)--69078 Sul the Sandcrawler, 69132 High Prestess Mar'li, 69131 Frost King Malakk, 69134 Kazra'jin --Adds: 69548 Shadowed Loa Spirit,
 mod:SetModelID(47229)--Kazra'jin, 47505 Sul the Sandcrawler, 47506 Frost King Malakk, 47730 High Priestes Mar'li
 
@@ -14,6 +14,18 @@ mod:RegisterEventsInCombat(
 	"SPELL_AURA_REMOVED",
 	"UNIT_DIED",
 	"UNIT_SPELLCAST_SUCCEEDED"
+)
+
+local Sul = EJ_GetSectionInfo(7049)
+local Malakk = EJ_GetSectionInfo(7047)
+local Marli = EJ_GetSectionInfo(7050)
+local Kazrajin = EJ_GetSectionInfo(7048)
+
+mod:SetBossHealthInfo(
+	69078, Sul,
+	69131, Malakk,
+	69132, Marli,
+	69134, Kazrajin
 )
 
 --All
@@ -34,17 +46,17 @@ local warnBitingCold				= mod:NewTargetAnnounce(136992, 3)--136917 is cast ID ve
 local warnFrostBite					= mod:NewTargetAnnounce(136922, 4)--136990 is cast ID version, 136922 is player debuff
 local warnFrigidAssault				= mod:NewStackAnnounce(136903, 3, nil, mod:IsTank() or mod:IsHealer())
 --Kazra'jin
-local warnRecklessCharge			= mod:NewCastAnnounce(137122, 3, 2)
+local warnRecklessCharge			= mod:NewCastAnnounce(137122, 3, 2, nil, false)
 
 --All
-local specWarnPossessed				= mod:NewSpecialWarningSwitch(136442, mod:IsDps())
+local specWarnPossessed				= mod:NewSpecialWarning("specWarnPossessed", mod:IsDps())
 --Sul the Sandcrawler
 local specWarnSandBolt				= mod:NewSpecialWarningInterrupt(136189, false)--When it's targeting a melee, damage is pretty big. More important to interrupt than ones targeting ranged that SHOULD be spread out. Maybe add a bool menu option to choose ALL or melee only for heroic
 local specWarnSandStorm				= mod:NewSpecialWarningSpell(136894, nil, nil, nil, 2)
 local specWarnQuickSand				= mod:NewSpecialWarningMove(136860)
 --High Prestess Mar'li
-local specWarnBlessedLoaSpirit		= mod:NewSpecialWarningSwitch(137203, mod:IsRanged())--Ranged should handle this, melee chasing it around is huge dps loss for possessed. On 10 man 2 ranged was enough. If you do not have 2 ranged, 1 or 2 melee will have to help and probably turn this on manually
-local specWarnShadowedLoaSpirit		= mod:NewSpecialWarningSwitch(137350, mod:IsRanged())
+local specWarnBlessedLoaSpirit		= mod:NewSpecialWarningSwitch(137203, mod:IsRangedDps())--Ranged should handle this, melee chasing it around is huge dps loss for possessed. On 10 man 2 ranged was enough. If you do not have 2 ranged, 1 or 2 melee will have to help and probably turn this on manually
+local specWarnShadowedLoaSpirit		= mod:NewSpecialWarningSwitch(137350, mod:IsRangedDps())
 local specWarnMarkedSoul			= mod:NewSpecialWarningRun(137359)
 local specWarnTwistedFate			= mod:NewSpecialWarningSwitch(137891)
 --Frost King Malak
@@ -55,7 +67,7 @@ local specWarnFrigidAssault			= mod:NewSpecialWarningStack(136903, mod:IsTank(),
 local specWarnFrigidAssaultOther	= mod:NewSpecialWarningTarget(136903, mod:IsTank())
 local specWarnChilled				= mod:NewSpecialWarningYou(137085, false)--Heroic
 --Kazra'jin
-local timerRecklessChargeCD			= mod:NewCDTimer(6, 137122)
+local timerRecklessChargeCD			= mod:NewCDTimer(6, 137122, nil, false)
 --Sul the Sandcrawler
 local timerQuickSandCD				= mod:NewCDTimer(35, 136521)
 local timerSandStormCD				= mod:NewCDTimer(35, 136894)
@@ -75,6 +87,8 @@ local soundMarkedSoul				= mod:NewSound(137359)
 
 --local berserkTimer				= mod:NewBerserkTimer(490)
 
+mod:AddBoolOption("HealthFrame", true)
+mod:AddBoolOption("PHealthFrame", true)
 mod:AddBoolOption("RangeFrame")--For Sand Bolt and charge and biting cold
 
 local SulsName = EJ_GetSectionInfo(7049)
@@ -97,6 +111,43 @@ local function isTank(unit)
 		return true
 	end
 	return false
+end
+
+local showDamagedHealthBar, hideDamagedHealthBar
+do
+	local frame = CreateFrame("Frame") -- using a separate frame avoids the overhead of the DBM event handlers which are not meant to be used with frequently occuring events like all damage events...
+	local damagedMob
+	local hpRemaining = 0
+	local maxhp = 0
+	local function getDamagedHP()
+		return math.max(1, math.floor(hpRemaining / maxhp * 100))
+	end
+	frame:RegisterEvent("COMBAT_LOG_EVENT_UNFILTERED")
+	frame:SetScript("OnEvent", function(self, event, timestamp, subEvent, _, _, _, _, _, destGUID, _, _, _, ...)
+		if damagedMob == destGUID then
+			local damage
+			if subEvent == "SWING_DAMAGE" then 
+				damage = select( 1, ... ) 
+			elseif subEvent == "RANGE_DAMAGE" or subEvent == "SPELL_DAMAGE" or subEvent == "SPELL_PERIODIC_DAMAGE" then 
+				damage = select( 4, ... )
+			end
+			if damage then
+				hpRemaining = hpRemaining - damage
+			end
+		end
+	end)
+	
+	function showDamagedHealthBar(self, mob, spellName, health)
+		damagedMob = mob
+		hpRemaining = health
+		maxhp = health
+		DBM.BossHealth:RemoveBoss(getDamagedHP)
+		DBM.BossHealth:AddBoss(getDamagedHP, spellName)
+	end
+	
+	function hideDamagedHealthBar()
+		DBM.BossHealth:RemoveBoss(getDamagedHP)
+	end
 end
 
 function mod:BoltTarget()
@@ -170,13 +221,14 @@ end
 
 function mod:SPELL_AURA_APPLIED(args)
 	if args:IsSpellID(136442) then--Possessed
+		local cid = args:GetDestCreatureID()
 		possessesDone = possessesDone + 1
 		warnPossessed:Show(args.destName, possessesDone)
-		specWarnPossessed:Show(args.destName)
-		if args:GetDestCreatureID() == 69078 then--Sul the Sandcrawler
+		specWarnPossessed:Show(args.spellName, args.destName)
+		if cid == 69078 then--Sul the Sandcrawler
 			--Do nothing. He just casts sand storm right away and continues his quicksand cd as usual
 			self:UnregisterShortTermEvents()
-		elseif args:GetDestCreatureID() == 69132 then--High Prestess Mar'li
+		elseif cid == 69132 then--High Prestess Mar'li
 			--Swap timers. While possessed 
 			local elapsed, total = timerBlessedLoaSpiritCD:GetTime()
 			timerBlessedLoaSpiritCD:Cancel()
@@ -188,7 +240,7 @@ function mod:SPELL_AURA_APPLIED(args)
 				end
 			end
 			self:UnregisterShortTermEvents()
-		elseif args:GetDestCreatureID() == 69131 then--Frost King Malakk
+		elseif cid == 69131 then--Frost King Malakk
 			--Swap timers. While possessed 
 			local elapsed, total = timerBitingColdCD:GetTime()
 			timerBitingColdCD:Cancel()
@@ -198,9 +250,19 @@ function mod:SPELL_AURA_APPLIED(args)
 			self:RegisterShortTermEvents(
 				"UNIT_AURA"
 			)
-		elseif args:GetDestCreatureID() == 69134 then--Kazra'jin
+		elseif cid == 69134 then--Kazra'jin
 			kazraPossessed = true
 			self:UnregisterShortTermEvents()
+		end
+		if (self.Options.HealthFrame or DBM.Options.AlwaysShowHealthFrame) and self.Options.PHealthFrame then
+			local boss1cid = tonumber(UnitGUID("boss1"):sub(6, 10), 16)
+			local bossHealth
+			if (boss1cid == 69078 or boss1cid == 69132 or boss1cid == 69131 or boss1cid == 69134) then
+				bossHealth = math.floor(UnitHealthMax("boss1") * 0.25)
+			else
+				bossHealth = math.floor(UnitHealthMax("boss2") * 0.25) 
+			end
+			showDamagedHealthBar(self, args.destGUID, args.spellName, bossHealth)
 		end
 	elseif args:IsSpellID(136903) then--Player Debuff version, not cast version
 		timerFrigidAssault:Start(args.destName)
@@ -269,6 +331,9 @@ function mod:SPELL_AURA_REMOVED(args)
 		elseif args:GetDestCreatureID() == 69134 then--Kazra'jin
 			kazraPossessed = false
 			timerRecklessChargeCD:Cancel()--Because it's not going to be 25 sec anymore. It'll go back to 6 seconds. He'll probably do it right away since more than likely it'll be off CD
+		end
+		if (self.Options.HealthFrame or DBM.Options.AlwaysShowHealthFrame) and self.Options.PHealthFrame then
+			hideDamagedHealthBar()
 		end
 	elseif args:IsSpellID(136903) then
 		timerFrigidAssault:Cancel(args.destName)

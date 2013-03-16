@@ -1,5 +1,9 @@
 Packer Note: Files to exclude: *.db *.png *.gif *.jpg *.tif *.txt *.psd *.bmp
 
+6.9.4
+---------------------------
+- I need coffee.  Now.
+
 6.9.3
 ---------------------------
 - Tapped Mobs now apparently have the color: 0.53, 053, 0.53.... so I've updated the core to properly ID tapped mobs
@@ -9,6 +13,7 @@ Packer Note: Files to exclude: *.db *.png *.gif *.jpg *.tif *.txt *.psd *.bmp
 6.9.2
 ---------------------------
 - More bug fixing, which seems to be a blessing in-disguise, since it's yeilding some removal of redundancies, and (hopefully) incremental improvement in performance.
+- Hub: Added a new Filter Item, "Filter Mini-Mobs".  This'll allow you to scale and fade those pesky mobs with mini-nameplates.  70% works well for me.
 
 6.9.1
 ---------------------------

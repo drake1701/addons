@@ -40,10 +40,16 @@ L:SetMiscLocalization({
 ---------------------------
 L= DBM:GetModLocalization(816)
 
+L:SetWarningLocalization({
+	specWarnPossessed	= "%s : %s - 대상 전환!"
+})
+
 L:SetOptionLocalization({
-	warnPossessed	= DBM_CORE_AUTO_ANNOUNCE_OPTIONS.target:format(136442),
-	warnSandBolt	= DBM_CORE_AUTO_ANNOUNCE_OPTIONS.target:format(136189),
-	RangeFrame		= "거리 창 보기"
+	warnPossessed		= DBM_CORE_AUTO_ANNOUNCE_OPTIONS.target:format(136442),
+	specWarnPossessed	= DBM_CORE_AUTO_SPEC_WARN_OPTIONS.switch:format(136442),
+	warnSandBolt		= DBM_CORE_AUTO_ANNOUNCE_OPTIONS.target:format(136189),
+	PHealthFrame		= "우두머리 체력 바 사용시 $spell:136442 사라짐까지 남은 체력도 함께 보기",
+	RangeFrame			= "거리 창 보기"
 })
 
 ------------
@@ -59,7 +65,8 @@ L:SetWarningLocalization({
 L:SetOptionLocalization({
 	warnKickShell			= DBM_CORE_AUTO_ANNOUNCE_OPTIONS.spell:format(134031),
 	specWarnCrystalShell	= "$spell:137633 효과가 없을 경우 특수 경고 보기",
-	InfoFrame				= "$spell:137633 효과가 없는 대상을 정보 창에서 보기"
+	InfoFrame				= "$spell:137633 효과가 없는 대상을 정보 창에서 보기",
+	SetIconOnTurtles		= "$journal:7129에 전술 목표 아이콘 설정\n(승급자가 1명 이상일 경우에는 오작동 할 수 있습니다.)",
 })
 
 L:SetMiscLocalization({
@@ -81,8 +88,8 @@ L:SetMiscLocalization({
 L= DBM:GetModLocalization(828)
 
 L:SetWarningLocalization({
-	warnFlock		= "%2$ : %1$ (%3$d)",
-	specWarnFlock	= "%2$ : %1$ (%3$d)",
+	warnFlock		= "%2$s : %1$s (%3$s)",
+	specWarnFlock	= "%2$s : %1$s (%3$s)",
 })
 
 L:SetTimerLocalization({
@@ -133,8 +140,7 @@ L:SetMiscLocalization({
 L= DBM:GetModLocalization(820)
 
 L:SetOptionLocalization({
-	RangeFrame			= "거리 창 보기(5m/2m)",
-	SetIconOnBadOoze	= "$spell:140506를 생성하는 살아있는 점액에 전술 목표 아이콘 설정"
+	RangeFrame			= "거리 창 보기(5m/2m)"
 })
 
 -----------------

@@ -41,9 +41,11 @@ L:SetMiscLocalization({
 L= DBM:GetModLocalization(816)
 
 L:SetOptionLocalization({
-	warnPossessed	= DBM_CORE_AUTO_ANNOUNCE_OPTIONS.target:format(136442),
-	warnSandBolt	= DBM_CORE_AUTO_ANNOUNCE_OPTIONS.target:format(136189),
-	RangeFrame		= "顯示距離框架"
+	warnPossessed		= DBM_CORE_AUTO_ANNOUNCE_OPTIONS.target:format(136442),
+	specWarnPossessed	= DBM_CORE_AUTO_SPEC_WARN_OPTIONS.switch:format(136442),
+	warnSandBolt		= DBM_CORE_AUTO_ANNOUNCE_OPTIONS.target:format(136189),
+	PHealthFrame		= "為$spell:136442消散顯示剩餘血量框架(需要首領血量框架開啟)",
+	RangeFrame			= "顯示距離框架"
 })
 
 ------------
@@ -59,7 +61,8 @@ L:SetWarningLocalization({
 L:SetOptionLocalization({
 	warnKickShell			= DBM_CORE_AUTO_ANNOUNCE_OPTIONS.spell:format(134031),
 	specWarnCrystalShell	= "當你沒有$spell:137633減益時顯示特別警告",
-	InfoFrame				= "為玩家沒有$spell:137633顯示訊息框架"
+	InfoFrame				= "為玩家沒有$spell:137633顯示訊息框架",
+	SetIconOnTurtles		= "為$journal:7129標示團隊圖示(超過一名以上的團隊助理時不可靠)",
 })
 
 L:SetMiscLocalization({
@@ -81,22 +84,27 @@ L:SetMiscLocalization({
 L= DBM:GetModLocalization(828)
 
 L:SetWarningLocalization({
-	warnFlock		= "%s %s (%d)",
-	specWarnFlock	= "%s %s (%d)"
+	warnFlock		= "%s %s (%s)",
+	specWarnFlock	= "%s %s (%s)"
+})
+
+L:SetTimerLocalization({
+	timerFlockCD	= "蛋巢 (%d): %s"
 })
 
 L:SetOptionLocalization({
 	warnFlock		= DBM_CORE_AUTO_ANNOUNCE_OPTIONS.count:format("ej7348"),
 	specWarnFlock	= DBM_CORE_AUTO_SPEC_WARN_OPTIONS.switch:format("ej7348"),
+	timerFlockCD	= DBM_CORE_AUTO_TIMER_OPTIONS.nextcount:format("ej7348"),
 	RangeFrame		= "為$spell:138923顯示距離框架(8碼)"
 })
 
 L:SetMiscLocalization({
-	eggsHatchL		= "The eggs in one of the lower nests begin to hatch!",
-	eggsHatchU		= "The eggs in one of the upper nests begin to hatch!",
-	Upper			= "Upper",
-	Lower			= "Lower",
-	UpperAndLower	= "Upper & Lower"
+	eggsHatchL		= "下層巢裡的蛋開始孵化了!",
+	eggsHatchU		= "上層巢裡的蛋開始孵化了!",
+	Upper			= "上層",
+	Lower			= "下層",
+	UpperAndLower	= "上層和下層"
 })
 
 --------------------------
@@ -105,12 +113,21 @@ L:SetMiscLocalization({
 L= DBM:GetModLocalization(818)
 
 L:SetWarningLocalization({
+	warnAddsLeft				= "霧獸剩餘: %d",
+	specWarnFogRevealed			= "照出%s了!",
 	specWarnDisintegrationBeam	= "%s (%s)"
 })
 
 L:SetOptionLocalization({
+	warnAddsLeft				= "提示還剩餘多少霧獸",
+	specWarnFogRevealed			= "為照出霧獸顯示特別警告",
 	specWarnDisintegrationBeam	= DBM_CORE_AUTO_SPEC_WARN_OPTIONS.spell:format("ej6882"),
-	ArrowOnBeam					= "為$journal:6882指示DBM箭頭移動方向"
+	ArrowOnBeam					= "為$journal:6882指示DBM箭頭移動方向",
+	SetIconRays					= DBM_CORE_AUTO_ICONS_OPTION_TEXT:format("ej6891")
+})
+
+L:SetMiscLocalization({
+	Eye		= "魔眼"
 })
 
 ----------------
@@ -119,7 +136,7 @@ L:SetOptionLocalization({
 L= DBM:GetModLocalization(820)
 
 L:SetOptionLocalization({
-	RangeFrame		= "顯示距離框架(2碼/5碼)"
+	RangeFrame		= "顯示距離框架(2碼/5碼)",
 })
 
 -----------------
@@ -136,7 +153,7 @@ L:SetOptionLocalization({
 })
 
 L:SetMiscLocalization({
-	Pull	= "The orb explodes!"
+	Pull	= "寶珠爆炸了!"
 })
 
 --------------
@@ -150,7 +167,8 @@ L:SetWarningLocalization({
 
 L:SetOptionLocalization({
 	warnDeadZone	= DBM_CORE_AUTO_ANNOUNCE_OPTIONS.spell:format(137229),
-	RangeFrame		= "顯示動態距離框架(當太多人太接近時會動態顯示)"
+	RangeFrame		= "顯示動態距離框架(當太多人太接近時會動態顯示)",
+	InfoFrame		= "為玩家有$spell:136193顯示訊息框架"
 })
 
 -------------------
@@ -163,7 +181,7 @@ L:SetOptionLocalization({
 })
 
 L:SetMiscLocalization({
-	DuskPhase		= "Lu'lin! Lend me your strength!"--Not in use, but a backup just in case, so translate in case it's switched to on moments notice on live or next PTR test
+	DuskPhase		= "盧凜!借本宮力量!"--Not in use, but a backup just in case, so translate in case it's switched to on moments notice on live or next PTR test
 })
 
 --------------
@@ -172,7 +190,11 @@ L:SetMiscLocalization({
 L= DBM:GetModLocalization(832)
 
 L:SetOptionLocalization({
-	RangeFrame		= "顯示距離框架"--For two different spells
+	RangeFrame			= "顯示距離框架",--For two different spells
+	StaticShockArrow	= "當某人中了$spell:135695顯示DBM箭頭",
+	OverchargeArrow		= "當某人中了$spell:136295顯示DBM箭頭",
+	SetIconOnOvercharge	= DBM_CORE_AUTO_ICONS_OPTION_TEXT:format(136295),
+	SetIconOnStaticShock= DBM_CORE_AUTO_ICONS_OPTION_TEXT:format(135695)
 })
 
 ------------

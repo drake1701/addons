@@ -1,11 +1,11 @@
-## Interface: 50200
+﻿## Interface: 50200
 ## Title: TB |cff00ff00Reputation Watcher|r
 ## Notes: Automatically watches the faction with which you are gaining or losing favor.
 ## Notes-frFR: Suit automatiquement la faction auprès de laquelle votre réputation s'améliore ou se détériore.
-## Author: Valana <Team BATTLE>
-## Version: r94-release
-## X-Revision: r94-release
-## X-Date: 2012-12-31T17:58:04Z
+## Author: Valana <Ridiculously Beautiful>
+## Version: r98-release
+## X-Revision: r98-release
+## X-Date: 2013-03-14T07:49:27Z
 ## X-Category: Interface Enhancements
 ## X-License: All rights reserved.
 ## X-Author-Server: Magtheridon-US
@@ -20,7 +20,7 @@
 ## SavedVariables: TB_ReputationWatcher
 ## LoadOnDemand: 0
 ## DefaultState: Enabled
-## X-Curse-Packaged-Version: r94-release
+## X-Curse-Packaged-Version: r98-release
 ## X-Curse-Project-Name: TB Reputation Watcher
 ## X-Curse-Project-ID: tb_reputationwatcher
 ## X-Curse-Repository-ID: wow/tb_reputationwatcher/mainline

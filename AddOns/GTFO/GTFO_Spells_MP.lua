@@ -710,6 +710,7 @@ GTFO.SpellID["123121"] = {
 GTFO.SpellID["119887"] = {
 	--desc = "Death Blossom (Sha of Fear)";
 	sound = 1;
+	tankSound = 2;
 };
 
 -- ****************
@@ -717,6 +718,7 @@ GTFO.SpellID["119887"] = {
 -- ****************
 
 GTFO.SpellID["119610"] = {
+	--Doesn't work anyway, no combat log info for this debuff
 	--desc = "Bitter Thoughts (Sha of Anger)";
 	soundFunction = function() 
 		-- Reduce the spam
@@ -724,7 +726,6 @@ GTFO.SpellID["119610"] = {
 		return 1;
 	end;
 	ignoreEvent = "BitterThoughts";
-	test = true; -- Doesn't work anyway, no combat log info for this debuff
 };
 
 -- ********************
@@ -959,6 +960,11 @@ GTFO.SpellID["127473"] = {
 -- * Throne of Thunder *
 -- *********************
 
+GTFO.SpellID["136989"] = {
+	--desc = "Throw Spear (Zandalari Spear-Shaper)";
+	sound = 1;
+};
+
 GTFO.SpellID["138006"] = {
 	--desc = "Electrified Waters (Jin'rokh the Breaker)";
 	sound = 1;
@@ -979,9 +985,11 @@ GTFO.SpellID["139461"] = {
 	sound = 1;
 };
 
-GTFO.SpellID["133901"] = {
+GTFO.SpellID["139901"] = {
 	--desc = "Stormcloud (Strombringer Draz'kil)";
-	sound = 1;
+	sound = 4;
+	negatingDebuffSpellID = 139900; -- Stormcloud
+	negatingIgnoreTime = 2;
 };
 
 GTFO.SpellID["136723"] = {
@@ -1013,7 +1021,6 @@ GTFO.SpellID["136991"] = {
 
 GTFO.SpellID["136937"] = {
 	--desc = "Frostbite (Frost King Malakk)";
-	sound = 1;
 	soundFunction = function() 
 		local stacks = GTFO_DebuffStackCount("player", 136922);
 		if (stacks > 3) then
@@ -1023,7 +1030,7 @@ GTFO.SpellID["136937"] = {
 		end
 		return 0;
 	end;
-	affirmingDebuffSpellID = 136922; -- Biting Cold
+	affirmingDebuffSpellID = 136922; -- Biting Cold (Frostbite stacks)
 };
 
 GTFO.SpellID["136860"] = {
@@ -1036,12 +1043,19 @@ GTFO.SpellID["136878"] = {
 	sound = 1;
 };
 
--- TODO: Pool of Flames (Megaera)
+GTFO.SpellID["139836"] = {
+	--desc = "Cinders (Megaera)";
+	sound = 1;
+};
 
 GTFO.SpellID["139889"] = {
 	--desc = "Torrent of Ice (Megaera)";
 	sound = 1;
-	test = true; -- Verify
+};
+
+GTFO.SpellID["139909"] = {
+	--desc = "Icy Ground (Megaera)";
+	sound = 1;
 };
 
 GTFO.SpellID["138319"] = {
@@ -1071,7 +1085,6 @@ GTFO.SpellID["134044"] = {
 GTFO.SpellID["138485"] = {
 	--desc = "Crimson Wake (Large Anima Golem)";
 	sound = 1;
-	test = true; -- Verify
 };
 
 GTFO.SpellID["139313"] = {
@@ -1112,8 +1125,17 @@ GTFO.SpellID["138178"] = {
 	sound = 1;
 };
 
--- TODO: Overloaded Circuit (Lei Shen)
--- TODO: Lightning Bolt (Lei Shen)
+GTFO.SpellID["137176"] = {
+	--desc = "Overloaded Circuits (Lei Shen)";
+	sound = 1;
+	test = true; -- Verify
+};
+
+GTFO.SpellID["136853"] = {
+	--desc = "Lightning Bolt (Lei Shen)";
+	sound = 1;
+	test = true; -- Verify
+};
 
 GTFO.SpellID["135153"] = {
 	--desc = "Crashing Thunder (Lei Shen)";
@@ -1519,15 +1541,31 @@ GTFO.SpellID["126435"] = {
 	sound = 2;
 };
 
-
--- ***********
--- * Unknown *
--- ***********
-
-GTFO.SpellID["123020"] = {
-	--desc = "Burning Amber (Unknown)";
+GTFO.SpellID["140223"] = {
+	--desc = "Earth Shatter (Anki)";
 	sound = 1;
+	tankSound = 2;
+};
+
+GTFO.SpellID["139625"] = {
+	--desc = "Arcane Strom (Arcweaver Jor'guva)";
+	sound = 1;
+	tankSound = 2;
+};
+
+GTFO.SpellID["136813"] = {
+	--desc = "Static Shock (Gura the Reclaimed)";
+	sound = 1;
+};
+
+GTFO.SpellID["138469"] = {
+	--desc = "Forge Fire (Forgemaster Deng)";
+	sound = 1;
+};
+
+GTFO.SpellID["126557"] = {
+	--desc = "Cave In (Spider Cave)";
+	sound = 2;
 	trivialPercent = 0;
-	test = true; -- Verify
 };
 

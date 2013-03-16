@@ -1,9 +1,19 @@
 ------------------------------------------------------------------------
-r311 | yossa | 2013-03-07 08:40:49 +0000 (Thu, 07 Mar 2013) | 1 line
+r313 | yossa | 2013-03-15 16:57:49 +0000 (Fri, 15 Mar 2013) | 1 line
 Changed paths:
-   A /tags/2.42 (from /trunk:310)
+   A /tags/2.43 (from /trunk:312)
 
-Tagging as 2.42
+Tagging as 2.43
+------------------------------------------------------------------------
+r312 | yossa | 2013-03-14 23:13:33 +0000 (Thu, 14 Mar 2013) | 3 lines
+Changed paths:
+   M /trunk/Skillet.lua
+   M /trunk/Skillet.toc
+   M /trunk/SkilletData.lua
+
+Skillet:
+- tooltip owner WorldFrame
+
 ------------------------------------------------------------------------
 r310 | yossa | 2013-03-07 08:39:03 +0000 (Thu, 07 Mar 2013) | 3 lines
 Changed paths:

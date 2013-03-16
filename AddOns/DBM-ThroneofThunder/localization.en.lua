@@ -40,10 +40,16 @@ L:SetMiscLocalization({
 ---------------------------
 L= DBM:GetModLocalization(816)
 
+L:SetWarningLocalization({
+	specWarnPossessed		= "%s on %s - switch targets"
+})
+
 L:SetOptionLocalization({
-	warnPossessed	= DBM_CORE_AUTO_ANNOUNCE_OPTIONS.target:format(136442),
-	warnSandBolt	= DBM_CORE_AUTO_ANNOUNCE_OPTIONS.target:format(136189),
-	RangeFrame		= "Show range frame"
+	warnPossessed		= DBM_CORE_AUTO_ANNOUNCE_OPTIONS.target:format(136442),
+	specWarnPossessed	= DBM_CORE_AUTO_SPEC_WARN_OPTIONS.switch:format(136442),
+	warnSandBolt		= DBM_CORE_AUTO_ANNOUNCE_OPTIONS.target:format(136189),
+	PHealthFrame		= "Show remaining health frame for $spell:136442 fades\n(Requires boss health frame enabled)",
+	RangeFrame			= "Show range frame"
 })
 
 ------------
@@ -59,7 +65,8 @@ L:SetWarningLocalization({
 L:SetOptionLocalization({
 	warnKickShell			= DBM_CORE_AUTO_ANNOUNCE_OPTIONS.spell:format(134031),
 	specWarnCrystalShell	= "Show special warning when you are missing $spell:137633 debuff",
-	InfoFrame				= "Show info frame for players without $spell:137633"
+	InfoFrame				= "Show info frame for players without $spell:137633",
+	SetIconOnTurtles		= "Set icons on $journal:7129 \n(May not be reliable if more than 1 person with assist enables)",
 })
 
 L:SetMiscLocalization({
@@ -81,8 +88,8 @@ L:SetMiscLocalization({
 L= DBM:GetModLocalization(828)
 
 L:SetWarningLocalization({
-	warnFlock		= "%s %s (%d)",
-	specWarnFlock	= "%s %s (%d)"
+	warnFlock		= "%s %s (%s)",
+	specWarnFlock	= "%s %s (%s)"
 })
 
 L:SetTimerLocalization({

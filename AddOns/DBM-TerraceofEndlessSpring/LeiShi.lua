@@ -1,7 +1,7 @@
 local mod	= DBM:NewMod(729, "DBM-TerraceofEndlessSpring", nil, 320)
 local L		= mod:GetLocalizedStrings()
 
-mod:SetRevision(("$Revision: 8881 $"):sub(12, -3))
+mod:SetRevision(("$Revision: 8917 $"):sub(12, -3))
 mod:SetCreatureID(62983)--62995 Animated Protector
 mod:SetModelID(42811)
 
@@ -200,7 +200,7 @@ function mod:SPELL_AURA_APPLIED(args)
 		else
 			timerGetAway:Start()
 		end
-		if self.Options.GWHealthFrame then
+		if (self.Options.HealthFrame or DBM.Options.AlwaysShowHealthFrame) and self.Options.GWHealthFrame then
 			local getAwayHealth = math.floor(UnitHealthMax("boss1") * 0.04)
 			showDamagedHealthBar(self, args.sourceGUID, args.spellName, getAwayHealth)
 		end
@@ -243,7 +243,7 @@ function mod:SPELL_AURA_REMOVED(args)
 		timerSpray:Cancel(args.destName)
 	elseif args:IsSpellID(123461) then
 		timerGetAway:Cancel()
-		if self.Options.GWHealthFrame then
+		if (self.Options.HealthFrame or DBM.Options.AlwaysShowHealthFrame) and self.Options.GWHealthFrame then
 			hideDamagedHealthBar()
 		end
 	end
@@ -321,6 +321,13 @@ function mod:CHAT_MSG_TARGETICONS(msg)
 	local icon = tonumber(string.sub(string.match(msg, "RaidTargetingIcon_%d"), -1))
 	if icon then
 		iconsSet[icon] = true
+		local additionalIcons = 8 - icon--Lets say we get a chat message a user used icon 6. we already set 6 to true, but now we do 8-6 to find out there are two other icons above 6 that we should also set to true (just in case)
+		if additionalIcons > 0 then--Icon used by someone else is less than 8 which which means we should assume the icons above this number are also already used
+			for i = 1, additionalIcons do--So now we take those 2 remaining icons, adds + 1, set that to true, do it one more time, set that to true.
+				icon = icon + 1
+				iconsSet[icon] = true--Now 6 7 and 8 should all be true if the chat icon sent was 6. This should make sure even after a DC icon setters SHOULD in theory be on same page
+			end
+		end
 	end
 end
 

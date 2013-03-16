@@ -1,4 +1,5 @@
 
+--local CurrentVariableVersion = 591
 
 local CallIn = TidyPlatesUtility.CallIn
 local copytable = TidyPlatesUtility.copyTable
@@ -44,6 +45,7 @@ TidyPlatesOptions = {
 	EnableCastWatcher = false,
 	DisableSoftTransitions = false,
 	WelcomeShown = false,
+	--VariableVersion = CurrentVariableVersion,
 	EnableMinimapButton = false,
 	_EnableMiniButton = false,
 }
@@ -455,23 +457,37 @@ end
 --[[
 local function CreatePopup()
 	StaticPopupDialogs["EXAMPLE_HELLOWORLD"] = {
-				text = "Tidy Plates 6.9|n Some settings have changed.",
-				button1 = "Interface Panel...",
-				button2 = "Close",
+				text = "Tidy Plates: The configuration format has changed! The addon may not work properly with older settings.",
+				button1 = "Reset Configuration",
+				button2 = "Ignore",
 				OnCancel = function()
 				    
 				end,
 				OnAccept = function()
-					InterfaceOptionsFrame_OpenToCategory(panel)	
+					-- InterfaceOptionsFrame_OpenToCategory(panel)
+					
+					-- Wipe Core
+					TidyPlatesOptions = wipe(TidyPlatesOptions)
+					for i, v in pairs(TidyPlatesOptionsDefaults) do TidyPlatesOptions[i] = v end
+					SetCVar("nameplateShowFriends", 0)
+					
+					-- Wipe Hub
+					for objectname, set in pairs(TidyPlatesHubSettings) do
+						for varname, data in pairs(set) do 
+							TidyPlatesHubSettings[objectname][varname] = nil
+						end
+						TidyPlatesHubSettings[objectname] = nil
+					end
+					
+					ReloadUI()
+					
 				end,
-				timeout = 10,
+				--timeout = 10,
 				whileDead = true,
 				hideOnEscape = true,
 				preferredIndex = STATICPOPUP_NUMDIALOGS + 1,  -- avoid some UI taint, see http://www.wowace.com/announcements/how-to-avoid-some-ui-taint/
 	}
-	StaticPopup_Show ("EXAMPLE_HELLOWORLD")
-	
-	
+	StaticPopup_Show ("EXAMPLE_HELLOWORLD")	
 end
 --]]
 
@@ -486,8 +502,9 @@ local function ShowWelcome()
 	end
 	
 	--[[
-	if not TidyPlatesOptions.ExtraNotification then
+	if TidyPlatesOptions.VariableVersion ~= CurrentVariableVersion then
 		CreatePopup()
+		TidyPlatesOptions.VariableVersion = CurrentVariableVersion
 	end
 	--]]
 

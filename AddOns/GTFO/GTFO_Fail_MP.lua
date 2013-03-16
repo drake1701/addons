@@ -334,10 +334,20 @@ GTFO.SpellID["124849"] = {
 -- * Mogu'shan Vaults *
 -- ********************
 
+GTFO.SpellID["115861"] = {
+	--desc = "Cobalt Petrification (Stone Guard)";
+	-- Drives the Cobalt Mine alert
+	soundFunction = function() 
+		GTFO_AddEvent("CobaltMine", 5);
+		return 0;
+	end;
+	alwaysAlert = true;
+};
+
 GTFO.SpellID["116281"] = {
 	--desc = "Cobalt Mine (Stone Guard)";
 	sound = 3; 
-	test = true; -- TODO: ignore when it's during cobalt petrification
+	ignoreEvent = "CobaltMine";
 };
 
 GTFO.SpellID["121087"] = {
@@ -494,7 +504,8 @@ GTFO.SpellID["119086"] = {
 	--desc = "Penetrating Bolt (Sha of Fear)";
 	sound = 3;
 	damageMinimum = 1;
-	trivialPercent = 0;
+	applicationOnly = true;
+	minimumStacks = 3;
 	test = true; -- Need to turn this off in LFR (trivial)
 };
 
@@ -640,7 +651,7 @@ GTFO.SpellID["133362"] = {
 	--desc = "Megafantastic Discombobumorphanator (Millie Watt)";
 	sound = 3;
 	applicationOnly = true;
-	negatingBuffSpellID = 133576; -- Electric Dynamite
+	negatingDebuffSpellID = 133576; -- Electric Dynamite
 };
 
 GTFO.SpellID["133349"] = {
@@ -718,11 +729,21 @@ GTFO.SpellID["137167"] = {
 GTFO.SpellID["136739"] = {
 	--desc = "Double Swipe - Front (Horridon)";
 	sound = 3;
-	tankSound = 0;
 };
 
 GTFO.SpellID["136740"] = {
 	--desc = "Double Swipe - Back (Horridon)";
+	sound = 3;
+};
+
+GTFO.SpellID["140414"] = {
+	--desc = "Cleave (Zandalari Warlord)";
+	sound = 3;
+	tankSound = 0;
+};
+
+GTFO.SpellID["138658"] = {
+	--desc = "Eruption";
 	sound = 3;
 };
 
@@ -778,7 +799,13 @@ GTFO.SpellID["134375"] = {
 	end
 };
 
--- TODO: Disintegration Beam (Durumu the Forgotten) -- No combat log entry for this one! >:(
+GTFO.SpellID["133778"] = {
+	--Doesn't work, no combat log entry for this one! >:(
+	--desc = "Disintegration Beam (Durumu the Forgotten)";
+	sound = 3;
+};
+
+
 -- TODO: Force of Will (Durumu the Forgotten) -- No combat log entry for this one :(
 -- TODO: Lingering Gaze (Impact) (Durumu the Forgotten) -- Impact damage only, avoidable?
 
@@ -1196,3 +1223,14 @@ GTFO.SpellID["129244"] = {
 	--desc = "Bombard";
 	sound = 3;
 };
+
+GTFO.SpellID["140202"] = {
+	--desc = "Body Slam (Animated Warrior)";
+	sound = 3;
+};
+
+GTFO.SpellID["136964"] = {
+	--desc = "Thrown Axe";
+	sound = 3;
+};
+

@@ -660,7 +660,13 @@ Change Log:
 		- Updated for patch 5.2
 		- Added support for Brewmaster monk tanks
 		- Added Pandaria spells for Throne of Thunder
-		
+	v4.22.1
+		- Added Pandaria spells for Throne of Thunder
+		- Added Pandaria spells for Pandaria (world)
+		- Added Pandaria spells for Mogu'shan Vaults
+	v4.22.2
+		- Fixed Pandaria spells for Throne of Thunder
+		- Fixed Pandaria spells for Brawler's Guild
 
 ]]--
 GTFO = {
@@ -677,8 +683,8 @@ GTFO = {
 		IgnoreOptions = { };
 		TrivialDamagePercent = .5; -- Minimum % of HP lost required for an alert to be trivial
 	};
-	Version = "4.22"; -- Version number (text format)
-	VersionNumber = 42200; -- Numeric version number for checking out-of-date clients
+	Version = "4.22.2"; -- Version number (text format)
+	VersionNumber = 42202; -- Numeric version number for checking out-of-date clients
 	DataLogging = nil; -- Indicate whether or not the addon needs to run the datalogging function (for hooking)
 	DataCode = "4"; -- Saved Variable versioning, change this value to force a reset to default
 	CanTank = nil; -- The active character is capable of tanking
@@ -912,6 +918,9 @@ function GTFO_OnEvent(self, event, ...)
 								end
 							end
 
+							if (GTFO.FFSpellID[SpellID].test) then
+								GTFO_ScanPrint("TEST ALERT: Spell ID #"..SpellID);
+							end
 							alertID = GTFO_GetAlertID(GTFO.FFSpellID[SpellID], "player");
 							GTFO_PlaySound(alertID);
 							GTFO_RecordStats(alertID, SpellID, SpellName, tonumber(damage), nil);
@@ -977,7 +986,7 @@ function GTFO_OnEvent(self, event, ...)
 			
 			SpellID = tostring(SpellID);
 
-			if not (GTFO.IgnoreScan[SpellID]) then
+			if (GTFO.Settings.ScanMode and not GTFO.IgnoreScan[SpellID]) then
 				if (vehicle) then
 					GTFO_ScanPrint("V: "..SpellType.." - "..SpellID.." - "..GetSpellLink(SpellID).." - "..SpellSourceName.." ("..GTFO_GetMobId(sourceGUID)..") >"..tostring(destName));
 				elseif (SpellType~="SPELL_ENERGIZE" or (SpellType=="SPELL_ENERGIZE" and sourceGUID ~= UnitGUID("player"))) then
@@ -1087,6 +1096,9 @@ function GTFO_OnEvent(self, event, ...)
 					return;
 				end
 				alertID = GTFO_GetAlertID(GTFO.SpellID[SpellID], "player");
+				if (GTFO.SpellID[SpellID].test) then
+					GTFO_ScanPrint("TEST ALERT: Spell ID #"..SpellID);
+				end
 				GTFO_PlaySound(alertID);
 				if (SpellType == "SPELL_PERIODIC_DAMAGE" or SpellType == "SPELL_DAMAGE" or SpellType == "SPELL_ENERGIZE") then
 					GTFO_RecordStats(alertID, SpellID, SpellName, damage, SpellSourceName);

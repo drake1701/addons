@@ -1,5 +1,5 @@
 ﻿--[[
-    Author: Valana <Team BATTLE> of Magtheridon Alliance-US
+    Author: Valana <Ridiculously Beautiful> of Magtheridon Alliance-US
 ]]
 
 local _addonName, _addonTitle =  GetAddOnInfo("TB_ReputationWatcher")
