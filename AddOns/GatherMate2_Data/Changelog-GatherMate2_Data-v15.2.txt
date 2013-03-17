@@ -1,7 +1,16 @@
 ------------------------------------------------------------------------
-r249 | kagaro | 2013-03-03 07:04:04 +0000 (Sun, 03 Mar 2013) | 1 line
+r251 | kagaro | 2013-03-17 06:04:53 +0000 (Sun, 17 Mar 2013) | 1 line
 Changed paths:
-   A /tags/v15.1 (from /trunk:248)
+   A /tags/v15.2 (from /trunk:250)
+
+GatherMate2_Data: Data update
+------------------------------------------------------------------------
+r250 | kagaro | 2013-03-17 06:04:50 +0000 (Sun, 17 Mar 2013) | 1 line
+Changed paths:
+   M /trunk/GatherMate2_Data.toc
+   M /trunk/HerbalismData.lua
+   M /trunk/MiningData.lua
+   M /trunk/TreasureData.lua
 
 GatherMate2_Data: Data update
 ------------------------------------------------------------------------
@@ -14,22 +23,6 @@ GatherMate2_Data: Data update
 r245 | kagaro | 2013-02-17 07:03:09 +0000 (Sun, 17 Feb 2013) | 1 line
 Changed paths:
    M /trunk/HerbalismData.lua
-   M /trunk/TreasureData.lua
-
-GatherMate2_Data: Data update
-------------------------------------------------------------------------
-r243 | kagaro | 2013-02-10 07:02:48 +0000 (Sun, 10 Feb 2013) | 1 line
-Changed paths:
-   M /trunk/HerbalismData.lua
-   M /trunk/MiningData.lua
-   M /trunk/TreasureData.lua
-
-GatherMate2_Data: Data update
-------------------------------------------------------------------------
-r241 | kagaro | 2013-02-03 07:02:20 +0000 (Sun, 03 Feb 2013) | 1 line
-Changed paths:
-   M /trunk/HerbalismData.lua
-   M /trunk/MiningData.lua
    M /trunk/TreasureData.lua
 
 GatherMate2_Data: Data update

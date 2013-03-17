@@ -1,7 +1,7 @@
 local mod	= DBM:NewMod("ToTTrash", "DBM-ThroneofThunder")
 local L		= mod:GetLocalizedStrings()
 
-mod:SetRevision(("$Revision: 8903 $"):sub(12, -3))
+mod:SetRevision(("$Revision: 8923 $"):sub(12, -3))
 --mod:SetModelID(39378)
 mod:SetZone()
 
@@ -76,7 +76,7 @@ function mod:SPELL_AURA_APPLIED(args)
 			DBM.RangeCheck:Show(10)
 		end
 		self:Unschedule(warnStormEnergyTargets)
-		self:Schedule(0.5, warnStormEnergyTargets)
+		self:Schedule(1, warnStormEnergyTargets)
 	elseif args:IsSpellID(139900) then
 		stormCloudTargets[#stormCloudTargets + 1] = args.destName
 		if args:IsPlayer() then

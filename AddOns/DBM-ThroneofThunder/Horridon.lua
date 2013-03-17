@@ -1,7 +1,7 @@
 local mod	= DBM:NewMod(819, "DBM-ThroneofThunder", nil, 362)
 local L		= mod:GetLocalizedStrings()
 
-mod:SetRevision(("$Revision: 8906 $"):sub(12, -3))
+mod:SetRevision(("$Revision: 8930 $"):sub(12, -3))
 mod:SetCreatureID(68476)
 mod:SetModelID(47325)
 
@@ -29,6 +29,7 @@ local warnDoubleSwipe			= mod:NewSpellAnnounce(136741, 3)
 local warnAdds					= mod:NewAnnounce("warnAdds", 2, 43712)--Some random troll icon
 local warnDino					= mod:NewSpellAnnounce("ej7086", 3, 137237)
 local warnMending				= mod:NewSpellAnnounce(136797, 4)
+local warnOrbofControl			= mod:NewAnnounce("warnOrbofControl", 4, "INTERFACE\\ICONS\\INV_MISC_ORB_01.BLP")
 local warnVenomBolt				= mod:NewSpellAnnounce(136587, 3, nil, false)
 local warnChainLightning		= mod:NewSpellAnnounce(136480, 3, nil, false)
 local warnFireball				= mod:NewSpellAnnounce(136465, 3, nil, false)
@@ -45,6 +46,7 @@ local specWarnPunctureOther		= mod:NewSpecialWarningTarget(136767, mod:IsTank())
 local specWarnSandTrap			= mod:NewSpecialWarningMove(136723)
 local specWarnDino				= mod:NewSpecialWarningSwitch("ej7086", not mod:IsHealer())
 local specWarnMending			= mod:NewSpecialWarningInterrupt(136797, mod:IsDps())--High priority interrupt. All dps needs warning because boss heals 1% per second it's not interrupted.
+local specWarnOrbofControl		= mod:NewSpecialWarning("specWarnOrbofControl", false)--Usually an assigned role for 1-2 people. Do not want someone assigned to interrupts for example hear this and think it's interrupt time. This should be turned on by orb person
 local specWarnVenomBolt			= mod:NewSpecialWarningInterrupt(136587)--Can be on for all since it only triggers off target/focus
 local specWarnChainLightning	= mod:NewSpecialWarningInterrupt(136480)--Can be on for all since it only triggers off target/focus
 local specWarnFireball			= mod:NewSpecialWarningInterrupt(136465)--Can be on for all since it only triggers off target/focus
@@ -154,6 +156,9 @@ function mod:SPELL_AURA_APPLIED(args)
 	elseif args:IsSpellID(136797) then
 		warnMending:Show()
 		specWarnMending:Show(args.sourceName)
+	elseif args:IsSpellID(137237) then
+		warnOrbofControl:Show()
+		specWarnOrbofControl:Show()
 	elseif args:IsSpellID(136587) then
 		warnVenomBolt:Show()
 		if args.sourceGUID == UnitGUID("target") or args.sourceGUID == UnitGUID("focus") then
@@ -218,18 +223,34 @@ end
 
 function mod:CHAT_MSG_RAID_BOSS_EMOTE(msg, _, _, _, target)
 	if msg:find(L.chargeTarget) then
-		warnCharge:Show(target)
+		local uId = DBM:GetRaidUnitId(target)
+		self:SendSync("Charge", UnitGUID(uId))
+	elseif msg:find(L.newForces) then
+		self:SendSync("Door")
+	end
+end
+
+function mod:UNIT_DIED(args)
+	local cid = self:GetCIDFromGUID(args.destGUID)
+	if cid == 69374 then
+		timerBestialCryCD:Cancel()
+	end
+end
+
+function mod:OnSync(msg, guid)
+	if msg == "Charge" and guid then
+		warnCharge:Show(UnitName(guid))
 		timerCharge:Start()
 		timerChargeCD:Start()
-		if target == UnitName("player") then
+		if guid == UnitGUID("player") then
 			specWarnCharge:Show()
 			yellCharge:Yell()
 		end
+	elseif msg == "Door" then
 	--Doors spawn every 131.5 seconds
 	--Halfway through it (literlaly exact center) Dinomancers spawn at 56.75
 	--Then, before the dinomancer, lesser adds spawn twice splitting that timer into 3rds
 	--So it goes, door, 18.91 seconds later, 1 add jumps down. 18.91 seconds later, next 2 drop down. 18.91 seconds later, dinomancer drops down, then 56.75 seconds later, next door starts.
-	elseif msg:find(L.newForces) then
 		doorNumber = doorNumber + 1
 		timerDinoCD:Start()
 		warnDino:Schedule(56.75)
@@ -258,12 +279,5 @@ function mod:CHAT_MSG_RAID_BOSS_EMOTE(msg, _, _, _, target)
 				timerJalakCD:Start(143)
 			end
 		end
-	end
-end
-
-function mod:UNIT_DIED(args)
-	local cid = self:GetCIDFromGUID(args.destGUID)
-	if cid == 69374 then
-		timerBestialCryCD:Cancel()
 	end
 end

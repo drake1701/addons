@@ -16,23 +16,27 @@ L:SetOptionLocalization({
 L= DBM:GetModLocalization(819)
 
 L:SetWarningLocalization({
-	warnAdds		= "%s"
+	warnAdds				= "%s",
+	warnOrbofControl		= "조종의 구슬 떨어짐",
+	specWarnOrbofControl	= "조종의 구슬 떨어짐!"
 })
 
 L:SetTimerLocalization({
-	timerDoor		= "다음 부족의 문 열림",
-	timerAdds		= "다음 %s"
+	timerDoor				= "다음 부족의 문 열림",
+	timerAdds				= "다음 %s"
 })
 
 L:SetOptionLocalization({
-	warnAdds		= "병력 등장시 알림 보기",
-	timerDoor		= "다음 부족의 문 열림 바 표시",
-	timerAdds		= "다음 추가 병력 바 표시"
+	warnAdds				= "병력 등장시 알림 보기",
+	warnOrbofControl		= "$journal:7092 떨어짐시 알림 보기",
+	specWarnOrbofControl	= "$journal:7092 떨어짐시 특수 경고 보기",
+	timerDoor				= "다음 부족의 문 열림 바 표시",
+	timerAdds				= "다음 추가 병력 바 표시"
 })
 
 L:SetMiscLocalization({
-	newForces		= "병력들이 쏟아져",
-	chargeTarget	= "꼬리를 바닥에 쿵쿵 내려칩니다!"
+	newForces				= "병력들이 쏟아져",
+	chargeTarget			= "꼬리를 바닥에 쿵쿵 내려칩니다!"
 })
 
 ---------------------------
@@ -180,12 +184,28 @@ L:SetOptionLocalization({
 -------------------
 L= DBM:GetModLocalization(829)
 
+L:SetWarningLocalization({
+	warnNight		= "밤 단계",
+	warnDay			= "낮 단계",
+	warnDusk		= "황혼 단계"
+})
+
+L:SetTimerLocalization({
+	timerDayCD		= "낮 단계",
+	timerDuskCD		= "황혼 단계",
+})
+
 L:SetOptionLocalization({
+	warnNight		= "밤 단계 알림 보기",
+	warnDay			= "낮 단계 알림 보기",
+	warnDusk		= "황혼 단계 알림 보기",
+	timerDayCD		= "낮 단계 바 표시",
+	timerDuskCD		= "황혼 단계 바 표시",
 	RangeFrame		= "거리 창 보기(8m)"
 })
 
 L:SetMiscLocalization({
-	DuskPhase		= "Lu'lin! Lend me your strength!"
+	DuskPhase		= "루린! 힘을 빌려다오!"
 })
 
 --------------
