@@ -7,10 +7,11 @@ local LSM = LibStub("LibSharedMedia-3.0");
 function UF:Construct_Buffs(frame)
 	local buffs = CreateFrame('Frame', nil, frame)
 	buffs.spacing = E.Spacing
-	buffs.PreSetPosition = self.SortAuras
+	--buffs.PreSetPosition = (not frame:GetScript("OnUpdate")) and self.SortAuras or nil
 	buffs.PostCreateIcon = self.Construct_AuraIcon
 	buffs.PostUpdateIcon = self.PostUpdateAura
 	buffs.CustomFilter = self.AuraFilter
+	buffs:SetFrameLevel(10)
 	buffs.type = 'buffs'
 	
 	return buffs
@@ -19,11 +20,12 @@ end
 function UF:Construct_Debuffs(frame)
 	local debuffs = CreateFrame('Frame', nil, frame)
 	debuffs.spacing = E.Spacing
-	debuffs.PreSetPosition = self.SortAuras
+	--debuffs.PreSetPosition = (not frame:GetScript("OnUpdate")) and self.SortAuras or nil
 	debuffs.PostCreateIcon = self.Construct_AuraIcon
 	debuffs.PostUpdateIcon = self.PostUpdateAura
 	debuffs.CustomFilter = self.AuraFilter
 	debuffs.type = 'debuffs'
+	debuffs:SetFrameLevel(10)
 	
 	return debuffs
 end

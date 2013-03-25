@@ -1,15 +1,15 @@
 local E, L, V, P, G = unpack(select(2, ...)); --Inport: Engine, Locales, PrivateDB, ProfileDB, GlobalDB
 
 
-local MapData = LibStub("LibMapData-1.0")
+local Astrolabe = DongleStub("Astrolabe-1.0") 
 local format = string.format
 local sub = string.sub
 local upper = string.upper
 
+local atan2 = math.atan2
 local modf = math.modf
 local ceil = math.ceil
 local floor = math.floor
-local mapFile, mapFloor
 
 --Return short value of a number
 function E:ShortValue(v)
@@ -146,15 +146,21 @@ function E:GetFormattedText(style, min, max)
 			return format(useStyle, E:ShortValue(deficit))
 		end
 	elseif style == 'PERCENT' then
-		return format(useStyle, format("%.1f", min / max * 100))
+		local s = format(useStyle, format("%.1f", min / max * 100))
+		s = s:gsub(".0%%", "%%")
+		return s
 	elseif style == 'CURRENT' or ((style == 'CURRENT_MAX' or style == 'CURRENT_MAX_PERCENT' or style == 'CURRENT_PERCENT') and min == max) then
 		return format(styles['CURRENT'],  E:ShortValue(min))
 	elseif style == 'CURRENT_MAX' then
 		return format(useStyle,  E:ShortValue(min), E:ShortValue(max))
 	elseif style == 'CURRENT_PERCENT' then
-		return format(useStyle, E:ShortValue(min), format("%.1f", min / max * 100))
+		local s = format(useStyle, E:ShortValue(min), format("%.1f", min / max * 100))
+		s = s:gsub(".0%%", "%%")
+		return s
 	elseif style == 'CURRENT_MAX_PERCENT' then
-		return format(useStyle, E:ShortValue(min), E:ShortValue(max), format("%.1f", min / max * 100))
+		local s = format(useStyle, E:ShortValue(min), E:ShortValue(max), format("%.1f", min / max * 100))
+		s = s:gsub(".0%%", "%%")
+		return s
 	end
 end
 
@@ -268,13 +274,35 @@ function E:GetTimeInfo(s, threshhold)
 	end
 end
 
-MapData:RegisterCallback("MapChanged", function (event, map, floor, w, h)
-	mapFile = map
-	mapFloor = floor
-end)
+local ninetyDegreeAngleInRadians = (3.141592653589793 / 2) 
+local function GetPosition(unit)
+	local m, f, x, y
+	if unit == "player" or UnitIsUnit("player", unit) then
+		m, f, x, y = Astrolabe:GetCurrentPlayerPosition()
+	else
+		m, f, x, y = Astrolabe:GetUnitPosition(unit, true)
+	end
 
-function E:GetDistance(x1, y1, x2, y2)
-	if (x1 == 0 and y1 == 0) or (x2 == 0 and y2 == 0) then return end
-	
-	return MapData:Distance(mapFile, mapFloor, x1, y1, x2, y2)
+	if not (m and y) then
+		return false
+	else
+		return true, m, f, x, y
+	end
+end
+
+function E:GetDistance(unit1, unit2)
+	local canCalculate, m1, f1, x1, y1 = GetPosition(unit1)
+
+	if not canCalculate then return end
+
+	local canCalculate, m2, f2, x2, y2 = GetPosition(unit2)
+
+	if not canCalculate then return end
+
+	local distance, xDelta, yDelta = Astrolabe:ComputeDistance(m1, f1, x1, y1, m2, f2, x2, y2)
+	if distance and xDelta and yDelta then
+		return distance, -ninetyDegreeAngleInRadians -GetPlayerFacing() - atan2(yDelta, xDelta) 
+	elseif distance then
+		return distance
+	end
 end

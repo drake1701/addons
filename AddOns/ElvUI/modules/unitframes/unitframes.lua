@@ -95,6 +95,7 @@ local DIRECTION_TO_POINT = {
 	LEFT_UP = "RIGHT"
 }
 
+
 local DIRECTION_TO_GROUP_ANCHOR_POINT = {
 	OUT_RIGHT_UP = "BOTTOM",
 	OUT_LEFT_UP = "BOTTOM",
@@ -123,6 +124,17 @@ local DIRECTION_TO_COLUMN_ANCHOR_POINT = {
 	RIGHT_UP = "BOTTOM",
 	LEFT_DOWN = "TOP",
 	LEFT_UP = "BOTTOM"
+}
+
+local INVERTED_DIRECTION_TO_COLUMN_ANCHOR_POINT = {
+	DOWN_RIGHT = "RIGHT",
+	DOWN_LEFT = "LEFT",
+	UP_RIGHT = "RIGHT",
+	UP_LEFT = "LEFT",
+	RIGHT_DOWN = "BOTTOM",
+	RIGHT_UP = "TOP",
+	LEFT_DOWN = "BOTTOM",
+	LEFT_UP = "TOP"	
 }
 
 local DIRECTION_TO_HORIZONTAL_SPACING_MULTIPLIER = {
@@ -208,7 +220,7 @@ function UF:SetupGroupAnchorPoints(group)
 		group:SetAttribute("columnSpacing", db.horizontalSpacing)
 	end
 	
-	group:SetAttribute("columnAnchorPoint", DIRECTION_TO_COLUMN_ANCHOR_POINT[direction])
+	group:SetAttribute("columnAnchorPoint", db.invertGroupingOrder and INVERTED_DIRECTION_TO_COLUMN_ANCHOR_POINT[direction] or DIRECTION_TO_COLUMN_ANCHOR_POINT[direction])
 	UF:ClearChildPoints(group:GetChildren())
 	group:SetAttribute("point", point)	
 	group:SetAttribute("maxColumns", db.numGroups)
@@ -751,7 +763,6 @@ end
 
 function UF:PLAYER_ENTERING_WORLD(event)
 	self:Update_AllFrames()
-	self:UpdatePrep(event)
 end
 
 function UF:UnitFrameThreatIndicator_Initialize(_, unitFrame)
@@ -799,15 +810,29 @@ function UF:Initialize()
 	
 	self:LoadUnits()
 	self:RegisterEvent('PLAYER_ENTERING_WORLD')
-	self:RegisterEvent('ARENA_PREP_OPPONENT_SPECIALIZATIONS', 'UpdatePrep')
-	self:RegisterEvent('ARENA_OPPONENT_UPDATE', 'UpdatePrep')
 
 	if E.private["unitframe"].disableBlizzard then
 		self:DisableBlizzard()	
 		self:SecureHook('UnitFrameThreatIndicator_Initialize')
-		InterfaceOptionsFrameCategoriesButton9:SetScale(0.0001)
+		--InterfaceOptionsFrameCategoriesButton9:SetScale(0.0001)
 		InterfaceOptionsFrameCategoriesButton10:SetScale(0.0001)
 		InterfaceOptionsFrameCategoriesButton11:SetScale(0.0001)
+		InterfaceOptionsStatusTextPanelPlayer:SetScale(0.0001)
+		InterfaceOptionsStatusTextPanelTarget:SetScale(0.0001)
+		InterfaceOptionsStatusTextPanelParty:SetScale(0.0001)
+		InterfaceOptionsStatusTextPanelPet:SetScale(0.0001)
+		InterfaceOptionsStatusTextPanelPlayer:SetAlpha(0)
+		InterfaceOptionsStatusTextPanelTarget:SetAlpha(0)
+		InterfaceOptionsStatusTextPanelParty:SetAlpha(0)
+		InterfaceOptionsStatusTextPanelPet:SetAlpha(0)
+		InterfaceOptionsCombatPanelEnemyCastBarsOnPortrait:SetAlpha(0)
+		InterfaceOptionsCombatPanelEnemyCastBarsOnPortrait:EnableMouse(false)
+		InterfaceOptionsCombatPanelTargetOfTarget:SetScale(0.0001)
+		InterfaceOptionsCombatPanelTargetOfTarget:SetAlpha(0)
+		InterfaceOptionsCombatPanelEnemyCastBarsOnNameplates:ClearAllPoints()
+		InterfaceOptionsCombatPanelEnemyCastBarsOnNameplates:SetPoint(InterfaceOptionsCombatPanelEnemyCastBarsOnPortrait:GetPoint())
+		InterfaceOptionsDisplayPanelShowAggroPercentage:SetScale(0.0001)
+		InterfaceOptionsDisplayPanelShowAggroPercentage:SetAlpha(0)
 
 		if not IsAddOnLoaded('Blizzard_ArenaUI') then
 			self:RegisterEvent('ADDON_LOADED')

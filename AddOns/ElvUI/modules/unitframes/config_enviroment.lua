@@ -13,6 +13,20 @@ local min, random = math.min, math.random
 local function createConfigEnv()
 	if( configEnv ) then return end
 	configEnv = setmetatable({
+		UnitPower = function (unit, displayType)
+			if unit:find('target') or unit:find('focus') then
+				return UnitPower(unit, displayType)
+			end
+
+			return random(1, UnitPowerMax(unit, displayType) or 1)
+		end,
+		UnitHealth = function(unit)
+			if unit:find('target') or unit:find('focus') then
+				return UnitHealth(unit)
+			end
+
+			return random(1, UnitHealthMax(unit))
+		end,
 		UnitName = function(unit)
 			if unit:find('target') or unit:find('focus') then
 				return UnitName(unit)
@@ -47,6 +61,24 @@ local function createConfigEnv()
 	overrideFuncs['name:short'] = ElvUF.Tags.Methods['name:short']
 	overrideFuncs['name:medium'] = ElvUF.Tags.Methods['name:medium']
 	overrideFuncs['name:long'] = ElvUF.Tags.Methods['name:long']
+
+	overrideFuncs['healthcolor'] = ElvUF.Tags.Methods['healthcolor']
+	overrideFuncs['health:current'] = ElvUF.Tags.Methods['health:current']
+	overrideFuncs['health:deficit'] = ElvUF.Tags.Methods['health:deficit']
+	overrideFuncs['health:current-percent'] = ElvUF.Tags.Methods['health:current-percent']	
+	overrideFuncs['health:current-max'] = ElvUF.Tags.Methods['health:current-max']	
+	overrideFuncs['health:current-max-percent'] = ElvUF.Tags.Methods['health:current-max-percent']	
+	overrideFuncs['health:max'] = ElvUF.Tags.Methods['health:max']	
+	overrideFuncs['health:percent'] = ElvUF.Tags.Methods['health:percent']	
+
+	overrideFuncs['powercolor'] = ElvUF.Tags.Methods['powercolor']
+	overrideFuncs['power:current'] = ElvUF.Tags.Methods['power:current']
+	overrideFuncs['power:deficit'] = ElvUF.Tags.Methods['power:deficit']
+	overrideFuncs['power:current-percent'] = ElvUF.Tags.Methods['power:current-percent']	
+	overrideFuncs['power:current-max'] = ElvUF.Tags.Methods['power:current-max']	
+	overrideFuncs['power:current-max-percent'] = ElvUF.Tags.Methods['power:current-max-percent']	
+	overrideFuncs['power:max'] = ElvUF.Tags.Methods['power:max']	
+	overrideFuncs['power:percent'] = ElvUF.Tags.Methods['power:percent']		
 end
 
 function UF:ForceShow(frame)
@@ -55,7 +87,10 @@ function UF:ForceShow(frame)
 		frame.oldUnit = frame.unit
 		frame.unit = 'player'
 		frame.isForced = true;
+		frame.oldOnUpdate = frame:GetScript("OnUpdate")
 	end
+
+	frame:SetScript("OnUpdate", nil)
 	frame.forceShowAuras = true
 	UnregisterUnitWatch(frame)
 	RegisterUnitWatch(frame, true)	
@@ -77,6 +112,11 @@ function UF:UnforceShow(frame)
 	-- Ask the SecureStateDriver to show/hide the frame for us
 	UnregisterUnitWatch(frame)
 	RegisterUnitWatch(frame)
+
+	if frame.oldOnUpdate then
+		frame:SetScript("OnUpdate", frame.oldOnUpdate)
+		frame.oldOnUpdate = nil
+	end
 	
 	frame.unit = frame.oldUnit or frame.unit
 	-- If we're visible force an update so everything is properly in a
