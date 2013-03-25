@@ -1,5 +1,9 @@
 Packer Note: Files to exclude: *.db *.png *.gif *.jpg *.tif *.txt *.psd *.bmp
 
+6.9.5
+---------------------------
+- Core: Reversion of scale and alpha handling to 6.9.Beta3 (Removal of transition effects)
+
 6.9.4
 ---------------------------
 - I need coffee.  Now.

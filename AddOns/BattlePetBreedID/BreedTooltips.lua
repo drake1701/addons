@@ -287,17 +287,29 @@ local function BPBID_Hook_BattleUpdate(self)
 		
 		-- set the name header if the user wants
 		if (name) and (BPBID_Options.Names.PrimaryBattle) then
-			self.Name:SetText(name.." ("..breed..")")
+			-- set standard text or use hex coloring based on font fix option
+			if (BPBID_Options.BattleFontFix) then
+				local _, _, _, hex = GetItemQualityColor(BPBID.rarityCache[self.petIndex + offset] - 1)
+				self.Name:SetText("|c"..hex..name.." ("..breed..")".."|r")
+			else
+				self.Name:SetText(name.." ("..breed..")")
+			end
 		end
 	else
 		
 		-- set the name header if the user wants
 		if (name) and (BPBID_Options.Names.BattleTooltip) then
-			self.Name:SetText(name.." ("..breed..")")
+			-- set standard text or use hex coloring based on font fix option
+			if (BPBID_Options.BattleFontFix) then
+				local _, _, _, hex = GetItemQualityColor(BPBID.rarityCache[self.petIndex + offset] - 1)
+				self.Name:SetText("|c"..hex..name.." ("..breed..")".."|r")
+			else
+				self.Name:SetText(name.." ("..breed..")")
+			end
 		end
 		
 		-- if this not the same tooltip as before
-		if (BPBID.BattleNameText ~= self.Name:GetText()) then
+		if (BPBID.BattleNameText ~= self.Name:GetText()) and (not BPBID_Options.BattleFontFix) then
 		
 			-- downside font if the name/breed gets chopped off
 			if self.Name:IsTruncated() then

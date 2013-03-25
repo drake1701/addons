@@ -1,7 +1,7 @@
 local mod	= DBM:NewMod(818, "DBM-ThroneofThunder", nil, 362)
 local L		= mod:GetLocalizedStrings()
 
-mod:SetRevision(("$Revision: 8915 $"):sub(12, -3))
+mod:SetRevision(("$Revision: 8978 $"):sub(12, -3))
 mod:SetCreatureID(68036)--Crimson Fog 69050, 
 mod:SetModelID(47189)
 mod:SetUsedIcons(7, 6, 1)
@@ -112,18 +112,18 @@ function mod:OnCombatEnd()
 end
 
 function mod:SPELL_CAST_START(args)
-	if args:IsSpellID(133765) then
+	if args.spellId == 133765 then
 		warnHardStare:Show()
 		timerHardStareCD:Start()
-	elseif args:IsSpellID(138467) then
+	elseif args.spellId == 138467 then
 		timerLingeringGazeCD:Start()
-	elseif args:IsSpellID(134587) and self:AntiSpam(3, 3) then
+	elseif args.spellId == 134587 and self:AntiSpam(3, 3) then
 		warnIceWall:Show()
 	end
 end
 
 function mod:SPELL_AURA_APPLIED(args)
-	if args:IsSpellID(133767) then
+	if args.spellId == 133767 then
 		timerSeriousWound:Start(args.destName)
 		if args:IsPlayer() then
 			if (args.amount or 1) >= 4 then
@@ -134,15 +134,15 @@ function mod:SPELL_AURA_APPLIED(args)
 				specWarnSeriousWoundOther:Show(args.destName)
 			end
 		end
-	elseif args:IsSpellID(133597) then--Dark Parasite
+	elseif args.spellId == 133597 then--Dark Parasite
 		warnDarkParasite:Show(args.destName)
 		local _, _, _, _, _, duration, expires = UnitDebuff(args.destName, args.spellName)
 		timerDarkParasite:Start(duration)
-	elseif args:IsSpellID(133598) then--Dark Plague
+	elseif args.spellId == 133598 then--Dark Plague
 		local _, _, _, _, _, duration, expires = UnitDebuff(args.destName, args.spellName)
 		--maybe add a warning/special warning for everyone if duration is too high and many adds expected
 		timerDarkPlague:Start(duration)
-	elseif args:IsSpellID(134626) then
+	elseif args.spellId == 134626 then
 		lingeringGazeTargets[#lingeringGazeTargets + 1] = args.destName
 		if args:IsPlayer() then
 			specWarnLingeringGaze:Show()
@@ -159,7 +159,7 @@ end
 mod.SPELL_AURA_APPLIED_DOSE = mod.SPELL_AURA_APPLIED
 
 function mod:SPELL_AURA_REMOVED(args)
-	if args:IsSpellID(133767) then
+	if args.spellId == 133767 then
 		timerSeriousWound:Cancel(args.destName)
 	end
 end
@@ -183,6 +183,7 @@ mod.SPELL_PERIODIC_MISSED = mod.SPELL_PERIODIC_DAMAGE
 --Beams wildly jump targets and don't give new target a warning at all nor does it even show in damn combat log.
 function mod:CHAT_MSG_MONSTER_EMOTE(msg, npc, _, _, target)
 	if msg:find("spell:136932") then--Force of Will
+		local target = DBM:GetFullNameByShortName(target)
 		warnForceOfWill:Show(target)
 		if timerLightSpectrumCD:GetTime() > 22 or timerDisintegrationBeamCD:GetTime() > 108 then--Don't start timer if either beam or spectrum will come first (cause both disable force ability)
 			timerForceOfWillCD:Start()
@@ -205,6 +206,7 @@ function mod:CHAT_MSG_MONSTER_EMOTE(msg, npc, _, _, target)
 			end
 		end
 	elseif msg:find("spell:134122") then--Blue Rays
+		local target = DBM:GetFullNameByShortName(target)
 		warnBlueBeam:Show(target)
 		timerLingeringGazeCD:Start(21)
 		if target == UnitName("player") then
@@ -215,6 +217,7 @@ function mod:CHAT_MSG_MONSTER_EMOTE(msg, npc, _, _, target)
 			lastBlue = target
 		end
 	elseif msg:find("spell:134123") then--Infrared Light (red)
+		local target = DBM:GetFullNameByShortName(target)
 		warnRedBeam:Show(target)
 		if target == UnitName("player") then
 			specWarnRedBeam:Show()
@@ -224,6 +227,7 @@ function mod:CHAT_MSG_MONSTER_EMOTE(msg, npc, _, _, target)
 			lastRed = target
 		end
 	elseif msg:find("spell:134124") then--useful only on heroic and LFR since there are only amber adds in them. Normal 10 and normal 25 do not have amber adds (why LFR does is beyond me)
+		local target = DBM:GetFullNameByShortName(target)
 		totalFogs = 3
 		timerForceOfWillCD:Cancel()
 		if self:IsDifficulty("heroic10", "heroic25") then
@@ -245,6 +249,7 @@ function mod:CHAT_MSG_MONSTER_EMOTE(msg, npc, _, _, target)
 	elseif target:find(L.Eye) then--Untested, but should work if I don't have args backwards. Looks like Fog name is npc and target is revealing eye
 		specWarnFogRevealed:Show(npc)
 	elseif msg:find("spell:133795") then
+		local target = DBM:GetFullNameByShortName(target)
 		warnLifeDrain:Show(target)
 		specWarnLifeDrain:Show(target)
 	elseif msg:find("spell:134169") then

@@ -31,8 +31,7 @@ L:SetOptionLocalization({
 	warnOrbofControl		= "Announce when $journal:7092 dropped",
 	specWarnOrbofControl	= "Show special warning when $journal:7092 dropped",
 	timerDoor				= "Show timer for next Tribal Door phase",
-	timerAdds				= "Show timer for when next add jumps down",
-	
+	timerAdds				= "Show timer for when next add jumps down"
 })
 
 L:SetMiscLocalization({
@@ -52,9 +51,10 @@ L:SetWarningLocalization({
 L:SetOptionLocalization({
 	warnPossessed		= DBM_CORE_AUTO_ANNOUNCE_OPTIONS.target:format(136442),
 	specWarnPossessed	= DBM_CORE_AUTO_SPEC_WARN_OPTIONS.switch:format(136442),
-	warnSandBolt		= DBM_CORE_AUTO_ANNOUNCE_OPTIONS.target:format(136189),
 	PHealthFrame		= "Show remaining health frame for $spell:136442 fades\n(Requires boss health frame enabled)",
-	RangeFrame			= "Show range frame"
+	RangeFrame			= "Show range frame",
+	SetIconOnBitingCold	= DBM_CORE_AUTO_ICONS_OPTION_TEXT:format(136992),
+	SetIconOnFrostBite	= DBM_CORE_AUTO_ICONS_OPTION_TEXT:format(136922)
 })
 
 ------------
@@ -82,6 +82,11 @@ L:SetMiscLocalization({
 -- Megaera --
 -------------
 L= DBM:GetModLocalization(821)
+
+L:SetOptionLocalization({
+	SetIconOnCinders		= DBM_CORE_AUTO_ICONS_OPTION_TEXT:format(139822),
+	SetIconOnTorrentofIce	= DBM_CORE_AUTO_ICONS_OPTION_TEXT:format(139889)
+})
 
 L:SetMiscLocalization({
 	rampageEnds	= "Megaera's rage subsides."
@@ -113,7 +118,9 @@ L:SetMiscLocalization({
 	eggsHatchU		= "The eggs in one of the upper nests begin to hatch!",
 	Upper			= "Upper",
 	Lower			= "Lower",
-	UpperAndLower	= "Upper & Lower"
+	UpperAndLower	= "Upper & Lower",
+	TrippleD		= "Tripple (2xDwn)",
+	TrippleU		= "Tripple (2xUp)"
 })
 
 --------------------------
@@ -192,7 +199,7 @@ L:SetWarningLocalization({
 })
 
 L:SetTimerLocalization({
-	timerDayCD		= "Next night phase",
+	timerDayCD		= "Next day phase",
 	timerDuskCD		= "Next dusk phase",
 })
 
@@ -206,7 +213,7 @@ L:SetOptionLocalization({
 })
 
 L:SetMiscLocalization({
-	DuskPhase		= "Lu'lin! Lend me your strength!"--Not in use, but a backup just in case, so translate in case it's switched to on moments notice on live or next PTR test
+	DuskPhase		= "Lu'lin! Lend me your strength!"
 })
 
 --------------

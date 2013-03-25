@@ -6,18 +6,10 @@ Special thanks to Nullberri, Ro, and Warla for helping at various points through
 
 --GLOBALS: BPBID_Options, GetBreedID_Battle, GetBreedID_Journal, SLASH_BATTLEPETBREEDID1, SLASH_BATTLEPETBREEDID2, SLASH_BATTLEPETBREEDID3
 
---[[v1.0 HUGE Structural Changes
-Addon has been split into four files:
-BattlePetBreedID.lua (the Core - primarily our all-important CalculateBreedID function, a new and smaller RetrieveBreedID function, and the two API functions)
-BreedTooltips.lua (the new tooltips to give the user much more information; this contains 4 of the 6 secure hooks because they are tooltip-related)
-OptionsPanel.lua (the new Options panel in the Interface --> Addons section of the official Blizzard menu, also opened by slash commands)
-PetData.lua (all of the arrays - BasePetStats, BreedStats, and BreedsPerSpecies)
-
-Since some variables need to be shared cross-files without being made global,
-	I am using the name provided to our addon (BPBID) to call the cross-addon functions and arrays.
-For example, BasePetStats[39] is now called via BPBID.BasePetStats[39].
-There is some overhead to this method, but not a significant enough amount to cause concern;
-	our addon is still one of the best resource-wise out there amongst pet addons.
+--[[v1.0.4 Minor Update
+ADDED new option BPBID_Options.BattleFontFix - when checked, attempts to fix "no rarity display" bug
+maybe FIXED bug where a pet with an unknown rarity (bad Blizzard item links... sigh) could be determined to be epic
+UPDATED breed possibilities (Living Sandling, Carp, and Pandas)
 ]]--
 
 -- get folder path and set addon namespace
@@ -73,7 +65,8 @@ function BPBID.CalculateBreedID(nSpeciesID, nQuality, nLevel, nMaxHP, nPower, nS
 	
 	-- due to a Blizzard bug, some pets from tooltips will have quality = 0. this means we don't know what the quality is.
 	-- so, we'll just test them all by adding another loop for rarity.
-	if nQuality == 0 then
+	if (nQuality < 1) or (nQuality > 4) then
+		nQuality = 2
 		minQuality = 1
 		maxQuality = 4
 	else
@@ -173,7 +166,7 @@ function BPBID.CalculateBreedID(nSpeciesID, nQuality, nLevel, nMaxHP, nPower, nS
 			local smallest
 			
 			-- if we know the breeds for species, use this series of logic statements to eliminate impossible breeds
-			if BPBID.BreedsPerSpecies[nSpeciesID] then
+			if (BPBID.BreedsPerSpecies[nSpeciesID] and BPBID.BreedsPerSpecies[nSpeciesID][1]) then
 				
 				-- this half of the table stores the diffs for the breeds that passed inspection 
 				secondnumberlist[1] = {}
@@ -181,41 +174,41 @@ function BPBID.CalculateBreedID(nSpeciesID, nQuality, nLevel, nMaxHP, nPower, nS
 				secondnumberlist[2] = {}
 				
 				-- "inspection" time! if the breed is not found in the array, it doesn't get passed on to secondnumberlist and is effectively discarded
-				for i = 1, #BPBID.BreedsPerSpecies[nSpeciesID] do
-					local currentbreed = BPBID.BreedsPerSpecies[nSpeciesID][i]
+				for q = 1, #BPBID.BreedsPerSpecies[nSpeciesID] do
+					local currentbreed = BPBID.BreedsPerSpecies[nSpeciesID][q]
 					-- subtracting 2 from the breed to use it as an index (scale of 3-13 becomes 1-10)
-					secondnumberlist[1][i] = numberlist[currentbreed - 2]
-					secondnumberlist[2][i] = currentbreed
+					secondnumberlist[1][q] = numberlist[currentbreed - 2]
+					secondnumberlist[2][q] = currentbreed
 				end
 				
 				-- find the smallest number out of the breeds left
-				for i = 1, #secondnumberlist[2] do
+				for x = 1, #secondnumberlist[2] do
 					-- if this breed is the closest to perfect we've seen, make it our only result (destroy all other results)
-					if (not smallest) or (secondnumberlist[1][i] < smallest) then 
-						smallest = secondnumberlist[1][i]
+					if (not smallest) or (secondnumberlist[1][x] < smallest) then 
+						smallest = secondnumberlist[1][x]
 						numResults = 1
 						resultslist = {}
-						resultslist[1] = secondnumberlist[2][i]
+						resultslist[1] = secondnumberlist[2][x]
 					-- if we find a duplicate, add it to the list (but it can still be destroyed if better is found)
-					elseif (secondnumberlist[1][i] == smallest) then
+					elseif (secondnumberlist[1][x] == smallest) then
 						numResults = numResults + 1
-						resultslist[numResults] = secondnumberlist[2][i]
+						resultslist[numResults] = secondnumberlist[2][x]
 					end
 				end
 			
 			-- if we don't know the species, use this series of logic statements to consider all possibilities
 			else
-				for i = 1, #numberlist do
+				for y = 1, #numberlist do
 					-- if this breed is the closest to perfect we've seen, make it our only result (destroy all other results)
-					if (not smallest) or (numberlist[i] < smallest) then 
-						smallest = numberlist[i]
+					if (not smallest) or (numberlist[y] < smallest) then 
+						smallest = numberlist[y]
 						numResults = 1
 						resultslist = {}
-						resultslist[1] = i + 2
+						resultslist[1] = y + 2
 					-- if we find a duplicate, add it to the list (but it can still be destroyed if better is found)
-					elseif (numberlist[i] == smallest) then
+					elseif (numberlist[y] == smallest) then
 						numResults = numResults + 1
-						resultslist[numResults] = i + 2
+						resultslist[numResults] = y + 2
 					end
 				end
 			end
@@ -242,7 +235,7 @@ function BPBID.CalculateBreedID(nSpeciesID, nQuality, nLevel, nMaxHP, nPower, nS
 		end
 	end
 	
-	-- debug section
+	-- debug section (to enable, you must manually set this value in-game using "/run BPBID_Options.Debug = true")
 	if (BPBID_Options.Debug) and (not CPB.IsInBattle()) then
 		if not (BPBID.BreedsPerSpecies[nSpeciesID]) then
 			print("Species " .. nSpeciesID .. ": Possible breeds unknown. Current Breed is " .. breedID .. ".")
@@ -371,7 +364,7 @@ function BPBID.CacheAllPets()
 			BPBID.speciesCache[iIndex + offset] = nSpeciesID
 			BPBID.rarityCache[iIndex + offset] = nQuality
 			
-			-- debug section
+			-- debug section (to enable, you must manually set this value in-game using "/run BPBID_Options.Debug = true")
 			if (BPBID_Options.Debug) then
 				
 				-- checking for new pets or pets without breed data
@@ -420,8 +413,11 @@ end
 
 -- hook to deconstruct messages, set up chat filter, and store bug fixes in cache
 local function BPBID_Hook_ChatEdit_InsertLink(link)
+	-- exit if no link found
+	if (not link) then return end
+	
 	-- return if not a battle pet link OR if the user doesn't want us helping
-	if (not strmatch(link, "|Hbattlepet:")) or (not BPBID_Options.BlizzBugChat) then return end
+	if (not strmatch(tostring(link), "|Hbattlepet:")) or (not BPBID_Options.BlizzBugChat) then return end
 	
 	-- store link before changes
 	local petlink = link
@@ -562,6 +558,7 @@ local function BPBID_Events_OnEvent(self, event, name, ...)
 			BPBID_Options.Names.BPT = true -- In BattlePetTooltip's header (items)
 			BPBID_Options.Names.FBPT = true -- In FloatingBattlePetTooltip's header (chat links)
 			BPBID_Options.Names.HSFUpdate = true -- In the Pet Journal scrolling frame
+			BPBID_Options.Names.HSFUpdateRarity = true
 			BPBID_Options.Names.PJT = true -- In the Pet Journal tooltip header
 			BPBID_Options.Names.PJTRarity = false -- Color Pet Journal tooltip headers by rarity
 			--BPBID_Options.Names.PetBattleTeams = true -- In the Pet Battle Teams window
@@ -585,7 +582,9 @@ local function BPBID_Events_OnEvent(self, event, name, ...)
 			BPBID_Options.Breedtip.AllStats25 = true -- All breeds' stats at level 25
 			BPBID_Options.Breedtip.AllStats25Rare = true -- Always assume pet will be Rare at level 25
 			
+			BPBID_Options.BlizzBugChat = true
 			BPBID_Options.BlizzBugTooltip = true -- Fix Blizzard Chat Link Tooltip Rarity bug
+			BPBID_Options.BattleFontFix = false
 		end
 		
 		-- set new defaults added in v1.0.1
@@ -598,6 +597,11 @@ local function BPBID_Events_OnEvent(self, event, name, ...)
 			else
 				BPBID_Options.Names.HSFUpdateRarity = false
 			end
+		end
+		
+		-- set new default added in v1.0.4
+		if (BPBID_Options.BattleFontFix == nil) then
+			BPBID_Options.BattleFontFix = false
 		end
 		
 		-- if this addon loads after the Pet Journal
@@ -660,7 +664,7 @@ local function BPBID_Events_OnEvent(self, event, name, ...)
 		BPBID.cacheTime = false
 	elseif (event == "PET_BATTLE_CLOSE") then
 		
-		-- erase cache		
+		-- erase cache
 		for i = 1, 6 do
 			BPBID.breedCache[i] = 0
 			BPBID.resultsCache[i] = false

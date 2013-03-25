@@ -16,23 +16,27 @@ L:SetOptionLocalization({
 L= DBM:GetModLocalization(819)
 
 L:SetWarningLocalization({
-	warnAdds	= "%s"
+	warnAdds				= "%s",
+	warnOrbofControl		= "控獸寶珠掉落",
+	specWarnOrbofControl	= "控獸寶珠掉落!"
 })
 
 L:SetTimerLocalization({
-	timerDoor		= "下一個部族的門",
-	timerAdds		= "下一波%s"
+	timerDoor				= "下一個部族的門",
+	timerAdds				= "下一波%s"
 })
 
 L:SetOptionLocalization({
-	warnAdds		= "提示小怪跳下",
-	timerDoor		= "為下一個部族的門顯示計時器",
-	timerAdds		= "為下一次小怪跳下顯示計時器"
+	warnAdds				= "提示小怪跳下",
+	warnOrbofControl		= "提示$journal:7092掉落",
+	specWarnOrbofControl	= "為$journal:7092掉落顯示特別警告",
+	timerDoor				= "為下一個部族的門顯示計時器",
+	timerAdds				= "為下一次小怪跳下顯示計時器"
 })
 
 L:SetMiscLocalization({
-	newForces		= "的門蜂擁而出!",--Farraki forces pour from the Farraki Tribal Door!
-	chargeTarget	= "用力拍動尾巴!"--Horridon sets his eyes on Eraeshio and stamps his tail!
+	newForces				= "的門蜂擁而出!",--Farraki forces pour from the Farraki Tribal Door!
+	chargeTarget			= "用力拍動尾巴!"--Horridon sets his eyes on Eraeshio and stamps his tail!
 })
 
 ---------------------------
@@ -40,12 +44,17 @@ L:SetMiscLocalization({
 ---------------------------
 L= DBM:GetModLocalization(816)
 
+L:SetWarningLocalization({
+	specWarnPossessed		= "%s在%s - 變換目標"
+})
+
 L:SetOptionLocalization({
 	warnPossessed		= DBM_CORE_AUTO_ANNOUNCE_OPTIONS.target:format(136442),
 	specWarnPossessed	= DBM_CORE_AUTO_SPEC_WARN_OPTIONS.switch:format(136442),
-	warnSandBolt		= DBM_CORE_AUTO_ANNOUNCE_OPTIONS.target:format(136189),
 	PHealthFrame		= "為$spell:136442消散顯示剩餘血量框架(需要首領血量框架開啟)",
-	RangeFrame			= "顯示距離框架"
+	RangeFrame			= "顯示距離框架",
+	SetIconOnBitingCold	= DBM_CORE_AUTO_ICONS_OPTION_TEXT:format(136992),
+	SetIconOnFrostBite	= DBM_CORE_AUTO_ICONS_OPTION_TEXT:format(136922)
 })
 
 ------------
@@ -73,6 +82,11 @@ L:SetMiscLocalization({
 -- Megaera --
 -------------
 L= DBM:GetModLocalization(821)
+
+L:SetOptionLocalization({
+	SetIconOnCinders		= DBM_CORE_AUTO_ICONS_OPTION_TEXT:format(139822),
+	SetIconOnTorrentofIce	= DBM_CORE_AUTO_ICONS_OPTION_TEXT:format(139889)
+})
 
 L:SetMiscLocalization({
 	rampageEnds	= "梅賈拉的怒氣平息了。"
@@ -176,12 +190,28 @@ L:SetOptionLocalization({
 -------------------
 L= DBM:GetModLocalization(829)
 
+L:SetWarningLocalization({
+	warnNight		= "黑夜階段",
+	warnDay			= "白天階段",
+	warnDusk		= "黃昏階段"
+})
+
+L:SetTimerLocalization({
+	timerDayCD		= "白天階段",
+	timerDuskCD		= "黃昏階段",
+})
+
 L:SetOptionLocalization({
+	warnNight		= "提示黑夜階段",
+	warnDay			= "提示白天階段",
+	warnDusk		= "提示黃昏階段",
+	timerDayCD		= "為白天階段顯示計時器",
+	timerDuskCD		= "為黃昏階段顯示計時器",
 	RangeFrame		= "顯示距離框架(8碼)"
 })
 
 L:SetMiscLocalization({
-	DuskPhase		= "盧凜!借本宮力量!"--Not in use, but a backup just in case, so translate in case it's switched to on moments notice on live or next PTR test
+	DuskPhase		= "盧凜!借本宮力量!"
 })
 
 --------------

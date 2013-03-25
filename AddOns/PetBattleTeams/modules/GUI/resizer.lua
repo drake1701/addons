@@ -13,7 +13,7 @@ local function OnDragStop(self)
 end
 
 function GUI:CreateResizer(parent)
-	resizeButton = CreateFrame("Button",nil,parent)
+	local resizeButton = CreateFrame("Button",nil,parent)
 	resizeButton:EnableMouse(true)
 	resizeButton:SetSize(20,20)
 	resizeButton:SetPoint("BOTTOMRIGHT",parent,"BOTTOMRIGHT",-6,6)

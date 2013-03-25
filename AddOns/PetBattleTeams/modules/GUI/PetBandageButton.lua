@@ -30,7 +30,7 @@ function GUI:CreateBandageButton(name,parent)
 	local itemName = "Battle Pet Bandage"
 	local icon = GetItemIcon(86143)
 	local itemCount = GetItemCount(86143)
-	button = CreateFrame("Button",parent:GetName()..name,UIParent,"secureactionbuttontemplate")
+	local button = CreateFrame("Button",parent:GetName()..name,UIParent,"secureactionbuttontemplate")
 	button:SetAttribute("unit", "player")
 	button:SetAttribute("type", "macro")
 	button:SetAttribute("macrotext","/use item:86143" )

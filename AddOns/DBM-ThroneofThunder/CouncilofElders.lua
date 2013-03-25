@@ -1,9 +1,10 @@
 local mod	= DBM:NewMod(816, "DBM-ThroneofThunder", nil, 362)
 local L		= mod:GetLocalizedStrings()
 
-mod:SetRevision(("$Revision: 8929 $"):sub(12, -3))
+mod:SetRevision(("$Revision: 9028 $"):sub(12, -3))
 mod:SetCreatureID(69078, 69132, 69134, 69131)--69078 Sul the Sandcrawler, 69132 High Prestess Mar'li, 69131 Frost King Malakk, 69134 Kazra'jin --Adds: 69548 Shadowed Loa Spirit,
 mod:SetModelID(47229)--Kazra'jin, 47505 Sul the Sandcrawler, 47506 Frost King Malakk, 47730 High Priestes Mar'li
+mod:SetUsedIcons(7, 6)
 
 mod:RegisterCombat("combat")
 
@@ -32,10 +33,9 @@ mod:SetBossHealthInfo(
 
 --All
 local warnPossessed					= mod:NewStackAnnounce(136442, 2, nil, nil, "warnPossessed")
---local warnSoulFragment				= mod:NewTargetAnnounce(137359, 3)--Could find no spellid in either wowhead or wowdb, so i'll need logs
 
 --Sul the Sandcrawler
-local warnSandBolt					= mod:NewStackAnnounce(136189, 3, nil, false, "warnSandBolt")--Spammy but important for heroic (and even normal if very melee heavy)
+local warnSandBolt					= mod:NewCountAnnounce(136189, 3, nil, false)--Spammy but important for heroic for internet rotation.
 local warnQuicksand					= mod:NewSpellAnnounce(136521, 2)
 local warnSandstorm					= mod:NewSpellAnnounce(136894, 3)
 --High Prestess Mar'li
@@ -54,7 +54,7 @@ local warnRecklessCharge			= mod:NewCastAnnounce(137122, 3, 2, nil, false)
 local specWarnPossessed				= mod:NewSpecialWarning("specWarnPossessed", mod:IsDps())
 local specWarnDarkPower				= mod:NewSpecialWarningSpell(136507, nil, nil, nil, 2)
 --Sul the Sandcrawler
-local specWarnSandBolt				= mod:NewSpecialWarningInterrupt(136189, false)--When it's targeting a melee, damage is pretty big. More important to interrupt than ones targeting ranged that SHOULD be spread out. Maybe add a bool menu option to choose ALL or melee only for heroic
+local specWarnSandBolt				= mod:NewSpecialWarningInterrupt(136189, false)
 local specWarnSandStorm				= mod:NewSpecialWarningSpell(136894, nil, nil, nil, 2)
 local specWarnQuickSand				= mod:NewSpecialWarningMove(136860)
 --High Prestess Mar'li
@@ -71,7 +71,7 @@ local specWarnFrigidAssaultOther	= mod:NewSpecialWarningTarget(136903, mod:IsTan
 local specWarnChilled				= mod:NewSpecialWarningYou(137085, false)--Heroic
 
 --All
-local timerDarkPowerCD				= mod:NewCDTimer(73, 136507) -- needs review.
+local timerDarkPowerCD				= mod:NewCDTimer(68, 136507)
 --Kazra'jin
 local timerRecklessChargeCD			= mod:NewCDTimer(6, 137122, nil, false)
 --Sul the Sandcrawler
@@ -96,30 +96,16 @@ local soundMarkedSoul				= mod:NewSound(137359)
 mod:AddBoolOption("HealthFrame", true)
 mod:AddBoolOption("PHealthFrame", true)
 mod:AddBoolOption("RangeFrame")--For Sand Bolt and charge and biting cold
+mod:AddBoolOption("SetIconOnBitingCold", true)
+mod:AddBoolOption("SetIconOnFrostBite", true)
 
-local SulsName = EJ_GetSectionInfo(7049)
 local lingeringPresence = GetSpellInfo(136467)
 local chilledDebuff = GetSpellInfo(137085)
 local boltCasts = 0
-local scansDone = 0
 local kazraPossessed = false
 local possessesDone = 0
 local chilledWarned = false
 local darkPowerWarned = false
-
-local function isTank(unit)
-	if GetPartyAssignment("MAINTANK", unit, 1) then
-		return true
-	end
-	if UnitGroupRolesAssigned(unit) == "TANK" then
-		return true
-	end
-	local uId = DBM:GetBossUnitId()
-	if uId and UnitExists(uId.."target") and UnitDetailedThreatSituation(unit, uId) then
-		return true
-	end
-	return false
-end
 
 local showDamagedHealthBar, hideDamagedHealthBar
 do
@@ -158,27 +144,6 @@ do
 	end
 end
 
-function mod:BoltTarget()
-	scansDone = scansDone + 1
-	local targetname, uId = self:GetBossTarget(69078)
-	if targetname and uId then
-		if isTank(uId) and scansDone < 15 then--Make sure no infinite loop.
-			self:ScheduleMethod(0.1, "BoltTarget")--Check multiple times to find a target that isn't a player.
-		else
-			warnSandBolt:Show(targetname, boltCasts)
-			local targetedClass = UnitClass(uId)
-			--Todo, add hybrid melee class checks somehow? Inspect throttling won't allow that here though, too often. Maybe on pull inspect just those classes and cache their specs?
-			if targetedClass == "WARRIOR" or targetedClass == "DEATHKNIGHT" or targetedClass == "MONK" or targetedClass == "ROGUE" then--This bolt is targeting a melee, it is a priority interrupt
-				specWarnSandBolt:Show(SulsName)
-			end
-		end
-	else--target was nil, lets schedule a rescan here too.
-		if scansDone < 15 then--Make sure not to infinite loop here as well.
-			self:ScheduleMethod(0.1, "BoltTarget")
-		end
-	end
-end
-
 function mod:OnCombatStart(delay)
 	kazraPossessed = false
 	chilledWarned = false
@@ -201,27 +166,27 @@ function mod:OnCombatEnd()
 end
 
 function mod:SPELL_CAST_START(args)
-	if args:IsSpellID(136189) then
-		scansDone = 0
+	if args.spellId == 136189 then
 		if boltCasts == 3 then boltCasts = 0 end
 		boltCasts = boltCasts + 1
-		self:BoltTarget()
-	elseif args:IsSpellID(136521) and args:GetSrcCreatureID() == 69078 then--Filter the ones cast by adds dying.
+		warnSandBolt:Show(boltCasts)
+		specWarnSandBolt:Show(args.sourceName)
+	elseif args.spellId == 136521 and args:GetSrcCreatureID() == 69078 then--Filter the ones cast by adds dying.
 		warnQuicksand:Show()
 		timerQuickSandCD:Start()
-	elseif args:IsSpellID(136894) then
+	elseif args.spellId == 136894 then
 		warnSandstorm:Show()
 		specWarnSandStorm:Show()
 		timerSandStormCD:Start()
-	elseif args:IsSpellID(137203) then
+	elseif args.spellId == 137203 then
 		warnBlessedLoaSpirit:Show()
 		specWarnBlessedLoaSpirit:Show()
 		timerBlessedLoaSpiritCD:Start()
-	elseif args:IsSpellID(137350) then
+	elseif args.spellId == 137350 then
 		warnShadowedLoaSpirit:Show()
 		specWarnShadowedLoaSpirit:Show()
 		timerShadowedLoaSpiritCD:Start()
-	elseif args:IsSpellID(137891) then
+	elseif args.spellId == 137891 then
 		warnTwistedFate:Show()
 		specWarnTwistedFate:Show()
 		timerTwistedFateCD:Start()
@@ -229,10 +194,9 @@ function mod:SPELL_CAST_START(args)
 end
 
 function mod:SPELL_AURA_APPLIED(args)
-	if args:IsSpellID(136442) then--Possessed
+	if args.spellId == 136442 then--Possessed
 		local cid = args:GetDestCreatureID()
 		local uid
-		local darkPowerCD = 73 -- calculated in 25man normal.
 		for i = 1, 5 do
 			if UnitName("boss"..i) == args.destName then
 				uid = "boss"..i
@@ -245,14 +209,20 @@ function mod:SPELL_AURA_APPLIED(args)
 		if uid and UnitBuff(uid, lingeringPresence) then
 			local _, _, _, stack = UnitBuff(uid, lingeringPresence)
 			if self:IsDifficulty("heroic10", "heroic25") then
-				timerDarkPowerCD:Start(darkPowerCD * (1/(1+(stack*0.15))))
+				timerDarkPowerCD:Start(math.floor(68 * (1-(stack*0.15))))--need review
 			elseif self:IsDifficulty("normal10", "normal25") then
-				timerDarkPowerCD:Start(darkPowerCD * (1/(1+(stack*0.1))))
+				timerDarkPowerCD:Start(math.floor(73 * (1-(stack*0.1))))--need review
 			else -- lfr
-				timerDarkPowerCD:Start(darkPowerCD * (1/(1+(stack*0.05))))
+				timerDarkPowerCD:Start(math.floor(97 * (1-(stack*0.05))))--need review
 			end
 		else
-			timerDarkPowerCD:Start(darkPowerCD)
+			if self:IsDifficulty("heroic10", "heroic25") then
+				timerDarkPowerCD:Start(68)
+			elseif self:IsDifficulty("normal10", "normal25") then
+				timerDarkPowerCD:Start(73)
+			else
+				timerDarkPowerCD:Start(97)
+			end
 		end
 		if cid == 69078 then--Sul the Sandcrawler
 			--Do nothing. He just casts sand storm right away and continues his quicksand cd as usual
@@ -287,7 +257,7 @@ function mod:SPELL_AURA_APPLIED(args)
 			local bossHealth = math.floor(UnitHealthMax(uid or "boss4") * 0.25)
 			showDamagedHealthBar(self, args.destGUID, args.spellName.." : "..args.destName, bossHealth)
 		end
-	elseif args:IsSpellID(136903) then--Player Debuff version, not cast version
+	elseif args.spellId == 136903 then--Player Debuff version, not cast version
 		timerFrigidAssault:Start(args.destName)
 		if self:AntiSpam(3, 1) then--Might need to adjust slightly to 2 or 4.
 			warnFrigidAssault:Show(args.destName, args.amount or 1)
@@ -301,22 +271,28 @@ function mod:SPELL_AURA_APPLIED(args)
 				end
 			end
 		end
-	elseif args:IsSpellID(136992) then--Player Debuff version, not cast version
+	elseif args.spellId == 136992 then--Player Debuff version, not cast version
 		warnBitingCold:Show(args.destName)
+		if self.Options.SetIconOnBitingCold then
+			self:SetIcon(args.destName, 7)--Cross
+		end
 		timerBitingColdCD:Start()
 		if args:IsPlayer() then
 			specWarnBitingCold:Show()
 			yellBitingCold:Yell()
 		end
-	elseif args:IsSpellID(136922) and (args.amount or 1) == 1 then--Player Debuff version, not cast version (amount is just a spam filter for ignoring SPELL_AURA_APPLIED_DOSE on this event)
+	elseif args.spellId == 136922 and (args.amount or 1) == 1 then--Player Debuff version, not cast version (amount is just a spam filter for ignoring SPELL_AURA_APPLIED_DOSE on this event)
 		warnFrostBite:Show(args.destName)
+		if self.Options.SetIconOnFrostBite then
+			self:SetIcon(args.destName, 6)--Square
+		end
 		timerFrostBiteCD:Start()
 		if args:IsPlayer() then
 			specWarnFrostBite:Show()
 		end
 	elseif args:IsSpellID(136860, 136878) and args:IsPlayer() and self:AntiSpam(2, 3) then--Trigger off initial quicksand debuff and ensnared stacks. much less cpu them registering damage events and just as effective.
 		specWarnQuickSand:Show()
-	elseif args:IsSpellID(137359) then
+	elseif args.spellId == 137359 then
 		warnMarkedSoul:Show(args.destName)
 		timerMarkedSoul:Start(args.destName)
 		if args:IsPlayer() then
@@ -328,8 +304,9 @@ end
 mod.SPELL_AURA_APPLIED_DOSE = mod.SPELL_AURA_APPLIED
 
 function mod:SPELL_AURA_REMOVED(args)
-	if args:IsSpellID(136442) then--Possessed
+	if args.spellId == 136442 then--Possessed
 		darkPowerWarned = false
+		timerDarkPowerCD:Cancel()
 		if args:GetDestCreatureID() == 69078 then--Sul the Sandcrawler
 			timerSandStormCD:Cancel()
 		elseif args:GetDestCreatureID() == 69132 then--High Prestess Mar'li
@@ -359,12 +336,16 @@ function mod:SPELL_AURA_REMOVED(args)
 		if (self.Options.HealthFrame or DBM.Options.AlwaysShowHealthFrame) and self.Options.PHealthFrame then
 			hideDamagedHealthBar()
 		end
-	elseif args:IsSpellID(136903) then
+	elseif args.spellId == 136903 then
 		timerFrigidAssault:Cancel(args.destName)
-	elseif args:IsSpellID(136904) then
+	elseif args.spellId == 136904 then
 		timerFrigidAssaultCD:Start()
-	elseif args:IsSpellID(137359) then
+	elseif args.spellId == 137359 then
 		timerMarkedSoul:Cancel(args.destName)
+	elseif args.spellId == 136992 and self.Options.SetIconOnBitingCold then
+		self:SetIcon(args.destName, 0)
+	elseif args.spellId == 136922 and self.Options.SetIconOnFrostBite then
+		self:SetIcon(args.destName, 0)--Square
 	end
 end
 

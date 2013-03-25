@@ -1,7 +1,7 @@
 local mod	= DBM:NewMod(737, "DBM-HeartofFear", nil, 330)
 local L		= mod:GetLocalizedStrings()
 
-mod:SetRevision(("$Revision: 8921 $"):sub(12, -3))
+mod:SetRevision(("$Revision: 8974 $"):sub(12, -3))
 mod:SetCreatureID(62511)
 mod:SetModelID(43126)
 mod:SetZone()
@@ -100,7 +100,6 @@ local playerIsConstruct = false
 local warnedWill = false
 local willNumber = 100--Last warned player will power number (not same as actual player will power)
 local lastStrike = 0
---local scansDone = 0
 local amDestabalizeStack = 0
 local amWarnCount = 0
 local Totems = nil
@@ -111,46 +110,6 @@ local amberExplosion = GetSpellInfo(122402)
 local Monstrosity = EJ_GetSectionInfo(6254)
 local MutatedConstruct = EJ_GetSectionInfo(6249)
 local canInterrupt = {}
-local guids = {}
-local guidTableBuilt = false--Entirely for DCs, so we don't need to reset between pulls cause it doesn't effect building table on combat start and after a DC then it will be reset to false always
-local function buildGuidTable()
-	table.wipe(guids)
-	for uId, i in DBM:GetGroupMembers() do
-		guids[UnitGUID(uId) or "none"] = GetRaidRosterInfo(i)
-	end
-end
-
---[[
-function mod:ScalpelTarget()
-	if playerIsConstruct then return end--Don't need this info as a construct
-	scansDone = scansDone + 1
-	local targetname = DBM:GetUnitFullName("boss1targettarget")--Not a mistake, just clever use of available api to get the target of an invisible mob the boss is targeting ;)
-	if UnitExists("boss1targettarget") and not UnitIsUnit("boss1", "boss1targettarget") then
-		warnAmberScalpel:Show(targetname)
-		if targetname == UnitName("player") then
-			specwarnAmberScalpel:Show()
-			yellAmberScalpel:Yell()
-			timerAmberScalpel:Start()
-		else
-			local uId = DBM:GetRaidUnitId(targetname)
-			if uId then
-				local x, y = GetPlayerMapPosition(uId)
-				if x == 0 and y == 0 then
-					SetMapToCurrentZone()
-					x, y = GetPlayerMapPosition(uId)
-				end
-				local inRange = DBM.RangeCheck:GetDistance("player", x, y)
-				if inRange and inRange < 5 then--Guessed range
-					specwarnAmberScalpelNear:Show(targetname)
-				end
-			end
-		end
-	else--He failed sanity check (ie boss1targettarget was himself, so he was obviously still targeting tank, reschedule check)
-		if scansDone < 6 then
-			self:ScheduleMethod(0.2, "ScalpelTarget")
-		end
-	end
-end--]]
 
 function mod:AmberExplosionAMWarning()
 	amWarnCount = amWarnCount + 1
@@ -180,8 +139,6 @@ end
 function mod:OnCombatStart(delay)
 	warnedWill = true--avoid wierd bug on pull
 	willNumber = 100
-	buildGuidTable()
-	guidTableBuilt = true
 	Phase = 1
 	Puddles = 0
 	Constructs = 0
@@ -250,7 +207,7 @@ function mod:OnCombatEnd()
 end 
 
 function mod:SPELL_AURA_APPLIED(args)
-	if args:IsSpellID(123059) then
+	if args.spellId == 123059 then
 		local cid = args:GetDestCreatureID()
 		if cid == 62511 or cid == 62711 then -- Only boss or monstrosity (most raids do not care about to construct)
 			if Phase < 3 then -- ignore phase3, not useful and super spammy.
@@ -268,7 +225,7 @@ function mod:SPELL_AURA_APPLIED(args)
 				amDestabalizeStack = args.amount or 1 -- save for timer canceling.
 			end
 		end
-	elseif args:IsSpellID(121949) then
+	elseif args.spellId == 121949 then
 		warnParasiticGrowth:Show(args.destName)
 		if not playerIsConstruct then--Healers do need to know this, but it's still a distraction as a construct for sound, they got the reg warning.
 			specwarnParasiticGrowth:Show(args.destName)
@@ -278,7 +235,7 @@ function mod:SPELL_AURA_APPLIED(args)
 		end
 		timerParasiticGrowth:Start(args.destName)
 		timerParasiticGrowthCD:Start()
-	elseif args:IsSpellID(122540) then
+	elseif args.spellId == 122540 then
 		Phase = 2
 		reshapeElapsed = timerReshapeLifeCD:GetTime(constructCount+1)
 		timerReshapeLifeCD:Cancel()
@@ -295,10 +252,10 @@ function mod:SPELL_AURA_APPLIED(args)
 		if DBM.BossHealth:IsShown() then
 			DBM.BossHealth:AddBoss(62711, Monstrosity)
 		end
-	elseif args:IsSpellID(122395) and Phase < 3 and not playerIsConstruct then
+	elseif args.spellId == 122395 and Phase < 3 and not playerIsConstruct then
 		warnStruggleForControl:Show(args.destName)
 		timerStruggleForControl:Start(args.destName)
-	elseif args:IsSpellID(122784) then
+	elseif args.spellId == 122784 then
 		Constructs = Constructs + 1
 		constructCount = constructCount + 1
 		warnReshapeLife:Show(args.spellName, args.destName, constructCount)
@@ -325,7 +282,7 @@ function mod:SPELL_AURA_APPLIED(args)
 		else
 			timerReshapeLifeCD:Start(15, constructCount+1)--More often in phase 3
 		end
-	elseif args:IsSpellID(125502) then
+	elseif args.spellId == 125502 then
 		warnAmberGlob:Show(args.destName)
 		if args:IsPlayer() then
 			specwarnAmberGlob:Show()
@@ -335,7 +292,7 @@ end
 mod.SPELL_AURA_APPLIED_DOSE = mod.SPELL_AURA_APPLIED
 
 function mod:SPELL_AURA_REMOVED(args)
-	if args:IsSpellID(122370) then
+	if args.spellId == 122370 then
 		Constructs = Constructs - 1
 		if args:IsPlayer() then
 			self:UnregisterShortTermEvents()
@@ -350,11 +307,11 @@ function mod:SPELL_AURA_REMOVED(args)
 			end
 		end
 		timerAmberExplosionCD:Cancel(args.destName)
-	elseif args:IsSpellID(121994) then
+	elseif args.spellId == 121994 then
 		timerAmberScalpelCD:Start()
-	elseif args:IsSpellID(121949) then
+	elseif args.spellId == 121949 then
 		timerParasiticGrowth:Cancel(args.destName)
-	elseif args:IsSpellID(122540) then--Phase 3
+	elseif args.spellId == 122540 then--Phase 3
 		Phase = 3
 		reshapeElapsed = timerReshapeLifeCD:GetTime(constructCount+1)
 		timerReshapeLifeCD:Cancel()
@@ -373,7 +330,7 @@ function mod:SPELL_AURA_REMOVED(args)
 end
 
 function mod:SPELL_CAST_START(args)
-	if args:IsSpellID(122398) then
+	if args.spellId == 122398 then
 		warnAmberExplosion:Show(args.sourceName, args.spellName)
 		if args:GetSrcCreatureID() == 62701 then--Cast by a wild construct not controlled by player
 			if playerIsConstruct and GetTime() - lastStrike >= 3.5 then--Player is construct and Amber Strike will be available before cast ends.
@@ -390,7 +347,7 @@ function mod:SPELL_CAST_START(args)
 			timerAmberExplosionCD:Start(13, args.sourceName)--Only player needs to see this, they are only person who can do anything about it.
 			countdownAmberExplosion:Start(13)
 		end
-	elseif args:IsSpellID(122402) then--Amber Monstrosity
+	elseif args.spellId == 122402 then--Amber Monstrosity
 		if playerIsConstruct and GetTime() - lastStrike >= 3.5 then--Player is construct and Amber Strike will be available before cast ends.
 			amWarnCount = 0
 			self:AmberExplosionAMWarning()
@@ -407,13 +364,13 @@ function mod:SPELL_CAST_START(args)
 		timerAmberExplosionAMCD:Start(nil, args.spellName)
 		self:Unschedule(warnAmberExplosionCast)
 		self:Schedule(0.5, warnAmberExplosionCast, 122402)--Always check available interrupts and special warn if not
-	elseif args:IsSpellID(122408) then
+	elseif args.spellId == 122408 then
 		if not playerIsConstruct then
 			warnMassiveStomp:Show()--Don't even need normal warning as a construct, it just doesn't matter
 			specwarnMassiveStomp:Show()
 		end
 		timerMassiveStompCD:Start()--Still start timer so you still have it when you leave construct
-	elseif args:IsSpellID(122413) then
+	elseif args.spellId == 122413 then
 		warnFling:Show()--Tanks and healers still need to know this even as a construct
 		if not playerIsConstruct then
 			specwarnFling:Show()
@@ -423,20 +380,18 @@ function mod:SPELL_CAST_START(args)
 end
 
 function mod:SPELL_CAST_SUCCESS(args)
-	if args:IsSpellID(122348) then
+	if args.spellId == 122348 then
 		warnLivingAmber:Show()
-	elseif args:IsSpellID(121994) then
+	elseif args.spellId == 121994 then
 		warnAmberScalpel:Show()
 		specwarnAmberScalpel:Show()
---		scansDone = 0
---		self:ScheduleMethod(0.2, "ScalpelTarget")
-	elseif args:IsSpellID(122532) then
+	elseif args.spellId == 122532 then
 		Puddles = Puddles + 1
 		warnBurningAmber:Show(Puddles)
-	elseif args:IsSpellID(123156) then
+	elseif args.spellId == 123156 then
 		Puddles = Puddles - 1
 		warnBurningAmber:Show(Puddles)
-	elseif args:IsSpellID(122389) and args.sourceGUID == UnitGUID("player") then--Amber Strike
+	elseif args.spellId == 122389 and args.sourceGUID == UnitGUID("player") then--Amber Strike
 		lastStrike = GetTime()
 	end
 end
@@ -484,17 +439,13 @@ function mod:UNIT_SPELLCAST_STOP(uId, _, _, _, spellId)
 end
 
 function mod:OnSync(msg, str)
-	if not guidTableBuilt then
-		buildGuidTable()
-		guidTableBuilt = true
-	end
 	local guid, spellId
 	if str then
 		guid, spellId = string.split(":", str)
 		spellId = tonumber(spellId or "")
 	end
-	if msg == "InterruptAvailable" and guids[guid] and spellId then
-		canInterrupt[#canInterrupt + 1] = guids[guid]
+	if msg == "InterruptAvailable" and guid and spellId then
+		canInterrupt[#canInterrupt + 1] = DBM:GetFullPlayerNameByGUID(guid)
 		self:Unschedule(warnAmberExplosionCast)
 		self:Schedule(0.5, warnAmberExplosionCast, spellId)
 	end

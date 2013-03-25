@@ -1,6 +1,6 @@
 --[[
 BattlePetBreedID: Pet Data Module
-Last Update: March 6th, 2013; Patch 5.2.0 Live
+Last Update: March 11th, 2013; Patch 5.2.0 Live
 
 If you would like a copy of this data in a different format for your own purposes or to be informed of future updates:
 Contact Simca@Malfurion - either through MMO-Champion, through Curse, or in-game
@@ -1469,8 +1469,8 @@ function BPBID.InitializeArrays()
 	BPBID.BreedsPerSpecies[1168] = {12}
 	BPBID.BreedsPerSpecies[1174] = {12}
 	BPBID.BreedsPerSpecies[1175] = {3, 12}
-	BPBID.BreedsPerSpecies[1176] = {11}
-	BPBID.BreedsPerSpecies[1177] = {9, 10}
+	BPBID.BreedsPerSpecies[1176] = {3}
+	BPBID.BreedsPerSpecies[1177] = {6, 7, 9, 10}
 	BPBID.BreedsPerSpecies[1178] = {4}
 	BPBID.BreedsPerSpecies[1179] = {3}
 	BPBID.BreedsPerSpecies[1180] = {4, 5, 8, 10}
@@ -1487,9 +1487,9 @@ function BPBID.InitializeArrays()
 	BPBID.BreedsPerSpecies[1193] = {12}
 	BPBID.BreedsPerSpecies[1194] = {8}
 	BPBID.BreedsPerSpecies[1195] = {5}
-	BPBID.BreedsPerSpecies[1196] = {11}
+	BPBID.BreedsPerSpecies[1196] = {9}
 	BPBID.BreedsPerSpecies[1197] = {7}
-	BPBID.BreedsPerSpecies[1198] = {8, 11}
+	BPBID.BreedsPerSpecies[1198] = {8}
 	BPBID.BreedsPerSpecies[1201] = {10}
 	BPBID.BreedsPerSpecies[1202] = {3, 10}
 	BPBID.BreedsPerSpecies[1204] = {11}

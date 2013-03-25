@@ -31,6 +31,7 @@ L.Button_OK 				= '確定'
 L.Button_Cancel 			= '取消'
 L.Button_LoadMod 			= '載入模組'
 L.Mod_Enabled				= "啟用首領模組"
+L.Mod_Reset					= "為此模組讀取預設值(未完成)"
 L.Reset 					= "重置"
 
 L.Enable  					= "啟用"
@@ -164,6 +165,7 @@ L.BarWidth					= "寬度: %d"
 L.Panel_SpamFilter				= "整體及垃圾過濾"
 L.Area_SpamFilter				= "垃圾過濾選項"
 L.HideBossEmoteFrame			= "隱藏團隊首領表情框"
+L.StripServerName				= "隱藏警告和計時器的玩家伺服器名稱"
 L.SpamBlockBossWhispers			= "當戰鬥時過濾 <DBM> 密語警告"
 L.BlockVersionUpdateNotice		= "禁用彈出的更新通知"
 L.ShowBigBrotherOnCombatStart	= "戰鬥開始時顯示BigBrother(檢查團隊 增益/精煉UI)"

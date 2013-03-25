@@ -224,12 +224,13 @@ local OptBreedtipAllStats25Rare = CreateCheckbox("Always assume pet will be Rare
 --OptBreedtipLayer:SetPoint("BOTTOMRIGHT", OptBreedtipAllStats25Rare, "BOTTOMRIGHT", 2, -2)
 
 -- text above the BlizzBug region
-local blizzbugTitle = CreateFont("GameFontNormal", "Fix Blizzard Bugs:")
+local blizzbugTitle = CreateFont("GameFontNormal", "Fix Bugs:") -- used to say "Fix Blizzard Bugs:"
 blizzbugTitle:SetPoint("TOPLEFT", OptBreedtipAllStats25Rare, "BOTTOMLEFT", -32, -16)
 blizzbugTitle:SetTextColor(1, 1, 1, 1)
 
 local OptBlizzBugChat = CreateCheckbox("Fix rarity for any chat links you make", 32, 32, "TOPLEFT", blizzbugTitle, "BOTTOMLEFT", 0, 0)
 local OptBlizzBugTooltip = CreateCheckbox("Fix rarity in Tooltips of others' chat links", 32, 32, "TOPLEFT", lastcheckbox, "BOTTOMLEFT", 0, 0)
+local OptBugBattleFontFix = CreateCheckbox("Use alternate rarity coloring method in-battle", 32, 32, "TOPLEFT", lastcheckbox, "BOTTOMLEFT", 0, 0)
 
 -- to disable rarity checkbox since it is dependent
 local function BPBID_OptNamesHSFUpdate_OnClick(self, button, down)
@@ -372,6 +373,7 @@ local function BPBID_Options_Refresh()
 	OptBreedtipAllStats25Rare:SetChecked(BPBID_Options.Breedtip.AllStats25Rare)
 	OptBlizzBugChat:SetChecked(BPBID_Options.BlizzBugChat)
 	OptBlizzBugTooltip:SetChecked(BPBID_Options.BlizzBugTooltip)
+	OptBugBattleFontFix:SetChecked(BPBID_Options.BattleFontFix)
 	
 	-- call this to fix the checkboxes to their correct enabled state
 	BPBID_OptTooltipsEnabled_OnClick()
@@ -421,6 +423,7 @@ function Options.default()
 	
 	BPBID_Options.BlizzBugChat = true -- Fix Blizzard rarity bug for any chat links you make
 	BPBID_Options.BlizzBugTooltip = true -- Fix Blizzard rarity bug in Tooltips of others' chat links
+	BPBID_Options.BattleFontFix = false -- Use alternate rarity coloring method in-battle
 	
 	-- refresh the options page to display the new defaults
 	BPBID_Options_Refresh()
@@ -461,6 +464,7 @@ function Options.okay()
 	BPBID_Options.Breedtip.AllStats25Rare = OptBreedtipAllStats25Rare:GetChecked()
 	BPBID_Options.BlizzBugChat = OptBlizzBugChat:GetChecked()
 	BPBID_Options.BlizzBugTooltip = OptBlizzBugTooltip:GetChecked()
+	BPBID_Options.BattleFontFix = OptBugBattleFontFix:GetChecked()
 	
 	-- fix fontsize for PrimaryBattlePetUnitTooltip (TODO: PetFrame)
 	if (not BPBID_Options.Names.BattleTooltip) and (BPBID.BattleFontSize) then

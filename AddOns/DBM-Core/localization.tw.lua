@@ -9,6 +9,7 @@ DBM_CORE_LOAD_GUI_ERROR				= "無法載入圖形介面：%s"
 DBM_CORE_LOAD_GUI_COMBAT			= "圖形介面不能在戰鬥中初始化。請先在於戰鬥外讀取圖形介面，這樣就能夠在戰鬥中使用。"
 
 DBM_CORE_COMBAT_STARTED				= "%s開戰。祝好運與盡興! :)"
+DBM_CORE_COMBAT_STARTED_IN_PROGRESS	= "開戰%s已進行的戰鬥。祝好運與盡興! :)"
 DBM_CORE_BOSS_DOWN					= "擊敗%s，經過%s!"
 DBM_CORE_BOSS_DOWN_L				= "擊敗%s!本次經過%s，上次經過%s，最快紀錄為%s。你總共戰勝了%d次。"
 DBM_CORE_BOSS_DOWN_NR				= "擊敗%s!經過%s! 這是一個新記錄! (舊紀錄為%s) 你總共戰勝了%d次。"
@@ -27,6 +28,7 @@ DBM_CORE_SEC_FMT				= "%d秒"
 DBM_CORE_DEAD					= "死亡"
 DBM_CORE_OK						= "確定"
 
+DBM_CORE_GENERIC_WARNING_DUPLICATE		= "%s之一"
 DBM_CORE_GENERIC_WARNING_BERSERK		= "%s%s後狂暴"
 DBM_CORE_GENERIC_TIMER_BERSERK			= "狂暴"
 DBM_CORE_OPTION_TIMER_BERSERK			= "為$spell:26662顯示計時器"
@@ -134,16 +136,16 @@ DBM_CORE_ACHIEVEMENT_TIMER_SPEED_KILL 		= "最速勝利"
 
 -- Auto-generated Timer Localizations
 DBM_CORE_AUTO_TIMER_TEXTS = {
-	target					= "%s:%%s",
+	target					= "%s:>%%s<",
 	cast					= "%s",
 	active					= "%s結束",
 	fades					= "%s消散",
 	cd						= "%s冷卻",
 	cdcount					= "%s冷卻 (%%d)",
-	cdsource				= "%s冷卻: %%s",
+	cdsource				= "%s冷卻: >%%s<",
 	next 					= "下一次%s",
 	nextcount 				= "下一次%s (%%d)",
-	nextsource				= "下一次%s: %%s",
+	nextsource				= "下一次%s: >%%s<",
 	achievement 			= "%s"
 }
 
@@ -208,16 +210,16 @@ DBM_CORE_AUTO_SPEC_WARN_OPTIONS = {
 
 DBM_CORE_AUTO_SPEC_WARN_TEXTS = {
 	spell					= "%s!",
-	dispel					= "%%s中了%s - 現在驅散",
-	interrupt				= "%s - 快中斷%%s !",
+	dispel					= ">%%s<中了%s - 現在驅散",
+	interrupt				= "%s - 快中斷>%%s< !",
 	you						= "你中了%s",
-	target					= "%%s中了%s",
-	close					= "你附近的%%s中了%s",
+	target					= ">%%s<中了%s",
+	close					= "你附近的>%%s<中了%s",
 	move					= "%s - 快移動",
 	run						= "%s - 快跑開",
 	cast					= "%s - 停止施法",
 	stack					= "%s(%%d)",
-	switch					= "%s - 快更換目標!"
+	switch					= ">%s< - 快更換目標!"
 }
 
 
@@ -246,8 +248,8 @@ DBM_ARROW_ERROR_USAGE	= {
 	"/dbm arrow move  可移動箭頭",
 }
 
-DBM_SPEED_KILL_TIMER_TEXT			= "記錄擊殺"
-DBM_SPEED_KILL_TIMER_OPTION			= "顯示一個計時器來打敗你上次的最快擊殺"
+DBM_SPEED_KILL_TIMER_TEXT			= "記錄擊敗"
+DBM_SPEED_KILL_TIMER_OPTION			= "顯示一個計時器來打敗你上次的最快擊敗"
 
 
 DBM_REQ_INSTANCE_ID_PERMISSION		= "%s想要查看你的副本ID和進度鎖定情況。\n你想發送該訊息給%s嗎? 在你的當前進程（除非你下線）他可以一直查閱該訊息。"

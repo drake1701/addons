@@ -51,9 +51,10 @@ L:SetWarningLocalization({
 L:SetOptionLocalization({
 	warnPossessed		= DBM_CORE_AUTO_ANNOUNCE_OPTIONS.target:format(136442),
 	specWarnPossessed	= DBM_CORE_AUTO_SPEC_WARN_OPTIONS.switch:format(136442),
-	warnSandBolt		= DBM_CORE_AUTO_ANNOUNCE_OPTIONS.target:format(136189),
 	PHealthFrame		= "우두머리 체력 바 사용시 $spell:136442 사라짐까지 남은 체력도 함께 보기",
-	RangeFrame			= "거리 창 보기"
+	RangeFrame			= "거리 창 보기",
+	SetIconOnBitingCold	= DBM_CORE_AUTO_ICONS_OPTION_TEXT:format(136992),
+	SetIconOnFrostBite	= DBM_CORE_AUTO_ICONS_OPTION_TEXT:format(136922)
 })
 
 ------------
@@ -81,6 +82,11 @@ L:SetMiscLocalization({
 -- Megaera --
 -------------
 L= DBM:GetModLocalization(821)
+
+L:SetOptionLocalization({
+	SetIconOnCinders		= DBM_CORE_AUTO_ICONS_OPTION_TEXT:format(139822),
+	SetIconOnTorrentofIce	= DBM_CORE_AUTO_ICONS_OPTION_TEXT:format(139889)
+})
 
 L:SetMiscLocalization({
 	rampageEnds	= "분노가 가라앉습니다."
@@ -110,9 +116,11 @@ L:SetOptionLocalization({
 L:SetMiscLocalization({
 	eggsHatchL		= "아랫둥지에 있는 알들이 부화하기 시작합니다!",
 	eggsHatchU		= "위쪽 둥지에 있는 알들이 부화하기 시작합니다!",
-	Upper			= "위쪽",
+	Upper			= "윗쪽",
 	Lower			= "아래쪽",
-	UpperAndLower	= "윗쪽 & 아래쪽"
+	UpperAndLower	= "윗쪽 + 아래쪽",
+	TrippleD		= "윗쪽 + 아래쪽 + 아래쪽",
+	TrippleU		= "윗쪽 + 윗쪽 + 아래쪽"
 })
 
 --------------------------
@@ -135,7 +143,7 @@ L:SetOptionLocalization({
 })
 
 L:SetMiscLocalization({
-	Eye		= "눈"--확인 필요, "<72.0 20:04:19> [CHAT_MSG_MONSTER_EMOTE] CHAT_MSG_MONSTER_EMOTE#The Bright  Light reveals an Amber Fog!#Amber Fog###--------->Yellow Eye<---------##0#0##0#309#nil#0#false#false", -- [13413]
+	Eye		= "눈"
 })
 
 ----------------

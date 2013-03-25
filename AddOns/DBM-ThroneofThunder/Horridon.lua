@@ -1,7 +1,7 @@
 local mod	= DBM:NewMod(819, "DBM-ThroneofThunder", nil, 362)
 local L		= mod:GetLocalizedStrings()
 
-mod:SetRevision(("$Revision: 8930 $"):sub(12, -3))
+mod:SetRevision(("$Revision: 8985 $"):sub(12, -3))
 mod:SetCreatureID(68476)
 mod:SetModelID(47325)
 
@@ -30,12 +30,13 @@ local warnAdds					= mod:NewAnnounce("warnAdds", 2, 43712)--Some random troll ic
 local warnDino					= mod:NewSpellAnnounce("ej7086", 3, 137237)
 local warnMending				= mod:NewSpellAnnounce(136797, 4)
 local warnOrbofControl			= mod:NewAnnounce("warnOrbofControl", 4, "INTERFACE\\ICONS\\INV_MISC_ORB_01.BLP")
+local warnCrackedShell			= mod:NewStackAnnounce(137240, 2)
 local warnVenomBolt				= mod:NewSpellAnnounce(136587, 3, nil, false)
 local warnChainLightning		= mod:NewSpellAnnounce(136480, 3, nil, false)
 local warnFireball				= mod:NewSpellAnnounce(136465, 3, nil, false)
 local warnBestialCry			= mod:NewStackAnnounce(136817, 3)
 local warnRampage				= mod:NewTargetAnnounce(136821, 4, nil, mod:IsTank() or mod:IsHealer())
-local warnDireCall				= mod:NewSpellAnnounce(137458, 3)
+local warnDireCall				= mod:NewCountAnnounce(137458, 3)
 local warnDireFixate			= mod:NewTargetAnnounce(140946, 4)
 
 local specWarnCharge			= mod:NewSpecialWarningYou(136769)--Maybe add a near warning later. person does have 3.4 seconds to react though and just move out of group.
@@ -53,6 +54,7 @@ local specWarnFireball			= mod:NewSpecialWarningInterrupt(136465)--Can be on for
 local specWarnLivingPoison		= mod:NewSpecialWarningMove(136646)
 local specWarnFrozenBolt		= mod:NewSpecialWarningMove(136573)--Debuff used by Frozen Orbs
 local specWarnLightningNova		= mod:NewSpecialWarningMove(136490)--Mainly for LFR or normal. On heroic you're going to die.
+local specWarnHex				= mod:NewSpecialWarningYou(136512)
 local specWarnJalak				= mod:NewSpecialWarningSwitch("ej7087", mod:IsTank())--To pick him up (and maybe dps to switch, depending on strat)
 local specWarnRampage			= mod:NewSpecialWarningTarget(136821, mod:IsTank() or mod:IsHealer())--Dog is pissed master died, need more heals and cooldowns. Maybe warn dps too? his double swipes and charges will be 100% worse too.
 local specWarnDireCall			= mod:NewSpecialWarningSpell(137458, nil, nil, nil, 2)--Heroic
@@ -63,7 +65,7 @@ local timerAdds					= mod:NewTimer(18.91, "timerAdds", 43712)
 local timerDinoCD				= mod:NewNextTimer(56.75, "ej7086", nil, nil, nil, 137237)--It's between 55 and 60 seconds, I will need a more thorough log to verify by yelling when they spawn
 local timerCharge				= mod:NewCastTimer(3.4, 136769)
 local timerChargeCD				= mod:NewCDTimer(50, 136769)--50-60 second depending on i he's casting other stuff or stunned
-local timerDoubleSwipeCD		= mod:NewCDTimer(18, 136741)--18 second cd unless delayed by a charge triggered double swipe, then it's extended by failsafe code
+local timerDoubleSwipeCD		= mod:NewCDTimer(17, 136741)--17 second cd unless delayed by a charge triggered double swipe, then it's extended by failsafe code
 local timerPuncture				= mod:NewTargetTimer(90, 136767, nil, mod:IsTank() or mod:IsHealer())
 local timerPunctureCD			= mod:NewCDTimer(11, 136767, nil, mod:IsTank() or mod:IsHealer())
 local timerJalakCD				= mod:NewNextTimer(10, "ej7087", nil, nil, nil, 2457)--Maybe it's time for a better worded spawn timer than "Next mobname". Maybe NewSpawnTimer with "mobname activates" or something.
@@ -75,16 +77,18 @@ local berserkTimer				= mod:NewBerserkTimer(720)
 local soundDireFixate			= mod:NewSound(140946)
 
 local doorNumber = 0
+local direNumber = 0
 local jalakEngaged = false
-local Farraki	= EJ_GetSectionInfo(7081)
-local Gurubashi	= EJ_GetSectionInfo(7082)
-local Drakkari	= EJ_GetSectionInfo(7083)
-local Amani		= EJ_GetSectionInfo(7084)
+local Farraki	= EJ_GetSectionInfo(7098)
+local Gurubashi	= EJ_GetSectionInfo(7100)
+local Drakkari	= EJ_GetSectionInfo(7103)
+local Amani		= EJ_GetSectionInfo(7106)
 
 function mod:OnCombatStart(delay)
 	doorNumber = 0
+	direNumber = 0
 	jalakEngaged = false
-	timerPunctureCD:Start(-delay)
+	timerPunctureCD:Start(10-delay)
 	timerDoubleSwipeCD:Start(16-delay)--16-17 second variation
 	timerDoor:Start(16.5-delay)
 	timerChargeCD:Start(31-delay)--31-35sec variation
@@ -112,26 +116,27 @@ Delayed by Charge version
 "<86.4 15:08:45> [CLEU] SPELL_CAST_START#false#0xF1310B7C0000383C#Horridon#2632#0##nil#-2147483648#-2147483648#136741#Double Swipe#1", -- [6003]
 --]]
 function mod:SPELL_CAST_START(args)
-	if args:IsSpellID(136741) then--Regular double swipe
+	if args.spellId == 136741 then--Regular double swipe
 		warnDoubleSwipe:Show()
 		specWarnDoubleSwipe:Show()
 		--The only flaw is charge is sometimes delayed by unexpected events like using an orb, we may fail to start timer once in a while when it DOES come before a charge.
 		if timerChargeCD:GetTime() < 32 then--Check if charge is less than 18 seconds away, if it is, double swipe is going tobe delayed by quite a bit and we'll trigger timer after charge
 			timerDoubleSwipeCD:Start()
 		end
-	elseif args:IsSpellID(136770) then--Double swipe that follows a charge (136769)
+	elseif args.spellId == 136770 then--Double swipe that follows a charge (136769)
 		warnDoubleSwipe:Show()
 		specWarnDoubleSwipe:Show()
 		timerDoubleSwipeCD:Start(11.5)--Hard coded failsafe. 136741 version is always 11.5 seconds after 136770 version
-	elseif args:IsSpellID(137458) then
-		warnDireCall:Show()
+	elseif args.spellId == 137458 then
+		direNumber = direNumber + 1
+		warnDireCall:Show(direNumber)
 		specWarnDireCall:Show()
-		timerDireCallCD:Start()--CD is reset when he breaks a door though.
+		timerDireCallCD:Start()--CD still reset when he breaks a door?
 	end
 end
 
 function mod:SPELL_AURA_APPLIED(args)
-	if args:IsSpellID(136767) then
+	if args.spellId == 136767 then
 		warnPuncture:Show(args.destName, args.amount or 1)
 		timerPuncture:Start(args.destName)
 		timerPunctureCD:Start()
@@ -147,45 +152,49 @@ function mod:SPELL_AURA_APPLIED(args)
 	--"<317.2 15:12:36> [CLEU] SPELL_AURA_APPLIED_DOSE#false#0xF1310B7C0000383C#Horridon#68168#0#0xF1310B7C0000383C#Horridon#68168#0#137240#Cracked Shell#1#BUFF#4", -- [21950]
 	--"<327.0 15:12:46> [INSTANCE_ENCOUNTER_ENGAGE_UNIT] Fake Args:#1#1#Horridon#0xF1310B7C0000383C#elite#261178058#1#1#War-God Jalak <--War-God Jalak jumps down
 	--He jumps down 10 seconds after 4th door is smashed, or when Horridon reaches 30%
-	elseif args:IsSpellID(136817) then
+	elseif args.spellId == 136817 then
 		warnBestialCry:Show(args.destName, args.amount or 1)
 		timerBestialCryCD:Start(10, (args.amount or 1)+1)
-	elseif args:IsSpellID(136821) then
+	elseif args.spellId == 136821 then
 		warnRampage:Show(args.destName)
 		specWarnRampage:Show(args.destName)
-	elseif args:IsSpellID(136797) then
+	elseif args.spellId == 136797 then
 		warnMending:Show()
 		specWarnMending:Show(args.sourceName)
-	elseif args:IsSpellID(137237) then
+	elseif args.spellId == 137237 then
 		warnOrbofControl:Show()
 		specWarnOrbofControl:Show()
-	elseif args:IsSpellID(136587) then
+	elseif args.spellId == 137240 then
+		warnCrackedShell:Show(args.destName, args.amount or 1)
+	elseif args.spellId == 136587 then
 		warnVenomBolt:Show()
 		if args.sourceGUID == UnitGUID("target") or args.sourceGUID == UnitGUID("focus") then
 			specWarnVenomBolt:Show(args.sourceName)
 		end
-	elseif args:IsSpellID(136480) then
+	elseif args.spellId == 136480 then
 		warnChainLightning:Show()
 		if args.sourceGUID == UnitGUID("target") or args.sourceGUID == UnitGUID("focus") then
 			specWarnChainLightning:Show(args.sourceName)
 		end
-	elseif args:IsSpellID(136465) then
+	elseif args.spellId == 136465 then
 		warnFireball:Show()
 		if args.sourceGUID == UnitGUID("target") or args.sourceGUID == UnitGUID("focus") then
 			specWarnFireball:Show(args.sourceName)
 		end
-	elseif args:IsSpellID(140946) then
+	elseif args.spellId == 140946 then
 		warnDireFixate:Show(args.destName)
 		if args:IsPlayer() then
 			specWarnDireFixate:Show()
 			soundDireFixate:Play()
 		end
+	elseif args.spellId == 136512 and args:IsPlayer() then
+		specWarnHex:Show()
 	end
 end
 mod.SPELL_AURA_APPLIED_DOSE = mod.SPELL_AURA_APPLIED
 
 function mod:SPELL_AURA_REMOVED(args)
-	if args:IsSpellID(136767) then
+	if args.spellId == 136767 then
 		timerPuncture:Cancel(args.destName)
 	end
 end
@@ -223,8 +232,7 @@ end
 
 function mod:CHAT_MSG_RAID_BOSS_EMOTE(msg, _, _, _, target)
 	if msg:find(L.chargeTarget) then
-		local uId = DBM:GetRaidUnitId(target)
-		self:SendSync("Charge", UnitGUID(uId))
+		self:SendSync("ChargeTo", target)
 	elseif msg:find(L.newForces) then
 		self:SendSync("Door")
 	end
@@ -237,12 +245,13 @@ function mod:UNIT_DIED(args)
 	end
 end
 
-function mod:OnSync(msg, guid)
-	if msg == "Charge" and guid then
-		warnCharge:Show(UnitName(guid))
+function mod:OnSync(msg, target)
+	if msg == "ChargeTo" and target then
+		local target = DBM:GetFullNameByShortName(target)
+		warnCharge:Show(target)
 		timerCharge:Start()
 		timerChargeCD:Start()
-		if guid == UnitGUID("player") then
+		if target == UnitName("player") then
 			specWarnCharge:Show()
 			yellCharge:Yell()
 		end

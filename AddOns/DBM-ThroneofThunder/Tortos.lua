@@ -1,9 +1,10 @@
 local mod	= DBM:NewMod(825, "DBM-ThroneofThunder", nil, 362)
 local L		= mod:GetLocalizedStrings()
 
-mod:SetRevision(("$Revision: 8915 $"):sub(12, -3))
+mod:SetRevision(("$Revision: 9039 $"):sub(12, -3))
 mod:SetCreatureID(67977)
 mod:SetModelID(46559)
+mod:SetUsedIcons(8, 7, 6, 5, 4, 3)
 
 mod:RegisterCombat("combat")
 
@@ -12,16 +13,17 @@ mod:RegisterEventsInCombat(
 	"SPELL_AURA_REMOVED",
 	"SPELL_CAST_START",
 	"SPELL_CAST_SUCCESS",
-	"CHAT_MSG_TARGETICONS",
-	"UNIT_AURA"
+	"UNIT_AURA",
+	"UNIT_SPELLCAST_SUCCEEDED"
 )
 
 local warnBite						= mod:NewSpellAnnounce(135251, 3, nil, mod:IsTank())
 local warnRockfall					= mod:NewSpellAnnounce(134476, 2)
 local warnCallofTortos				= mod:NewSpellAnnounce(136294, 3)
-local warnQuakeStomp				= mod:NewSpellAnnounce(134920, 3)
+local warnQuakeStomp				= mod:NewCountAnnounce(134920, 3)
 local warnKickShell					= mod:NewAnnounce("warnKickShell", 2, 134031)
 local warnStoneBreath				= mod:NewCastAnnounce(133939, 4)
+local warnSummonBats				= mod:NewSpellAnnounce("ej7140", 3, 136685)
 local warnShellConcussion			= mod:NewTargetAnnounce(136431, 1)
 
 local specWarnCallofTortos			= mod:NewSpecialWarningSpell(136294)
@@ -29,86 +31,78 @@ local specWarnQuakeStomp			= mod:NewSpecialWarningSpell(134920, nil, nil, nil, 2
 local specWarnRockfall				= mod:NewSpecialWarningSpell(134476, false, nil, nil, 2)
 local specWarnStoneBreath			= mod:NewSpecialWarningInterrupt(133939)
 local specWarnCrystalShell			= mod:NewSpecialWarning("specWarnCrystalShell", false)
+local specWarnSummonBats			= mod:NewSpecialWarningSwitch("ej7140", mod:IsTank())--Dps can turn it on too, but not on by default for dps cause quite frankly dps should NOT switch right away, tank needs to get aggro first and where they spawn is semi random.
 
 local timerBiteCD					= mod:NewCDTimer(8, 135251, nil, mod:IsTank())
 local timerRockfallCD				= mod:NewCDTimer(10, 134476)
 local timerCallTortosCD				= mod:NewNextTimer(60.5, 136294)
-local timerStompCD					= mod:NewNextTimer(49, 134920)
-local timerBreathCD					= mod:NewNextTimer(47, 133939)
-local timerStompActive				= mod:NewBuffActiveTimer(10.8, 134920)--Duration f the rapid caveins??
+local timerStompCD					= mod:NewNextCountTimer(49, 134920)
+local timerBreathCD					= mod:NewCDTimer(46, 133939)--TODO, adjust timer when Growing Anger is cast, so we can use a Next bar more accurately
+local timerSummonBatsCD				= mod:NewCDTimer(45, "ej7140", nil, nil, nil, 136685)--45-47. This doesn't always sync up to furious stone breath. Longer fight goes on more out of sync they get. So both bars needed I suppose
+local timerStompActive				= mod:NewBuffActiveTimer(10.8, 134920)--Duration of the rapid caveins
 local timerShellConcussion			= mod:NewBuffFadesTimer(20, 136431)
 
+local berserkTimer					= mod:NewBerserkTimer(780)
+
 mod:AddBoolOption("InfoFrame")
-mod:AddBoolOption("SetIconOnTurtles", false)
+if GetLocale() == "koKR" then
+	mod:AddBoolOption("SetIconOnTurtles", false)
+else
+	mod:AddBoolOption("SetIconOnTurtles", true)
+end
 
 local shelldName = GetSpellInfo(137633)
 local shellConcussion = GetSpellInfo(136431)
 local stompActive = false
+local stompCount = 0
 local firstRockfall = false--First rockfall after a stomp
 local shellsRemaining = 0
 local lastConcussion = 0
 local kickedShells = {}
+local addsActivated = 0
+local alternateSet = false
 local adds = {}
-local iconsSet = {[1] = false, [2] = false, [3] = false, [4] = false, [5] = false, [6] = false, [7] = false, [8] = false}
+local AddIcon = 8
+local iconsSet = 0
+local highestVersion = 0
+local hasHighestVersion = false
 
 local function resetaddstate()
 	table.wipe(adds)
-	iconsSet = {[1] = false, [2] = false, [3] = false, [4] = false, [5] = false, [6] = false, [7] = false, [8] = false}
-	if shellsRemaining == 0 then--if no shells are dead, make sure we don't mess with any add marked skull that is still up when setting icons on next set
-		iconsSet[8] = true
-	elseif shellsRemaining == 1 then--Do same for X (maybe just go all the way down line? for now will just see how skull and x works out)
-		iconsSet[7] = true
-	end
-end
-
-local function getAvailableIcons()
-	for i = 8, 1, -1 do
-		if not iconsSet[i] then
-			return i
+	if addsActivated >= 1 then--1 or more add is up from last set
+		if alternateSet then--We check whether we started with skull last time or moon
+			AddIcon = 5--Start with moon if we used skull last time
+			alternateSet = false
+		else
+			AddIcon = 8--Start with skull if we used moon last time
+			alternateSet = true
 		end
+	else--No turtles are up at all
+		AddIcon = 8--Always start with skull
+		alternateSet = true--And reset alternate status so we use moon next time (unless all are dead again, then re always reset to skull)
 	end
-	return 8
+	iconsSet = 0
 end
-
+	
 mod:RegisterOnUpdateHandler(function(self)
-	if self.Options.SetIconOnTurtles and addsActivated > 0 and DBM:GetRaidRank() > 0 then
+	if hasHighestVersion and not iconsSet == 3 then
 		for i = 1, DBM:GetNumGroupMembers() do
 			local uId = "raid"..i.."target"
 			local guid = UnitGUID(uId)
 			if adds[guid] then
-				local existingIcons = GetRaidTargetIndex(uId)
-				if not existingIcons then
-					local icon = getAvailableIcons()
-					SetRaidTarget(uId, icon)
-					iconsSet[icon] = true
-					self:SendSync("iconSet", icon)
-				elseif existingIcons then
-					iconsSet[existingIcons] = true
-				end
+				SetRaidTarget(uId, adds[guid])
+				iconsSet = iconsSet + 1
 				adds[guid] = nil
 			end
-		end
-		local guid2 = UnitGUID("mouseover")
-		if adds[guid2] then
-			local existingIcons = GetRaidTargetIndex("mouseover")
-			if not existingIcons then
-				local icon = getAvailableIcons()
-				SetRaidTarget("mouseover", icon)
-				iconsSet[icon] = true
-				self:SendSync("iconSet", icon)
-			elseif existingIcons then
-				iconsSet[existingIcons] = true
+			local guid2 = UnitGUID("mouseover")
+			if adds[guid2] then
+				SetRaidTarget(uId, adds[guid2])
+				iconsSet = iconsSet + 1
+				adds[guid2] = nil
 			end
-			adds[guid2] = nil
 		end
 	end
-end, 1)
-
-function mod:OnSync(msg, icon)
-	if msg == "iconSet" and icon then
-		iconsSet[icon] = true
-	end
-end
+end, 0.2)
 
 local function clearStomp()
 	stompActive = false
@@ -122,18 +116,30 @@ end
 
 function mod:OnCombatStart(delay)
 	stompActive = false
+	stompCount = 0
 	firstRockfall = false--First rockfall after a stomp
 	shellsRemaining = 0
 	lastConcussion = 0
+	addsActivated = 0
+	AddIcon = 8
+	iconsSet = 0
+	alternateSet = false
 	table.wipe(adds)
 	table.wipe(kickedShells)
 	timerRockfallCD:Start(15-delay)
 	timerCallTortosCD:Start(21-delay)
-	timerStompCD:Start(29-delay)
+	timerStompCD:Start(29-delay, 1)
 	timerBreathCD:Start(-delay)
+	berserkTimer:Start(-delay)
 	if self.Options.InfoFrame and self:IsDifficulty("heroic10", "heroic25") then
 		DBM.InfoFrame:SetHeader(L.WrongDebuff:format(shelldName))
 		DBM.InfoFrame:Show(5, "playergooddebuff", 137633)
+		berserkTimer:Start(600-delay)
+	else
+		berserkTimer:Start(-delay)
+	end
+	if DBM:GetRaidRank() > 0 and self.Options.SetIconOnTurtles then--You can set marks and you have icons turned on
+		self:SendSync("IconCheck", UnitGUID("player"), tostring(DBM.Revision))
 	end
 end
 
@@ -144,51 +150,52 @@ function mod:OnCombatEnd()
 end
 
 function mod:SPELL_CAST_START(args)
-	if args:IsSpellID(133939) then
+	if args.spellId == 133939 then
 		warnStoneBreath:Show()
 		specWarnStoneBreath:Show(args.sourceName)
 		timerBreathCD:Start()
-	elseif args:IsSpellID(136294) then
+	elseif args.spellId == 136294 then
 		warnCallofTortos:Show()
 		specWarnCallofTortos:Show()
 		if self:AntiSpam(59, 3) then -- On below 10%, he casts Call of Tortos always. This cast ignores cooldown, so filter below 10% cast.
 			timerCallTortosCD:Start()
 		end
-	elseif args:IsSpellID(135251) then
+	elseif args.spellId == 135251 then
 		warnBite:Show()
 		timerBiteCD:Start()
-	elseif args:IsSpellID(134920) then
+	elseif args.spellId == 134920 then
 		stompActive = true
-		warnQuakeStomp:Show()
+		stompCount = stompCount + 1
+		warnQuakeStomp:Show(stompCount)
 		specWarnQuakeStomp:Show()
 		timerStompActive:Start()
 		timerRockfallCD:Start(7.4)--When the spam of rockfalls start
-		timerStompCD:Start()
+		timerStompCD:Start(49, stompCount+1)
 	end
 end
 
 function mod:SPELL_AURA_APPLIED(args)
-	if args:IsSpellID(133971) then--Shell Block (turtles dying and becoming kickable)
+	if args.spellId == 133971 then--Shell Block (turtles dying and becoming kickable)
 		shellsRemaining = shellsRemaining + 1
-	elseif args:IsSpellID(133974) and self.Options.SetIconOnTurtles then--Spinning Shell
-		if addsActivated == 0 then
+		addsActivated = addsActivated - 1
+	elseif args.spellId == 133974 and self.Options.SetIconOnTurtles then--Spinning Shell
+		if self:AntiSpam(5, 2) then
 			resetaddstate()
 		end
+		adds[args.destGUID] = AddIcon
+		AddIcon = AddIcon - 1
 		addsActivated = addsActivated + 1
-		if not adds[args.sourceGUID] then
-			adds[args.destGUID] = true
-		end
 	end
 end
 
 function mod:SPELL_AURA_REMOVED(args)
-	if args:IsSpellID(137633) and args:IsPlayer() then
+	if args.spellId == 137633 and args:IsPlayer() then
 		specWarnCrystalShell:Show(shelldName)
 	end
 end
 
 function mod:SPELL_CAST_SUCCESS(args)
-	if args:IsSpellID(134476) then
+	if args.spellId == 134476 then
 		if stompActive then--10 second cd normally, but cd is disabled when stomp active
 			if not firstRockfall then--Announce first one only and ignore the next ones spammed for about 9-10 seconds
 				firstRockfall = true
@@ -203,36 +210,58 @@ function mod:SPELL_CAST_SUCCESS(args)
 				timerRockfallCD:Start()
 			end
 		end
-	elseif args:IsSpellID(134031) and not kickedShells[args.destGUID] then--Kick Shell
+	elseif args.spellId == 134031 and not kickedShells[args.destGUID] then--Kick Shell
 		kickedShells[args.destGUID] = true
 		shellsRemaining = shellsRemaining - 1
 		warnKickShell:Show(args.spellName, args.sourceName, shellsRemaining)
 	end
 end
 
-function mod:CHAT_MSG_TARGETICONS(msg)
-	--TARGET_ICON_SET = "|Hplayer:%s|h[%s]|h sets |TInterface\\TargetingFrame\\UI-RaidTargetingIcon_%d:0|t on %s.";
-	local icon = tonumber(string.sub(string.match(msg, "RaidTargetingIcon_%d"), -1))
-	if icon then
-		iconsSet[icon] = true
-		local additionalIcons = 8 - icon--Lets say we get a chat message a user used icon 6. we already set 6 to true, but now we do 8-6 to find out there are two other icons above 6 that we should also set to true (just in case)
-		if additionalIcons > 0 then--Icon used by someone else is less than 8 which which means we should assume the icons above this number are also already used
-			for i = 1, additionalIcons do--So now we take those 2 remaining icons, adds + 1, set that to true, do it one more time, set that to true.
-				icon = icon + 1
-				iconsSet[icon] = true--Now 6 7 and 8 should all be true if the chat icon sent was 6. This should make sure even after a DC icon setters SHOULD in theory be on same page
-			end
-		end
-	end
-end
-
 function mod:UNIT_AURA(uId)
 	if uId ~= "boss1" then return end
 	local _, _, _, _, _, duration, expires = UnitDebuff(uId, shellConcussion)
-	if lastConcussion ~= expires then
+	if expires and lastConcussion ~= expires then
 		lastConcussion = expires
 		timerShellConcussion:Start()
 		if self:AntiSpam(3, 2) then
 			warnShellConcussion:Show(L.name)
+		end
+	end
+end
+
+function mod:UNIT_SPELLCAST_SUCCEEDED(uId, _, _, _, spellId)
+	if spellId == 136685 and self:AntiSpam(2, 5) and not UnitIsUnit("player", "boss1target") then --ignore bat warning if you are tanking boss. (by TOM_RUS)
+		warnSummonBats:Show()
+		specWarnSummonBats:Show()
+		timerSummonBatsCD:Start()
+	end
+end
+
+local function FindFastestHighestVersion()
+	mod:SendSync("FastestPerson", UnitGUID("player"))
+end
+
+function mod:OnSync(msg, guid, ver)
+	if msg == "IconCheck" and guid and ver then
+		if tonumber(ver) > highestVersion then
+			highestVersion = tonumber(ver)--Keep bumping highest version to highest we recieve from the icon setters
+			if guid == UnitGUID("player") then--Check if that highest version was from ourself
+				hasHighestVersion = true
+				self:Unschedule(FindFastestHighestVersion)
+				self:Schedule(5, FindFastestHighestVersion)
+			else--Not from self, it means someone with a higher version than us probably sent it
+				self:Unschedule(FindFastestHighestVersion)
+				hasHighestVersion = false
+			end
+		end
+	elseif msg == "FastestPerson" and guid and self:AntiSpam(10, 4) then--Whoever sends this sync first wins all. They have highest version and fastest computer
+		self:Unschedule(FindFastestHighestVersion)
+		if guid == UnitGUID("player") then
+			hasHighestVersion = true
+			print("DBM Debug: You have highest DBM version with icons enabled and fastest computer. You designated icon setter.")
+		else
+			hasHighestVersion = false
+			print("DBM Debug: You will not be setting icons since your DBM version is out of date or your computer is slower")
 		end
 	end
 end
