@@ -1,7 +1,7 @@
 local mod	= DBM:NewMod(819, "DBM-ThroneofThunder", nil, 362)
 local L		= mod:GetLocalizedStrings()
 
-mod:SetRevision(("$Revision: 8985 $"):sub(12, -3))
+mod:SetRevision(("$Revision: 9048 $"):sub(12, -3))
 mod:SetCreatureID(68476)
 mod:SetModelID(47325)
 
@@ -255,7 +255,7 @@ function mod:OnSync(msg, target)
 			specWarnCharge:Show()
 			yellCharge:Yell()
 		end
-	elseif msg == "Door" then
+	elseif msg == "Door" and self:AntiSpam(60, 4) then--prevent bad doorNumber increase if very late sync received.
 	--Doors spawn every 131.5 seconds
 	--Halfway through it (literlaly exact center) Dinomancers spawn at 56.75
 	--Then, before the dinomancer, lesser adds spawn twice splitting that timer into 3rds

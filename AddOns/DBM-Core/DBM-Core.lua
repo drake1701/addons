@@ -44,7 +44,7 @@
 --  Globals/Default Options  --
 -------------------------------
 DBM = {
-	Revision = tonumber(("$Revision: 9039 $"):sub(12, -3)),
+	Revision = tonumber(("$Revision: 9048 $"):sub(12, -3)),
 	DisplayVersion = "5.2.2 alpha", -- the string that is shown as version
 	ReleaseRevision = 8892 -- the revision of the latest stable version that is available
 }
@@ -1380,7 +1380,7 @@ do
 
 	--	save playerinfo into raid table on load. (for solo raid)
 	DBM:RegisterOnLoadCallback(function()
-		DBM:Schedule(30, function()
+		DBM:Schedule(5, function()
 			if not raid[playerName] then
 				raid[playerName] = {}
 				raid[playerName].name = playerName
@@ -1389,6 +1389,10 @@ do
 				raid[playerName].rank = 0
 				raid[playerName].class = class
 				raid[playerName].id = "player"
+				raid[playerName].revision = DBM.Revision
+				raid[playerName].version = DBM.Version
+				raid[playerName].displayVersion = DBM.DisplayVersion
+				raid[playerName].locale = GetLocale()
 				raidUIds["player"] = playerName
 				raidGuids[UnitGUID("player")] = playerName
 				raidShortNames[playerName] = playerName
@@ -1518,6 +1522,10 @@ do
 			raid[playerName].rank = 0
 			raid[playerName].class = class
 			raid[playerName].id = "player"
+			raid[playerName].revision = DBM.Revision
+			raid[playerName].version = DBM.Version
+			raid[playerName].displayVersion = DBM.DisplayVersion
+			raid[playerName].locale = GetLocale()
 			raidUIds["player"] = playerName
 			raidGuids[UnitGUID("player")] = playerName
 			raidShortNames[playerName] = playerName
@@ -1545,7 +1553,11 @@ do
 
 	function DBM:GetRaidRank(name)
 		local name = name or playerName
-		return (raid[name] and raid[name].rank) or 0
+		if name == playerName then--If name is player, try to get actual rank. Because raid[name].rank sometimes seems returning 0 even player is promoted.
+			return UnitIsGroupLeader("player") and 2 or UnitIsGroupAssistant("player") and 1 or 0
+		else
+			return (raid[name] and raid[name].rank) or 0
+		end
 	end
 
 	function DBM:GetRaidSubgroup(name)
@@ -1904,6 +1916,8 @@ do
 	end
 end
 
+--LFG_IsHeroicScenario(dungeonID)--5.3
+--Going to have to stop neglecting scenario mods. in fact, we should get all the current scenarios finished now, they all have heroics in 5.3
 function DBM:ScenarioCheck()
 	DBM:Unschedule(DBM.ScenarioCheck)
 	if combatInfo[LastZoneMapID] then
@@ -2895,83 +2909,91 @@ function DBM:EndCombat(mod, wipe)
 			fireEvent("wipe", mod)
 		else
 			local thisTime = GetTime() - mod.combatInfo.pull
-			local lastTime = (savedDifficulty == "lfr25" and mod.stats.lfr25LastTime) or ((savedDifficulty == "heroic5" or savedDifficulty == "heroic10") and mod.stats.heroicLastTime) or (savedDifficulty == "challenge5" and mod.stats.challengeLastTime) or (savedDifficulty == "normal25" and mod.stats.normal25LastTime) or (savedDifficulty == "heroic25" and mod.stats.heroic25LastTime) or ((savedDifficulty == "normal5" or savedDifficulty == "normal10") and mod.stats.normalLastTime) or nil
-			local bestTime = (savedDifficulty == "lfr25" and mod.stats.lfr25BestTime) or ((savedDifficulty == "heroic5" or savedDifficulty == "heroic10") and mod.stats.heroicBestTime) or (savedDifficulty == "challenge5" and mod.stats.challengeBestTime) or (savedDifficulty == "normal25" and mod.stats.normal25BestTime) or (savedDifficulty == "heroic25" and mod.stats.heroic25BestTime) or ((savedDifficulty == "normal5" or savedDifficulty == "normal10") and mod.stats.normalBestTime) or nil
+			local lastTime = (savedDifficulty == "lfr25" and mod.stats.lfr25LastTime) or ((savedDifficulty == "heroic5" or savedDifficulty == "heroic10") and mod.stats.heroicLastTime) or (savedDifficulty == "challenge5" and mod.stats.challengeLastTime) or (savedDifficulty == "normal25" and mod.stats.normal25LastTime) or (savedDifficulty == "heroic25" and mod.stats.heroic25LastTime) or ((savedDifficulty == "normal5" or savedDifficulty == "normal10" or savedDifficulty == "worldboss") and mod.stats.normalLastTime) or nil
+			local bestTime = (savedDifficulty == "lfr25" and mod.stats.lfr25BestTime) or ((savedDifficulty == "heroic5" or savedDifficulty == "heroic10") and mod.stats.heroicBestTime) or (savedDifficulty == "challenge5" and mod.stats.challengeBestTime) or (savedDifficulty == "normal25" and mod.stats.normal25BestTime) or (savedDifficulty == "heroic25" and mod.stats.heroic25BestTime) or ((savedDifficulty == "normal5" or savedDifficulty == "normal10" or savedDifficulty == "worldboss") and mod.stats.normalBestTime) or nil
 			if savedDifficulty == "lfr25" then
 				if not mod.stats.lfr25Kills or mod.stats.lfr25Kills < 0 then mod.stats.lfr25Kills = 0 end
 				if mod.stats.lfr25Kills > mod.stats.lfr25Pulls then mod.stats.lfr25Kills = mod.stats.lfr25Pulls end--Fix logical error i've seen where for some reason we have more kills then pulls for boss as seen by - stats for wipe messages.
 				mod.stats.lfr25Kills = mod.stats.lfr25Kills + 1
-				if mod.ignoreBestkill then return end--Save kill count, hault the time saving if it was a bad pull health
-				mod.stats.lfr25LastTime = thisTime
-				if bestTime and bestTime > 0 and bestTime < 10 then--Just to prevent pre mature end combat calls from broken mods from saving bad time stats.
-					mod.stats.lfr25BestTime = thisTime
-				else
-					mod.stats.lfr25BestTime = math.min(bestTime or math.huge, thisTime)
+				if not mod.ignoreBestkill then
+					mod.stats.lfr25LastTime = thisTime
+					if bestTime and bestTime > 0 and bestTime < 10 then--Just to prevent pre mature end combat calls from broken mods from saving bad time stats.
+						mod.stats.lfr25BestTime = thisTime
+					else
+						mod.stats.lfr25BestTime = math.min(bestTime or math.huge, thisTime)
+					end
 				end
 			elseif savedDifficulty == "normal5" or savedDifficulty == "worldboss" then
 				if not mod.stats.normalKills or mod.stats.normalKills < 0 then mod.stats.normalKills = 0 end
 				if mod.stats.normalKills > mod.stats.normalPulls then mod.stats.normalKills = mod.stats.normalPulls end
 				mod.stats.normalKills = mod.stats.normalKills + 1
-				if mod.ignoreBestkill then return end--Save kill count, hault the time saving if it was a bad pull health
-				mod.stats.normalLastTime = thisTime
-				mod.stats.normalBestTime = math.min(bestTime or math.huge, thisTime)
+				if not mod.ignoreBestkill then
+					mod.stats.normalLastTime = thisTime
+					mod.stats.normalBestTime = math.min(bestTime or math.huge, thisTime)
+				end
 			elseif savedDifficulty == "heroic5" then
 				if not mod.stats.heroicKills or mod.stats.heroicKills < 0 then mod.stats.heroicKills = 0 end
 				if mod.stats.heroicKills > mod.stats.heroicPulls then mod.stats.heroicKills = mod.stats.heroicPulls end
 				mod.stats.heroicKills = mod.stats.heroicKills + 1
-				if mod.ignoreBestkill then return end--Save kill count, hault the time saving if it was a bad pull health
-				mod.stats.heroicLastTime = thisTime
-				mod.stats.heroicBestTime = math.min(bestTime or math.huge, thisTime)
+				if not mod.ignoreBestkill then
+					mod.stats.heroicLastTime = thisTime
+					mod.stats.heroicBestTime = math.min(bestTime or math.huge, thisTime)
+				end
 			elseif savedDifficulty == "challenge5" then
 				if not mod.stats.challengeKills or mod.stats.challengeKills < 0 then mod.stats.challengeKills = 0 end
 				if mod.stats.challengeKills > mod.stats.challengePulls then mod.stats.challengeKills = mod.stats.challengePulls end
 				mod.stats.challengeKills = mod.stats.challengeKills + 1
-				if mod.ignoreBestkill then return end--Save kill count, hault the time saving if it was a bad pull health
-				mod.stats.challengeLastTime = thisTime
-				mod.stats.challengeBestTime = math.min(bestTime or math.huge, thisTime)
+				if not mod.ignoreBestkill then
+					mod.stats.challengeLastTime = thisTime
+					mod.stats.challengeBestTime = math.min(bestTime or math.huge, thisTime)
+				end
 			elseif savedDifficulty == "normal10" then
 				if not mod.stats.normalKills or mod.stats.normalKills < 0 then mod.stats.normalKills = 0 end
 				if mod.stats.normalKills > mod.stats.normalPulls then mod.stats.normalKills = mod.stats.normalPulls end
 				mod.stats.normalKills = mod.stats.normalKills + 1
-				if mod.ignoreBestkill then return end--Save kill count, hault the time saving if it was a bad pull health
-				mod.stats.normalLastTime = thisTime
-				if bestTime and bestTime > 0 and bestTime < 1.5 then--you did not kill a raid boss in one global CD. (all level 60 raids report as instance difficulty 1 which means this time has to be ridiculously low. It's more or less only gonna fix kill times of 0.)
-					mod.stats.normalBestTime = thisTime
-				else
-					mod.stats.normalBestTime = math.min(bestTime or math.huge, thisTime)
+				if not mod.ignoreBestkill then
+					mod.stats.normalLastTime = thisTime
+					if bestTime and bestTime > 0 and bestTime < 1.5 then--you did not kill a raid boss in one global CD. (all level 60 raids report as instance difficulty 1 which means this time has to be ridiculously low. It's more or less only gonna fix kill times of 0.)
+						mod.stats.normalBestTime = thisTime
+					else
+						mod.stats.normalBestTime = math.min(bestTime or math.huge, thisTime)
+					end
 				end
 			elseif savedDifficulty == "heroic10" then
 				if not mod.stats.heroicKills or mod.stats.heroicKills < 0 then mod.stats.heroicKills = 0 end
 				if mod.stats.heroicKills > mod.stats.heroicPulls then mod.stats.heroicKills = mod.stats.heroicPulls end
 				mod.stats.heroicKills = mod.stats.heroicKills + 1
-				if mod.ignoreBestkill then return end--Save kill count, hault the time saving if it was a bad pull health
-				mod.stats.heroicLastTime = thisTime
-				if bestTime and bestTime > 0 and bestTime < 10 then
-					mod.stats.heroicBestTime = thisTime
-				else
-					mod.stats.heroicBestTime = math.min(bestTime or math.huge, thisTime)
+				if not mod.ignoreBestkill then
+					mod.stats.heroicLastTime = thisTime
+					if bestTime and bestTime > 0 and bestTime < 10 then
+						mod.stats.heroicBestTime = thisTime
+					else
+						mod.stats.heroicBestTime = math.min(bestTime or math.huge, thisTime)
+					end
 				end
 			elseif savedDifficulty == "normal25" then
 				if not mod.stats.normal25Kills or mod.stats.normal25Kills < 0 then mod.stats.normal25Kills = 0 end
 				if mod.stats.normal25Kills > mod.stats.normal25Pulls then mod.stats.normal25Kills = mod.stats.normal25Pulls end
 				mod.stats.normal25Kills = mod.stats.normal25Kills + 1
-				if mod.ignoreBestkill then return end--Save kill count, hault the time saving if it was a bad pull health
-				mod.stats.normal25LastTime = thisTime
-				if bestTime and bestTime > 0 and bestTime < 10 then
-					mod.stats.normal25BestTime = thisTime
-				else
-					mod.stats.normal25BestTime = math.min(bestTime or math.huge, thisTime)
+				if not mod.ignoreBestkill then
+					mod.stats.normal25LastTime = thisTime
+					if bestTime and bestTime > 0 and bestTime < 10 then
+						mod.stats.normal25BestTime = thisTime
+					else
+						mod.stats.normal25BestTime = math.min(bestTime or math.huge, thisTime)
+					end
 				end
 			elseif savedDifficulty == "heroic25" then
 				if not mod.stats.heroic25Kills or mod.stats.heroic25Kills < 0 then mod.stats.heroic25Kills = 0 end
 				if mod.stats.heroic25Kills > mod.stats.heroic25Pulls then mod.stats.heroic25Kills = mod.stats.heroic25Pulls end
 				mod.stats.heroic25Kills = mod.stats.heroic25Kills + 1
-				if mod.ignoreBestkill then return end--Save kill count, hault the time saving if it was a bad pull health
-				mod.stats.heroic25LastTime = thisTime
-				if bestTime and bestTime > 0 and bestTime < 10 then
-					mod.stats.heroic25BestTime = thisTime
-				else
-					mod.stats.heroic25BestTime = math.min(bestTime or math.huge, thisTime)
+				if not mod.ignoreBestkill then
+					mod.stats.heroic25LastTime = thisTime
+					if bestTime and bestTime > 0 and bestTime < 10 then
+						mod.stats.heroic25BestTime = thisTime
+					else
+						mod.stats.heroic25BestTime = math.min(bestTime or math.huge, thisTime)
+					end
 				end
 			end
 			local totalKills = (savedDifficulty == "lfr25" and mod.stats.lfr25Kills) or ((savedDifficulty == "heroic5" or savedDifficulty == "heroic10") and mod.stats.heroicKills) or (savedDifficulty == "challenge5" and mod.stats.challengeKills) or (savedDifficulty == "normal25" and mod.stats.normal25Kills) or (savedDifficulty == "heroic25" and mod.stats.heroic25Kills) or mod.stats.normalKills
