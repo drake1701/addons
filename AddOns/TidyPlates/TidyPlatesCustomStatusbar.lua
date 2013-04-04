@@ -1,3 +1,4 @@
+
 -- obj:SetTexCoord(crop.left, crop.right, crop.top, crop.bottom)
 
 local fraction, range, value, barsize, final
@@ -110,6 +111,8 @@ function CreateTidyPlatesStatusbar(parent)
 	frame.Bar = frame:CreateTexture(nil, "BORDER")
 	frame.Backdrop = frame:CreateTexture(nil, "BACKGROUND")
 	frame.Backdrop:SetAllPoints(frame)
+        
+        --AddBorders(frame)
 	
 	frame.SetValue = SetValue
 	frame.SetMinMaxValues = SetMinMaxValues

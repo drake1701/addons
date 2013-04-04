@@ -223,6 +223,9 @@ do
 			extended.requestedAlpha = activetheme.SetAlpha(unit) or previousAlpha or unit.alpha or 1
 		else extended.requestedAlpha = unit.alpha or 1 end
 			
+                if extended.requestedAlpha == 0 then extended:Hide()        -- FRAME HIDE TEST
+                else extended:Show() end
+                    
 		if not PlatesFading[nameplate] then
 			extended:SetAlpha(extended.requestedAlpha)
 		end
@@ -375,8 +378,8 @@ do
 				unit.guid = UnitGUID("target") 
 				if unit.guid then GUID[unit.guid] = plate end
 			end
-		else
-			extended:SetFrameLevel(0)
+		--else
+		--	extended:SetFrameLevel(0)
 		end
 		
 		UpdateIndicator_Target()
@@ -405,18 +408,24 @@ do
 			unit.threatSituation, unit.threatValue = GetUnitAggroStatus(regions.threatglow) 
 		else unit.threatSituation = "LOW"; unit.threatValue = 0 end
 		
+
+                
 		unit.isMarked = regions.raidicon:IsShown() or false
 		unit.isInCombat = GetUnitCombatStatus(regions.name:GetTextColor())
 		unit.red, unit.green, unit.blue = bars.health:GetStatusBarColor()
 		unit.reaction, unit.type = GetUnitReaction(unit.red, unit.green, unit.blue)
 		unit.class = ClassReference[ColorToString(unit.red, unit.green, unit.blue)] or "UNKNOWN"
+                
+                
+
+                
+                
 		unit.InCombatLockdown = InCombat
 		
 		if unit.isMarked then 
 			ux, uy = regions.raidicon:GetTexCoord()
 			unit.raidIcon = RaidIconCoordinate[ux][uy]
 		else unit.raidIcon = nil end
-		
 	end
 	
 	--------------------------------
@@ -483,6 +492,7 @@ do
 		extended.requestedAlpha = 0
 		extended.visibleAlpha = 0
 		extended:SetAlpha(0)
+                extended:Hide()     -- FRAME HIDE TEST
 		
 		-- Graphics
 		unit.isCasting = false
@@ -584,9 +594,12 @@ do
 	function OnUpdateThreatSituation(plate)
 		if not IsPlateShown(plate) then return end
 		UpdateReferences(plate)
-
-		if InCombat then unit.threatSituation, unit.threatValue = GetUnitAggroStatus(regions.threatglow) 
+                
+		if InCombat then unit.threatSituation, unit.threatValue = GetUnitAggroStatus(regions.threatglow)
 		else unit.threatSituation = "LOW"; unit.threatValue = 0 end
+                
+                
+                unit.reaction, unit.type = GetUnitReaction(unit.red, unit.green, unit.blue)
 		unit.isInCombat = GetUnitCombatStatus(regions.name:GetTextColor())
 				
 		CheckNameplateStyle()
@@ -615,6 +628,7 @@ do
 		unit.red, unit.green, unit.blue = bars.health:GetStatusBarColor()
 		unit.reaction, unit.type = GetUnitReaction(unit.red, unit.green, unit.blue)
 		unit.class = ClassReference[ColorToString(unit.red, unit.green, unit.blue)] or "UNKNOWN"
+                
 		UpdateIndicator_CustomScaleText()
 	end	
 
@@ -661,6 +675,7 @@ do
 		UpdateReferences(plate)
 		unit.health = bars.health:GetValue() or 0
 		unit.healthmax = select(2,bars.health:GetMinMaxValues())
+                
 		UpdateIndicator_HealthBar()
 		UpdateIndicator_CustomAlpha()
 		UpdateIndicator_CustomScaleText()
@@ -786,7 +801,7 @@ do
 
 		healthbar:SetFrameStrata("BACKGROUND")
 		castbar:SetFrameStrata("BACKGROUND")
-		
+                
 		-- Textures
 		local upperlayer = CreateFrame("Frame", nil, healthbar)
 		visual = extended.visual
@@ -805,7 +820,8 @@ do
 		visual.castnostop = castbar:CreateTexture(nil, "ARTWORK")
 		visual.spellicon = castbar:CreateTexture(nil, "OVERLAY")
 		for i, v in pairs(visual) do v:SetNonBlocking(true) end
-		
+
+                
 		-- Formatted Text
 		visual.customtext = extended:CreateFontString(nil, "OVERLAY")
 		visual.name  = extended:CreateFontString(nil, "OVERLAY")
@@ -813,93 +829,6 @@ do
 		visual.spelltext = castbar:CreateFontString(nil, "OVERLAY")
 	end
 
-        --[[
-        Nameplate Stack WoW 5.1
-
-        Nameplate_Frame
-                NameplateChild_Frame1_Statusbars
-                        Statusbars_Child_Frame1_Healthbar		(Statusbar)
-                        Statusbars_Child_Frame2_Castbar			(Statusbar)
-                        Statusbars_Region_Texture1_Threat		(Texture)
-                        ...
-                        ...
-                NameplateChild_Frame1_UnitName
-                        UnitName_Region_Fontstring1_Name			(Fontstring)
-        --]]
-
-        --[[
-	function ApplyPlateExtension(plate)
-		Plates[plate] = true
-		plate.extended = CreateFrame("Frame", nil, plate)
-		local extended = plate.extended
-		platelevels = platelevels - 1; if platelevels < 1 then platelevels = 1 end
-		extended.frameLevel = platelevels
-		--extended:SetFrameLevel(platelevels)
-		extended:SetFrameStrata("BACKGROUND")
-		extended.style, extended.unit, extended.unitcache, extended.stylecache, extended.widgets = {}, {}, {}, {}, {}
-		extended.regions, extended.bars, extended.visual = {}, {}, {}
-		extended.stylename = ""
-		regions = extended.regions
-		bars = extended.bars
-		
-
-		
-		-- Bars
-		local b, n = plate:GetChildren()
-		bars.health, bars.cast = b:GetChildren()
-		health, cast = bars.health, bars.cast		-- Blizzard bars
-		
-		-- Regions
-		regions.threatglow, regions.healthborder, regions.highlight, regions.level, regions.skullicon, regions.raidicon, regions.eliteicon = b:GetRegions()
-		regions.name = n:GetRegions()
-
-		regions.castborder, regions.castnostop, regions.spellicon =  select(2, cast:GetRegions())
-
-		
-		-- This block makes the Blizz nameplate invisible
-		regions.threatglow:SetTexCoord( 0, 0, 0, 0 )
-		regions.healthborder:SetTexCoord( 0, 0, 0, 0 )
-		regions.castborder:SetTexCoord( 0, 0, 0, 0 )
-		regions.castnostop:SetTexCoord( 0, 0, 0, 0 )
-		regions.skullicon:SetTexCoord( 0, 0, 0, 0 )
-		regions.eliteicon:SetTexCoord( 0, 0, 0, 0 )
-		regions.name:SetWidth( 000.1 )
-		regions.level:SetWidth( 000.1 )
-		regions.spellicon:SetTexCoord( 0, 0, 0, 0 )
-		regions.spellicon:SetWidth(.001)
-		regions.raidicon:SetAlpha( 0 )
-		regions.highlight:SetTexture(EMPTY_TEXTURE)
-		bars.health:SetStatusBarTexture(EMPTY_TEXTURE) 
-		bars.cast:SetStatusBarTexture(EMPTY_TEXTURE) 
-		
-		CreateGraphicalElements(extended)
-		healthbar, castbar = bars.healthbar, bars.castbar	-- Tidy Plates bars
-		
-		-- Visible Bars
-		castbar:Hide()
-		castbar:SetStatusBarColor(1,.8,0)
-
-		healthbar:SetFrameLevel(0)
-		extended:SetFrameLevel(0)
-		castbar:SetFrameLevel(0)
-		
-		extended.parentPlate = plate
-		health.parentPlate = plate
-		cast.parentPlate = plate
-		castbar.parentPlate = plate
-		
-		if not extendedSetAlpha then
-			PlateSetAlpha = plate.SetAlpha
-			PlateGetAlpha = plate.GetAlpha
-			extendedSetAlpha = plate.extended.SetAlpha
-			HighlightIsShown = plate.extended.visual.highlight.IsShown
-		end
-				
-		OnNewNameplate(plate)
-	end
-        
-        --]]
-	
         
 	function ApplyPlateExtension(plate)
 		Plates[plate] = GetTime()
@@ -925,25 +854,25 @@ do
 		-- Regions
 		regions.threatglow, regions.healthborder, regions.highlight, regions.level, regions.skullicon, regions.raidicon, regions.eliteicon = bargroup:GetRegions()
 		regions.name = namegroup:GetRegions()
-
 		regions.castborder, regions.castnostop, regions.spellicon =  select(2, cast:GetRegions())
 
-		-- This block makes the Blizz nameplate invisible
-		regions.threatglow:SetTexCoord( 0, 0, 0, 0 )
-		regions.healthborder:SetTexCoord( 0, 0, 0, 0 )
+		-- This block makes the Blizz nameplate invisible           -- Do not reuse!
+		regions.threatglow:SetTexCoord( 0, 0, 0, 0 )        
+		regions.healthborder:SetTexCoord( 0, 0, 0, 0 )                     
 		regions.castborder:SetTexCoord( 0, 0, 0, 0 )
 		regions.castnostop:SetTexCoord( 0, 0, 0, 0 )
-		regions.skullicon:SetTexCoord( 0, 0, 0, 0 )
-		regions.eliteicon:SetTexCoord( 0, 0, 0, 0 )
-		regions.name:SetWidth( 000.1 )
-		regions.level:SetWidth( 000.1 )
-		regions.spellicon:SetTexCoord( 0, 0, 0, 0 )
+		regions.skullicon:SetTexCoord( 0, 0, 0, 0 )         
+		regions.eliteicon:SetTexCoord( 0, 0, 0, 0 )         
+		regions.name:SetWidth( 000.1 )                      
+		regions.level:SetWidth( 000.1 )                     
+		regions.spellicon:SetTexCoord( 0, 0, 0, 0 )         
 		regions.spellicon:SetWidth(.001)
-		regions.raidicon:SetAlpha( 0 )
+		regions.raidicon:SetAlpha( 0 )                      
 		regions.highlight:SetTexture(EMPTY_TEXTURE)
 		bars.health:SetStatusBarTexture(EMPTY_TEXTURE)
 		bars.cast:SetStatusBarTexture(EMPTY_TEXTURE)
 
+                -- Add Independent Graphical Elements
 		CreateGraphicalElements(extended)
 		healthbar, castbar = bars.healthbar, bars.castbar	-- Tidy Plates bars
 
@@ -1076,7 +1005,8 @@ do
 	-- ForEachPlate
 	function ForEachPlate(functionToRun, ...)
 		for plate in pairs(PlatesVisible) do
-			if plate.extended:IsShown() then -- Plate and extended frame both explicitly visible
+			--if plate.extended:IsShown() then -- Plate and extended frame both explicitly visible      -- FRAME HIDE TEST
+			if plate:IsShown() then -- Plate and extended frame both explicitly visible
 				functionToRun(plate, ...)
 			end
 		end
@@ -1107,16 +1037,17 @@ do
 	local HasMouseover, LastMouseover, CurrentMouseover
 	local CurrentTime, PollTime, PollIndex = 0, 0, 0
 	
+        
 	function OnUpdate(self)
 		CurrentTime = GetTime()
 		HasMouseover = false
-		
+
 		-- Alpha - Highlight - Poll Loop
 		for plate in pairs(PlatesVisible) do
 			-- Alpha
 			if (HasTarget) then 
 				plate.alpha = PlateGetAlpha(plate)	
-				PlateSetAlpha(plate, 1) 			
+				 PlateSetAlpha(plate, 1) 			
 			end
 			
 			-- Highlight: CURSOR_UPDATE events are unreliable for GUID updates.  This provides a much better experience.
@@ -1125,16 +1056,6 @@ do
 				HasMouseover = true
 				CurrentMouseover = plate
 			end
-			
-			--[[ Faux-Perspective
-				local RelativePosition = 1 - (plate:GetTop()/ScreenHeight)
-			local minScale, maxScale = .3, 1.2
-			local scale = ((maxScale - minScale) *  RelativePosition) + minScale
-			plate.extended:SetScale(scale)
-			--plate.extended:SetAlpha(RelativePosition)
-			--]]
-
-			
 		end
 
 		-- Fade-In Loop

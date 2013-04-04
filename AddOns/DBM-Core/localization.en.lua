@@ -5,7 +5,7 @@ DBM_HOW_TO_USE_MOD					= "Welcome to DBM. Type /dbm help for a list of supported
 DBM_CORE_LOAD_MOD_ERROR				= "Error while loading boss mods for %s: %s"
 DBM_CORE_LOAD_MOD_SUCCESS			= "Loaded '%s' mods. For more options, type /dbm or /dbm help in your chat."
 DBM_CORE_LOAD_GUI_ERROR				= "Could not load GUI: %s"
-DBM_CORE_LOAD_GUI_COMBAT			= "GUI cannot be initially loaded in combat. Please load GUI/configure options out of combat first, then it will be available in combat after that."
+DBM_CORE_LOAD_GUI_COMBAT			= "GUI cannot be initially loaded in combat. GUI will be loaded out of combat. After GUI loaded, you can load GUI in combat."
 
 DBM_ABSOLUTE_MODE_ON				= "Absolute mode enabled."
 DBM_ABSOLUTE_MODE_OFF				= "Absolute mode disabled. Broadcasting propper mod version again"
@@ -14,11 +14,18 @@ DBM_ABSOLUTE_MODE_NOTIFY_OFF		= "Absolute mode diabled by %s. Normal icon permis
 
 DBM_CORE_COMBAT_STARTED				= "%s engaged. Good luck and have fun! :)"
 DBM_CORE_COMBAT_STARTED_IN_PROGRESS	= "Engaged an in progress fight against %s. Good luck and have fun! :)"
+DBM_CORE_SCENARIO_STARTED			= "%s started. Good luck and have fun! :)"
 DBM_CORE_BOSS_DOWN					= "%s down after %s!"
+DBM_CORE_BOSS_DOWN_I				= "%s down! You have %d total victories."
 DBM_CORE_BOSS_DOWN_L				= "%s down after %s! Your last kill took %s and your fastest kill took %s. You have %d total victories."
 DBM_CORE_BOSS_DOWN_NR				= "%s down after %s! This is a new record! (Old record was %s). You have %d total victories."
+DBM_CORE_SCENARIO_COMPLETE			= "%s completed after %s!"
+DBM_CORE_SCENARIO_COMPLETE_L		= "%s completed after %s! Your last clear took %s and your fastest clear took %s. You have %d total clears."
+DBM_CORE_SCENARIO_COMPLETE_NR		= "%s completed after %s! This is a new record! (Old record was %s). You have %d total clears."
 DBM_CORE_COMBAT_ENDED_AT			= "Combat against %s (%s) ended after %s."
 DBM_CORE_COMBAT_ENDED_AT_LONG		= "Combat against %s (%s) ended after %s. You have %d total wipes on this difficulty."
+DBM_CORE_SCENARIO_ENDED_AT			= "%s ended after %s."
+DBM_CORE_SCENARIO_ENDED_AT_LONG		= "%s ended after %s. You have %d total incompletes on this difficulty."
 DBM_CORE_COMBAT_STATE_RECOVERED		= "%s was engaged %s ago, recovering timers..."
 DBM_CORE_TRANSCRIPTOR_LOG_START		= "Transcriptor logging started."
 DBM_CORE_TRANSCRIPTOR_LOG_END		= "Transcriptor logging ended."
@@ -237,7 +244,7 @@ DBM_CORE_AUTO_SOUND_OPTION_TEXT			= "Play \"run away\" sound for $spell:%s"
 DBM_CORE_AUTO_COUNTDOWN_OPTION_TEXT		= "Play countdown sound for $spell:%s"
 DBM_CORE_AUTO_COUNTOUT_OPTION_TEXT		= "Play countout sound for $spell:%s duration"
 DBM_CORE_AUTO_YELL_OPTION_TEXT			= "Yell when you are affected by $spell:%s"
-DBM_CORE_AUTO_YELL_ANNOUNCE_TEXT		= "%s on me!"
+DBM_CORE_AUTO_YELL_ANNOUNCE_TEXT		= "%s on " .. UnitName("player") .. "!"
 
 
 -- New special warnings

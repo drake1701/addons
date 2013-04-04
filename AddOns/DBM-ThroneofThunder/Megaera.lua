@@ -1,10 +1,11 @@
 local mod	= DBM:NewMod(821, "DBM-ThroneofThunder", nil, 362)
 local L		= mod:GetLocalizedStrings()
 
-mod:SetRevision(("$Revision: 8979 $"):sub(12, -3))
+mod:SetRevision(("$Revision: 9143 $"):sub(12, -3))
 mod:SetCreatureID(68065, 70212, 70235, 70247)--flaming 70212. Frozen 70235, Venomous 70247
+mod:SetMainBossID(68065)
 mod:SetModelID(47414)--Hydra Fire Head, 47415 Frost Head, 47416 Poison Head
-mod:SetUsedIcons(7, 6)
+mod:SetUsedIcons(7, 6, 4, 2)
 
 mod:RegisterCombat("combat")
 
@@ -16,6 +17,8 @@ mod:RegisterEventsInCombat(
 	"SPELL_AURA_REMOVED",
 	"SPELL_DAMAGE",
 	"SPELL_MISSED",
+	"SPELL_PERIODIC_DAMAGE",
+	"SPELL_PERIODIC_MISSED",
 	"CHAT_MSG_RAID_BOSS_EMOTE",
 	"RAID_BOSS_WHISPER",
 	"UNIT_SPELLCAST_SUCCEEDED",
@@ -31,16 +34,17 @@ local warnCinders				= mod:NewTargetAnnounce(139822, 4)
 local warnTorrentofIce			= mod:NewTargetAnnounce(139889, 4)
 local warnNetherTear			= mod:NewSpellAnnounce(140138, 3)--Heroic
 
-local specWarnRampage			= mod:NewSpecialWarningSpell(139458, nil, nil, nil, 2)
+local specWarnRampage			= mod:NewSpecialWarningCount(139458, nil, nil, nil, 2)
 local specWarnArcticFreeze		= mod:NewSpecialWarningStack(139843, mod:IsTank(), 2)
 local specWarnIgniteFlesh		= mod:NewSpecialWarningStack(137731, mod:IsTank(), 2)
 local specWarnRotArmor			= mod:NewSpecialWarningStack(139840, mod:IsTank(), 2)
 local specWarnArcaneDiffusion	= mod:NewSpecialWarningStack(139993, mod:IsTank(), 2)
 local specWarnCinders			= mod:NewSpecialWarningYou(139822)
+local specWarnCindersMove		= mod:NewSpecialWarningMove(139836)--Fire left on ground after the fact
 local yellCinders				= mod:NewYell(139822)
 local specWarnTorrentofIceYou	= mod:NewSpecialWarningRun(139889)
 local yellTorrentofIce			= mod:NewYell(139889)
-local specWarnTorrentofIce		= mod:NewSpecialWarningMove(139889)
+local specWarnTorrentofIce		= mod:NewSpecialWarningMove(139909)--Ice left on ground by the beam
 local specWarnNetherTear		= mod:NewSpecialWarningSwitch("ej7816", mod:IsDps())
 
 local timerRampage				= mod:NewBuffActiveTimer(21, 139458)
@@ -74,12 +78,14 @@ local venomBehind = 0
 local iceBehind = 0
 local arcaneBehind = 0
 local rampageCast = 0
+local cinderIcon = 7
+local iceIcon = 6
 local activeHeadGUIDS = {}
 
 local function isTank(unit)
 	-- 1. check blizzard tanks first
 	-- 2. check blizzard roles second
-	-- 3. check boss1's highest threat target
+	-- 3. check boss' highest threat target
 	if GetPartyAssignment("MAINTANK", unit, 1) then
 		return true
 	end
@@ -113,6 +119,8 @@ function mod:OnCombatStart(delay)
 	fireBehind = 1
 	venomBehind = 0
 	iceBehind = 0
+	cinderIcon = 7
+	iceIcon = 6
 --	timerCinderCD:Start(42)--Debuff application, not cast (TODO, check to see if heroic is still 19 seconds)
 	if self:IsDifficulty("heroic10", "heroic25") then
 		arcaneBehind = 1
@@ -195,7 +203,12 @@ function mod:SPELL_AURA_APPLIED(args)
 			yellCinders:Yell()
 		end
 		if self.Options.SetIconOnCinders then
-			self:SetIcon(args.destName, 7)
+			self:SetIcon(args.destName, cinderIcon)
+			if cinderIcon == 7 then--Alternate cinder icons because you can have two at once in later fight.
+				cinderIcon = 2--orange is closest match to red for a fire like color
+			else
+				cinderIcon = 7
+			end
 		end
 	end
 end
@@ -210,11 +223,18 @@ end
 function mod:SPELL_DAMAGE(sourceGUID, _, _, _, destGUID, _, _, _, spellId, spellName)
 	if spellId == 139850 and self:AntiSpam(2, 1) then
 --		timerAcidRainCD:Start(13.5)--TODO, it should be cast more often more heads there are. this is timing with two heads in back. Find out timing with 1 head, or 3 or 4
-	elseif spellId == 139889 and destGUID == UnitGUID("player") and self:AntiSpam(2, 2) then
-		specWarnTorrentofIce:Show()
+	elseif spellId == 139836 and destGUID == UnitGUID("player") and self:AntiSpam(2, 4) then
+		specWarnCindersMove:Show()
 	end
 end
 mod.SPELL_MISSED = mod.SPELL_DAMAGE
+
+function mod:SPELL_PERIODIC_DAMAGE(_, _, _, _, destGUID, destName, _, _, spellId)
+	if spellId == 139909 and destGUID == UnitGUID("player") and self:AntiSpam(2, 2) then
+		specWarnTorrentofIce:Show()
+	end
+end
+mod.SPELL_PERIODIC_MISSED = mod.SPELL_PERIODIC_DAMAGE
 
 function mod:CHAT_MSG_RAID_BOSS_EMOTE(msg, _, _, _, target)
 	if msg:find("spell:139458") then
@@ -223,12 +243,12 @@ function mod:CHAT_MSG_RAID_BOSS_EMOTE(msg, _, _, _, target)
 		timerArcticFreezeCD:Cancel()
 		timerIgniteFleshCD:Cancel()
 		timerRotArmorCD:Cancel()
-		--Not if back ones always cancel here, they seem too
+		--Not sure if back ones always cancel here, they seem too
 --		timerCinderCD:Cancel()
 --		timerTorrentofIceCD:Cancel()
 --		timerAcidRainCD:Cancel()
 --		timerNetherTearCD:Cancel()
-		specWarnRampage:Show()
+		specWarnRampage:Show(rampageCast)
 		timerRampage:Start()
 	elseif msg == L.rampageEnds or msg:find(L.rampageEnds) then
 		if iceInFront > 0 then
@@ -348,7 +368,12 @@ function mod:OnSync(msg, guid)
 		local target = DBM:GetFullPlayerNameByGUID(guid)
 		warnTorrentofIce:Show(target)
 		if self.Options.SetIconOnTorrentofIce then
-			self:SetIcon(target, 6, 8)--do not have cleu, so use scheduler.
+			self:SetIcon(target, iceIcon, 8)--do not have cleu, so use scheduler.
+			if iceIcon == 6 then--Alternate cinder icons because you can have two at once in later fight.
+				iceIcon = 4--green is closest match to blue for a cold like color
+			else
+				iceIcon = 6
+			end
 		end
 	end
 end

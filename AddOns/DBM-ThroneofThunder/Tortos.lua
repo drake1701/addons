@@ -1,7 +1,7 @@
 local mod	= DBM:NewMod(825, "DBM-ThroneofThunder", nil, 362)
 local L		= mod:GetLocalizedStrings()
 
-mod:SetRevision(("$Revision: 9041 $"):sub(12, -3))
+mod:SetRevision(("$Revision: 9136 $"):sub(12, -3))
 mod:SetCreatureID(67977)
 mod:SetModelID(46559)
 mod:SetUsedIcons(8, 7, 6, 5, 4, 3)
@@ -29,7 +29,7 @@ local warnShellConcussion			= mod:NewTargetAnnounce(136431, 1)
 local specWarnCallofTortos			= mod:NewSpecialWarningSpell(136294)
 local specWarnQuakeStomp			= mod:NewSpecialWarningSpell(134920, nil, nil, nil, 2)
 local specWarnRockfall				= mod:NewSpecialWarningSpell(134476, false, nil, nil, 2)
-local specWarnStoneBreath			= mod:NewSpecialWarningInterrupt(133939)
+local specWarnStoneBreath			= mod:NewSpecialWarningInterrupt(133939, not mod:IsTank())
 local specWarnCrystalShell			= mod:NewSpecialWarning("specWarnCrystalShell", false)
 local specWarnSummonBats			= mod:NewSpecialWarningSwitch("ej7140", mod:IsTank())--Dps can turn it on too, but not on by default for dps cause quite frankly dps should NOT switch right away, tank needs to get aggro first and where they spawn is semi random.
 
@@ -50,6 +50,7 @@ if GetLocale() == "koKR" then
 else
 	mod:AddBoolOption("SetIconOnTurtles", true)
 end
+mod:AddBoolOption("ClearIconOnTurtles", false)--Different option, because you may want auto marking but not auto clearing. or you may want auto clearning when they "die" but not auto marking when they spawn
 
 local shelldName = GetSpellInfo(137633)
 local shellConcussion = GetSpellInfo(136431)
@@ -63,46 +64,9 @@ local addsActivated = 0
 local alternateSet = false
 local adds = {}
 local AddIcon = 8
-local iconsSet = 0
+local iconsSet = 3
 local highestVersion = 0
 local hasHighestVersion = false
-
-local function resetaddstate()
-	table.wipe(adds)
-	if addsActivated >= 1 then--1 or more add is up from last set
-		if alternateSet then--We check whether we started with skull last time or moon
-			AddIcon = 5--Start with moon if we used skull last time
-			alternateSet = false
-		else
-			AddIcon = 8--Start with skull if we used moon last time
-			alternateSet = true
-		end
-	else--No turtles are up at all
-		AddIcon = 8--Always start with skull
-		alternateSet = true--And reset alternate status so we use moon next time (unless all are dead again, then re always reset to skull)
-	end
-	iconsSet = 0
-end
-	
-mod:RegisterOnUpdateHandler(function(self)
-	if hasHighestVersion and not iconsSet == 3 then
-		for i = 1, DBM:GetNumGroupMembers() do
-			local uId = "raid"..i.."target"
-			local guid = UnitGUID(uId)
-			if adds[guid] then
-				SetRaidTarget(uId, adds[guid])
-				iconsSet = iconsSet + 1
-				adds[guid] = nil
-			end
-			local guid2 = UnitGUID("mouseover")
-			if adds[guid2] then
-				SetRaidTarget(uId, adds[guid2])
-				iconsSet = iconsSet + 1
-				adds[guid2] = nil
-			end
-		end
-	end
-end, 0.2)
 
 local function clearStomp()
 	stompActive = false
@@ -121,8 +85,9 @@ function mod:OnCombatStart(delay)
 	shellsRemaining = 0
 	lastConcussion = 0
 	addsActivated = 0
+	highestVersion = 0
 	AddIcon = 8
-	iconsSet = 0
+	iconsSet = 3
 	alternateSet = false
 	table.wipe(adds)
 	table.wipe(kickedShells)
@@ -130,7 +95,6 @@ function mod:OnCombatStart(delay)
 	timerCallTortosCD:Start(21-delay)
 	timerStompCD:Start(29-delay, 1)
 	timerBreathCD:Start(-delay)
-	berserkTimer:Start(-delay)
 	if self.Options.InfoFrame and self:IsDifficulty("heroic10", "heroic25") then
 		DBM.InfoFrame:SetHeader(L.WrongDebuff:format(shelldName))
 		DBM.InfoFrame:Show(5, "playergooddebuff", 137633)
@@ -152,7 +116,9 @@ end
 function mod:SPELL_CAST_START(args)
 	if args.spellId == 133939 then
 		warnStoneBreath:Show()
-		specWarnStoneBreath:Show(args.sourceName)
+		if not self:IsDifficulty("lfr25") then
+			specWarnStoneBreath:Show(args.sourceName)
+		end
 		timerBreathCD:Start()
 	elseif args.spellId == 136294 then
 		warnCallofTortos:Show()
@@ -174,12 +140,59 @@ function mod:SPELL_CAST_START(args)
 	end
 end
 
+local function resetaddstate()
+	iconsSet = 0
+	table.wipe(adds)
+	if addsActivated >= 1 then--1 or more add is up from last set
+		if alternateSet then--We check whether we started with skull last time or moon
+			AddIcon = 5--Start with moon if we used skull last time
+			alternateSet = false
+		else
+			AddIcon = 8--Start with skull if we used moon last time
+			alternateSet = true
+		end
+	else--No turtles are up at all
+		AddIcon = 8--Always start with skull
+		alternateSet = true--And reset alternate status so we use moon next time (unless all are dead again, then re always reset to skull)
+	end
+end
+
+--The problem is without a doubt here, but why?
+mod:RegisterOnUpdateHandler(function(self)
+	if hasHighestVersion and not (iconsSet == 3) then--Both of these conditions were correct in last test, so only thing left to do is to even see if handler is even running AT ALL
+		for i = 1, DBM:GetNumGroupMembers() do
+			local uId = "raid"..i.."target"
+			local guid = UnitGUID(uId)
+			if adds[guid] then
+				SetRaidTarget(uId, adds[guid])
+				iconsSet = iconsSet + 1
+				adds[guid] = nil
+			end
+			local guid2 = UnitGUID("mouseover")
+			if adds[guid2] then
+				SetRaidTarget("mouseover", adds[guid2])
+				iconsSet = iconsSet + 1
+				adds[guid2] = nil
+			end
+		end
+	end
+end, 0.2)
+
 function mod:SPELL_AURA_APPLIED(args)
 	if args.spellId == 133971 then--Shell Block (turtles dying and becoming kickable)
 		shellsRemaining = shellsRemaining + 1
 		addsActivated = addsActivated - 1
+		if DBM:GetRaidRank() > 0 and self.Options.ClearIconOnTurtles then
+			for i = 1, DBM:GetNumGroupMembers() do
+				local uId = "raid"..i.."target"
+				local guid = UnitGUID(uId)
+				if args.destGUID == guid then
+					SetRaidTarget(uId, 0)
+				end
+			end
+		end
 	elseif args.spellId == 133974 and self.Options.SetIconOnTurtles then--Spinning Shell
-		if self:AntiSpam(5, 2) then
+		if self:AntiSpam(5, 6) then
 			resetaddstate()
 		end
 		adds[args.destGUID] = AddIcon
@@ -258,10 +271,8 @@ function mod:OnSync(msg, guid, ver)
 		self:Unschedule(FindFastestHighestVersion)
 		if guid == UnitGUID("player") then
 			hasHighestVersion = true
-			print("DBM Debug: You have highest DBM version with icons enabled and fastest computer. You designated icon setter.")
 		else
 			hasHighestVersion = false
-			print("DBM Debug: You will not be setting icons since your DBM version is out of date or your computer is slower")
 		end
 	end
 end

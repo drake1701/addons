@@ -8,25 +8,22 @@ L= DBM:GetModLocalization(745)
 
 L:SetWarningLocalization({
 	warnAttenuation		= "%s у %s (%s)",
-	warnEcho			= "Появилось эхо!",
+	warnEcho		= "Появилось эхо!",
 	warnEchoDown		= "Эхо повержено",
 	specwarnAttenuation	= "%s у %s (%s)",
 	specwarnPlatform	= "Смена платформы"
 })
 
 L:SetOptionLocalization({
-	warnAttenuation		= DBM_CORE_AUTO_ANNOUNCE_OPTIONS.spell:format(127834),
-	warnEcho			= "Объявлять о появлении эха",
+	warnEcho		= "Объявлять о появлении эха",
 	warnEchoDown		= "Объявлять о смерти эха",
-	specwarnAttenuation	= DBM_CORE_AUTO_SPEC_WARN_OPTIONS.spell:format(127834),
 	specwarnPlatform	= "Спец-предупреждение, когда босс меняет платформу",
-	ArrowOnAttenuation	= "Показывать стрелку DBM во время $spell:127834",	
-	MindControlIcon		= DBM_CORE_AUTO_ICONS_OPTION_TEXT:format(122740)
+	ArrowOnAttenuation	= "Показывать стрелку DBM во время $spell:127834, чтобы указать в каком направлении двигаться"
 })
 
 L:SetMiscLocalization({
-	Platform	= "%s летит к одной из своих платформ!",
-	Defeat		= "Мы не погрузимся в отчаяние. Если она хочет, чтобы мы погибли – так и будет."
+	Platform		= "летит к одной из своих платформ!",
+	Defeat			= "Мы не погрузимся в отчаяние. Если она хочет, чтобы мы погибли – так и будет."
 })
 
 
@@ -37,7 +34,7 @@ L= DBM:GetModLocalization(744)
 
 L:SetOptionLocalization({
 	UnseenStrikeArrow	= "Показывать стрелку DBM, когда на ком-то $spell:122949 ",
-	RangeFrame			= "Окно проверки дистанции (8м) для $spell:123175"
+	RangeFrame		= "Окно проверки дистанции (10м) для $spell:123175"
 })
 
 
@@ -47,15 +44,13 @@ L:SetOptionLocalization({
 L= DBM:GetModLocalization(713)
 
 L:SetWarningLocalization({
-	warnCrush		= "%s",
+	warnCrush	= "%s",
 	specwarnUnder	= "Выйдите из фиолетового круга!"
 })
 
 L:SetOptionLocalization({
-	warnCrush		= DBM_CORE_AUTO_ANNOUNCE_OPTIONS.spell:format(122774),
 	specwarnUnder	= "Спец-предупреждение, когда вы стоите под боссом",
-	countdownCrush	= DBM_CORE_AUTO_COUNTDOWN_OPTION_TEXT:format(122774).." (только в героическом режиме)",
-	PheromonesIcon	= DBM_CORE_AUTO_ICONS_OPTION_TEXT:format(122835)
+	countdownCrush	= DBM_CORE_AUTO_COUNTDOWN_OPTION_TEXT:format(122774).." (только в героическом режиме)"
 })
 
 L:SetMiscLocalization({
@@ -68,52 +63,46 @@ L:SetMiscLocalization({
 ----------------------
 L= DBM:GetModLocalization(741)
 
-L:SetOptionLocalization({
-	AmberPrisonIcons	= DBM_CORE_AUTO_ICONS_OPTION_TEXT:format(121885)
-})
-
 ------------
 -- Amber-Shaper Un'sok --
 ------------
 L= DBM:GetModLocalization(737)
 
 L:SetWarningLocalization({
-	warnReshapeLife				= "%s на >%s< (%d)",
+	warnReshapeLife			= "%s на >%s< (%d)",
 	warnReshapeLifeTutor		= "1: Сбить каст/продебаффать цель, 2: Сбить каст себе, 3: Восстановить здоровье/энергию, 4: Выйти",
-	warnAmberExplosion			= ">%s< кастует %s",
-	warnAmberExplosionAM		= "Янтарное чудовище кастует ВЗРЫВ - СБЕЙТЕ!",--personal warning.
-	warnInterruptsAvailable		= "Сбить %s могут: %s",
-	warnWillPower				= "Текущая сила воли: %s",
-	specwarnWillPower			= "Низкая сила воли! - осталось 5 секунд",
+	warnAmberExplosion		= ">%s< кастует %s",
+	warnAmberExplosionAM		= "Янтарное чудовище кастует Янтарный взрыв - Сбейте!",--personal warning.
+	warnInterruptsAvailable		= "Сбить %s могут: >%s<",
+	warnWillPower			= "Текущая сила воли: %s",
+	specwarnWillPower		= "Низкая сила воли! - осталось 5 секунд",
 	specwarnAmberExplosionYou	= "Сбейте СВОЙ %s!",--Struggle for Control interrupt.
 	specwarnAmberExplosionAM	= "%s: Interrupt %s!",--Amber Montrosity
 	specwarnAmberExplosionOther	= "%s: Interrupt %s!"--Amber Montrosity	
 })
 
 L:SetTimerLocalization{
-	timerDestabalize			= "Дестабилизация (%2$d) : %1$s",
+	timerDestabalize		= "Дестабилизация (%2$d) : %1$s",
 	timerAmberExplosionAMCD		= "Взрыв: Чудовище"
 }
 
 L:SetOptionLocalization({
-	warnReshapeLife				= DBM_CORE_AUTO_ANNOUNCE_OPTIONS.target:format(122784),
 	warnReshapeLifeTutor		= "Показывать назначение способностей у мутировавшего организма",	
-	warnAmberExplosion			= "Предупреждение (с указанием источника) о начале применения $spell:122398",
+	warnAmberExplosion		= "Предупреждение (с указанием источника) о начале применения $spell:122398",
 	warnAmberExplosionAM		= "Персональное предупреждение о начале применения $spell:122398(для прерывания)",
 	warnInterruptsAvailable		= "Показывать кто может сбить $spell:122402",
-	warnWillPower				= "Предупреждать об уровне силы воли на 80, 50, 30, 10 и 4.",
-	specwarnWillPower			= "Спец-предупреждение, когда уровень силы воли слишком низок",
+	warnWillPower			= "Предупреждать об уровне силы воли на 80, 50, 30, 10 и 4.",
+	specwarnWillPower		= "Спец-предупреждение, когда уровень силы воли слишком низок",
 	specwarnAmberExplosionYou	= "Спец-предупреждение для прерывания своего $spell:122398",
 	specwarnAmberExplosionAM	= "Спец-предупреждение для прерывания $spell:122402 у Янтарного чудовища",
 	specwarnAmberExplosionOther	= "Спец-предупреждение для прерывания $spell:122398 у Мутировавшего организма",	
-	timerDestabalize			= DBM_CORE_AUTO_TIMER_OPTIONS.target:format(123059),
 	timerAmberExplosionAMCD		= "Отсчет времени до следующего $spell:122402 у Янтарного чудовища",
-	InfoFrame					= "Информационное окно для игроков с низким уровнем силы воли",
-	FixNameplates				= "Автоматически отключать полоски здоровья у дружественных целей, когда вы в мутировавшем организме\n(восстанавливает настройку после выхода из боя)"	
+	InfoFrame			= "Информационное окно для игроков с низким уровнем силы воли",
+	FixNameplates			= "Автоматически отключать полоски здоровья у дружественных целей, когда вы в мутировавшем организме\n(восстанавливает настройку после выхода из боя)"	
 })
 
 L:SetMiscLocalization({
-	WillPower					= "Сила воли"
+	WillPower			= "Сила воли"
 })
 
 
@@ -127,14 +116,12 @@ L:SetWarningLocalization({
 })
 
 L:SetOptionLocalization({
-	warnAmberTrap	= "Отображать прогресс создания $spell:125826", -- maybe bad translation.
+	warnAmberTrap		= "Отображать прогресс создания $spell:125826", -- maybe bad translation.
 	InfoFrame		= "Информационное окно для игроков с $spell:125390",
-	RangeFrame		= "Окно проверки дистанции (5м) для $spell:123735",
-	StickyResinIcons	= DBM_CORE_AUTO_ICONS_OPTION_TEXT:format(124097),
-	HeartOfFearIcon		= DBM_CORE_AUTO_ICONS_OPTION_TEXT:format(123845)
+	RangeFrame		= "Окно проверки дистанции (5м) для $spell:123735"
 })
 
 L:SetMiscLocalization({
-	PlayerDebuffs	= "Сосредоточение",
+	PlayerDebuffs		= "Сосредоточение",
 	YellPhase3		= "Больше никаких оправданий, императрица! Избавься от этих кретинов или я сам убью тебя!"
 })

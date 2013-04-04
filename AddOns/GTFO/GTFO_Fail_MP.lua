@@ -509,6 +509,7 @@ GTFO.SpellID["119086"] = {
 	test = true; -- Need to turn this off in LFR (trivial)
 };
 
+-- TODO: Dread Spray (Sha of Fear)
 -- TODO: Waterspout (Sha of Fear)
 -- TODO: Submerge (Sha of Fear) (Avoidable?)
 
@@ -752,38 +753,48 @@ GTFO.SpellID["137390"] = {
 	sound = 3;
 };
 
--- TODO: Spinning Shell (Tortos)
--- TODO: Shell Concussion (Tortos)
--- TODO: Rockfall (Tortos) -- Close damage fail only
-
-GTFO.SpellID["137730"] = {
-	--desc = "Ignite Flesh (Megaera)";
+GTFO.SpellID["137133"] = {
+	--desc = "Reckless Charge (Kazra'jin)";
 	sound = 3;
-	tankSound = 0;
-	test = true; -- Verify
+	soundLFR = 0;
 };
 
-GTFO.SpellID["139842"] = {
-	--desc = "Arctic Freeze (Megaera)";
+GTFO.SpellID["134539"] = {
+	--desc = "Rockfall (Tortos)";
 	sound = 3;
-	tankSound = 0;
-	test = true; -- Verify
+};
+
+GTFO.SpellID["134011"] = {
+	--desc = "Spinning Shell (Tortos)";
+	sound = 3;
+	soundLFR = 0;
+};
+
+-- TODO: Shell Concussion (Tortos)
+
+GTFO.SpellID["140598"] = {
+	--desc = "Fungal Explosion";
+	sound = 3;
 };
 
 -- TODO: Acid Rain (Megaera) -- Fail based on damage amount
-
-GTFO.SpellID["139839"] = {
-	--desc = "Rot Armor (Megaera)";
-	sound = 3;
-	tankSound = 0;
-	test = true; -- Verify
-};
 
 GTFO.SpellID["139992"] = {
 	--desc = "Diffusion (Megaera)";
 	sound = 3;
 	tankSound = 0;
 	test = true; -- Verify, tactic may include giving this to a non-tank?
+};
+
+GTFO.SpellID["134510"] = {
+	--desc = "Web Spray (Corpse Spider)";
+	sound = 3;
+	tankSound = 0;
+};
+
+GTFO.SpellID["134415"] = {
+	--desc = "Devoured (Gastropod)";
+	sound = 3;
 };
 
 -- TODO: Talon Strike (Ji-Kun) -- Heroic only, Avoidable?
@@ -1234,3 +1245,12 @@ GTFO.SpellID["136964"] = {
 	sound = 3;
 };
 
+GTFO.SpellID["137140"] = {
+	--desc = "Spirit Slash (Spirit of Warlord Teng)";
+	sound = 3;
+};
+
+GTFO.SpellID["136439"] = {
+	--desc = "Lightning Strike (Shan'ze Electrocutioner)";
+	sound = 3;
+};

@@ -6,10 +6,14 @@ local L
 --------------------------
 L= DBM:GetModLocalization(827)
 
-L:SetOptionLocalization({
-	RangeFrame		= "Zeige Abstandsfenster"
+L:SetWarningLocalization({
+	specWarnWaterMove	= "%s bald - Raus aus dem leitfähigen Wasser!"
 })
 
+L:SetOptionLocalization({
+	specWarnWaterMove	= "Zeige Spezialwarnung, falls du in $spell:138470 stehst (warnt bevor\n$spell:137313 gewirkt wird und kurz bevor $spell:138732 ausläuft)",
+	RangeFrame			= "Zeige Abstandsfenster"
+})
 
 --------------
 -- Horridon --
@@ -32,7 +36,8 @@ L:SetOptionLocalization({
 	warnOrbofControl		= "Verkünde das Fallenlassen einer $journal:7092",
 	specWarnOrbofControl	= "Zeige Spezialwarnung beim Fallenlassen einer $journal:7092",
 	timerDoor				= "Zeige Zeit bis nächste Stammestorphase",
-	timerAdds				= "Zeige Zeit bis der nächste Gegner herunterspringt"
+	timerAdds				= "Zeige Zeit bis der nächste Gegner herunterspringt",
+	RangeFrame				= "Zeige Abstandsfenster (5m) für $spell:136480"
 })
 
 L:SetMiscLocalization({
@@ -50,12 +55,8 @@ L:SetWarningLocalization({
 })
 
 L:SetOptionLocalization({
-	warnPossessed		= DBM_CORE_AUTO_ANNOUNCE_OPTIONS.target:format(136442),
-	specWarnPossessed	= DBM_CORE_AUTO_SPEC_WARN_OPTIONS.switch:format(136442),
 	PHealthFrame		= "Zeige in Lebensanzeige den benötigten Schaden bis $spell:136442 endet\n(benötigt aktivierte Lebensanzeige)",
-	RangeFrame			= "Zeige Abstandsfenster",
-	SetIconOnBitingCold	= DBM_CORE_AUTO_ICONS_OPTION_TEXT:format(136992),
-	SetIconOnFrostBite	= DBM_CORE_AUTO_ICONS_OPTION_TEXT:format(136922)
+	RangeFrame			= "Zeige Abstandsfenster"
 })
 
 ------------
@@ -69,10 +70,10 @@ L:SetWarningLocalization({
 })
 
 L:SetOptionLocalization({
-	warnKickShell			= DBM_CORE_AUTO_ANNOUNCE_OPTIONS.spell:format(134031),
 	specWarnCrystalShell	= "Zeige Spezialwarnung, falls dir der $spell:137633 Buff fehlt",
 	InfoFrame				= "Zeige Infofenster für Spieler ohne $spell:137633",
-	SetIconOnTurtles		= "Setze Zeichen auf $journal:7129 (mglw. nicht zuverlässig falls mehr als\nein Spieler mit Leiter-/Assistentenstatus diese Einstellung aktiviert)",
+	SetIconOnTurtles		= "Setze Zeichen auf $journal:7129",
+	ClearIconOnTurtles		= "Entferne Zeichen von $journal:7129 im Zustand $spell:133971"
 })
 
 L:SetMiscLocalization({
@@ -83,11 +84,6 @@ L:SetMiscLocalization({
 -- Megaera --
 -------------
 L= DBM:GetModLocalization(821)
-
-L:SetOptionLocalization({
-	SetIconOnCinders		= DBM_CORE_AUTO_ICONS_OPTION_TEXT:format(139822),
-	SetIconOnTorrentofIce	= DBM_CORE_AUTO_ICONS_OPTION_TEXT:format(139889)
-})
 
 L:SetMiscLocalization({
 	rampageEnds	= "Megaeras Wut lässt nach."
@@ -108,9 +104,6 @@ L:SetTimerLocalization({
 })
 
 L:SetOptionLocalization({
-	warnFlock		= DBM_CORE_AUTO_ANNOUNCE_OPTIONS.count:format("ej7348"),
-	specWarnFlock	= DBM_CORE_AUTO_SPEC_WARN_OPTIONS.switch:format("ej7348"),
-	timerFlockCD	= DBM_CORE_AUTO_TIMER_OPTIONS.nextcount:format("ej7348"),
 	RangeFrame		= "Zeige Abstandsfenster (8m) für $spell:138923"
 })
 
@@ -131,6 +124,7 @@ L= DBM:GetModLocalization(818)
 
 L:SetWarningLocalization({
 	warnAddsLeft				= "Nebel verbleibend: %d",
+	specWarnBlueBeam			= "Blaue Strahlen auf dir - BLEIB STEHEN!",
 	specWarnFogRevealed			= "%s offenbart!",
 	specWarnDisintegrationBeam	= "%s (%s)"
 })
@@ -138,9 +132,8 @@ L:SetWarningLocalization({
 L:SetOptionLocalization({
 	warnAddsLeft				= "Verkünde die Anzahl der verbleibenden Nebel",
 	specWarnFogRevealed			= "Zeige Spezialwarnung, wenn ein Nebel offenbart wird",
-	specWarnDisintegrationBeam	= DBM_CORE_AUTO_SPEC_WARN_OPTIONS.spell:format("ej6882"),
 	ArrowOnBeam					= "Zeige DBM-Pfeil während $journal:6882 zur Anzeige der Ausweichrichtung",
-	SetIconRays					= DBM_CORE_AUTO_ICONS_OPTION_TEXT:format("ej6891")
+	InfoFrame					= "Zeige Infofenster für $spell:133795 Stapel"
 })
 
 L:SetMiscLocalization({
@@ -152,8 +145,15 @@ L:SetMiscLocalization({
 ----------------
 L= DBM:GetModLocalization(820)
 
+L:SetWarningLocalization({
+	warnDebuffCount				= "Zu viele Mutationen: %d gute, %d schlechte",
+	specWarnFullyMutatedFaded	= "%s ist beendet"
+})
+
 L:SetOptionLocalization({
-	RangeFrame			= "Zeige Abstandsfenster (5m/2m)"
+	warnDebuffCount				= "Zeige Warnung für die Debuffanzahl, wenn du zu viele Mutagenpfützen absorbierst",
+	specWarnFullyMutatedFaded	= "Zeige Spezialwarnung, wenn $spell:140546 beendet ist",
+	RangeFrame					= "Zeige Abstandsfenster (5m/2m)"
 })
 
 -----------------
@@ -183,7 +183,6 @@ L:SetWarningLocalization({
 })
 
 L:SetOptionLocalization({
-	warnDeadZone	= DBM_CORE_AUTO_ANNOUNCE_OPTIONS.spell:format(137229),
 	RangeFrame		= "Zeige dynamisches Abstandsfenster\n(mit Indikator für zuviele Spieler in Reichweite)",
 	InfoFrame		= "Zeige Infofenster für Spieler mit $spell:136193"
 })
@@ -225,9 +224,7 @@ L= DBM:GetModLocalization(832)
 L:SetOptionLocalization({
 	RangeFrame			= "Zeige Abstandsfenster",
 	StaticShockArrow	= "Zeige DBM-Pfeil, wenn jemand von $spell:135695 betroffen ist",
-	OverchargeArrow		= "Zeige DBM-Pfeil, wenn jemand von $spell:136295 betroffen ist",
-	SetIconOnOvercharge	= DBM_CORE_AUTO_ICONS_OPTION_TEXT:format(136295),
-	SetIconOnStaticShock= DBM_CORE_AUTO_ICONS_OPTION_TEXT:format(135695)
+	OverchargeArrow		= "Zeige DBM-Pfeil, wenn jemand von $spell:136295 betroffen ist"
 })
 
 ------------

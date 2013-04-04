@@ -189,20 +189,23 @@ end
 -----------------------------------------------------
 
 local function FindWidgetByGUID(guid)
+	if guid == nil then return end
 	return WidgetGUID[guid]
 end
 
 local function FindWidgetByName(SearchFor)
+	if SearchFor == nil then return end
 	local widget
 	--local SearchFor = strsplit("-", NameString)
 	for widget in pairs(WidgetList) do
-		if widget.unit.name == SearchFor then 
+		if widget.unit.name == SearchFor then
 			return widget 
 		end
 	end
 end
 
 local function FindWidgetByIcon(raidicon)
+	if raidicon == nil then return end
 	local widget
 	for widget in pairs(WidgetList) do
 		if widget.unit.isMarked and widget.unit.raidIcon == raidicon then return widget end
@@ -211,12 +214,15 @@ end
 
 local function CallForWidgetUpdate(guid, raidicon, name)
 	local widget
-
+	--[[
 	if guid then widget = FindWidgetByGUID(guid) end
 	if (not widget) and name then widget = FindWidgetByName(name) end
 	if (not widget) and raidicon then widget = FindWidgetByIcon(raidicon) end
-
-	if widget then UpdateWidget(widget) end
+	--]]
+	
+	widget = FindWidgetByGUID(guid) or FindWidgetByName(name) or FindWidgetByIcon(raidicon)
+	
+	if widget then UpdateWidget(FindWidgetByGUID(guid) or FindWidgetByName(name) or FindWidgetByIcon(raidicon)) end
 end
 
 
@@ -253,7 +259,6 @@ local function SetAuraInstance(guid, spellid, spellname, expiration, stacks, cas
 	if guid and spellid and caster and texture then
 		if AuraPrefilterFunction(spellid, spellname, auratype, auratarget) ~= true then return end
 		
-		--print("SetAuraInstance", guid, spellid, spellname, expiration, stacks, caster, duration, texture, auratype, auratarget)
 		local aura_id = spellid..(tostring(caster or "UNKNOWN_CASTER"))
 		local aura_instance_id = guid..aura_id
 		Aura_List[guid] = Aura_List[guid] or {}
@@ -363,12 +368,13 @@ end
 
 local function UpdateAurasByUnitID(unitid)						
 		local unitType
-		if UnitIsFriend("player", unitid) then unitType = AURA_TARGET_FRIENDLY else unitType = AURA_TARGET_HOSTILE end																				
+		if UnitIsFriend("player", unitid) then unitType = AURA_TARGET_FRIENDLY else unitType = AURA_TARGET_HOSTILE end																	
 		--if unitType == AURA_TARGET_FRIENDLY then return end		-- If the unit is hostile, quit.  Right now.
-		
+
 		-- Check the UnitIDs Debuffs
 		local index
 		local guid = UnitGUID(unitid)
+		
 		-- Reset Auras for a guid
 		WipeUnitAuraList(guid)
 		-- Debuffs
@@ -386,11 +392,15 @@ local function UpdateAurasByUnitID(unitid)
 				if not spellname then break end
 				SetSpellDuration(spellid, duration)			-- Caches the aura data for times when the duration cannot be determined (ie. via combat log)
 				SetAuraInstance(guid, spellid, spellname, expirationTime, count, UnitGUID(unitCaster or ""), duration, texture, AURA_TYPE_BUFF, AURA_TARGET_FRIENDLY)
+				
 			end	
 		end
 
 		local raidicon, name
-		if UnitPlayerControlled(unitid) then name = UnitName(unitid) end
+		if UnitPlayerControlled(unitid) then
+			name = UnitName(unitid)
+			ByName[name] = guid
+		end
 		raidicon = RaidIconIndex[GetRaidTargetIndex(unitid) or ""]
 		if raidicon then ByRaidIcon[raidicon] = guid end
 		
@@ -507,7 +517,6 @@ local function EventPlayerEnterWorld()
 end
 
 local function EventPlayerAbilityUpdated(...)
-	--print("Ability Update", GetTime(), ...)
 	UpdateAurasByUnitID("target")
 	
 	-- Personal Ability Reminder
@@ -653,7 +662,7 @@ local function CombatEventHandler(frame, event, ...)
 				
 				local name, raidicon
 				-- Cache Unit Name for alternative lookup strategy
-				if (bit.band(destFlags, COMBATLOG_OBJECT_CONTROL_PLAYER) > 0) and destName then 
+				if (bit.band(destFlags, COMBATLOG_OBJECT_CONTROL_PLAYER) > 0) and destName ~= nil then 
 					local rawName = strsplit("-", destName)			-- Strip server name from players
 					ByName[rawName] = destGUID
 					name = rawName
@@ -760,7 +769,6 @@ local function UpdateIconGrid(frame, guid)
 					--if frame.Filter then show, priority, r, g, b = frame.Filter(aura)		-- This method will be depricated
 					--else 
 					show, priority, r, g, b = AuraFilterFunction(aura) 
-					--print(aura.name, show, priority, r, g, b )
 					--end				-- This method will replace it
 
 					-- Get Order/Priority
@@ -808,7 +816,6 @@ local function UpdateIconGrid(frame, guid)
 				if AuraSlotIndex > DebuffLimit then break end
 				local aura = DebuffCache[index]
 				if aura.spellid and aura.expiration then 
-
 					--[[
 					--if IsUsableSpell(aura.spellid) and select(2, GetSpellCooldown(aura.spellid)) == 0 then 
 					if select(2, GetSpellCooldown(aura.spellid)) == 0 then 
@@ -850,6 +857,7 @@ function UpdateWidget(frame)
 			end
 		end
 		
+		
 		UpdateIconGrid(frame, guid)
 		TidyPlates:RequestDelegateUpdate()		-- Delegate Update, For Debuff Widget-Controlled Scale and Opacity Functions
 end
@@ -876,7 +884,7 @@ local function UpdateWidgetContextFull(frame, unit)
 		raidicon = unit.raidIcon
 		if guid and raidicon then ByRaidIcon[raidicon] = guid end
 	end
-	if unit.type == "PLAYER" and unit.reaction == "HOSTILE" then name = unit.name end
+	if unit.type == "PLAYER" then name = unit.name end
 	
 	CallForWidgetUpdate(guid, raidicon, name)
 end
@@ -1112,6 +1120,22 @@ local function SetAuraHook(func)
 	end
 end
 
+function TestAuraWatcher()
+	--unitid = unitid or "focus"
+	unitid = "focus"
+	--name, rank, icon, powerCost, isFunnel, powerType, castingTime, minRange, maxRange = GetSpellInfo("Rip")
+	--local spellname , _, texture, count, _, duration, _, _, _, _, spellid, _, isBossDebuff = UnitDebuff(unitid, index)
+	
+	SetAuraInstance(UnitGUID(unitid), 1822, "Rake", GetTime() + 15, 1, UnitGUID("player"), 15, "Interface\\Icons\\ability_druid_disembowel", AURA_TYPE["Debuff"], AURA_TARGET_HOSTILE)
+	SetAuraInstance(UnitGUID(unitid), 774, "Rejuvenation", GetTime() + 12, 1, UnitGUID("player"), 12, "Interface\\Icons\\spell_nature_rejuvenation", AURA_TYPE_BUFF, AURA_TARGET_FRIENDLY)
+	SetAuraInstance(UnitGUID(unitid), 2823, "Deadly Poison", GetTime() + 12, 1, UnitGUID("player"), 12, "Interface\\Icons\\ability_rogue_dualweild", AURA_TYPE["Poison"], AURA_TARGET_HOSTILE)
+	--SetAuraInstance(UnitGUID(unitid), 6343, "Thunder Clap", GetTime() + 20, 1, UnitGUID("player"), 20, "Interface\\Icons\\Spell_nature_ThunderClap", AURA_TYPE["Debuff"], AURA_TARGET_HOSTILE)
+	SetAuraInstance(UnitGUID(unitid), 6343, "Thunder Clap", GetTime() + 20, 1, UnitGUID("player"), 20, "Interface\\Icons\\Spell_nature_ThunderClap", AURA_TYPE["Debuff"], AURA_TARGET_HOSTILE)
+
+	CallForWidgetUpdate(UnitGUID(unitid), nil, UnitName(unitid))	
+	-- /run TidyPlatesWidgets.TestAuraWatcher()
+end
+
 -----------------------------------------------------
 -- External
 -----------------------------------------------------
@@ -1131,8 +1155,5 @@ TidyPlatesWidgets.CreateAuraWidget = CreateAuraWidget
 TidyPlatesWidgets.EnableAuraWatcher = Enable
 TidyPlatesWidgets.EnableAuraWatcherTargetOnly = EnableForTargetOnly
 TidyPlatesWidgets.DisableAuraWatcher = Disable
-
-
-
 
 

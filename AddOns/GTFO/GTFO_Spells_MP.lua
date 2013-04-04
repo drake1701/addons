@@ -474,7 +474,10 @@ GTFO.SpellID["122718"] = {
 	negatingDebuffSpellID = 122706; -- Noise Cancelling
 };
 
--- TODO: Blade Tempest (Blade Lord Ta'yak)
+GTFO.SpellID["125312"] = {
+	--desc = "Blade Tempest (Blade Lord Ta'yak)";
+	sound = 1;
+};
 
 GTFO.SpellID["123120"] = {
 	--desc = "Pheromone Trail (Garalon)";
@@ -705,7 +708,6 @@ GTFO.SpellID["123121"] = {
 };
 
 -- TODO: Scary Fog (Lei Shi)
--- TODO: Dread Spray (Sha of Fear) (could be a fail alert)
 
 GTFO.SpellID["119887"] = {
 	--desc = "Death Blossom (Sha of Fear)";
@@ -965,6 +967,17 @@ GTFO.SpellID["136989"] = {
 	sound = 1;
 };
 
+GTFO.SpellID["137088"] = {
+	--desc = "Deluge (Zandalari Storm-Caller)";
+	sound = 1;
+};
+
+GTFO.SpellID["139321"] = {
+	--desc = "Storm Energy (Crazed Storm-Caller)";
+	sound = 4;
+	ignoreSelfInflicted = true;
+};
+
 GTFO.SpellID["138006"] = {
 	--desc = "Electrified Waters (Jin'rokh the Breaker)";
 	sound = 1;
@@ -1043,6 +1056,35 @@ GTFO.SpellID["136878"] = {
 	sound = 1;
 };
 
+GTFO.SpellID["140685"] = {
+	--desc = "Corrosive Breath (Mist Lurker)";
+	sound = 1;
+	tankSound = 0;
+};
+
+GTFO.SpellID["140621"] = {
+	--desc = "Fungi Spores (Fungal Growth)";
+	sound = 4;
+};
+
+GTFO.SpellID["137730"] = {
+	--desc = "Ignite Flesh (Megaera)";
+	sound = 1;
+	tankSound = 0;
+};
+
+GTFO.SpellID["139842"] = {
+	--desc = "Arctic Freeze (Megaera)";
+	sound = 1;
+	tankSound = 0;
+};
+
+GTFO.SpellID["139839"] = {
+	--desc = "Rot Armor (Megaera)";
+	sound = 1;
+	tankSound = 0;
+};
+
 GTFO.SpellID["139836"] = {
 	--desc = "Cinders (Megaera)";
 	sound = 1;
@@ -1058,10 +1100,20 @@ GTFO.SpellID["139909"] = {
 	sound = 1;
 };
 
+GTFO.SpellID["139470"] = {
+	--desc = "Choking Gas";
+	sound = 1;
+	soundLFR = 2;
+};
+
+--[[
 GTFO.SpellID["138319"] = {
 	--desc = "Feed Pool (Ji-Kun)";
 	sound = 1;
+	tankSound = 0;
+	test = true; -- Disabling for now until I can get more information on them
 };
+]]--
 
 GTFO.SpellID["134755"] = {
 	--desc = "Eye Sore (Durumu the Forgotten)";
@@ -1569,3 +1621,17 @@ GTFO.SpellID["126557"] = {
 	trivialPercent = 0;
 };
 
+GTFO.SpellID["137328"] = {
+	--desc = "Double-Edged Thrash (Back) (Cera)";
+	sound = 1;
+};
+
+GTFO.SpellID["137330"] = {
+	--desc = "Double-Edged Thrash (Front) (Cera)";
+	sound = 1;
+};
+
+GTFO.SpellID["138479"] = {
+	--desc = "Flurry of Teeth (Skumblade Saur-Priest)";
+	sound = 2;
+};

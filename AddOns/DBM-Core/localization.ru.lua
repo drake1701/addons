@@ -3,10 +3,10 @@
 DBM_CORE_NEED_SUPPORT				= "Вы - программист или хороший переводчик? Команда разработчиков DBM нуждается в вашей помощи. Присоединяйтесь к нам -  зайдите на www.deadlybossmods.com или отправьте сообщение на tandanu@deadlybossmods.com или nitram@deadlybossmods.com."
 DBM_HOW_TO_USE_MOD					= "Добро пожаловать в DBM. Для доступа к настройкам наберите /dbm в чате. При желании, загрузите определенные зоны вручную для изменений специфических настроек для каждого босса. DBM пытается подстраиваться под вас на основе вашей специализации на момент первого запуска, но некоторые могут захотеть включить дополнительные опции. Многие запрошенные пользователями предупреждения уже существуют, но отключены по-умолчанию для определенных специализаций. Особенно те, которые касаются танков."
 
-DBM_CORE_LOAD_MOD_ERROR				= "Ошибка при загрузке DBM для %s: %s"
-DBM_CORE_LOAD_MOD_SUCCESS			= "Загружен DBM для \"%s\". Для дополнительных настроек введите /dbm или /dbm help в чате."
+DBM_CORE_LOAD_MOD_ERROR				= "Ошибка при загрузке босс модуля для %s: %s"
+DBM_CORE_LOAD_MOD_SUCCESS			= "Загружен модуль для '%s'. Для дополнительных настроек введите /dbm или /dbm help в чате."
 DBM_CORE_LOAD_GUI_ERROR				= "Не удалось загрузить GUI: %s"
-DBM_CORE_LOAD_GUI_COMBAT			= "GUI не может быть изначально загружено в бою. Пожалуйста сначала загрузите GUI/измените настройки вне боя, затем оно будет доступно и в бою."
+DBM_CORE_LOAD_GUI_COMBAT			= "GUI не может быть изначально загружено в бою. GUI будет загружено вне боя. После загрузки GUI вы сможете загружать его в бою."
 
 DBM_ABSOLUTE_MODE_ON				= "Активирован абсолютный режим."
 DBM_ABSOLUTE_MODE_OFF				= "Абсолютный режим отключен."
@@ -15,11 +15,18 @@ DBM_ABSOLUTE_MODE_NOTIFY_OFF		= "%s отключил абсолютный реж
 
 DBM_CORE_COMBAT_STARTED				= "%s вступает в бой. Удачи! :)"
 DBM_CORE_COMBAT_STARTED_IN_PROGRESS	= "%s вступает в бой (в процессе). Удачи! :)"
+DBM_CORE_SCENARIO_STARTED			= "%s начат. Удачи! :)"
 DBM_CORE_BOSS_DOWN					= "%s погибает спустя %s!"
+DBM_CORE_BOSS_DOWN_I				= "%s погибает! Общее количество побед у Вас %d."
 DBM_CORE_BOSS_DOWN_L				= "%s погибает спустя %s! Ваш последний бой длился %s, а лучший бой длился %s. Общее количество побед у Вас %d."
 DBM_CORE_BOSS_DOWN_NR				= "%s погибает спустя %s! Это новый рекорд! (Предыдущий рекорд был %s). Общее количество побед у Вас %d."
+DBM_CORE_SCENARIO_COMPLETE			= "%s завершен спустя %s!"
+DBM_CORE_SCENARIO_COMPLETE_L		= "%s завершен спустя %s! Ваше последнее прохождение заняло %s, а лучшее прохождение заняло %s. Общее количество прохождений у Вас %d."
+DBM_CORE_SCENARIO_COMPLETE_NR		= "%s завершен спустя %s! Это новый рекорд! (Предыдущий рекорд был %s). Общее количество прохождений у Вас %d."
 DBM_CORE_COMBAT_ENDED_AT			= "Бой с %s (%s) закончился спустя %s."
 DBM_CORE_COMBAT_ENDED_AT_LONG		= "Бой с %s (%s) закончился спустя %s. На этом уровне сложности вы вайпнулись уже %d раз."
+DBM_CORE_SCENARIO_ENDED_AT			= "%s закончился спустя %s."
+DBM_CORE_SCENARIO_ENDED_AT_LONG		= "%s закончился спустя %s. На этом уровне сложности вы не прошли до конца уже %d раз."
 DBM_CORE_COMBAT_STATE_RECOVERED		= "%s был атакован %s назад, восстанавливаю таймеры..."
 DBM_CORE_TRANSCRIPTOR_LOG_START		= "Логирование с помощью Transcriptor начато."
 DBM_CORE_TRANSCRIPTOR_LOG_END		= "Логирование с помощью Transcriptor окончено."
@@ -238,7 +245,7 @@ DBM_CORE_AUTO_SOUND_OPTION_TEXT		= "Звуковой сигнал \"бегите
 DBM_CORE_AUTO_COUNTDOWN_OPTION_TEXT	= "Звуковой отсчет для $spell:%s"
 DBM_CORE_AUTO_COUNTOUT_OPTION_TEXT	= "Звуковой отсчет во время действия $spell:%s"
 DBM_CORE_AUTO_YELL_OPTION_TEXT		= "Кричать, когда на вас $spell:%s"
-DBM_CORE_AUTO_YELL_ANNOUNCE_TEXT	= "На МНЕ - %s!"
+DBM_CORE_AUTO_YELL_ANNOUNCE_TEXT	= "%s на " .. UnitName("player") .. "!"
 
 
 -- New special warnings
@@ -260,6 +267,7 @@ DBM_ARROW_ERROR_USAGE	= {
 
 DBM_SPEED_KILL_TIMER_TEXT	= "Рекордная победа"
 DBM_SPEED_KILL_TIMER_OPTION	= "Отсчет времени вашей самой быстрой победы"
+
 
 DBM_REQ_INSTANCE_ID_PERMISSION		= "%s запрашивает разрешение на просмотр ваших текущих сохранений подземелий.\nВы хотите предоставить %s такое право? Этот игрок получит возможность запрашивать эту информацию без уведомления в течение вашей текущей игровой сессии."
 DBM_ERROR_NO_RAID					= "Вы должны состоять в рейдовой группе для использования этой функции."

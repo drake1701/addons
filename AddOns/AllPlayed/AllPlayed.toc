@@ -7,8 +7,8 @@
 ## Notes-koKR: 모든 캐릭터의 플레이 시간, 휴식경험치, 금전현황 기록
 ## Notes-zhCN: 追踪所有角色的在线时间，双倍经验与金钱
 ## Notes-zhTW: 追蹤所有角色的在線時間，雙倍經驗與金錢
-## Version: 50100-1 $Revision: 276 $
-## X-Curse-Packaged-Version: v50100-1-beta-1
+## Version: 50200-1 $Revision: 280 $
+## X-Curse-Packaged-Version: v50200-1
 ## X-Curse-Project-Name: AllPlayed
 ## X-Curse-Project-ID: all-played-laotseu
 ## X-Curse-Repository-ID: wow/all-played-laotseu/mainline
@@ -23,9 +23,9 @@
 ## X-RelSite-WoWI: 6158
 ## X-RelSite-Curse: 4814
 ## X-Category: Interface Enhancements
-## X-Date: $Date: 2013-02-26 03:15:36 +0000 (Tue, 26 Feb 2013) $
+## X-Date: $Date: 2013-03-07 23:26:19 +0000 (Thu, 07 Mar 2013) $
 
-## $Id: AllPlayed.toc 276 2013-02-26 03:15:36Z LaoTseu $
+## $Id: AllPlayed.toc 280 2013-03-07 23:26:19Z LaoTseu $
 
 ## DefaultState: enabled
 

@@ -1,4 +1,35 @@
-Packer Note: Files to exclude: *.db *.png *.gif *.jpg *.tif *.txt *.psd *.bmp
+Pack Command:  		zip -vr TP_Release.zip TidyPlates* -x@exclude.lst
+Exclusion List: 	*.svn*   *.DS_Store*   exclude.lst   *.db   *.png   *.gif   *.jpg   *.tif   *.txt   *.psd   *.bmp   
+
+6.9.8
+---------------------------
+- Hub: "By Threat" Color Modes will pass through enemy class colors, when available, and then use Reaction colors.  (NPC-Pets will continue to use the "By Threat" colors)
+- Hub: "By Threat" Warning Glow Mode now incorporates "By Enemy Healer", so it can be used for Pvp without changing config.
+* These changes may evolve into more situationally reactive configs... we'll see!
+- Widgets: HealerTrack: Should more reliably and quickly detect the spec of the enemy units.
+
+6.9.7
+---------------------------
+- Fixed Tank Aura Watcher issue
+
+6.9.6
+---------------------------
+- Performance improvement on Hidden mobs
+- Aura Widget: Better association of Player characters, especially for friendly Buffs
+- More extensive 'nil' strsplit error checking
+- Hub: Added "Reaction" and "Spell Casting" color options
+- Hub: Added reaction colors to 'By Threat' Functions
+- Hub: The Widget creation and update functions will look for, and call: TidyPlatesGlobal_OnInitialize, TidyPlatesGlobal_OnContextUpdate, TidyPlatesGlobal_OnUpdate.
+	TidyPlatesGlobal_OnInitialize() is called when a nameplate is created or re-shown
+	TidyPlatesGlobal_OnContextUpdate() is called when a unit is targeted or moused-over.  (Any time the unitid or GUID changes)
+	TidyPlatesGlobal_OnUpdate() is called when other data about the unit changes, or is requested by an external controller.
+	* These functions can be used to create and maintain non-theme widgets.  Eventually, they may be implemented directly into the Core
+	* Widget authors should hook the existing function, if it's present (No Returns):
+	  Ex.	local OriginalFunction = TidyPlatesGlobal_OnInitialize
+		TidyPlatesGlobal_OnInitialize = function (extended)
+			if not extended.widgets.mywidget then extended.widgets.mywidget = CreateFrame("Frame", nil, extended) end
+			if OriginalFunction then OriginalFunction(extended) end
+		end
 
 6.9.5
 ---------------------------
@@ -16,7 +47,7 @@ Packer Note: Files to exclude: *.db *.png *.gif *.jpg *.tif *.txt *.psd *.bmp
 
 6.9.2
 ---------------------------
-- More bug fixing, which seems to be a blessing in-disguise, since it's yeilding some removal of redundancies, and (hopefully) incremental improvement in performance.
+- More bug fixing, which seems to be a blessing in disguise, since it's yeilding some removal of redundancies, and (hopefully) incremental improvement in performance.
 - Hub: Added a new Filter Item, "Filter Mini-Mobs".  This'll allow you to scale and fade those pesky mobs with mini-nameplates.  70% works well for me.
 
 6.9.1

@@ -1,7 +1,7 @@
 local mod	= DBM:NewMod(824, "DBM-ThroneofThunder", nil, 362)
 local L		= mod:GetLocalizedStrings()
 
-mod:SetRevision(("$Revision: 9035 $"):sub(12, -3))
+mod:SetRevision(("$Revision: 9145 $"):sub(12, -3))
 mod:SetCreatureID(69427)
 mod:SetModelID(47527)
 
@@ -76,7 +76,7 @@ function mod:SPELL_CAST_START(args)
 	if args.spellId == 136954 then
 		self:BossTargetScanner(69427, "AnimaRingTarget", 0.02, 12)
 		timerAnimaRingCD:Start()
-	elseif args:IsSpellID(138763, 139867) then--Normal version is 2.2 sec cast. Heroic is 1.4 second cast (thus why it has different spellid)
+	elseif args:IsSpellID(138763, 139867, 139869) then--Normal version is 2.2 sec cast. Heroic is 1.4 second cast (thus why it has different spellid)
 		warnInterruptingJolt:Show()
 		specWarnInterruptingJolt:Show()
 --		timerInterruptingJoltCD:Start()

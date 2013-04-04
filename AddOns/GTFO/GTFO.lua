@@ -667,6 +667,11 @@ Change Log:
 	v4.22.2
 		- Fixed Pandaria spells for Throne of Thunder
 		- Fixed Pandaria spells for Brawler's Guild
+	v4.23
+		- Added support for LFR filters
+		- Added Pandaria spells for Black Temple
+		- Fixed Pandaria spells for Throne of Thunder
+		- Added Pandaria spells for Heart of Fear	
 
 ]]--
 GTFO = {
@@ -683,8 +688,8 @@ GTFO = {
 		IgnoreOptions = { };
 		TrivialDamagePercent = .5; -- Minimum % of HP lost required for an alert to be trivial
 	};
-	Version = "4.22.2"; -- Version number (text format)
-	VersionNumber = 42202; -- Numeric version number for checking out-of-date clients
+	Version = "4.23"; -- Version number (text format)
+	VersionNumber = 42300; -- Numeric version number for checking out-of-date clients
 	DataLogging = nil; -- Indicate whether or not the addon needs to run the datalogging function (for hooking)
 	DataCode = "4"; -- Saved Variable versioning, change this value to force a reset to default
 	CanTank = nil; -- The active character is capable of tanking
@@ -1085,7 +1090,7 @@ function GTFO_OnEvent(self, event, ...)
 						return;
 					end
 				end
-				if (SpellSourceGUID == UnitGUID("player") and GTFO.SpellID[SpellID].ignoreSelfInflicted) then
+				if (GTFO.SpellID[SpellID].ignoreSelfInflicted and SpellSourceGUID == UnitGUID("player")) then
 					--GTFO_DebugPrint("Won't alert "..SpellName.." ("..SpellID..") - Ignore self inflicted");
 					-- Self-inflicted wound and "Ignore Self Inflicated" is set
 					return;
@@ -2137,7 +2142,13 @@ function GTFO_GetAlertID(alert, target)
 		alertLevel = alert.sound or 0;
 	end
 	
-	if (alert.soundHeroic or alert.soundChallenge or (tankAlert and (alert.tankSoundHeroic or alert.tankSoundChallenge))) then
+	if ((alert.soundLFR or (tankAlert and alert.tankSoundLFR)) and GTFO_IsInLFR()) then
+		if (tankAlert and alert.tankSoundLFR) then
+			alertLevel = alert.tankSoundLFR;
+		elseif (alert.soundLFR) then
+			alertLevel = alert.soundLFR;
+		end
+	elseif (alert.soundHeroic or alert.soundChallenge or (tankAlert and (alert.tankSoundHeroic or alert.tankSoundChallenge))) then
 		local isHeroic, isChallenge = select(3, GetDifficultyInfo(select(3, GetInstanceInfo())));
 		if (isChallenge == true) then
 			-- Challenge Mode
@@ -2269,3 +2280,8 @@ function GTFO_DisplayAura(alertTypeID)
 		GTFO_DisplayAura_WeakAuras(alertTypeID);
 	end
 end
+
+function GTFO_IsInLFR()
+	return IsInGroup(LE_PARTY_CATEGORY_INSTANCE);
+end
+

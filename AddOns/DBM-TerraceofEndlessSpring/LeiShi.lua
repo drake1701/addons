@@ -1,7 +1,7 @@
 local mod	= DBM:NewMod(729, "DBM-TerraceofEndlessSpring", nil, 320)
 local L		= mod:GetLocalizedStrings()
 
-mod:SetRevision(("$Revision: 9026 $"):sub(12, -3))
+mod:SetRevision(("$Revision: 9129 $"):sub(12, -3))
 mod:SetCreatureID(62983)--62995 Animated Protector
 mod:SetModelID(42811)
 
@@ -161,7 +161,7 @@ local function resetguardstate()
 end
 	
 mod:RegisterOnUpdateHandler(function(self)
-	if hasHighestVersion and not iconsSet == guardActivated then
+	if hasHighestVersion and not (iconsSet == guardActivated) then
 		for i = 1, DBM:GetNumGroupMembers() do
 			local uId = "raid"..i.."target"
 			local guid = UnitGUID(uId)
@@ -172,7 +172,7 @@ mod:RegisterOnUpdateHandler(function(self)
 			end
 			local guid2 = UnitGUID("mouseover")
 			if guards[guid2] then
-				SetRaidTarget(uId, guards[guid2])
+				SetRaidTarget("mouseover", guards[guid2])
 				iconsSet = iconsSet + 1
 				guards[guid2] = nil
 			end
@@ -340,14 +340,13 @@ function mod:OnSync(msg, guid, ver)
 				hasHighestVersion = false
 			end
 		end
-	elseif msg == "FastestPerson" and guid and self:AntiSpam(10, 2) then--Whoever sends this sync first wins all. They have highest version and fastest computer
+	elseif msg == "FastestPerson" and guid and self:AntiSpam(10, 2) then--Whoever sends this sync first wins all. They have highest version and probably the lowest ping
+		-- note: this assumes that everyone sees chat/addon-messages in the same order which seems to be true at the moment; can be changed to use GetNetStats() if this changes
 		self:Unschedule(FindFastestHighestVersion)
 		if guid == UnitGUID("player") then
 			hasHighestVersion = true
-			print("DBM Debug: You have highest DBM version with icons enabled and fastest computer. You designated icon setter.")
 		else
 			hasHighestVersion = false
-			print("DBM Debug: You will not be setting icons since your DBM version is out of date or your computer is slower")
 		end
 	end
 end

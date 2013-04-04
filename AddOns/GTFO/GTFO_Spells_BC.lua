@@ -434,3 +434,8 @@ GTFO.SpellID["35383"] = {
 	--desc = "Flame Patch (Al'ar - Tempest Keep)";
 	sound = 1;
 };
+
+GTFO.SpellID["138561"] = {
+	--desc = "Kanrethad Ebonlocke (Black Temple)";
+	sound = 1;
+};

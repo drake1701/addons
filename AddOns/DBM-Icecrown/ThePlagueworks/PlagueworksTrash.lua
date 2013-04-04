@@ -1,8 +1,9 @@
 local mod	= DBM:NewMod("PlagueworksTrash", "DBM-Icecrown", 2)
 local L		= mod:GetLocalizedStrings()
 
-mod:SetRevision(("$Revision: 34 $"):sub(12, -3))
+mod:SetRevision(("$Revision: 37 $"):sub(12, -3))
 mod:SetModelID(30483)
+mod.isTrashMod = true
 
 mod:RegisterEvents(
 	"SPELL_AURA_APPLIED",

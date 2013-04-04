@@ -43,12 +43,10 @@ L.IconsInUse				= "此模組已使用的標記"
 
 -- Tab: Boss Statistics
 L.BossStatistics			= "首領狀態"
-L.Statistic_Kills			= "擊殺："
+L.Statistic_Kills			= "勝利："
 L.Statistic_Wipes			= "失敗："
+L.Statistic_Incompletes		= "未完成："
 L.Statistic_BestKill		= "最快記錄："
-L.Statistic_Heroic			= "英雄模式"
-L.Statistic_10Man			= "10人團隊"
-L.Statistic_25Man			= "25人團隊"
 
 -- Tab: General Options
 L.General 					= "DBM綜合設置"
@@ -96,6 +94,7 @@ L.ShowWarningsInChat 		= "在聊天視窗中顯示警告"
 L.ShowFakedRaidWarnings 	= "以偽裝團隊警告資訊的方式顯示警告內容"
 L.WarningIconLeft 			= "左側顯示圖示"
 L.WarningIconRight 			= "右側顯示圖示"
+L.ShowCountdownText			= "顯示倒數文字"
 L.RaidWarnMessage 			= "感謝您使用Deadly Boss Mods"
 L.BarWhileMove 				= "可移動的團隊警告"
 L.RaidWarnSound				= "發出團隊警告時播放音效"

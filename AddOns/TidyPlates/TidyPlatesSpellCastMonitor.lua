@@ -46,6 +46,7 @@ local function SearchNameplateByGUID(SearchFor)
 end
 
 local function SearchNameplateByName(NameString)
+	if NameString == nil then return end
 	local VisiblePlate
 	local SearchFor = strsplit("-", NameString)
 	for VisiblePlate in pairs(TidyPlates.NameplatesByVisible) do
@@ -88,11 +89,11 @@ local function OnSpellCast(...)
 	castTime = max(castTime, 1500)
 	--if not (castTime > 0) then return end
 	
-	if bit.band(sourceFlags, COMBATLOG_OBJECT_REACTION_HOSTILE) > 0 then 
-		if bit.band(sourceFlags, COMBATLOG_OBJECT_CONTROL_PLAYER) > 0 then 
+	if bit.band(sourceFlags, COMBATLOG_OBJECT_REACTION_HOSTILE) > 0 then 			-- Hostile!
+		if bit.band(sourceFlags, COMBATLOG_OBJECT_CONTROL_PLAYER) > 0 then 			-- Player Controlled, search via Name
 			--	destination plate, by name
-			FoundPlate = SearchNameplateByName(sourceName)
-		elseif bit.band(sourceFlags, COMBATLOG_OBJECT_CONTROL_NPC) > 0 then 
+			FoundPlate = SearchNameplateByName(sourceName)			
+		elseif bit.band(sourceFlags, COMBATLOG_OBJECT_CONTROL_NPC) > 0 then 			-- NPC, search via GUID, or raid icon
 			--	destination plate, by GUID
 			FoundPlate = SearchNameplateByGUID(sourceGUID)
 			if not FoundPlate then FoundPlate = SearchNameplateByIcon(sourceRaidFlags) end

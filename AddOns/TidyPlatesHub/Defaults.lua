@@ -16,6 +16,10 @@ TidyPlatesHubDefaults = {
 	StyleEnemyMode = 1, 
 	StyleFriendlyMode = 1,
 	
+	-- Headline
+	TextPlateNameColorMode = 4,
+	TextPlateFieldMode = 3,
+	
 	-- Opacity
 	---------------------------------------
 	OpacityTarget = 1,
@@ -24,7 +28,7 @@ TidyPlatesHubDefaults = {
 	OpacitySpotlight = 1,
 	OpacityFullSpell = false,				-- Bring Casting units to Full Opacity
 	OpacityFullNoTarget = true,				-- Use full opacity when No Target
-	OpacityFullMouseover = true,
+	OpacityFullMouseover = false,
 	
 	-- Filter
 	---------------------------------------
@@ -53,17 +57,15 @@ TidyPlatesHubDefaults = {
 	
 	-- Text
 	---------------------------------------
-	TextHealthTextMode = 1,
-	TextPlateFieldMode = 3,
 	TextShowLevel = false,
 	TextUseBlizzardFont = false,
-
+	TextHealthTextMode = 1,
+	
 	-- Color
 	---------------------------------------
 	ColorHealthBarMode = 3,
 	ColorDangerGlowMode = 2,
 	TextNameColorMode = 1,
-	TextPlateNameColorMode = 1,
 	ClassColorPartyMembers = false,
 	ColorEnableOffTank = false,
 	
@@ -82,6 +84,28 @@ TidyPlatesHubDefaults = {
 	ColorPartyAggroGlow = true,
 	ColorPartyAggroText = false,
 	
+	
+	-- Reaction
+	---------------------------------------
+	ColorFriendlyNPC = {r = 0, g = 1, b = 0,},
+	ColorFriendlyPlayer = {r = 0, g = 0, b = 1,},
+	ColorNeutral = {r = 1, g = 1, b = 0,},
+	ColorHostileNPC = {r = 1, g = 0, b = 0,},
+	ColorHostilePlayer = {r = 1, g = 0, b = 0,},
+	ColorGuildMember = {r = 60/255, g = 168/255, b = 255/255,},
+	
+	TextColorFriendlyNPC = {r = 96/255, g = 224/255, b = 37/255,},
+	TextColorFriendlyPlayer = {r = 60/255, g = 168/255, b = 255/255,},
+	TextColorNeutral = {r = 252/255, g = 180/255, b = 27/255,},
+	TextColorHostileNPC = {r = 255/255, g = 51/255, b = 32/255,},
+	TextColorHostilePlayer = {r = 255/255, g = 51/255, b = 32/255,},
+	TextColorGuildMember = {r = 60/255, g = 168/255, b = 255/255,},
+	
+	-- Casting
+	---------------------------------------
+	ColorNormalSpellCast = { r = 252/255, g = 140/255, b = 0, },
+	ColorUnIntpellCast = { r = 0.5137243866920471, g = 0.7529395222663879, b = 0.7647042274475098, },
+			
 	
 	-- Health
 	---------------------------------------

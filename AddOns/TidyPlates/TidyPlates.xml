@@ -104,9 +104,16 @@
 	</Button>
 	
 	
-	
+	<Script file="TidyPlatesCubeframe.lua"/>
 	<Script file="TidyPlatesCustomStatusbar.lua"/>
+	
+	<!-- For Testing -->
+	<!--
+	<Script file="TidyPlatesCore_6_9_Trial.lua"/>
+	
+	-->
 	<Script file="TidyPlatesCore.lua"/>
+	
 	<Script file="TidyPlatesUtility.lua"/>
 	<Script file="TidyPlatesDefaults.lua"/>
 	<Script file="TidyPlatesPanel.lua"/>

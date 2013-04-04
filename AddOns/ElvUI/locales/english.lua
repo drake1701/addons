@@ -777,6 +777,13 @@ L['You can use the /resetui command to reset all of your movers. You can also us
 L['ABOVE_THREAT_FORMAT'] = '%s: %.0f%% [%.0f%% above |cff%02x%02x%02x%s|r]'
 
 --UnitFrames
+L['Class Color Override'] = true;
+L['Override the default class color setting.'] = true;
+L['Use Default'] = true;
+L['Force On'] = true;
+L['Force Off'] = true;
+L['Main Tanks / Main Assist'] = true;
+L['Name (Entire Group)'] = true;
 L['Invert Grouping Order'] = true;
 L['Reverses the grouping order. For example if your group is to grow right than up by default the first group is always at the bottom. With this option set then the first group will start at the bottom but as the number of groups grow it will always be near the top.'] = true;
 L["Personal"] = true;

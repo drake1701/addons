@@ -106,7 +106,7 @@ function CreateTidyPlatesCubeframe(parent)
 	return frame
 end
 
--- [[
+--[[
 TestCube = CreateTidyPlatesCubeframe(nil)
 TestCube:SetPoint("CENTER", WorldFrame)
 TestCube:SetCubeframeBodySize(128, 64)

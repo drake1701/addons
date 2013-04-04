@@ -35,13 +35,24 @@ GTFO.FFSpellID["113645"] = {
 	sound = 3;
 };
 
--- *****************************
--- * Terrace of Endless Spring *
--- *****************************
--- TODO: Expel Corruption (Protector Kaolan) (FF damage based on distance, find out what the min distance is and amt dmg taken for it)
-
 -- ********************
 -- * Throne of Thunder *
 -- ********************
+GTFO.FFSpellID["139321"] = {
+	--desc = "Storm Energy (Crazed Storm-Caller)";
+	sound = 1;
+	soundLFR = 2;
+};
+
+GTFO.FFSpellID["137530"] = {
+	--desc = "Focused Lightning Conduction (Jin'rokh the Breaker)";
+	sound = 3;
+};
+
 -- TODO: Biting Cold (Frost King Malakk) (Is the player stunned?  If so, this alert is unnecessary) -- Biting Cold is not FF damage, so not detectable
 -- TODO: Frostbite (Frost King Malakk) (Alert when only 1 stack is left)
+
+GTFO.FFSpellID["140621"] = {
+	--desc = "Fungi Spores (Fungal Growth)";
+	sound = 2;
+};

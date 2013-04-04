@@ -1,7 +1,7 @@
 local mod	= DBM:NewMod(817, "DBM-ThroneofThunder", nil, 362)
 local L		= mod:GetLocalizedStrings()
 
-mod:SetRevision(("$Revision: 8974 $"):sub(12, -3))
+mod:SetRevision(("$Revision: 9141 $"):sub(12, -3))
 mod:SetCreatureID(68078, 68079, 68080, 68081)--Ro'shak 68079, Quet'zal 68080, Dam'ren 68081, Iron Qon 68078
 mod:SetMainBossID(68078)
 mod:SetModelID(46627) -- Iron Qon, 46628 Ro'shak, 46629 Quet'zal, 46630 Dam'ren
@@ -20,7 +20,7 @@ mod:RegisterEventsInCombat(
 )
 
 local warnImpale						= mod:NewStackAnnounce(134691, 2, nil, mod:IsTank() or mod:IsHealer())
-local warnThrowSpear					= mod:NewSpellAnnounce(134926, 3)--Target scanning does not work for this.
+local warnThrowSpear					= mod:NewTargetAnnounce(134926, 3)--Target scanning does not work for this.
 local warnPhase1						= mod:NewPhaseAnnounce(1)
 local warnMoltenInferno					= mod:NewSpellAnnounce(134664, 2, nil, false)--highly variables cd, also can be spammy. disbled by default.
 local warnUnleashedFlame				= mod:NewSpellAnnounce(134611, 3, nil, false)--Spammy and unnesssary. Every 6 seconds is too often for a non important warning. people can turn it on if they want.
@@ -40,6 +40,9 @@ local warnFistSmash						= mod:NewCountAnnounce(136146, 3)
 local specWarnImpale					= mod:NewSpecialWarningStack(134691, mod:IsTank(), 3)
 local specWarnImpaleOther				= mod:NewSpecialWarningTarget(134691, mod:IsTank())
 local specWarnThrowSpear				= mod:NewSpecialWarningSpell(134926, nil, nil, nil, 2)
+local specWarnThrowSpearYou				= mod:NewSpecialWarningYou(134926)
+local specWarnThrowSpearNear			= mod:NewSpecialWarningClose(134926)
+local yellThrowSpear					= mod:NewYell(134926)
 local specWarnScorched					= mod:NewSpecialWarningStack(134647, false, 3)--We do a 4 and 2 strat (4 melee 2 ranged). 3 is not an everyone strat.
 local specWarnBurningCinders			= mod:NewSpecialWarningMove(137668)
 local specWarnMoltenOverload			= mod:NewSpecialWarningSpell(137221, nil, nil, nil, 2)
@@ -92,6 +95,36 @@ local function updateHealthFrame()
 	end
 end
 
+--Spear target happens BEFORE cast, so we have to pre schedule scan it to grab target
+--This will fail if the spear target actually IS his highest threat
+--In that case the aoe failsafe warning will just be used, so 1/10 or 1/25 odds in phase 1.
+--Should not fail in phase 2+ cause tank will be highest threat then (assuming after he dismounts first mount the tank taunts/hits him before he grabs second.
+local function checkSpear()
+	if UnitExists("boss1target") and not UnitDetailedThreatSituation("boss1target", "boss1") then--Boss 1 is looking at someone that isn't his highest threat (not a bug, i know bigwigs filters boss2 and that's wrong way to do it. boss2 threat ~= boss 1 threat. my debug printed healers in phase 1 every pull as boss1 threat, tank in phase 2+)
+		mod:Unschedule(checkSpear)
+		local targetname = DBM:GetUnitFullName("boss1target")
+		warnThrowSpear:Show(targetname)
+		if UnitIsUnit("boss1target", "player") then--you are spear target
+			specWarnThrowSpearYou:Show()
+			yellThrowSpear:Yell()
+		else--Not spear target
+			local x, y = GetPlayerMapPosition("boss1target")
+			if x == 0 and y == 0 then
+				SetMapToCurrentZone()
+				x, y = GetPlayerMapPosition("boss1target")
+			end
+			local inRange = DBM.RangeCheck:GetDistance("player", x, y)
+			if inRange and inRange < 10 then
+				specWarnThrowSpearNear:Show(targetname)--Near spear target
+			elseif AntiSpam(15, 8) then--Smart way to do a failsafe in case we never get a valid target
+				specWarnThrowSpear:Show()--not spear target or near spear target, generic aoe warning (for the lines and stuff)
+			end
+		end
+	else
+		mod:Schedule(0.3, checkSpear)
+	end
+end
+
 local function checkArcing()
 	local arcingDebuffs = 0
 	for i = 1, GetNumGroupMembers() do
@@ -119,6 +152,7 @@ function mod:OnCombatStart(delay)
 	updateHealthFrame()
 	warnPhase1:Show()
 	timerThrowSpearCD:Start(-delay)
+	self:Schedule(25, checkSpear)
 	if self.Options.RangeFrame then
 		if self:IsDifficulty("normal10", "heroic10") then
 			DBM.RangeCheck:Show(10, nil, nil, 2)
@@ -237,9 +271,13 @@ end
 
 function mod:SPELL_SUMMON(args)
 	if args.spellId == 134926 and phase < 4 then
-		warnThrowSpear:Show()
-		specWarnThrowSpear:Show()
+--		warnThrowSpear:Show()
+		if AntiSpam(15, 8) then--Basically, if the target scanning failed, we do an aoe warning on the actual summon.
+			specWarnThrowSpear:Show()
+		end
 		timerThrowSpearCD:Start()
+		self:Unschedule(checkSpear)
+		self:Schedule(25, checkSpear)--Timing adjust to reduce cpu usage when we know for sure the best time to check target. spear cd is variable, minimum though is 30, 25 is probably too early to start scanning but a good place to start.
 	end
 end
 
@@ -279,13 +317,12 @@ function mod:UNIT_SPELLCAST_SUCCEEDED(uId, _, _, _, spellId)
 			warnPhase2:Show()
 			if self:IsDifficulty("heroic10", "heroic25") then
 				timerFreezeCD:Start(13)
-				timerFrostSpikeCD:Start(18)
+				timerFrostSpikeCD:Start(15)
 			end
 			timerLightningStormCD:Start()
 			warnWindStorm:Schedule(52)
 			specWarnWindStorm:Schedule(52)
 			timerWindStormCD:Start(52)
-			print("DBM: Mod beyond this point is incomplete and most timers will be unavailable")
 		elseif cid == 68080 then--Quet'zal
 			phase = 3
 			updateHealthFrame()
@@ -311,7 +348,7 @@ function mod:UNIT_SPELLCAST_SUCCEEDED(uId, _, _, _, spellId)
 			timerFreezeCD:Cancel()
 			warnPhase4:Show()
 			timerRisingAngerCD:Start(15)
-			timerFistSmashCD:Start(25, 1)
+			timerFistSmashCD:Start(62, 1)
 		end
 	elseif spellId == 139172 and self:AntiSpam(2, 7) then--Whirling Winds (Phase 1 Heroic)
 		warnWhirlingWinds:Show()
@@ -331,7 +368,11 @@ function mod:UNIT_SPELLCAST_SUCCEEDED(uId, _, _, _, spellId)
 		fistSmashCount = fistSmashCount + 1
 		warnFistSmash:Show(fistSmashCount)
 		specWarnFistSmash:Show()
-		timerFistSmashCD:Start(nil, fistSmashCount+1)
+		if self:IsDifficulty("heroic10", "heroic25") then
+			timerFistSmashCD:Start(30, fistSmashCount+1) -- heroic cd longer.
+		else
+			timerFistSmashCD:Start(nil, fistSmashCount+1)
+		end
 	end
 end
 
@@ -375,10 +416,6 @@ function mod:UNIT_DIED(args)
 		timerFreezeCD:Cancel()
 		warnPhase4:Show()
 		timerRisingAngerCD:Start()
-		if self:IsDifficulty("normal25", "lfr25") then --lfr not comfirms
-			timerFistSmashCD:Start(22.5, 1)
-		else
-			timerFistSmashCD:Start(31.5, 1)
-		end
+		timerFistSmashCD:Start(22.5, 1)--fist smash cd is random. (22.5 or 31.5)
 	end
 end

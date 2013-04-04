@@ -5,10 +5,14 @@ local L
 --------------------------
 L= DBM:GetModLocalization(827)
 
-L:SetOptionLocalization({
-	RangeFrame		= "Show range frame"
+L:SetWarningLocalization({
+	specWarnWaterMove	= "%s soon - get out from Conductive Water!"
 })
 
+L:SetOptionLocalization({
+	specWarnWaterMove	= "Show special warning if you standing in $spell:138470\n(Warns at $spell:137313 pre-cast or $spell:138732 debuff fades shortly)",
+	RangeFrame			= "Show range frame"
+})
 
 --------------
 -- Horridon --
@@ -31,7 +35,9 @@ L:SetOptionLocalization({
 	warnOrbofControl		= "Announce when $journal:7092 dropped",
 	specWarnOrbofControl	= "Show special warning when $journal:7092 dropped",
 	timerDoor				= "Show timer for next Tribal Door phase",
-	timerAdds				= "Show timer for when next add jumps down"
+	timerAdds				= "Show timer for when next add jumps down",
+	RangeFrame				= "Show range frame (5) for $spell:136480",
+	SetIconOnCharge			= DBM_CORE_AUTO_ICONS_OPTION_TEXT:format(136769)
 })
 
 L:SetMiscLocalization({
@@ -71,7 +77,8 @@ L:SetOptionLocalization({
 	warnKickShell			= DBM_CORE_AUTO_ANNOUNCE_OPTIONS.spell:format(134031),
 	specWarnCrystalShell	= "Show special warning when you are missing $spell:137633 debuff",
 	InfoFrame				= "Show info frame for players without $spell:137633",
-	SetIconOnTurtles		= "Set icons on $journal:7129 \n(May not be reliable if more than 1 person with assist enables)",
+	SetIconOnTurtles		= "Set icons on $journal:7129",
+	ClearIconOnTurtles		= "Clear icons on $journal:7129 when affected by $spell:133971"
 })
 
 L:SetMiscLocalization({
@@ -129,21 +136,24 @@ L:SetMiscLocalization({
 L= DBM:GetModLocalization(818)
 
 L:SetWarningLocalization({
+	warnBeamNormal				= "Beam - Red : >%s<, Blue : >%s<",
+	warnBeamHeroic				= "Beam - Red : >%s<, Blue : >%s<, Yellow : >%s<",
 	warnAddsLeft				= "Fogs remaining: %d",
+	specWarnBlueBeam			= "Blue Beam on you - DO NOT MOVE!!",
 	specWarnFogRevealed			= "%s revealed!",
 	specWarnDisintegrationBeam	= "%s (%s)"
 })
 
 L:SetOptionLocalization({
+	warnBeam					= "Announce beam targets",
 	warnAddsLeft				= "Announce how many Fogs remain",
 	specWarnFogRevealed			= "Show special warning when a fog is revealed",
+	specWarnBlueBeam			= DBM_CORE_AUTO_SPEC_WARN_OPTIONS.spell:format(139202),
 	specWarnDisintegrationBeam	= DBM_CORE_AUTO_SPEC_WARN_OPTIONS.spell:format("ej6882"),
 	ArrowOnBeam					= "Show DBM Arrow during $journal:6882 to indicate which direction to move",
-	SetIconRays					= DBM_CORE_AUTO_ICONS_OPTION_TEXT:format("ej6891")
-})
-
-L:SetMiscLocalization({
-	Eye		= "Eye"--What to localize here, "<72.0 20:04:19> [CHAT_MSG_MONSTER_EMOTE] CHAT_MSG_MONSTER_EMOTE#The Bright  Light reveals an Amber Fog!#Amber Fog###--------->Yellow Eye<---------##0#0##0#309#nil#0#false#false", -- [13413]
+	SetIconRays					= DBM_CORE_AUTO_ICONS_OPTION_TEXT:format("ej6891"),
+	SetIconLifeDrain			= DBM_CORE_AUTO_ICONS_OPTION_TEXT:format(133795),
+	InfoFrame					= "Show info frame for $spell:133795 stacks"
 })
 
 ----------------
@@ -151,8 +161,15 @@ L:SetMiscLocalization({
 ----------------
 L= DBM:GetModLocalization(820)
 
+L:SetWarningLocalization({
+	warnDebuffCount				= "Too many mutations: % good & % bad",
+	specWarnFullyMutatedFaded	= "%s faded"
+})
+
 L:SetOptionLocalization({
-	RangeFrame			= "Show range frame (5/2)"
+	warnDebuffCount				= "Show debuff count warnings when you absorb too many pools",
+	specWarnFullyMutatedFaded	= "Show special warning when $spell:140546 has faded",
+	RangeFrame					= "Show range frame (5/2)"
 })
 
 -----------------

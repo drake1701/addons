@@ -1,9 +1,10 @@
 local mod	= DBM:NewMod(819, "DBM-ThroneofThunder", nil, 362)
 local L		= mod:GetLocalizedStrings()
 
-mod:SetRevision(("$Revision: 9048 $"):sub(12, -3))
+mod:SetRevision(("$Revision: 9140 $"):sub(12, -3))
 mod:SetCreatureID(68476)
 mod:SetModelID(47325)
+mod:SetUsedIcons(1)
 
 mod:RegisterCombat("combat")
 
@@ -76,8 +77,12 @@ local berserkTimer				= mod:NewBerserkTimer(720)
 
 local soundDireFixate			= mod:NewSound(140946)
 
+mod:AddBoolOption("RangeFrame")
+mod:AddBoolOption("SetIconOnCharge")
+
 local doorNumber = 0
 local direNumber = 0
+local shamandead = 0
 local jalakEngaged = false
 local Farraki	= EJ_GetSectionInfo(7098)
 local Gurubashi	= EJ_GetSectionInfo(7100)
@@ -87,6 +92,7 @@ local Amani		= EJ_GetSectionInfo(7106)
 function mod:OnCombatStart(delay)
 	doorNumber = 0
 	direNumber = 0
+	shamandead = 0
 	jalakEngaged = false
 	timerPunctureCD:Start(10-delay)
 	timerDoubleSwipeCD:Start(16-delay)--16-17 second variation
@@ -103,6 +109,9 @@ end
 
 function mod:OnCombatEnd()
 	self:UnregisterShortTermEvents()
+	if self.Options.RangeFrame then
+		DBM.RangeCheck:Hide()
+	end
 end
 
 --[[
@@ -242,6 +251,13 @@ function mod:UNIT_DIED(args)
 	local cid = self:GetCIDFromGUID(args.destGUID)
 	if cid == 69374 then
 		timerBestialCryCD:Cancel()
+	elseif cid == 69176 then--shamen
+		shamandead = shamandead + 1
+		if shamandead == 3 then
+			if self.Options.RangeFrame then
+				DBM.RangeCheck:Hide()
+			end
+		end
 	end
 end
 
@@ -254,6 +270,9 @@ function mod:OnSync(msg, target)
 		if target == UnitName("player") then
 			specWarnCharge:Show()
 			yellCharge:Yell()
+		end
+		if UnitExists(target) and self.Options.SetIconOnCharge then
+			self:SetIcon(target, 1, 5)--star
 		end
 	elseif msg == "Door" and self:AntiSpam(60, 4) then--prevent bad doorNumber increase if very late sync received.
 	--Doors spawn every 131.5 seconds
@@ -280,6 +299,9 @@ function mod:OnSync(msg, target)
 			timerAdds:Start(18.9, Amani)
 			warnAdds:Schedule(18.9, Amani)
 			self:Schedule(18.9, addsDelay, Amani)
+			if self.Options.RangeFrame and not self:IsDifficulty("lfr25") then
+				DBM.RangeCheck:Show(5)
+			end
 		end
 		if doorNumber < 4 then
 			timerDoor:Start()

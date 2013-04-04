@@ -1,7 +1,7 @@
 local mod	= DBM:NewMod(828, "DBM-ThroneofThunder", nil, 362)
 local L		= mod:GetLocalizedStrings()
 
-mod:SetRevision(("$Revision: 9039 $"):sub(12, -3))
+mod:SetRevision(("$Revision: 9145 $"):sub(12, -3))
 mod:SetCreatureID(69712)
 mod:SetModelID(46675)
 
@@ -34,11 +34,12 @@ local specWarnBigBird		= mod:NewSpecialWarningSwitch("ej7827", mod:IsTank())
 
 --local timerCawsCD			= mod:NewCDTimer(15, 138923)--Variable beyond usefulness. anywhere from 18 second cd and 50.
 local timerQuills			= mod:NewBuffActiveTimer(10, 134380)
-local timerQuillsCD			= mod:NewCDTimer(60, 134380)--variable because he has two other channeled abilities with different cds, so this is cast every 60-67 seconds usually after channel of some other spell ends
+local timerQuillsCD			= mod:NewCDTimer(62.5, 134380)--variable because he has two other channeled abilities with different cds, so this is cast every 62.5-67 seconds usually after channel of some other spell ends
 local timerFlockCD	 		= mod:NewTimer(30, "timerFlockCD", 15746)
+local timerFeedYoungCD	 	= mod:NewCDTimer(30, 137528)--30-40 seconds (always 30 unless delayed by other channeled spells)
 local timerTalonRakeCD		= mod:NewCDTimer(20, 134366, mod:IsTank() or mod:IsHealer())--20-30 second variation
 local timerTalonRake		= mod:NewTargetTimer(60, 134366, mod:IsTank() or mod:IsHealer())
-local timerDowndraft		= mod:NewBuffActiveTimer(10, 134730)
+local timerDowndraft		= mod:NewBuffActiveTimer(10, 134370)
 local timerDowndraftCD		= mod:NewCDTimer(97, 134370)
 local timerFlight			= mod:NewBuffFadesTimer(10, 133755)
 local timerPrimalNutriment	= mod:NewBuffFadesTimer(30, 140741)
@@ -53,9 +54,13 @@ local flockName = EJ_GetSectionInfo(7348)
 function mod:OnCombatStart(delay)
 	flockC = 0
 	trippleNest = false
-	timerQuillsCD:Start(42.5-delay)
+	if self:IsDifficulty("normal10", "heroic10", "lfr25") then
+		timerQuillsCD:Start(60-delay)
+	else
+		timerQuillsCD:Start(42.5-delay)
+	end
 	timerDowndraftCD:Start(91-delay)
-	if self.Options.RangeFrame then
+	if self.Options.RangeFrame and not self:IsDifficulty("lfr25") then
 		DBM.RangeCheck:Show(8)
 	end
 end
@@ -83,6 +88,11 @@ function mod:SPELL_AURA_APPLIED(args)
 	elseif args.spellId == 137528 then
 		warnFeedYoung:Show()
 		specWarnFeedYoung:Show()
+		if self:IsDifficulty("normal10", "heroic10", "lfr25") then
+			timerFeedYoungCD:Start(40)
+		else
+			timerFeedYoungCD:Start()
+		end
 	elseif args.spellId == 133755 and args:IsPlayer() then
 		timerFlight:Start()
 	elseif args.spellId == 140741 and args:IsPlayer() then
@@ -102,7 +112,11 @@ function mod:SPELL_CAST_START(args)
 		warnQuills:Show()
 		specWarnQuills:Show()
 		timerQuills:Start()
-		timerQuillsCD:Start()
+		if self:IsDifficulty("normal10", "heroic10", "lfr25") then
+			timerQuillsCD:Start(81)--81 sec normal, sometimes 91s?
+		else
+			timerQuillsCD:Start()
+		end
 	elseif args.spellId == 134370 then
 		warnDowndraft:Show()
 		specWarnDowndraft:Show()

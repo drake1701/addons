@@ -6,8 +6,13 @@ local L
 --------------------------
 L= DBM:GetModLocalization(827)
 
+L:SetWarningLocalization({
+	specWarnWaterMove	= "%s即將到來 - 離開導電水池!"
+})
+
 L:SetOptionLocalization({
-	RangeFrame		= "顯示距離框架"
+	specWarnWaterMove	= "為$spell:137313施放前或$spell:138732效果消失前前顯示特別警告",
+	RangeFrame			= "顯示距離框架"
 })
 
 --------------
@@ -31,12 +36,13 @@ L:SetOptionLocalization({
 	warnOrbofControl		= "提示$journal:7092掉落",
 	specWarnOrbofControl	= "為$journal:7092掉落顯示特別警告",
 	timerDoor				= "為下一個部族的門顯示計時器",
-	timerAdds				= "為下一次小怪跳下顯示計時器"
+	timerAdds				= "為下一次小怪跳下顯示計時器",
+	RangeFrame				= "為$spell:136480顯示距離框架(5碼)"
 })
 
 L:SetMiscLocalization({
-	newForces				= "的門蜂擁而出!",--Farraki forces pour from the Farraki Tribal Door!
-	chargeTarget			= "用力拍動尾巴!"--Horridon sets his eyes on Eraeshio and stamps his tail!
+	newForces				= "的門蜂擁而出!",
+	chargeTarget			= "用力拍動尾巴!"
 })
 
 ---------------------------
@@ -45,16 +51,12 @@ L:SetMiscLocalization({
 L= DBM:GetModLocalization(816)
 
 L:SetWarningLocalization({
-	specWarnPossessed		= "%s在%s - 變換目標"
+	specWarnPossessed		= "%s在%s - 快換目標"
 })
 
 L:SetOptionLocalization({
-	warnPossessed		= DBM_CORE_AUTO_ANNOUNCE_OPTIONS.target:format(136442),
-	specWarnPossessed	= DBM_CORE_AUTO_SPEC_WARN_OPTIONS.switch:format(136442),
 	PHealthFrame		= "為$spell:136442消散顯示剩餘血量框架(需要首領血量框架開啟)",
-	RangeFrame			= "顯示距離框架",
-	SetIconOnBitingCold	= DBM_CORE_AUTO_ICONS_OPTION_TEXT:format(136992),
-	SetIconOnFrostBite	= DBM_CORE_AUTO_ICONS_OPTION_TEXT:format(136922)
+	RangeFrame			= "顯示距離框架"
 })
 
 ------------
@@ -68,10 +70,10 @@ L:SetWarningLocalization({
 })
 
 L:SetOptionLocalization({
-	warnKickShell			= DBM_CORE_AUTO_ANNOUNCE_OPTIONS.spell:format(134031),
 	specWarnCrystalShell	= "當你沒有$spell:137633減益時顯示特別警告",
 	InfoFrame				= "為玩家沒有$spell:137633顯示訊息框架",
 	SetIconOnTurtles		= "為$journal:7129標示團隊圖示(超過一名以上的團隊助理時不可靠)",
+	ClearIconOnTurtles		= "當$journal:7129中了$spell:133971清除團隊圖示"
 })
 
 L:SetMiscLocalization({
@@ -82,11 +84,6 @@ L:SetMiscLocalization({
 -- Megaera --
 -------------
 L= DBM:GetModLocalization(821)
-
-L:SetOptionLocalization({
-	SetIconOnCinders		= DBM_CORE_AUTO_ICONS_OPTION_TEXT:format(139822),
-	SetIconOnTorrentofIce	= DBM_CORE_AUTO_ICONS_OPTION_TEXT:format(139889)
-})
 
 L:SetMiscLocalization({
 	rampageEnds	= "梅賈拉的怒氣平息了。"
@@ -107,9 +104,6 @@ L:SetTimerLocalization({
 })
 
 L:SetOptionLocalization({
-	warnFlock		= DBM_CORE_AUTO_ANNOUNCE_OPTIONS.count:format("ej7348"),
-	specWarnFlock	= DBM_CORE_AUTO_SPEC_WARN_OPTIONS.switch:format("ej7348"),
-	timerFlockCD	= DBM_CORE_AUTO_TIMER_OPTIONS.nextcount:format("ej7348"),
 	RangeFrame		= "為$spell:138923顯示距離框架(8碼)"
 })
 
@@ -118,7 +112,9 @@ L:SetMiscLocalization({
 	eggsHatchU		= "上層巢裡的蛋開始孵化了!",
 	Upper			= "上層",
 	Lower			= "下層",
-	UpperAndLower	= "上層和下層"
+	UpperAndLower	= "上層和下層",
+	TrippleD		= "Tripple (2xDwn)",
+	TrippleU		= "Tripple (2xUp)"
 })
 
 --------------------------
@@ -128,6 +124,7 @@ L= DBM:GetModLocalization(818)
 
 L:SetWarningLocalization({
 	warnAddsLeft				= "霧獸剩餘: %d",
+	specWarnBlueBeam			= "你中了藍光射線 - 不要移動!!",
 	specWarnFogRevealed			= "照出%s了!",
 	specWarnDisintegrationBeam	= "%s (%s)"
 })
@@ -135,9 +132,8 @@ L:SetWarningLocalization({
 L:SetOptionLocalization({
 	warnAddsLeft				= "提示還剩餘多少霧獸",
 	specWarnFogRevealed			= "為照出霧獸顯示特別警告",
-	specWarnDisintegrationBeam	= DBM_CORE_AUTO_SPEC_WARN_OPTIONS.spell:format("ej6882"),
 	ArrowOnBeam					= "為$journal:6882指示DBM箭頭移動方向",
-	SetIconRays					= DBM_CORE_AUTO_ICONS_OPTION_TEXT:format("ej6891")
+	InfoFrame					= "為$spell:133795堆疊顯示訊息框架"
 })
 
 L:SetMiscLocalization({
@@ -149,8 +145,15 @@ L:SetMiscLocalization({
 ----------------
 L= DBM:GetModLocalization(820)
 
+L:SetWarningLocalization({
+	warnDebuffCount				= "太多突變: %有益& %有害",
+	specWarnFullyMutatedFaded	= "%s結束"
+})
+
 L:SetOptionLocalization({
-	RangeFrame		= "顯示距離框架(2碼/5碼)",
+	warnDebuffCount				= "當你吃太多池水時顯示減益計算警告",
+	specWarnFullyMutatedFaded	= "當$spell:140546結束時顯示特別警告",
+	RangeFrame					= "顯示距離框架(2碼/5碼)",
 })
 
 -----------------
@@ -159,7 +162,7 @@ L:SetOptionLocalization({
 L= DBM:GetModLocalization(824)
 
 L:SetWarningLocalization({
-	warnMatterSwapped	= "%s: >%s< 和 >%s< 交換"
+	warnMatterSwapped	= "%s:>%s<和>%s<交換"
 })
 
 L:SetOptionLocalization({
@@ -180,7 +183,6 @@ L:SetWarningLocalization({
 })
 
 L:SetOptionLocalization({
-	warnDeadZone	= DBM_CORE_AUTO_ANNOUNCE_OPTIONS.spell:format(137229),
 	RangeFrame		= "顯示動態距離框架(當太多人太接近時會動態顯示)",
 	InfoFrame		= "為玩家有$spell:136193顯示訊息框架"
 })
@@ -220,11 +222,9 @@ L:SetMiscLocalization({
 L= DBM:GetModLocalization(832)
 
 L:SetOptionLocalization({
-	RangeFrame			= "顯示距離框架",--For two different spells
+	RangeFrame			= "顯示距離框架",
 	StaticShockArrow	= "當某人中了$spell:135695顯示DBM箭頭",
-	OverchargeArrow		= "當某人中了$spell:136295顯示DBM箭頭",
-	SetIconOnOvercharge	= DBM_CORE_AUTO_ICONS_OPTION_TEXT:format(136295),
-	SetIconOnStaticShock= DBM_CORE_AUTO_ICONS_OPTION_TEXT:format(135695)
+	OverchargeArrow		= "當某人中了$spell:136295顯示DBM箭頭"
 })
 
 ------------
@@ -242,5 +242,5 @@ L:SetGeneralLocalization({
 })
 
 L:SetOptionLocalization({
-	RangeFrame		= "顯示距離框架(10碼)"--For 3 different spells
+	RangeFrame		= "顯示距離框架(10碼)"
 })

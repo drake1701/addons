@@ -18,7 +18,7 @@ local function IsHealer(name)
 	if name then 
 		local Role = RoleList[name]
 		if Role == nil then
-			--RequestBattlefieldScoreData()
+			RequestBattlefieldScoreData()
 		else 
 			--if Role == "Healer" then print(name, "Marked as Healer") end
 			return Role == "Healer" 
@@ -180,6 +180,8 @@ local ClassRoles = {
 	},
 }
 
+
+
 -- local DisplayFaction = 0; if UnitFactionGroup("player") == "Horde" then DisplayFaction = 1 end
 local NextUpdate = 0
 local function UpdateRolesViaScoreboard()
@@ -199,6 +201,7 @@ local function UpdateRolesViaScoreboard()
 	if NumScores > 0 then
 		for i = 1, NumScores do
 			local name, _, _, _, _, faction, _, class, _, _, _, _, _, _, _, talentSpec = GetBattlefieldScore(i)
+			--print(name, class, talentSpec)
 			if name and class and ClassRoles[class] and talentSpec then
 				local Role = ClassRoles[class][talentSpec]
 
@@ -297,6 +300,7 @@ function Events.PLAYER_ENTERING_WORLD()
 end
 
 function Events.UPDATE_BATTLEFIELD_SCORE()
+	--print("UPDATE_BATTLEFIELD_SCORE")
 	UpdateRolesViaScoreboard() 
 	return
 end
@@ -326,6 +330,7 @@ end
 local HealerTrackWatcher = CreateFrame("Frame")	
 	
 local function Enable()
+	--print("TidyPlatesWidgets.HealerTrack:Enable")
 	HealerTrackWatcher:SetScript("OnEvent", CombatEventHandler)
 	HealerTrackWatcher:RegisterEvent("COMBAT_LOG_EVENT_UNFILTERED")
 	HealerTrackWatcher:RegisterEvent("PLAYER_ENTERING_WORLD")

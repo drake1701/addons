@@ -59,3 +59,34 @@ L= DBM:GetModLocalization("Troves")
 L:SetGeneralLocalization{
 	name = "Troves of the Thunder King"
 }
+
+------------------------
+-- Warlock Green Fire --
+------------------------
+
+L= DBM:GetModLocalization("GreenFire")
+
+L:SetGeneralLocalization{
+	name = "Pursuing the Black Harvest"
+}
+
+L:SetWarningLocalization({
+	specWarnLostSouls		= "Lost Souls!",
+	specWarnEnslavePitLord	= "Pit Lord - Enslave Now!"
+})
+
+L:SetTimerLocalization({
+	timerCombatStarts		= "Combat starts",
+	timerLostSoulsCD		= "Lost Souls CD"
+})
+
+L:SetOptionLocalization({
+	specWarnLostSouls		= "Show special warning when Lost Souls spawn",
+	specWarnEnslavePitLord	= "Show special warning to enslave demon when Pit Lord activates/breaks free",
+	timerCombatStarts		= "Show time for start of combat",
+	timerLostSoulsCD		= "Show cooldown timer for next Lost Souls spawn"
+})
+
+L:SetMiscLocalization({
+	LostSouls				= "Face the souls of those your kind doomed to perish, Warlock!"
+})

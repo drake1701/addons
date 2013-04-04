@@ -42,10 +42,8 @@ L.IconsInUse				= "Von diesem Mod benutzte Zeichen"
 L.BossStatistics			= "Boss Statistiken"
 L.Statistic_Kills			= "Siege:"
 L.Statistic_Wipes			= "Niederlagen:"
+L.Statistic_Incompletes		= "Abgebrochen:"
 L.Statistic_BestKill		= "Schnellster:"
-L.Statistic_Heroic			= "Heroisch"
-L.Statistic_10Man			= "10 Spieler"
-L.Statistic_25Man			= "25 Spieler"
 
 -- Tab: General Options
 L.General 					= "Allgemeine DBM-Einstellungen"

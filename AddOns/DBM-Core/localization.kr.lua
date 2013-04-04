@@ -6,7 +6,7 @@ DBM_HOW_TO_USE_MOD					= "DBM 사용을 환영합니다. 대화창에서 /dbm he
 DBM_CORE_LOAD_MOD_ERROR				= "%s 경보를 불러오는 중 오류 발생: %s"
 DBM_CORE_LOAD_MOD_SUCCESS			= "'%s' 경보를 불러왔습니다 !"
 DBM_CORE_LOAD_GUI_ERROR				= "설정창을 불러올 수 없습니다: %s"
-DBM_CORE_LOAD_GUI_COMBAT			= "전투 중에는 설정창을 불러올 수 없습니다. 단, 전투 종료 후 설정창을 불러오고 난 이후에는 UI 재시작 또는 재접속전까지 전투 중에도 설정창을 불러올 수 있습니다."
+DBM_CORE_LOAD_GUI_COMBAT			= "전투 중에는 설정창을 불러올 수 없습니다. 전투가 종료되면 설정창이 열릴 것입니다. 이후에는 전투 중이라도 설정창을 불러 올 수 있습니다."
 
 DBM_ABSOLUTE_MODE_ON				= "무제한 모드가 활성화 되었습니다."
 DBM_ABSOLUTE_MODE_OFF				= "무제한 모드가 비활성화 되었습니다. 공격대에 원래 버전을 알립니다."
@@ -15,11 +15,18 @@ DBM_ABSOLUTE_MODE_NOTIFY_OFF		= "%s|1이;가; 무제한 모드를 비활성화 �
 
 DBM_CORE_COMBAT_STARTED				= "%s 작동됨. 행운을 빕니다! :)";
 DBM_CORE_COMBAT_STARTED_IN_PROGRESS	= "%s 전투 진행 도중 참가하였습니다. 행운을 빕니다! :)"
+DBM_CORE_SCENARIO_STARTED			= "%s 시작됨. 행운을 빕니다! :)";
 DBM_CORE_BOSS_DOWN					= "%s 전투에서 승리하였습니다! (전투 시간: %s)"
-DBM_CORE_BOSS_DOWN_L				= "%s 전투에서 승리하였습니다! (전투 시간: %s, 최종 전투 기록: %s, 가장 빨랐던 기록: %s, 처치: %d회)"
-DBM_CORE_BOSS_DOWN_NR				= "%s 전투에서 승리하였습니다! (전투 시간: %s) 이 기록은 새로운 기록이군요! (과거 기록: %s, 처치: %d회)"
+DBM_CORE_BOSS_DOWN_I				= "%s 전투에서 승리하였습니다! (현재 난이도에서 승리: %d회)"
+DBM_CORE_BOSS_DOWN_L				= "%s 전투에서 승리하였습니다! (전투 시간: %s, 최종 전투 기록: %s, 가장 빨랐던 기록: %s, 현재 난이도에서 승리: %d회)"
+DBM_CORE_BOSS_DOWN_NR				= "%s 전투에서 승리하였습니다! (전투 시간: %s) 이 기록은 새로운 기록이군요! (과거 기록: %s, 현재 난이도에서 승리: %d회)"
+DBM_CORE_SCENARIO_COMPLETE			= "%s|1을;를; 완료하였습니다! (소요 시간: %s)"
+DBM_CORE_SCENARIO_COMPLETE_L		= "%s|1을;를; 완료하였습니다! (소요 시간: %s, 최종 소요 시간: %s, 가장 빨랐던 소요 시간: %s. 현재 난이도 완료: %d회)"
+DBM_CORE_SCENARIO_COMPLETE_NR		= "%s|1을;를; 완료하였습니다! (소요 시간: %s) 이 기록은 새로운 기록이군요! (과거 기록: %s, 현재 난이도 완료: %d회)"
 DBM_CORE_COMBAT_ENDED_AT			= "%s 전투가 종료되었습니다. (전투 종료시 우두머리 체력: %s, 전투 시간: %s)"
 DBM_CORE_COMBAT_ENDED_AT_LONG		= "%s 전투가 종료되었습니다. (전투 종료시 우두머리 체력: %s, 전투 시간: %s, 전멸: %d회)"
+DBM_CORE_SCENARIO_ENDED_AT			= "%s|1이;가; 종료되었습니다. (소요 시간: %s)"
+DBM_CORE_SCENARIO_ENDED_AT_LONG		= "%s|1이;가; 종료되었습니다. (소요 시간: %s, 현재 난이도 미완료: %d회)"
 DBM_CORE_COMBAT_STATE_RECOVERED		= "%s 전투가 %s 전에 시작되었습니다. 바를 복구 합니다."
 DBM_CORE_TRANSCRIPTOR_LOG_START		= "Transcriptor 기록을 시작합니다."
 DBM_CORE_TRANSCRIPTOR_LOG_END		= "Transcriptor 기록을 중단합니다."
@@ -49,7 +56,7 @@ DBM_CORE_AUTO_RESPONDED						= "전투중 받은 귓속말에 자동 응답합�
 DBM_CORE_STATUS_WHISPER						= "%s: %s, %d/%d 명이 생존해 있습니다."
 DBM_CORE_AUTO_RESPOND_WHISPER				= "%s 님은 현재 바쁩니다. %s 전투가 진행중입니다. (%s, %d/%d 명 생존중) 전투 종료후 다시 알림 메세지가 표시됩니다."
 DBM_CORE_WHISPER_COMBAT_END_KILL			= "%s 님의 %s 전투가 끝났습니다!"
-DBM_CORE_WHISPER_COMBAT_END_KILL_STATS		= "%s 님의 %s 전투가 끝났습니다! (처치: %d회)"
+DBM_CORE_WHISPER_COMBAT_END_KILL_STATS		= "%s 님의 %s 전투가 끝났습니다! (승리: %d회)"
 DBM_CORE_WHISPER_COMBAT_END_WIPE_AT			= "%s 님이 %s 전투에서 전멸하였습니다. 전투 종료시 우두머리의 체력은 %s 입니다."
 DBM_CORE_WHISPER_COMBAT_END_WIPE_STATS_AT	= "%s 님이 %s 전투에서 전멸하였습니다. 전투 종료시 우두머리의 체력은 %s 입니다. (현재 난이도에서 전멸: %d회)"
 
@@ -237,7 +244,7 @@ DBM_CORE_AUTO_SOUND_OPTION_TEXT			= "$spell:%s 대상이 될 경우 별도 경�
 DBM_CORE_AUTO_COUNTDOWN_OPTION_TEXT		= "$spell:%s 주문의 초읽기 소리 듣기"
 DBM_CORE_AUTO_COUNTOUT_OPTION_TEXT		= "$spell:%s 주문의 진행 시간 소리 듣기"
 DBM_CORE_AUTO_YELL_OPTION_TEXT			= "$spell:%s 대상이 될 경우 대화로 알리기"
-DBM_CORE_AUTO_YELL_ANNOUNCE_TEXT		= "나에게 %s!"
+DBM_CORE_AUTO_YELL_ANNOUNCE_TEXT		= UnitName("player").."에게 %s!"
 
 
 -- New special warnings
