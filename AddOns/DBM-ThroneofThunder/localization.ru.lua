@@ -85,8 +85,16 @@ L:SetMiscLocalization({
 -------------
 L= DBM:GetModLocalization(821)
 
+L:SetTimerLocalization({
+	timerBreathsCD			= "Следующее дыхание"
+})
+
+L:SetOptionLocalization({
+	timerBreaths			= "Отсчёт времени до следующего дыхания"
+})
+
 L:SetMiscLocalization({
-	rampageEnds		= "Ярость Мегеры идет на убыль."
+	rampageEnds				= "Ярость Мегеры идет на убыль."
 })
 
 ------------
@@ -95,8 +103,9 @@ L:SetMiscLocalization({
 L= DBM:GetModLocalization(828)
 
 L:SetWarningLocalization({
-	warnFlock		= "%s %s (%s)",
-	specWarnFlock	= "%s %s (%s)"
+	warnFlock		= "%s %s %s",
+	specWarnFlock	= "%s %s %s",
+	specWarnBigBird	= "Страж гнезда: %s"
 })
 
 L:SetTimerLocalization({
@@ -104,7 +113,7 @@ L:SetTimerLocalization({
 })
 
 L:SetOptionLocalization({
-	RangeFrame		= "Показывать окно проверки дистанции (8 м) для $spell:138923"
+	RangeFrame		= "Показывать окно проверки дистанции (10 м) для $spell:138923"
 })
 
 L:SetMiscLocalization({
@@ -114,7 +123,13 @@ L:SetMiscLocalization({
 	Lower			= "Нижний",
 	UpperAndLower	= "Верхний и Нижний",
 	TrippleD		= "Тройной (2 нижних)",
-	TrippleU		= "Тройной (2 верхних)"
+	TrippleU		= "Тройной (2 верхних)",
+	SouthWest		= "ЮЗ",
+	SouthEast		= "ЮВ",
+	NorthWest		= "СЗ",
+	NorthEast		= "СВ",
+	West			= "З",
+	Middle			= "Середина"
 })
 
 --------------------------
@@ -123,21 +138,20 @@ L:SetMiscLocalization({
 L= DBM:GetModLocalization(818)
 
 L:SetWarningLocalization({
+	warnBeamNormal				= "Лучи - |cffff0000Красный|r : >%s<, |cff0000ffСиний|r : >%s<",
+	warnBeamHeroic				= "Лучи - |cffff0000Красный|r : >%s<, |cff0000ffСиний|r : >%s<, |cffffff00Желтый|r : >%s<",
 	warnAddsLeft				= "Туманов осталось: %d",
-	specWarnBlueBeam			= "Синий луч на Вас - НЕ ДВИГАЙТЕСЬ!",
+	specWarnBlueBeam			= "Синий луч на Вас - избегайте движения!",
 	specWarnFogRevealed			= "%s обнаружен!",
 	specWarnDisintegrationBeam	= "%s (%s)"
 })
 
 L:SetOptionLocalization({
+	warnBeam					= "Объявлять цели лучей",
 	warnAddsLeft				= "Объявлять сколько осталось туманов",
-	specWarnFogRevealed			= "Спец-предупреждение при обнаружении тумана",
+	specWarnFogRevealed			= "Спец-предупреждение при обнаружении туманов",
 	ArrowOnBeam					= "Показывать стрелку DBM во время $journal:6882, чтобы указать, в каком направлении двигаться",
 	InfoFrame					= "Информационное окно для кол-ва стаков $spell:133795"
-})
-
-L:SetMiscLocalization({
-	Eye							= "глаз"
 })
 
 ----------------
@@ -146,13 +160,11 @@ L:SetMiscLocalization({
 L= DBM:GetModLocalization(820)
 
 L:SetWarningLocalization({
-	warnDebuffCount				= "Слишком много мутаций: % хороших и % плохих",
-	specWarnFullyMutatedFaded	= "%s спала"
+	warnDebuffCount				= "Прогресс мутации: %d/5 хороших и %d плохих"
 })
 
 L:SetOptionLocalization({
-	warnDebuffCount				= "Показывать предупреждения о числе дебаффов, когда Вы поглощаете слишком много луж",
-	specWarnFullyMutatedFaded	= "Спец-предупреждение, когда спала $spell:140546",
+	warnDebuffCount				= "Показывать предупреждения о числе дебаффов, когда Вы поглощаете лужи",
 	RangeFrame					= "Показывать окно проверки дистанции (5/2 м)"
 })
 
@@ -221,10 +233,15 @@ L:SetMiscLocalization({
 --------------
 L= DBM:GetModLocalization(832)
 
+L:SetWarningLocalization({
+	specWarnIntermissionSoon	= "Скоро смена фаз"
+})
+
 L:SetOptionLocalization({
-	RangeFrame			= "Показывать окно проверки дистанции",--Для двух разных спеллов
-	StaticShockArrow	= "Показывать стрелку DBM, когда на ком-то $spell:135695",
-	OverchargeArrow		= "Показывать стрелку DBM, когда на ком-то $spell:136295"
+	specWarnIntermissionSoon	= "Спец-предупреждение перед началом промежуточной фазы",
+	RangeFrame					= "Показывать окно проверки дистанции",--Для двух разных спеллов
+	StaticShockArrow			= "Показывать стрелку DBM, когда на ком-то $spell:135695",
+	OverchargeArrow				= "Показывать стрелку DBM, когда на ком-то $spell:136295"
 })
 
 ------------

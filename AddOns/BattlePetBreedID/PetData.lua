@@ -754,7 +754,7 @@ function BPBID.InitializeArrays()
 	BPBID.BasePetStats[1181] = {7.5, 8, 8.5}
 	BPBID.BasePetStats[1182] = {8.5, 7.5, 8}
 	BPBID.BasePetStats[1183] = {8, 8, 8}
-	BPBID.BasePetStats[1184] = {7, 8.5, 8.5}
+	BPBID.BasePetStats[1184] = {8.25, 8, 7.75}
 	BPBID.BasePetStats[1185] = {8, 8, 8}
 	BPBID.BasePetStats[1187] = {25.5, 11.5, 7.25}
 	BPBID.BasePetStats[1188] = {25.5, 11.5, 7.25}
@@ -768,11 +768,11 @@ function BPBID.InitializeArrays()
 	BPBID.BasePetStats[1196] = {8, 8, 8}
 	BPBID.BasePetStats[1197] = {8, 8, 8}
 	BPBID.BasePetStats[1198] = {8, 8, 8}
-	BPBID.BasePetStats[1200] = {7, 8.5, 8.5}
+	BPBID.BasePetStats[1200] = {8.25, 8, 7.75}
 	BPBID.BasePetStats[1201] = {7, 8.5, 8.5}
 	BPBID.BasePetStats[1202] = {8, 7.5, 8.5}
 	BPBID.BasePetStats[1204] = {8.5, 7.5, 8}
-	BPBID.BasePetStats[1205] = {7, 8.5, 8.5}
+	BPBID.BasePetStats[1205] = {8.25, 8, 7.75}
 	BPBID.BasePetStats[1206] = {7.5, 8, 8.5}
 	BPBID.BasePetStats[1207] = {7.5, 8.5, 8.5}
 	BPBID.BasePetStats[1208] = {7.5, 8, 8.5}
@@ -1477,6 +1477,7 @@ function BPBID.InitializeArrays()
 	BPBID.BreedsPerSpecies[1181] = {6, 9}
 	BPBID.BreedsPerSpecies[1182] = {3, 12}
 	BPBID.BreedsPerSpecies[1183] = {4}
+	BPBID.BreedsPerSpecies[1184] = {4} -- NEW Stunted Direhorn
 	BPBID.BreedsPerSpecies[1185] = {9}
 	BPBID.BreedsPerSpecies[1187] = {4}
 	BPBID.BreedsPerSpecies[1188] = {3}
@@ -1490,9 +1491,11 @@ function BPBID.InitializeArrays()
 	BPBID.BreedsPerSpecies[1196] = {9}
 	BPBID.BreedsPerSpecies[1197] = {7}
 	BPBID.BreedsPerSpecies[1198] = {8}
+	BPBID.BreedsPerSpecies[1200] = {8} -- NEW Pygmy Direhorn
 	BPBID.BreedsPerSpecies[1201] = {10}
 	BPBID.BreedsPerSpecies[1202] = {3, 10}
 	BPBID.BreedsPerSpecies[1204] = {11}
+	BPBID.BreedsPerSpecies[1205] = {10} -- NEW Direhorn Runt
 	BPBID.BreedsPerSpecies[1206] = {10}
 	BPBID.BreedsPerSpecies[1207] = {12}
 	BPBID.BreedsPerSpecies[1208] = {11}

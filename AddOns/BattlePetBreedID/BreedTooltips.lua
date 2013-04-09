@@ -518,6 +518,49 @@ function BPBID.Hook_PJTLeave(self, motion)
 	end
 end
 
+-- non-optional ArkInventory compability, but follow the example of BattlePetTooltip
+function BPBID.Hook_ArkInventory(tooltip, h, i)
+	-- if the user has chosen not to let ArkInventory handle Battle Pets then we won't need to intervene
+	if (not ArkInventory.db.global.option.tooltip.battlepet.enable) or (tooltip ~= GameTooltip) then return end
+	
+	-- decode string
+	local class, speciesID, level, rarity, maxHealth, power, speed = ArkInventory.ObjectStringDecode( h )
+	
+	-- escape if not a battlepet link
+	if class ~= "battlepet" then return end
+	
+	-- impossible checks for safety reasons
+	if (not speciesID) or (not level) or (not rarity) or (not maxHealth) or (not power) or (not speed) then return end
+	
+	-- fix rarity to match our system and calculate breedID and breedname
+	rarity = rarity + 1
+	local breedNum, quality, resultslist = BPBID.CalculateBreedID(speciesID, rarity, level, maxHealth, power, speed, false, false)
+	
+	-- fix width if too small
+	if (GameTooltip:GetWidth() < 210) then
+		GameTooltip:SetMinimumWidth(210)
+		GameTooltip:Show()
+	end
+	
+	-- add the breed to the tooltip's name text (unsupported atm)
+	--[[if (BPBID_Options.Names.BPT) then
+		local breed = BPBID.RetrieveBreedName(breedNum)
+		
+		-- BattlePetTooltip does not allow customnames for now, so we can just get this ourself (more reliable)
+		local realname = GPIS(speciesID)
+		
+		-- write breed to tooltip
+		tooltip.Name:SetText(realname.." ("..breed..")")
+	end]]--
+	
+	-- rarity color bug is handled by ArkInventory
+	
+	-- set up the breed tooltip
+	if (BPBID_Options.Tooltips.Enabled) and (BPBID_Options.Tooltips.BPT) then
+		BPBID_SetBreedTooltip(GameTooltip, speciesID, resultslist, quality - 1)
+	end
+end
+
 -- hook our tooltip functions
 hooksecurefunc("PetBattleUnitFrame_UpdateDisplay", BPBID_Hook_BattleUpdate)
 hooksecurefunc("BattlePetToolTip_Show", BPBID_Hook_BPTShow)

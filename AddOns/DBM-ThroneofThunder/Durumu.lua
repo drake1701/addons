@@ -1,7 +1,7 @@
 local mod	= DBM:NewMod(818, "DBM-ThroneofThunder", nil, 362)
 local L		= mod:GetLocalizedStrings()
 
-mod:SetRevision(("$Revision: 9147 $"):sub(12, -3))
+mod:SetRevision(("$Revision: 9178 $"):sub(12, -3))
 mod:SetCreatureID(68036)--Crimson Fog 69050, 
 mod:SetModelID(47189)
 mod:SetUsedIcons(7, 6, 4, 1)
@@ -60,8 +60,8 @@ local timerForceOfWillCD			= mod:NewCDTimer(20, 136413)--Actually has a 20 secon
 local timerLightSpectrumCD			= mod:NewNextTimer(60, "ej6891")--Don't know when 2nd one is cast.
 local timerDarkParasite				= mod:NewTargetTimer(30, 133597, mod:IsHealer())--Only healer/dispeler needs to know this.
 local timerDarkPlague				= mod:NewTargetTimer(30, 133598)--EVERYONE needs to know this, if dispeler messed up and dispelled parasite too early you're going to get a new add every 3 seconds for remaining duration of this bar.
-local timerDisintegrationBeam		= mod:NewBuffActiveTimer(65, "ej6882")
-local timerDisintegrationBeamCD		= mod:NewNextTimer(126, "ej6882")
+local timerDisintegrationBeam		= mod:NewBuffActiveTimer(64, "ej6882")
+local timerDisintegrationBeamCD		= mod:NewNextTimer(127, "ej6882")
 local timerLifeDrainCD				= mod:NewCDTimer(40, 133795)
 local timerLifeDrain				= mod:NewBuffActiveTimer(18, 133795)
 local timerIceWallCD				= mod:NewNextTimer(120, 134587)
@@ -111,19 +111,19 @@ local function BeamEnded()
 --[[	if mod.Options.ArrowOnBeam then
 		DBM.Arrow:Hide()
 	end--]]
-	timerLingeringGazeCD:Start(16)
-	timerForceOfWillCD:Start(18)
+	timerLingeringGazeCD:Start(17)
+	timerForceOfWillCD:Start(19)
 	if mod:IsDifficulty("heroic10", "heroic25") then
-		timerIceWallCD:Start(25)
+		timerIceWallCD:Start(26)
 	end
 	if mod:IsDifficulty("lfr25") then
-		timerLightSpectrumCD:Start(55)
-		timerDisintegrationBeamCD:Start(176)
+		timerLightSpectrumCD:Start(56)
+		timerDisintegrationBeamCD:Start(177)
 	else
-		timerLightSpectrumCD:Start(32)
+		timerLightSpectrumCD:Start(33)
 		timerDisintegrationBeamCD:Start()
 	end
-	--Life Drain comes after beamended 1~3 sec.
+	--Life Drain comes beam ended after 1~3 sec.
 end
 
 local function HideInfoFrame()
@@ -268,7 +268,7 @@ function mod:CHAT_MSG_MONSTER_EMOTE(msg, npc, _, _, target)
 	if msg:find("spell:136932") then--Force of Will
 		local target = DBM:GetFullNameByShortName(target)
 		warnForceOfWill:Show(target)
-		if timerLightSpectrumCD:GetTime() > 22 or timerDisintegrationBeamCD:GetTime() > 108 then--Don't start timer if either beam or spectrum will come first (cause both disable force ability)
+		if timerLightSpectrumCD:GetTime() > 22 or timerDisintegrationBeamCD:GetTime() > 110 then--Don't start timer if either beam or spectrum will come first (cause both disable force ability)
 			timerForceOfWillCD:Start()
 		end
 		if target == UnitName("player") then
@@ -339,7 +339,7 @@ function mod:CHAT_MSG_MONSTER_EMOTE(msg, npc, _, _, target)
 		if self:IsDifficulty("lfr25") and npc == azureFog and not lfrAzureFogRevealed then
 			lfrAzureFogRevealed = true
 			specWarnFogRevealed:Show(npc)
-		else
+		elseif not lfrAzureFogRevealed or not self:IsDifficulty("lfr25") then
 			specWarnFogRevealed:Show(npc)
 		end
 	elseif msg:find("spell:133795") then
@@ -368,7 +368,7 @@ function mod:CHAT_MSG_MONSTER_EMOTE(msg, npc, _, _, target)
 		warnDisintegrationBeam:Show()
 		specWarnDisintegrationBeam:Show()
 		timerDisintegrationBeam:Start()
-		self:Schedule(65, BeamEnded)--Best to start next phase bars when this one ends, so artifically create a "phase end" trigger
+		self:Schedule(64, BeamEnded)--Best to start next phase bars when this one ends, so artifically create a "phase end" trigger
 	end
 end
 
@@ -414,7 +414,7 @@ function mod:UNIT_DIED(args)
 			lastBlue = nil
 			lastYellow = nil
 			timerObliterateCD:Cancel()
-			timerForceOfWillCD:Start()
+			timerForceOfWillCD:Start(15)
 			if self.Options.SetIconRays and lastRed then
 				self:SetIcon(lastRed, 0)
 				self:SetIcon(lastBlue, 0)
@@ -432,7 +432,7 @@ function mod:UNIT_DIED(args)
 				lastBlue = nil
 				lastYellow = nil
 				timerObliterateCD:Cancel()
-				timerForceOfWillCD:Start()
+				timerForceOfWillCD:Start(15)
 				if self.Options.SetIconRays and lastRed then
 					self:SetIcon(lastRed, 0)
 					self:SetIcon(lastBlue, 0)
@@ -451,7 +451,7 @@ function mod:UNIT_DIED(args)
 				lastBlue = nil
 				lastYellow = nil
 				timerObliterateCD:Cancel()
-				timerForceOfWillCD:Start()
+				timerForceOfWillCD:Start(15)
 				if self.Options.SetIconRays and lastRed then
 					self:SetIcon(lastRed, 0)
 					self:SetIcon(lastBlue, 0)
@@ -471,7 +471,7 @@ function mod:UNIT_SPELLCAST_SUCCEEDED(uId, spellName, _, _, spellId)
 		if self.Options.ArrowOnBeam then
 			DBM.Arrow:ShowStatic(90)
 		end
-		self:Schedule(65, BeamEnded)--Best to start next phase bars when this one ends, so artifically create a "phase end" trigger--]]
+		self:Schedule(64, BeamEnded)--Best to start next phase bars when this one ends, so artifically create a "phase end" trigger--]]
 		print("DBM Debug: Clockwise beam spellid re-enabled by blizzard.")
 	elseif spellId == 133775 and self:AntiSpam(2, 2) then--Disintegration Beam (counter-clockwise)
 --[[		timerLingeringGazeCD:Cancel()
@@ -481,7 +481,7 @@ function mod:UNIT_SPELLCAST_SUCCEEDED(uId, spellName, _, _, spellId)
 		if self.Options.ArrowOnBeam then
 			DBM.Arrow:ShowStatic(270)
 		end
-		self:Schedule(65, BeamEnded)--Best to start next phase bars when this one ends, so artifically create a "phase end" trigger--]]
+		self:Schedule(64, BeamEnded)--Best to start next phase bars when this one ends, so artifically create a "phase end" trigger--]]
 		print("DBM Debug: Counter-Clockwise beam spellid re-enabled by blizzard.")
 	end
 end

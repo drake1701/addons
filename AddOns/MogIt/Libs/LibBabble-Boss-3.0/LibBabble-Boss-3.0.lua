@@ -1,6 +1,6 @@
 --[[
 Name: LibBabble-Boss-3.0
-Revision: $Rev: 399 $
+Revision: $Rev: 401 $
 Maintainers: ckknight, nevcairiel, Ackis
 Website: http://www.wowace.com/projects/libbabble-boss-3-0/
 Dependencies: None
@@ -8,7 +8,7 @@ License: MIT
 ]]
 
 local MAJOR_VERSION = "LibBabble-Boss-3.0"
-local MINOR_VERSION = 90000 + tonumber(("$Rev: 399 $"):match("%d+"))
+local MINOR_VERSION = 90000 + tonumber(("$Rev: 401 $"):match("%d+"))
 
 if not LibStub then error(MAJOR_VERSION .. " requires LibStub.") end
 local lib = LibStub("LibBabble-3.0"):New(MAJOR_VERSION, MINOR_VERSION)
@@ -2489,7 +2489,7 @@ elseif GAME_LOCALE == "frFR" then
 	["M'uru"] = "M'uru",
 	Mushgog = "Mushgog",
 	["Mutanus the Devourer"] = "Mutanus le Dévoreur",
-	["Nalak, The Storm Lord"] = "Nalak", -- Needs review
+	["Nalak, The Storm Lord"] = "Nalak le seigneur des tempêtes", -- Needs review
 	Nalorakk = "Nalorakk",
 	Nazan = "Nazan",
 	Nefarian = "Nefarian",
@@ -2521,7 +2521,7 @@ elseif GAME_LOCALE == "frFR" then
 	["Omor the Unscarred"] = "Omor l'Intouché",
 	Onyxia = "Onyxia",
 	["Ook-Ook"] = "Ook-Ook",
-	Oondasta = "Oondasta", -- Needs review
+	Oondasta = "Oondasta",
 	["Opera Event"] = "Evénement de l'opéra",
 	["Orgrim's Hammer"] = "Marteau d'Orgrim",
 	["Ormorok the Tree-Shaper"] = "Ormorok le Sculpte-arbre",
@@ -2546,7 +2546,7 @@ elseif GAME_LOCALE == "frFR" then
 	["Plugger Spazzring"] = "Lanfiche Brouillecircuit",
 	["Postmaster Malown"] = "Postier Malown",
 	["Priestess Delrissa"] = "Prêtresse Delrissa",
-	Primordius = "Primordius", -- Needs review
+	Primordius = "Primordius",
 	["Prince Keleseth"] = "Prince Keleseth",
 	["Prince Malchezaar"] = "Prince Malchezaar",
 	["Prince Skaldrenox"] = "Prince Skaldrenox ",
@@ -2830,7 +2830,7 @@ elseif GAME_LOCALE == "frFR" then
 elseif GAME_LOCALE == "koKR" then
 	lib:SetCurrentTranslations {
 	Acidmaw = "공포비늘",
-	-- Adarogg = "",
+	Adarogg = "아다로그", -- Needs review
 	["Admiral Ripsnarl"] = "제독 으르렁니",
 	Aeonus = "아에누스",
 	["Aerial Command Unit"] = "공중 지휘기",
@@ -2842,7 +2842,7 @@ elseif GAME_LOCALE == "koKR" then
 	["Al'Akir"] = "알아키르",
 	["Al'ar"] = "알라르",
 	["Algalon the Observer"] = "관찰자 알갈론",
-	Alizabal = "알리자발", -- Needs review
+	Alizabal = "알리자발",
 	Altairus = "알타이루스",
 	Altarius = "알타리우스",
 	Alysrazor = "알리스라조르",
@@ -2868,19 +2868,19 @@ elseif GAME_LOCALE == "koKR" then
 	["Anub'Rekhan"] = "아눕레칸",
 	["Anub'shiah"] = "아눕쉬아",
 	Anzu = "안주",
-	-- ["Apothecary Baxter"] = "",
-	-- ["Apothecary Frye"] = "",
-	-- ["Apothecary Hummel"] = "",
+	["Apothecary Baxter"] = "벡스터", -- Needs review
+	["Apothecary Frye"] = "프라이", -- Needs review
+	["Apothecary Hummel"] = "훔멜", -- Needs review
 	["Arcane Watchman"] = "비전 보초",
 	["Arcanist Doan"] = "신비술사 도안",
 	Arcanotron = "비전골렘",
 	Archaedas = "아카에다스",
 	["Archavon the Stone Watcher"] = "바위 감시자 아카본",
-	["Archbishop Benedictus"] = "대주교 베네딕투스", -- Needs review
+	["Archbishop Benedictus"] = "대주교 베네딕투스",
 	Archimonde = "아키몬드",
 	["Archivist Galford"] = "기록관 갈포드",
 	["Archmage Arugal"] = "대마법사 아루갈",
-	Arcurion = "아큐리온", -- Needs review
+	Arcurion = "아큐리온",
 	Argaloth = "아르갈로스",
 	["Argent Confessor Paletress"] = "은빛 고해사제 페일트리스",
 	Arion = "아리온",
@@ -2890,7 +2890,7 @@ elseif GAME_LOCALE == "koKR" then
 	["Ascendant Council"] = "승천 의회",
 	["Ascendant Lord Obsidius"] = "승천 군주 옵시디우스",
 	["Asim al Akir"] = "알 아키르",
-	["Asira Dawnslayer"] = "아시라 돈슬레이어", -- Needs review
+	["Asira Dawnslayer"] = "아시라 돈슬레이어",
 	["Assault Bot"] = "돌격로봇",
 	["Assembly of Iron"] = "무쇠 평의회",
 	["Atal'alarion"] = "아탈알라리온",
@@ -2956,7 +2956,7 @@ elseif GAME_LOCALE == "koKR" then
 	["Captain Greenskin"] = "선장 그린스킨",
 	["Captain Kromcrush"] = "대장 크롬크러쉬",
 	["Captain Skarloc"] = "경비대장 스칼록",
-	["Captain Varo'then"] = "바로덴", -- Needs review
+	["Captain Varo'then"] = "바로덴",
 	["Celebras the Cursed"] = "저주받은 셀레브라스",
 	["Charlga Razorflank"] = "서슬깃 차를가",
 	["Chess Event"] = "체스 이벤트",
@@ -2989,7 +2989,7 @@ elseif GAME_LOCALE == "koKR" then
 	["Coren Direbrew"] = "코렌 다이어브루",
 	["Corla, Herald of Twilight"] = "황혼의 전령 코를라",
 	["Cosmic Infuser"] = "붕괴의 지팡이",
-	-- ["Council of Elders"] = "",
+	["Council of Elders"] = "장로회",
 	["Crimson Hammersmith"] = "진홍십자군 대장장이",
 	["Crowd Pummeler 9-60"] = "고철 압축기 9-60",
 	["Crystal Fang"] = "수정 맹독 거미",
@@ -2998,12 +2998,12 @@ elseif GAME_LOCALE == "koKR" then
 	Daakara = "다카라",
 	["Dalliah the Doomsayer"] = "파멸의 예언자 달리아",
 	["Dalronn the Controller"] = "감시자 달론",
-	-- ["Dam'ren"] = "",
-	-- ["Dark Animus"] = "",
+	["Dam'ren"] = "댐렌",
+	["Dark Animus"] = "암흑 원령",
 	["Dark Coffer"] = "검은 금고",
 	["Dark Iron Ambassador"] = "검은무쇠단 사절",
 	["Darkmaster Gandling"] = "암흑스승 간틀링",
-	-- ["Dark Shaman Koranthal"] = "",
+	["Dark Shaman Koranthal"] = "암흑주술사 코란살", -- Needs review
 	["Darkweaver Syth"] = "흑마술사 시스",
 	["Deathbound Ward"] = "죽음에 속박된 감시자",
 	["Deathbringer Saurfang"] = "죽음의 인도자 사울팽",
@@ -3024,30 +3024,30 @@ elseif GAME_LOCALE == "koKR" then
 	Doomwalker = "파멸의 절단기",
 	["Dope'rel"] = "최면의 문지기",
 	Dorothee = "도로시",
-	["Drahga Shadowburner"] = "드라가 섀도버너", -- Needs review
+	["Drahga Shadowburner"] = "드라가 섀도버너",
 	["Drahga Shodowburner"] = "드라가 섀도버너", -- Needs review
 	["Drakkari Colossus"] = "드라카리 거대골렘",
 	["Drakos the Interrogator"] = "심문관 드라코스",
 	Dreadscale = "공포비늘",
 	Dreamscythe = "드림사이드",
-	-- ["Durumu the Forgotten"] = "",
+	["Durumu the Forgotten"] = "잊혀진 두루무",
 	["Dust Covered Chest"] = "Dust Covered Chest",
 	Dustwraith = "더스트레이스",
 	["Eadric the Pure"] = "성기사 에드릭",
 	["Earthcaller Halmgar"] = "대지술사 함가르",
 	["Earthrager Ptah"] = "대지분노자 프타",
 	Ebonroc = "에본로크",
-	["Echo of Baine"] = "바인의 환영", -- Needs review
-	["Echo of Jaina"] = "제이나의 환영", -- Needs review
-	["Echo of Sylvanas"] = "실바나스의 환영", -- Needs review
-	["Echo of Tyrande"] = "티란데의 환영", -- Needs review
+	["Echo of Baine"] = "바인의 환영",
+	["Echo of Jaina"] = "제이나의 환영",
+	["Echo of Sylvanas"] = "실바나스의 환영",
+	["Echo of Tyrande"] = "티란데의 환영",
 	["Eck the Ferocious"] = "사나운 엑크",
 	["Edwin VanCleef"] = "에드윈 밴클리프",
-	-- ["Elder Asani"] = "",
+	["Elder Asani"] = "장로 아사니",
 	["Elder Brightleaf"] = "장로 밝은잎",
 	["Elder Ironbranch"] = "장로 무쇠돌기",
 	["Elder Nadox"] = "장로 나독스",
-	-- ["Elder Regail"] = "",
+	["Elder Regail"] = "장로 리게일",
 	["Elder Stonebark"] = "장로 돌나무껍질",
 	["Electrocutioner 6000"] = "기계화 문지기 6000",
 	Electron = "전기골렘",
@@ -3100,7 +3100,7 @@ elseif GAME_LOCALE == "koKR" then
 	["Four Horsemen Chest"] = "Four Horsemen Chest",
 	["Fras Siabi"] = "프라스 샤비",
 	Freya = "프레이야",
-	-- ["Frost King Malakk"] = "",
+	["Frost King Malakk"] = "서리 왕 말라크",
 	["Gahz'ranka"] = "가즈란카",
 	["Gahz'rilla"] = "가즈릴라",
 	["Gal'darah"] = "갈다라",
@@ -3169,7 +3169,7 @@ elseif GAME_LOCALE == "koKR" then
 	["Gurtogg Bloodboil"] = "구르토그 블러드보일",
 	Gyth = "기스",
 	Hadronox = "하드로녹스",
-	["Hagara the Stormbinder"] = "폭풍술사 하가라", -- Needs review
+	["Hagara the Stormbinder"] = "폭풍술사 하가라",
 	["Haiyan the Unstoppable"] = "무쌍의  하이옌",
 	Hakkar = "학카르",
 	Halazzi = "할라지",
@@ -3215,7 +3215,7 @@ elseif GAME_LOCALE == "koKR" then
 	Hodir = "호디르",
 	Hogger = "들창코",
 	Hoptallus = "홉탈루스",
-	-- Horridon = "",
+	Horridon = "호리돈",
 	["Houndmaster Braun"] = "사냥개조련사 브라운",
 	["Houndmaster Grebmar"] = "사냥개조련사 그렙마르",
 	["Houndmaster Loksey"] = "사냥개 조련사 록시",
@@ -3249,7 +3249,7 @@ elseif GAME_LOCALE == "koKR" then
 	["Interrogator Vishas"] = "심문관 비샤스",
 	Ionar = "아이오나",
 	Ironaya = "아이로나야",
-	-- ["Iron Qon"] = "",
+	["Iron Qon"] = "강철의 퀀",
 	Ironspine = "무쇠해골",
 	Isalien = "이살리엔",
 	Isiset = "이시세트",
@@ -3263,10 +3263,10 @@ elseif GAME_LOCALE == "koKR" then
 	["Jedoga Shadowseeker"] = "어둠추적자 제도가",
 	["Jed Runewatcher"] = "제드 룬와처",
 	["Jergosh the Invoker"] = "기원사 제로쉬",
-	-- ["Ji-Kun"] = "",
+	["Ji-Kun"] = "지쿤",
 	["Jin'do the Godbreaker"] = "신파괴자 진도",
 	["Jin'do the Hexxer"] = "주술사 진도",
-	-- ["Jin'rokh the Breaker"] = "",
+	["Jin'rokh the Breaker"] = "파괴자 진로크",
 	["Jormungar Behemoth"] = "요르문가르 거수",
 	Jormungars = "요르문가르",
 	Julianne = "줄리엔",
@@ -3276,7 +3276,7 @@ elseif GAME_LOCALE == "koKR" then
 	["Kam Deepfury"] = "캄 딥퓨리",
 	["Karsh Steelbender"] = "카쉬 스틸벤더",
 	["Kazkaz the Unholy"] = "타락한 카즈카즈",
-	-- ["Kazra'jin"] = "",
+	["Kazra'jin"] = "카즈라진",
 	["Kaz'rogal"] = "카즈로갈",
 	["Keli'dan the Breaker"] = "파괴자 켈리단",
 	["Kel'Thuzad"] = "켈투자드",
@@ -3313,11 +3313,11 @@ elseif GAME_LOCALE == "koKR" then
 	["Lady Vashj"] = "여군주 바쉬",
 	Laj = "라즈",
 	Landslide = "산사태",
-	-- ["Lava Guard Gordoth"] = "",
+	["Lava Guard Gordoth"] = "용암경비병 고르도스", -- Needs review
 	Lavanthor = "라반토르",
 	["Left Arm"] = "왼팔",
-	-- ["Lei Shen"] = "",
-	-- ["Lei Shi"] = "",
+	["Lei Shen"] = "레이 션",
+	["Lei Shi"] = "레이 스",
 	["Leotheras the Blind"] = "눈먼 레오테라스",
 	Lethon = "레손",
 	Lethtendris = "레스텐드리스",
@@ -3356,9 +3356,9 @@ elseif GAME_LOCALE == "koKR" then
 	["Lorgus Jett"] = "로구스 제트",
 	Loro = "로로",
 	Lucifron = "루시프론",
-	-- ["Lu'lin"] = "",
+	["Lu'lin"] = "루린",
 	["Mad Magglish"] = "광기의 매글리시",
-	["Madness of Deathwing"] = "데스윙의 광기", -- Needs review
+	["Madness of Deathwing"] = "데스윙의 광기",
 	Maexxna = "맥스나",
 	["Mage-Lord Urom"] = "마법사 군주 우롬",
 	["Magister Kalendris"] = "마법사 칼렌드리스",
@@ -3378,7 +3378,7 @@ elseif GAME_LOCALE == "koKR" then
 	["Mal'Ganis"] = "말가니스",
 	Maloriak = "말로리악",
 	Malygos = "말리고스",
-	Mannoroth = "만노로스", -- Needs review
+	Mannoroth = "만노로스",
 	Maraudos = "마라우도스",
 	["Marduk Blackpool"] = "마르두크 블랙풀",
 	["Marisa du'Paige"] = "마리사 두페이지",
@@ -3389,7 +3389,7 @@ elseif GAME_LOCALE == "koKR" then
 	Meathook = "살덩이갈고리",
 	["Mechano-Lord Capacitus"] = "기계군주 캐퍼시투스",
 	Medivh = "메디브",
-	-- Megaera = "",
+	Megaera = "메가이라",
 	["Mekgineer Steamrigger"] = "기계공학자 스팀리거",
 	["Mekgineer Thermaplugg"] = "멕기니어 텔마플러그",
 	["Meng the Demented"] = "실성한 맹",
@@ -3407,7 +3407,7 @@ elseif GAME_LOCALE == "koKR" then
 	["Mokra the Skullcrusher"] = "해골분쇄자 모크라",
 	Moorabi = "무라비",
 	Moragg = "모라그",
-	Morchok = "모르초크", -- Needs review
+	Morchok = "모르초크",
 	["Mordresh Fire Eye"] = "불꽃눈 모드레쉬",
 	["Mor Grayhoof"] = "모르 그레이후프",
 	Moroes = "모로스",
@@ -3420,12 +3420,12 @@ elseif GAME_LOCALE == "koKR" then
 	["Murkblood Twin"] = "수렁피일족 쌍둥이",
 	["Murkblood Twins"] = "수렁피일족 쌍둥이",
 	Murmur = "울림",
-	Murozond = "무르도즈노", -- Needs review
+	Murozond = "무르도즈노",
 	["Murta Grimgut"] = "무르타 그림구트",
 	["M'uru"] = "므우루",
 	Mushgog = "머쉬고그",
 	["Mutanus the Devourer"] = "걸신들린 무타누스",
-	-- ["Nalak, The Storm Lord"] = "",
+	["Nalak, The Storm Lord"] = "폭풍 군주 나락크",
 	Nalorakk = "날로라크",
 	Nazan = "나잔",
 	Nefarian = "네파리안",
@@ -3457,7 +3457,7 @@ elseif GAME_LOCALE == "koKR" then
 	["Omor the Unscarred"] = "무적의 오모르",
 	Onyxia = "오닉시아",
 	["Ook-Ook"] = "우끼우끼",
-	-- Oondasta = "",
+	Oondasta = "운다스타",
 	["Opera Event"] = "오페라 이벤트",
 	["Orgrim's Hammer"] = "오그림의 망치호",
 	["Ormorok the Tree-Shaper"] = "정원사 오르모로크",
@@ -3474,7 +3474,7 @@ elseif GAME_LOCALE == "koKR" then
 	["Panzor the Invincible"] = "무적의 판저",
 	Patchwerk = "패치워크",
 	["Pathaleon the Calculator"] = "철두철미한 파탈리온",
-	["Peroth'arn"] = "페로스안", -- Needs review
+	["Peroth'arn"] = "페로스안",
 	Phalanx = "팔란스",
 	["Phaseshift Bulwark"] = "위상 변화의 보루방패",
 	Pimgib = "핌기브",
@@ -3482,7 +3482,7 @@ elseif GAME_LOCALE == "koKR" then
 	["Plugger Spazzring"] = "플러거스파즈링",
 	["Postmaster Malown"] = "우체국장 말로운",
 	["Priestess Delrissa"] = "여사제 델리사",
-	-- Primordius = "",
+	Primordius = "프리모디우스",
 	["Prince Keleseth"] = "공작 켈레세스",
 	["Prince Malchezaar"] = "공작 말체자르",
 	["Prince Skaldrenox"] = "왕자 스칼레녹스",
@@ -3496,8 +3496,8 @@ elseif GAME_LOCALE == "koKR" then
 	["Prince Tortheldrin"] = "왕자 토르텔드린",
 	["Prince Valanar"] = "공작 발라나르",
 	["Professor Putricide"] = "교수 퓨트리사이드",
-	-- ["Protector Kaolan"] = "",
-	-- ["Protectors of the Endless"] = "",
+	["Protector Kaolan"] = "수호병 카오란",
+	["Protectors of the Endless"] = "영원의 수호병",
 	["Pure Spawn of Hydross"] = "순수한 히드로스의 피조물",
 	Pusillin = "푸실린",
 	["Pyroguard Emberseer"] = "불의 수호자 엠버시어",
@@ -3506,9 +3506,9 @@ elseif GAME_LOCALE == "koKR" then
 	["Qin-xi"] = "친시",
 	Quagmirran = "쿠아그미란",
 	["Quartermaster Zigris"] = "병참장교 지그리스",
-	["Queen Azshara"] = "여왕 아즈샤라", -- Needs review
-	-- ["Quet'zal"] = "",
-	-- ["Ra-den"] = "",
+	["Queen Azshara"] = "여왕 아즈샤라",
+	["Quet'zal"] = "쿠엣잘",
+	["Ra-den"] = "라덴",
 	["Rage Winterchill"] = "격노한 윈터칠",
 	Ragglesnout = "너덜주둥이",
 	["Raging Spirit"] = "분노한 영혼",
@@ -3532,7 +3532,7 @@ elseif GAME_LOCALE == "koKR" then
 	["Ribbly Screwspigot"] = "리블리 스크류스피곳",
 	["Right Arm"] = "오른팔",
 	["Ring of Law"] = "법의 심판장",
-	["Risen Hammersmith"] = "되살아난 파수병", -- Needs review
+	["Risen Hammersmith"] = "되살아난 파수병",
 	Roar = "어흥이",
 	Rohash = "로하시",
 	["Rokad the Ravager"] = "파괴자 로카드",
@@ -3542,7 +3542,7 @@ elseif GAME_LOCALE == "koKR" then
 	Romulo = "로밀로",
 	["Romulo & Julianne"] = "로밀로 & 줄리엔",
 	Roogug = "루구그",
-	-- ["Ro'shak"] = "",
+	["Ro'shak"] = "로샤크",
 	Rotface = "썩은얼굴",
 	Rotgrip = "썩은 아귀",
 	["Runemaster Molgeim"] = "룬술사 몰가임",
@@ -3550,7 +3550,7 @@ elseif GAME_LOCALE == "koKR" then
 	Ruuzlu = "루즐루",
 	["Saboteur Kip'tilak"] = "파괴자 키프틸락",
 	["Salramm the Fleshcrafter"] = "살덩이창조자 살람",
-	["Salyis's Warband"] = "살리스의 전투부대", -- Needs review
+	["Salyis's Warband"] = "살리스의 전투부대",
 	["Sanctum Sentry"] = "성소의 파수꾼",
 	["Sandarr Dunereaver"] = "산다르 듄리버",
 	["Sandfury Executioner"] = "성난모래부족 사형집행인",
@@ -3577,7 +3577,7 @@ elseif GAME_LOCALE == "koKR" then
 	Shannox = "샤녹스",
 	["Sha of Anger"] = "분노의 샤",
 	["Sha of Doubt"] = "의심의 샤",
-	-- ["Sha of Fear"] = "",
+	["Sha of Fear"] = "공포의 샤",
 	["Sha of Violence"] = "폭력의 샤",
 	Shazzrah = "샤즈라",
 	["Shirrak the Dead Watcher"] = "죽음의 감시인 쉴라크",
@@ -3594,13 +3594,13 @@ elseif GAME_LOCALE == "koKR" then
 	Skum = "스컴",
 	Slabhide = "돌거죽",
 	["Slad'ran"] = "슬라드란",
-	-- Slagmaw = "",
+	Slagmaw = "화산아귀", -- Needs review
 	Sneed = "스니드",
 	["Sneed's Shredder"] = "스니드의 벌목기",
 	["Solakar Flamewreath"] = "화염고리 솔라카르",
 	["Solarium Agent"] = "태양의 전당 요원",
 	["Solarium Priest"] = "태양의 전당 사제",
-	["Spine of Deathwing"] = "데스윙의 등", -- Needs review
+	["Spine of Deathwing"] = "데스윙의 등",
 	["Spirestone Battle Lord"] = "뾰족바위일족 전투대장",
 	["Spirestone Butcher"] = "뾰족바위일족 학살자",
 	["Spirestone Lord Magus"] = "뾰족바위일족 마법사장",
@@ -3613,9 +3613,9 @@ elseif GAME_LOCALE == "koKR" then
 	Strawman = "허수아비",
 	["Striker Ga'dok"] = "공습병 가도크",
 	["Subetai the Swift"] = "날렵한 쑤베타이",
-	-- Suen = "",
+	Suen = "쑤언",
 	["Sulfuron Harbinger"] = "설퍼론 사자",
-	-- ["Sul the Sandcrawler"] = "",
+	["Sul the Sandcrawler"] = "모래집게 술",
 	Supremus = "궁극의 심연",
 	["Svala Sorrowgrave"] = "스발라 소로우그레이브",
 	["Swamplord Musel'ek"] = "늪군주 뮤즐레크",
@@ -3679,17 +3679,17 @@ elseif GAME_LOCALE == "koKR" then
 	["Tirion Fordring"] = "티리온 폴드링",
 	Tito = "티토",
 	["Toravon the Ice Watcher"] = "얼음 감시자 토라본",
-	-- Tortos = "",
+	Tortos = "토르토스",
 	Toxitron = "맹독골렘",
 	["Trial of the King"] = "왕의 시험",
 	["Trigore the Lasher"] = "채찍꼬리 트리고어",
 	Trollgore = "송곳아귀",
-	-- Tsulong = "",
+	Tsulong = "출롱",
 	["Tsu'zee"] = "츄지",
 	["Tuten'kash"] = "투텐카쉬",
 	["Twilight Lord Kelris"] = "황혼의 군주 켈리스",
-	-- ["Twin Consorts"] = "",
-	Ultraxion = "울트락시온", -- Needs review
+	["Twin Consorts"] = "쌍둥이 왕비",
+	Ultraxion = "울트락시온",
 	["Urok Doomhowl"] = "우르크 둠하울",
 	["Vaelastrasz the Corrupt"] = "타락한 밸라스트라즈",
 	Valiona = "발리오나",
@@ -3724,8 +3724,8 @@ elseif GAME_LOCALE == "koKR" then
 	["Warden Mellichar"] = "교도관 멜리챠르",
 	["Warder Stilgiss"] = "문지기 스틸기스",
 	["Warlord Kalithresh"] = "장군 칼리스레쉬",
-	["Warlord Zon'ozz"] = "장군 존오즈", -- Needs review
-	["Warmaster Blackhorn"] = "전투대장 블랙혼", -- Needs review
+	["Warlord Zon'ozz"] = "장군 존오즈",
+	["Warmaster Blackhorn"] = "전투대장 블랙혼",
 	["War Master Voone"] = "대장군 부네",
 	["Warmaul Champion"] = "전쟁망치일족 용사",
 	["Warp Slicer"] = "차원의 절단기",
@@ -3747,7 +3747,7 @@ elseif GAME_LOCALE == "koKR" then
 	["Yan-Zhu the Uncasked"] = "담기지 않는 옌주",
 	["Yogg-Saron"] = "요그사론",
 	Yor = "요르",
-	["Yor'sahj the Unsleeping"] = "잠들지 않는 요르사지", -- Needs review
+	["Yor'sahj the Unsleeping"] = "잠들지 않는 요르사지",
 	Ysondre = "이손드레",
 	Zanzil = "잔질",
 	Zekkis = "젝키스",
@@ -9389,7 +9389,7 @@ elseif GAME_LOCALE == "zhTW" then
 	Acidmaw = "酸喉",
 	Adarogg = "阿達洛葛",
 	["Admiral Ripsnarl"] = "利普斯納爾上將",
-	Aeonus = "艾奧那斯",
+	Aeonus = "Aeonus", -- Needs review
 	["Aerial Command Unit"] = "空中指揮裝置",
 	["Agathelos the Raging"] = "暴怒的阿迦賽羅斯",
 	["Aggem Thorncurse"] = "阿葛金·棘咒",

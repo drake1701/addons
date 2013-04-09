@@ -12,6 +12,8 @@ maybe FIXED bug where a pet with an unknown rarity (bad Blizzard item links... s
 UPDATED breed possibilities (Living Sandling, Carp, and Pandas)
 ]]--
 
+GetAreaID = GetCurrentMapAreaID
+
 -- get folder path and set addon namespace
 local addonname, BPBID = ...
 
@@ -607,15 +609,19 @@ local function BPBID_Events_OnEvent(self, event, name, ...)
 		-- if this addon loads after the Pet Journal
 		if (PetJournalPetCardPetInfo) then
 			
-			-- unregister watching addon loading
-			BPBID_Events:UnregisterEvent("ADDON_LOADED")
-			
 			-- hook into the OnEnter script for the frame that calls GameTooltip in the Pet Journal
 			PetJournalPetCardPetInfo:HookScript("OnEnter", BPBID.Hook_PJTEnter)
 			PetJournalPetCardPetInfo:HookScript("OnLeave", BPBID.Hook_PJTLeave)
 				
 			-- set boolean
 			PJHooked = true
+		end
+		
+		-- if this addon loads after ArkInventory
+		if (ArkInventory) and (ArkInventory.TooltipSetBattlepet) then
+			
+			-- hook ArkInventory's Battle Pet tooltips
+			hooksecurefunc(ArkInventory, "TooltipSetBattlepet", BPBID.Hook_ArkInventory)
 		end
 	elseif (event == "ADDON_LOADED") and (name == "Blizzard_PetJournal") then
 		-- if the Pet Journal loads on demand correctly (when the player opens it)
@@ -628,14 +634,16 @@ local function BPBID_Events_OnEvent(self, event, name, ...)
 			-- set boolean
 			PJHooked = true
 		end
+	elseif (event == "ADDON_LOADED") and (name == "ArkInventory") then	
+		-- if this addon loads before ArkInventory
+		if (ArkInventory) and (ArkInventory.TooltipSetBattlepet) then
+			
+			-- hook ArkInventory's Battle Pet tooltips
+			hooksecurefunc(ArkInventory, "TooltipSetBattlepet", BPBID.Hook_ArkInventory)
+		end
 	elseif (event == "PLAYER_LOGIN") then
-		-- hook PJE breedstuff here later
-		
 		-- hook PJ PetCard here
 		if (PetJournalPetCardPetInfo) and (not PJHooked) then
-			
-			-- unregister watching addon loading
-			BPBID_Events:UnregisterEvent("ADDON_LOADED")
 			
 			-- hook into the OnEnter script for the frame that calls GameTooltip in the Pet Journal
 			PetJournalPetCardPetInfo:HookScript("OnEnter", BPBID.Hook_PJTEnter)

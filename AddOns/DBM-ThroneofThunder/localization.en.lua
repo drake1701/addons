@@ -90,7 +90,12 @@ L:SetMiscLocalization({
 -------------
 L= DBM:GetModLocalization(821)
 
+L:SetTimerLocalization({
+	timerBreathsCD			= "Next Breath"
+})
+
 L:SetOptionLocalization({
+	timerBreaths			= "Show timer for next breath",
 	SetIconOnCinders		= DBM_CORE_AUTO_ICONS_OPTION_TEXT:format(139822),
 	SetIconOnTorrentofIce	= DBM_CORE_AUTO_ICONS_OPTION_TEXT:format(139889)
 })
@@ -105,8 +110,9 @@ L:SetMiscLocalization({
 L= DBM:GetModLocalization(828)
 
 L:SetWarningLocalization({
-	warnFlock		= "%s %s (%s)",
-	specWarnFlock	= "%s %s (%s)"
+	warnFlock		= "%s %s %s",
+	specWarnFlock	= "%s %s %s",
+	specWarnBigBird	= "Nest Guardian: %s"
 })
 
 L:SetTimerLocalization({
@@ -116,8 +122,9 @@ L:SetTimerLocalization({
 L:SetOptionLocalization({
 	warnFlock		= DBM_CORE_AUTO_ANNOUNCE_OPTIONS.count:format("ej7348"),
 	specWarnFlock	= DBM_CORE_AUTO_SPEC_WARN_OPTIONS.switch:format("ej7348"),
+	specWarnBigBird	= DBM_CORE_AUTO_SPEC_WARN_OPTIONS.switch:format("ej7827"),
 	timerFlockCD	= DBM_CORE_AUTO_TIMER_OPTIONS.nextcount:format("ej7348"),
-	RangeFrame		= "Show range frame (8) for $spell:138923"
+	RangeFrame		= "Show range frame (10) for $spell:138923"
 })
 
 L:SetMiscLocalization({
@@ -127,7 +134,13 @@ L:SetMiscLocalization({
 	Lower			= "Lower",
 	UpperAndLower	= "Upper & Lower",
 	TrippleD		= "Tripple (2xDwn)",
-	TrippleU		= "Tripple (2xUp)"
+	TrippleU		= "Tripple (2xUp)",
+	SouthWest		= "SW",
+	SouthEast		= "SE",
+	NorthWest		= "NW",
+	NorthEast		= "NE",
+	West			= "W",
+	Middle			= "M"
 })
 
 --------------------------
@@ -136,10 +149,10 @@ L:SetMiscLocalization({
 L= DBM:GetModLocalization(818)
 
 L:SetWarningLocalization({
-	warnBeamNormal				= "Beam - Red : >%s<, Blue : >%s<",
-	warnBeamHeroic				= "Beam - Red : >%s<, Blue : >%s<, Yellow : >%s<",
+	warnBeamNormal				= "Beam - |cffff0000Red|r : >%s<, |cff0000ffBlue|r : >%s<",
+	warnBeamHeroic				= "Beam - |cffff0000Red|r : >%s<, |cff0000ffBlue|r : >%s<, |cffffff00Yellow|r : >%s<",
 	warnAddsLeft				= "Fogs remaining: %d",
-	specWarnBlueBeam			= "Blue Beam on you - DO NOT MOVE!!",
+	specWarnBlueBeam			= "Blue Beam on you - Avoid Moving",
 	specWarnFogRevealed			= "%s revealed!",
 	specWarnDisintegrationBeam	= "%s (%s)"
 })
@@ -162,13 +175,11 @@ L:SetOptionLocalization({
 L= DBM:GetModLocalization(820)
 
 L:SetWarningLocalization({
-	warnDebuffCount				= "Too many mutations: % good & % bad",
-	specWarnFullyMutatedFaded	= "%s faded"
+	warnDebuffCount				= "Mutate progress : %d/5 good & %d bad"
 })
 
 L:SetOptionLocalization({
-	warnDebuffCount				= "Show debuff count warnings when you absorb too many pools",
-	specWarnFullyMutatedFaded	= "Show special warning when $spell:140546 has faded",
+	warnDebuffCount				= "Show debuff count warnings when you absorb pools",
 	RangeFrame					= "Show range frame (5/2)"
 })
 
@@ -238,12 +249,17 @@ L:SetMiscLocalization({
 --------------
 L= DBM:GetModLocalization(832)
 
+L:SetWarningLocalization({
+	specWarnIntermissionSoon	= "Intermission soon"
+})
+
 L:SetOptionLocalization({
-	RangeFrame			= "Show range frame",--For two different spells
-	StaticShockArrow	= "Show DBM Arrow when someone is affected by $spell:135695",
-	OverchargeArrow		= "Show DBM Arrow when someone is affected by $spell:136295",
-	SetIconOnOvercharge	= DBM_CORE_AUTO_ICONS_OPTION_TEXT:format(136295),
-	SetIconOnStaticShock= DBM_CORE_AUTO_ICONS_OPTION_TEXT:format(135695)
+	specWarnIntermissionSoon	= "Show pre-special warning before Intermission",
+	RangeFrame					= "Show range frame",--For two different spells
+	StaticShockArrow			= "Show DBM Arrow when someone is affected by $spell:135695",
+	OverchargeArrow				= "Show DBM Arrow when someone is affected by $spell:136295",
+	SetIconOnOvercharge			= DBM_CORE_AUTO_ICONS_OPTION_TEXT:format(136295),
+	SetIconOnStaticShock		= DBM_CORE_AUTO_ICONS_OPTION_TEXT:format(135695)
 })
 
 ------------

@@ -76,7 +76,7 @@ L:SetOptionLocalization({
 })
 
 L:SetMiscLocalization({
-	WrongDebuff		= "%s 없음"
+	WrongDebuff				= "%s 없음"
 })
 
 -------------
@@ -84,8 +84,16 @@ L:SetMiscLocalization({
 -------------
 L= DBM:GetModLocalization(821)
 
+L:SetTimerLocalization({
+	timerBreathsCD			= "다음 숨결"
+})
+
+L:SetOptionLocalization({
+	timerBreaths			= "다음 숨결 바 표시"
+})
+
 L:SetMiscLocalization({
-	rampageEnds	= "분노가 가라앉습니다."
+	rampageEnds				= "분노가 가라앉습니다."
 })
 
 ------------
@@ -94,8 +102,9 @@ L:SetMiscLocalization({
 L= DBM:GetModLocalization(828)
 
 L:SetWarningLocalization({
-	warnFlock		= "%2$s : %1$s (%3$s)",
-	specWarnFlock	= "%2$s : %1$s (%3$s)",
+	warnFlock		= "%2$s : %1$s %3$s",
+	specWarnFlock	= "%2$s : %1$s %3$s",
+	specWarnBigBird	= "둥지 수호자 : %s"
 })
 
 L:SetTimerLocalization({
@@ -103,7 +112,7 @@ L:SetTimerLocalization({
 })
 
 L:SetOptionLocalization({
-	RangeFrame		= "$spell:138923 주문에 대한 거리 창 보기(8m)"
+	RangeFrame		= "$spell:138923 주문에 대한 거리 창 보기(10m)"
 })
 
 L:SetMiscLocalization({
@@ -113,7 +122,13 @@ L:SetMiscLocalization({
 	Lower			= "아래쪽",
 	UpperAndLower	= "윗쪽 + 아래쪽",
 	TrippleD		= "윗쪽 + 아래쪽 + 아래쪽",
-	TrippleU		= "윗쪽 + 윗쪽 + 아래쪽"
+	TrippleU		= "윗쪽 + 윗쪽 + 아래쪽",
+	SouthWest		= "남서쪽",
+	SouthEast		= "남동쪽",
+	NorthWest		= "북서쪽",
+	NorthEast		= "북동쪽",
+	West			= "서쪽",
+	Middle			= "중앙"
 })
 
 --------------------------
@@ -122,8 +137,8 @@ L:SetMiscLocalization({
 L= DBM:GetModLocalization(818)
 
 L:SetWarningLocalization({
-	warnBeamNormal				= "광선 - 적색 : >%s<, 청색 : >%s<",
-	warnBeamHeroic				= "광선 - 적색 : >%s<, 청색 : >%s<, 황색 : >%s<",
+	warnBeamNormal				= "광선 - |cffff0000적색|r : >%s<, |cff0000ff청색|r : >%s<",
+	warnBeamHeroic				= "광선 - |cffff0000적색|r : >%s<, |cff0000ff청색|r : >%s<, |cffffff00황색|r : >%s<",
 	warnAddsLeft				= "안개도깨비 남음 : %d",
 	specWarnBlueBeam			= "당신에게 청색 광선 - 절대 이동 금지!",
 	specWarnFogRevealed			= "%s 드러남!",
@@ -144,13 +159,11 @@ L:SetOptionLocalization({
 L= DBM:GetModLocalization(820)
 
 L:SetWarningLocalization({
-	warnDebuffCount				= "변형 진행 : 이로운 효과 - %d개, 해로운 효과 - %d개",
-	specWarnFullyMutatedFaded	= "%s 사라짐!"
+	warnDebuffCount				= "변형 정보 : 이로운 효과 - %d/5개, 해로운 효과 - %d개"
 })
 
 L:SetOptionLocalization({
 	warnDebuffCount				= "웅덩이를 흡수할 때 변형 상태에 대한 알림 보기",
-	specWarnFullyMutatedFaded	= "$spell:140546 효과가 사라질 때 특수 경고 보기",
 	RangeFrame					= "거리 창 보기(5m/2m)"
 })
 
@@ -164,11 +177,11 @@ L:SetWarningLocalization({
 })
 
 L:SetOptionLocalization({
-	warnMatterSwapped	= "$spell:138618 대상 알림"
+	warnMatterSwapped	= "$spell:138618 자리바꿈 알림 보기"
 })
 
 L:SetMiscLocalization({
-	Pull		= "구슬이 폭발합니다!"
+	Pull				= "구슬이 폭발합니다!"
 })
 
 --------------
@@ -219,10 +232,15 @@ L:SetMiscLocalization({
 --------------
 L= DBM:GetModLocalization(832)
 
+L:SetWarningLocalization({
+	specWarnIntermissionSoon	= "곧 사잇단계!"
+})
+
 L:SetOptionLocalization({
-	RangeFrame			= "거리 창 보기",
-	StaticShockArrow	= "$spell:135695 주문의 영향을 누군가 받은 경우 DBM 화살표 보기",
-	OverchargeArrow		= "$spell:136295 주문의 영향을 누군가 받은 경우 DBM 화살표 보기"
+	specWarnIntermissionSoon	= "사잇단계 진입 전에 특수 경고 보기",
+	RangeFrame					= "거리 창 보기",
+	StaticShockArrow			= "$spell:135695 주문의 영향을 누군가 받은 경우 DBM 화살표 보기",
+	OverchargeArrow				= "$spell:136295 주문의 영향을 누군가 받은 경우 DBM 화살표 보기"
 })
 
 ------------
@@ -236,7 +254,7 @@ L= DBM:GetModLocalization(831)
 L = DBM:GetModLocalization("ToTTrash")
 
 L:SetGeneralLocalization({
-	name =	"천둥의 왕좌 일반구간"
+	name = "천둥의 왕좌 일반구간"
 })
 
 L:SetOptionLocalization({

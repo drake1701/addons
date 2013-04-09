@@ -1,7 +1,7 @@
 local mod	= DBM:NewMod(827, "DBM-ThroneofThunder", nil, 362)
 local L		= mod:GetLocalizedStrings()
 
-mod:SetRevision(("$Revision: 9148 $"):sub(12, -3))
+mod:SetRevision(("$Revision: 9163 $"):sub(12, -3))
 mod:SetCreatureID(69465)
 mod:SetModelID(47552)
 
@@ -80,9 +80,11 @@ function mod:OnCombatStart(delay)
 	timerThrowCD:Start(30-delay)
 	if self:IsDifficulty("heroic10", "heroic25") then
 		timerIonizationCD:Start(60-delay)
-		countdownIonization:Start(-delay)
+		countdownIonization:Start(60-delay)
+		berserkTimer:Start(360-delay)
+	else
+		berserkTimer:Start(-delay)
 	end
-	berserkTimer:Start(-delay)
 end
 
 function mod:OnCombatEnd()

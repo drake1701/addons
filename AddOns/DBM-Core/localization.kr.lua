@@ -8,11 +8,6 @@ DBM_CORE_LOAD_MOD_SUCCESS			= "'%s' 경보를 불러왔습니다 !"
 DBM_CORE_LOAD_GUI_ERROR				= "설정창을 불러올 수 없습니다: %s"
 DBM_CORE_LOAD_GUI_COMBAT			= "전투 중에는 설정창을 불러올 수 없습니다. 전투가 종료되면 설정창이 열릴 것입니다. 이후에는 전투 중이라도 설정창을 불러 올 수 있습니다."
 
-DBM_ABSOLUTE_MODE_ON				= "무제한 모드가 활성화 되었습니다."
-DBM_ABSOLUTE_MODE_OFF				= "무제한 모드가 비활성화 되었습니다. 공격대에 원래 버전을 알립니다."
-DBM_ABSOLUTE_MODE_NOTIFY_ON			= "%s|1이;가; 무제한 모드를 활성화 하였습니다. 이 사용자의 DBM만이 전술 목표 아이콘을 설정할 수 있습니다."
-DBM_ABSOLUTE_MODE_NOTIFY_OFF		= "%s|1이;가; 무제한 모드를 비활성화 하였습니다. 아이콘 설정 기능이 원래대로 돌아갑니다."
-
 DBM_CORE_COMBAT_STARTED				= "%s 작동됨. 행운을 빕니다! :)";
 DBM_CORE_COMBAT_STARTED_IN_PROGRESS	= "%s 전투 진행 도중 참가하였습니다. 행운을 빕니다! :)"
 DBM_CORE_SCENARIO_STARTED			= "%s 시작됨. 행운을 빕니다! :)";
@@ -149,6 +144,76 @@ DBM_CORE_ANNOUNCE_PULL_NOW			= "시작합니다. 긴장하세요.!"
 
 DBM_CORE_ACHIEVEMENT_TIMER_SPEED_KILL = "Speed Kill(업적)"
 
+-- Auto-generated Warning Localizations
+DBM_CORE_AUTO_ANNOUNCE_TEXTS = {
+	target 		= "%s : >%%s<",
+	targetcount = "%s (%%d) : >%%s<",
+	spell 		= "%s",
+	ends 		= "%s 종료",
+	fades		= "%s 사라짐",
+	adds		= "%s : %%d 남음",
+	cast 		= "주문시전 %s : %.1f 초",
+	soon 		= "곧 %s",
+	prewarn		= "%2$s 후 %1$s",
+	phase 		= "%s 단계",
+	prephase	= "곧 %s 단계",
+	count 		= "%s (%%d)",
+	stack 		= "%s : >%%s< (%%d)"
+}
+
+DBM_CORE_AUTO_ANNOUNCE_OPTIONS = {
+	target		= "$spell:%s 대상 알림 보기",
+	targetcount	= "$spell:%s 대상 알림 보기",
+	spell 		= "$spell:%s 알림 보기",
+	ends 		= "$spell:%s 종료 알림 보기",
+	fades		= "$spell:%s 사라짐 알림 보기",
+	adds		= "$spell:%s 남은 횟수 알림 보기",
+	cast 		= "$spell:%s 시전시 알림 보기",
+	soon 		= "$spell:%s 사전 알림 보기",
+	prewarn		= "$spell:%s 사전 알림 보기",
+	phase 		= "%s 단계 알림 보기",
+	prephase	= "%s 단계 사전 알림 보기",
+	count 		= "$spell:%s 알림 보기",
+	stack		= "$spell:%s 중첩 알림 보기"
+}
+
+DBM_CORE_AUTO_SPEC_WARN_TEXTS = {
+	spell 		= "%s!",
+	ends 		= "%s 종료!",
+	fades 		= "%s 사라짐!",
+	soon 		= "곧 %s!",
+	dispel 		= "%s : >%%s< - 해제!",
+	interrupt 	= "%s : >%%s< - 차단!",
+	you 		= "당신에게 %s",
+	target 		= "%s : >%%s<",
+	close 		= "당신 근처에 %s (>%%s<)!",
+	move 		= "%s - 이동하세요!",
+	run 		= "%s - 도망치세요!",
+	cast 		= "%s - 시전 중지!",
+	count 		= "%s! (%%d)",
+	stack 		= "당신에게 %s (%%d 중첩)",
+	switch		= ">%s< - 대상 전환!"
+}
+
+-- Auto-generated Special Warning Localizations
+DBM_CORE_AUTO_SPEC_WARN_OPTIONS = {
+	spell 		= "$spell:%s 특수 경고 보기",
+	ends 		= "$spell:%s 종료 특수 경고 보기",
+	fades 		= "$spell:%s 사라짐 특수 경고 보기",
+	soon 		= "$spell:%s 사전 특수 경고 보기",
+	dispel 		= "$spell:%s 특수 경고 보기(해제/마법훔치기)",
+	interrupt	= "$spell:%s 특수 경고 보기(차단)",	
+	you 		= "$spell:%s 대상이 될 경우 특수 경고 보기",
+	target 		= "$spell:%s 주문의 영향을 누군가 받은 경우 특수 경고 보기",
+	close 		= "$spell:%s 대상이 근처에 있을 경우 특수 경고 보기",
+	move 		= "$spell:%s 주문의 영향을 받은 경우 특수 경고 보기(이동)",
+	run 		= "$spell:%s 특수 경고 보기(빠른 이동)",
+	cast 		= "$spell:%s 시전을 시작할 경우 특수 경고 보기",
+	count 		= "$spell:%s 특수 경고 보기",
+	stack 		= "$spell:%2$d 주문이 %1$d 중첩 이상시 특수 경고 보기",
+	switch		= "$spell:%s 특수 경고 보기(대상 전환)"
+}
+
 -- Auto-generated Timer Localizations
 DBM_CORE_AUTO_TIMER_TEXTS = {
 	target		= "%s: >%%s<",
@@ -176,66 +241,6 @@ DBM_CORE_AUTO_TIMER_OPTIONS = {
 	nextcount 	= "다음 $spell:%s 바 표시",
 	nextsource	= "다음 $spell:%s 바 표시",
 	achievement = "%s 업적을 위한 남은시간 바 표시"
-}
-
--- Auto-generated Warning Localizations
-DBM_CORE_AUTO_ANNOUNCE_TEXTS = {
-	target 		= "%s : >%%s<",
-	targetcount = "%s (%%d) : >%%s<",
-	spell 		= "%s",
-	adds		= "%s : %%d 남음",
-	cast 		= "주문시전 %s : %.1f 초",
-	soon 		= "곧 %s",
-	prewarn		= "%2$s 후 %1$s",
-	phase 		= "%s 단계",
-	prephase	= "곧 %s 단계",
-	count 		= "%s (%%d)",
-	stack 		= "%s : >%%s< (%%d)"
-}
-
-DBM_CORE_AUTO_ANNOUNCE_OPTIONS = {
-	target		= "$spell:%s 대상 알림 보기",
-	targetcount	= "$spell:%s 대상 알림 보기",
-	spell 		= "$spell:%s 알림 보기",
-	adds		= "$spell:%s 남은 횟수 알림 보기",
-	cast 		= "$spell:%s 시전시 알림 보기",
-	soon 		= "$spell:%s 사전 알림 보기",
-	prewarn		= "$spell:%s 사전 알림 보기",
-	phase 		= "%s 단계 알림 보기",
-	prephase	= "%s 단계 사전 알림 보기",
-	count 		= "$spell:%s 알림 보기",
-	stack		= "$spell:%s 중첩 알림 보기"
-}
-
--- Auto-generated Special Warning Localizations
-DBM_CORE_AUTO_SPEC_WARN_OPTIONS = {
-	spell 		= "$spell:%s 특수 경고 보기",
-	dispel 		= "$spell:%s 특수 경고 보기(해제/마법훔치기)",
-	interrupt	= "$spell:%s 특수 경고 보기(차단)",	
-	you 		= "$spell:%s 대상이 될 경우 특수 경고 보기",
-	target 		= "$spell:%s 주문의 영향을 누군가 받은 경우 특수 경고 보기",
-	close 		= "$spell:%s 대상이 근처에 있을 경우 특수 경고 보기",
-	move 		= "$spell:%s 주문의 영향을 받은 경우 특수 경고 보기(이동)",
-	run 		= "$spell:%s 특수 경고 보기(빠른 이동)",
-	cast 		= "$spell:%s 시전을 시작할 경우 특수 경고 보기",
-	count 		= "$spell:%s 특수 경고 보기",
-	stack 		= "$spell:%2$d 주문이 %1$d 중첩 이상시 특수 경고 보기",
-	switch		= "$spell:%s 특수 경고 보기(대상 전환)"
-}
-
-DBM_CORE_AUTO_SPEC_WARN_TEXTS = {
-	spell 		= "%s!",
-	dispel 		= "%s : >%%s< - 해제!",
-	interrupt 	= "%s : >%%s< - 차단!",
-	you 		= "당신에게 %s",
-	target 		= "%s : >%%s<",
-	close 		= "당신 근처에 %s (>%%s<)!",
-	move 		= "%s - 이동하세요!",
-	run 		= "%s - 도망치세요!",
-	cast 		= "%s - 시전 중지!",
-	count 		= "%s! (%%d)",
-	stack 		= "당신에게 %s (%%d 중첩)",
-	switch		= ">%s< - 대상 전환!"
 }
 
 
@@ -266,8 +271,8 @@ DBM_ARROW_ERROR_USAGE	= {
 	"/dbm arrow focus  주시대상을 가리키는 화살표를 만듭니다.",
 }
 
-DBM_SPEED_KILL_TIMER_TEXT	= "가장 빨랐던 전투"
-DBM_SPEED_KILL_TIMER_OPTION	= "가장 빨랐던 전투 시간을 바로 표시"
+DBM_SPEED_KILL_TIMER_TEXT	= "가장 빨랐던 기록"
+DBM_SPEED_KILL_TIMER_OPTION	= "가장 빨랐던 기록을 바로 표시"
 
 DBM_REQ_INSTANCE_ID_PERMISSION		= "%s 님이 당신의 공격대 귀속 정보를 요청합니다.\n%s 님의 요청을 수락하시겠습니까? 정보 확인을 위해 이 메세지가 여러번 표시 될 수도 있습니다."
 DBM_ERROR_NO_RAID					= "이 기능을 사용하기 위해서는 공격대에 속해 있어야 합니다."
