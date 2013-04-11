@@ -1,7 +1,7 @@
 local mod	= DBM:NewMod(825, "DBM-ThroneofThunder", nil, 362)
 local L		= mod:GetLocalizedStrings()
 
-mod:SetRevision(("$Revision: 9232 $"):sub(12, -3))
+mod:SetRevision(("$Revision: 9248 $"):sub(12, -3))
 mod:SetCreatureID(67977)
 mod:SetModelID(46559)
 mod:SetUsedIcons(8, 7, 6, 5, 4, 3)
@@ -42,14 +42,12 @@ local timerSummonBatsCD				= mod:NewCDTimer(45, "ej7140", nil, nil, nil, 136685)
 local timerStompActive				= mod:NewBuffActiveTimer(10.8, 134920)--Duration of the rapid caveins
 local timerShellConcussion			= mod:NewBuffFadesTimer(20, 136431)
 
+local countdownStomp				= mod:NewCountdown(49, 134920, mod:IsHealer())
+
 local berserkTimer					= mod:NewBerserkTimer(780)
 
 mod:AddBoolOption("InfoFrame")
-if GetLocale() == "koKR" then
-	mod:AddBoolOption("SetIconOnTurtles", false)
-else
-	mod:AddBoolOption("SetIconOnTurtles", true)
-end
+mod:AddBoolOption("SetIconOnTurtles", false)
 mod:AddBoolOption("ClearIconOnTurtles", false)--Different option, because you may want auto marking but not auto clearing. or you may want auto clearning when they "die" but not auto marking when they spawn
 
 local shelldName = GetSpellInfo(137633)
@@ -94,6 +92,7 @@ function mod:OnCombatStart(delay)
 	timerRockfallCD:Start(15-delay)
 	timerCallTortosCD:Start(21-delay)
 	timerStompCD:Start(29-delay, 1)
+	countdownStomp:Start(29-delay)
 	timerBreathCD:Start(-delay)
 	if self.Options.InfoFrame and self:IsDifficulty("heroic10", "heroic25") then
 		DBM.InfoFrame:SetHeader(L.WrongDebuff:format(shelldName))
@@ -102,7 +101,7 @@ function mod:OnCombatStart(delay)
 	else
 		berserkTimer:Start(-delay)
 	end
-	if DBM:GetRaidRank() > 0 and self.Options.SetIconOnTurtles then--You can set marks and you have icons turned on
+	if DBM:GetRaidRank() > 0 and self.Options.SetIconOnTurtles and not DBM.Options.DontSetIcons then--You can set marks and you have icons turned on
 		self:SendSync("IconCheck", UnitGUID("player"), tostring(DBM.Revision))
 	end
 end
@@ -136,7 +135,8 @@ function mod:SPELL_CAST_START(args)
 		specWarnQuakeStomp:Show()
 		timerStompActive:Start()
 		timerRockfallCD:Start(7.4)--When the spam of rockfalls start
-		timerStompCD:Start(49, stompCount+1)
+		timerStompCD:Start(nil, stompCount+1)
+		countdownStomp:Start()
 	end
 end
 

@@ -44,7 +44,7 @@
 --  Globals/Default Options  --
 -------------------------------
 DBM = {
-	Revision = tonumber(("$Revision: 9234 $"):sub(12, -3)),
+	Revision = tonumber(("$Revision: 9248 $"):sub(12, -3)),
 	DisplayVersion = "5.2.4 alpha", -- the string that is shown as version
 	ReleaseRevision = 9213 -- the revision of the latest stable version that is available
 }
@@ -107,6 +107,7 @@ DBM.DefaultOptions = {
 	AdvancedAutologBosses = false,
 	LogOnlyRaidBosses = false,
 	UseMasterVolume = true,
+	SetPlayerRole = true,
 	EnableModels = true,
 	RangeFrameFrames = "radar",
 	RangeFrameUpdates = "Average",
@@ -680,7 +681,8 @@ do
 				"UPDATE_MOUSEOVER_UNIT",
 				"PLAYER_TARGET_CHANGED"	,
 				"CINEMATIC_START",
-				"LFG_COMPLETION_REWARD"
+				"LFG_COMPLETION_REWARD",
+				"ACTIVE_TALENT_GROUP_CHANGED"
 			)
 			self:ZONE_CHANGED_NEW_AREA()
 			self:GROUP_ROSTER_UPDATE()
@@ -1093,11 +1095,15 @@ do
 		table.sort(sortMe, sort)
 		self:AddMsg(DBM_CORE_VERSIONCHECK_HEADER)
 		for i, v in ipairs(sortMe) do
-			if v.displayVersion then
-				self:AddMsg(DBM_CORE_VERSIONCHECK_ENTRY:format(v.name, v.displayVersion, v.revision))
+			if v.displayVersion and not v.bwrevision then--DBM, no BigWigs
+				self:AddMsg(DBM_CORE_VERSIONCHECK_ENTRY:format(v.name, "DBM "..v.displayVersion, v.revision))
 				if notify and v.revision < DBM.ReleaseRevision then
 					SendChatMessage(chatPrefixShort..DBM_CORE_YOUR_VERSION_OUTDATED, "WHISPER", nil, v.name)
 				end
+			elseif v.displayVersion and v.bwrevision then--DBM & BigWigs
+				self:AddMsg(DBM_CORE_VERSIONCHECK_ENTRY_TWO:format(v.name, "DBM "..v.displayVersion, v.revision, DBM_BIG_WIGS, v.bwrevision))
+			elseif not v.displayVersion and v.bwrevision then--BigWigs, No DBM
+				self:AddMsg(DBM_CORE_VERSIONCHECK_ENTRY:format(v.name, DBM_BIG_WIGS, v.bwrevision))
 			else
 				self:AddMsg(DBM_CORE_VERSIONCHECK_ENTRY_NO_DBM:format(v.name))
 			end
@@ -1347,7 +1353,11 @@ do
 				inRaid = true
 				sendSync("H")
 				DBM:Schedule(2, DBM.RequestTimers, DBM)
+				DBM:Schedule(2, DBM.RoleCheck, DBM)
 				fireEvent("raidJoin", playerName)
+				if BigWigs and BigWigs.db.profile.raidicon and not DBM.Options.DontSetIcons then--Both DBM and bigwigs have raid icon marking turned on.
+					DBM:AddMsg(DBM_CORE_BIGWIGS_ICON_CONFLICT)--Warn that one of them should be turned off to prevent conflict (which they turn off is obviously up to raid leaders preference, dbm accepts either ore turned off to stop this alert)
+				end
 			end
 			for i = 1, GetNumGroupMembers() do
 				local name, rank, subgroup, _, _, className = GetRaidRosterInfo(i)
@@ -1399,6 +1409,7 @@ do
 				inRaid = true
 				sendSync("H")
 				DBM:Schedule(2, DBM.RequestTimers, DBM)
+				DBM:Schedule(2, DBM.RoleCheck, DBM)
 				fireEvent("partyJoin", playerName)
 			end
 			for i = 0, GetNumSubgroupMembers() do
@@ -1453,6 +1464,7 @@ do
 			inRaid = false
 			enableIcons = true
 			fireEvent("raidLeave", playerName)
+			table.wipe(raid)
 			-- restore playerinfo into raid table on raidleave. (for solo raid)
 			raid[playerName] = {}
 			raid[playerName].name = playerName
@@ -1691,6 +1703,10 @@ end
 
 function DBM:LFG_PROPOSAL_SUCCEEDED()
 	DBM.Bars:CancelBar(DBM_LFG_INVITE)
+end
+
+function DBM:ACTIVE_TALENT_GROUP_CHANGED()
+	DBM:RoleCheck()
 end
 
 function DBM:PLAYER_REGEN_ENABLED()
@@ -2033,6 +2049,18 @@ do
 		sendSync("V", ("%d\t%s\t%s\t%s"):format(DBM.Revision, DBM.Version, DBM.DisplayVersion, GetLocale()))
 	end
 
+	syncHandlers["VR"] = function(sender, bwrevision)--Sent by bigwigs releases
+		if bwrevision and raid[sender] then
+			raid[sender].bwrevision = bwrevision
+		end
+	end
+	
+	syncHandlers["VRA"] = function(sender, bwrevision)--Sent by bigwigs Alphas
+		if bwrevision and raid[sender] then
+			raid[sender].bwrevision = bwrevision
+		end
+	end
+
 	syncHandlers["V"] = function(sender, revision, version, displayVersion, locale)
 		revision, version = tonumber(revision or ""), tonumber(version or "")
 		if revision and version and displayVersion and raid[sender] then
@@ -2358,6 +2386,11 @@ do
 	function DBM:CHAT_MSG_ADDON(prefix, msg, channel, sender)
 		if prefix == "D4" and msg and (channel == "PARTY" or channel == "RAID" or channel == "INSTANCE_CHAT" or channel == "WHISPER" and self:GetRaidUnitId(sender)) then
 			handleSync(channel, sender, strsplit("\t", msg))
+		elseif prefix == "BigWigs" and msg and (channel == "PARTY" or channel == "RAID" or channel == "INSTANCE_CHAT" or channel == "WHISPER" and self:GetRaidUnitId(sender)) then
+			local bwPrefix, bwMsg = msg:match("^(%u-):(.+)")
+			if bwPrefix and (bwPrefix == "VR" or bwPrefix == "VRA") then--We only care about version prefixes so only pass those prefixes on
+				handleSync(channel, sender, bwPrefix, bwMsg)
+			end
 		end
 	end
 end
@@ -2723,7 +2756,7 @@ function DBM:StartCombat(mod, delay, synced, syncedStartHp, noKillRecord)
 				DBM.BossHealth:AddBoss(mod.combatInfo.mob, mod.localization.general.name)
 			end
 		end
-		local startHp = mod:GetBossHP(mod.mainBossId or mod.combatInfo.mob) or ((tonumber(syncedStartHp) or 0) < 1 and syncedStartHp) or -1
+		local startHp = mod:GetBossHP(mod.mainBossId or mod.combatInfo.mob) or ((tonumber(syncedStartHp) or 1) < 1 and syncedStartHp) or -1
 		if (mod:IsDifficulty("worldboss") and startHp < 0.98) or noKillRecord then--Boss was not full health when engaged, disable combat start timer and kill record
 			mod.ignoreBestkill = true
 		else--Reset ignoreBestkill after wipe
@@ -3308,6 +3341,9 @@ do
 			if not RegisterAddonMessagePrefix("D4") then -- main prefix for DBM4
 				self:AddMsg("Error: unable to register DBM addon message prefix (reached client side addon message filter limit), synchronization will be unavailable") -- TODO: confirm that this actually means that the syncs won't show up
 			end
+			if not RegisterAddonMessagePrefix("BigWigs") then
+			
+			end
 		end
 	end
 end
@@ -3566,6 +3602,21 @@ function DBM:Capitalize(str)
 		numBytes = 2
 	end
 	return str:sub(1, numBytes):upper()..str:sub(numBytes + 1):lower()
+end
+
+function DBM:RoleCheck()
+	if not DBM.Options.SetPlayerRole then return end
+	if not InCombatLockdown() and IsInGroup() and not IsPartyLFG() then
+		local spec = GetSpecialization()
+		local role = GetSpecializationRole(spec)
+		if role == "TANK" and UnitGroupRolesAssigned("player") ~= "TANK" then
+			UnitSetRole("player", "TANK")
+		elseif role == "HEALER" and UnitGroupRolesAssigned("player") ~= "HEALER" then
+			UnitSetRole("player", "HEALER")
+		elseif role == "DAMAGER" and UnitGroupRolesAssigned("player") ~= "DAMAGER" then
+			UnitSetRole("player", "DAMAGER")
+		end
+	end
 end
 
 -----------------
