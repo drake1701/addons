@@ -672,6 +672,11 @@ Change Log:
 		- Added Pandaria spells for Black Temple
 		- Fixed Pandaria spells for Throne of Thunder
 		- Added Pandaria spells for Heart of Fear	
+	v4.23.1
+		- Added Pandaria spells for Throne of Thunder
+		- Added Pandaria spells for A Little Patience
+		- Added Pandaria spells for Dagger in the Dark
+		- Added Pandaria spells for Pandaria (world)
 
 ]]--
 GTFO = {
@@ -688,8 +693,8 @@ GTFO = {
 		IgnoreOptions = { };
 		TrivialDamagePercent = .5; -- Minimum % of HP lost required for an alert to be trivial
 	};
-	Version = "4.23"; -- Version number (text format)
-	VersionNumber = 42300; -- Numeric version number for checking out-of-date clients
+	Version = "4.23.1"; -- Version number (text format)
+	VersionNumber = 42301; -- Numeric version number for checking out-of-date clients
 	DataLogging = nil; -- Indicate whether or not the addon needs to run the datalogging function (for hooking)
 	DataCode = "4"; -- Saved Variable versioning, change this value to force a reset to default
 	CanTank = nil; -- The active character is capable of tanking

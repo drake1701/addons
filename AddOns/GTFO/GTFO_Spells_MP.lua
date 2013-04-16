@@ -695,7 +695,6 @@ GTFO.SpellID["123121"] = {
 						return 1;
 					else
 						-- Ignore first spray to give the tank a chance to get into/out of position
-						-- TODO: Verify and adjust if it needs to ignore more than once
 						GTFO_AddEvent("LeiShiSpray", 5);
 					end
 					return 0;
@@ -865,12 +864,23 @@ GTFO.SpellID["133001"] = {
 	--desc = "Gas Bomb (Rak'gor Bloodrazor)";
 	sound = 1;
 	trivialPercent = 0;
+	negatingDebuffSpellID = 133002; -- Cheap Shot
 };
 
 GTFO.SpellID["132758"] = {
 	--desc = "Whirlwind (Darkhatched Lizard-Lord)";
 	sound = 1;
 	tankSound = 0;
+	trivialPercent = 0;
+};
+
+-- *********************
+-- * A Little Patience *
+-- *********************
+
+GTFO.SpellID["135496"] = {
+	--desc = "Swamp Gas (Bogrot)";
+	sound = 1;
 	trivialPercent = 0;
 };
 
@@ -1180,19 +1190,24 @@ GTFO.SpellID["138178"] = {
 GTFO.SpellID["137176"] = {
 	--desc = "Overloaded Circuits (Lei Shen)";
 	sound = 1;
-	test = true; -- Verify
 };
 
 GTFO.SpellID["136853"] = {
 	--desc = "Lightning Bolt (Lei Shen)";
 	sound = 1;
-	test = true; -- Verify
+};
+
+GTFO.SpellID["135150"] = {
+	--desc = "Crashing Thunder (Lei Shen)";
+	sound = 1;
 };
 
 GTFO.SpellID["135153"] = {
 	--desc = "Crashing Thunder (Lei Shen)";
 	sound = 1;
 };
+
+-- TODO: Ruin (Ra-Den)
 
 -- ************
 -- * Pandaria *
@@ -1633,5 +1648,32 @@ GTFO.SpellID["137330"] = {
 
 GTFO.SpellID["138479"] = {
 	--desc = "Flurry of Teeth (Skumblade Saur-Priest)";
+	sound = 2;
+};
+
+GTFO.SpellID["140851"] = {
+	--desc = "Lightning Barrier (Shan Bu)";
+	sound = 1;
+};
+
+GTFO.SpellID["136345"] = {
+	--desc = "Stormcloud (Nalak)";
+	sound = 4;
+	negatingDebuffSpellID = 136340; -- Stormcloud
+	negatingIgnoreTime = 2;
+};
+
+GTFO.SpellID["140560"] = {
+	--desc = "Lightning Storm (Hu'seng the Gatekeeper)";
+	sound = 1;
+};
+
+GTFO.SpellID["140393"] = {
+	--desc = "Bubbling Brew (Captain Halu'kal)";
+	sound = 2;
+};
+
+GTFO.SpellID["137542"] = {
+	--desc = "Charged Bolt (Metal Lord Mono-Han)";
 	sound = 2;
 };

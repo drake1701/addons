@@ -613,6 +613,21 @@ GTFO.SpellID["133197"] = {
 	trivialPercent = 0;	
 };
 
+-- ***********************
+-- * Dagger in the Dark *
+-- ***********************
+
+GTFO.SpellID["133804"] = {
+	--desc = "Death Nova (Broodmaster Noshi)";
+	sound = 3;
+};
+
+GTFO.SpellID["133387"] = {
+	--desc = "Stalactite (Broodmaster Noshi)";
+	sound = 3;
+	applicationOnly = true;
+};
+
 -- *******************
 -- * Brawler's Guild *
 -- *******************
@@ -828,11 +843,28 @@ GTFO.SpellID["137663"] = {
 -- TODO: Acidic Spines (Primordius) -- Avoidable?
 -- TODO: Erupting Pustules (Primordius) -- Avoidable?
 
-GTFO.SpellID["136178"] = {
-	--desc = "Mutation (Primordius)";
+GTFO.SpellID["136185"] = {
+	--desc = "Fragile Bones (Primordius)";
 	sound = 3;
 	alwaysAlert = true;
-	affirmingDebuffSpellID = 140546; -- Fully Mutated
+};
+
+GTFO.SpellID["136187"] = {
+	--desc = "Clouded Mind (Primordius)";
+	sound = 3;
+	alwaysAlert = true;
+};
+
+GTFO.SpellID["136183"] = {
+	--desc = "Dulled Synapses (Primordius)";
+	sound = 3;
+	alwaysAlert = true;
+};
+
+GTFO.SpellID["136181"] = {
+	--desc = "Impaired Eyesight (Primordius)";
+	sound = 3;
+	alwaysAlert = true;
 };
 
 GTFO.SpellID["140508"] = {
@@ -841,11 +873,21 @@ GTFO.SpellID["140508"] = {
 	alwaysAlert = true;
 };
 
--- TODO: Crimson Wake (Large Anima Golem)
--- TODO: Explosive Slam (Massive Anima Golem) -- Non-tank fail only?
--- TODO: Anima Ring (Dark Animus) -- Tank fail
+GTFO.SpellID["136037"] = {
+	--desc = "Primordial Strike (Primordius)";
+	sound = 3;
+	tankSound = 0;
+};
+
+GTFO.SpellID["138569"] = {
+	--desc = "Explosive Slam (Massive Anima Golem)";
+	sound = 3;
+	tankSound = 0;
+};
+
+-- TODO: Anima Ring (Dark Animus) -- Tank fail (more than 1 stack)
 -- TODO: Anima Bolt (Dark Animus) -- Avoidable?
--- TODO: FULL POWER (Dark Animus)
+-- TODO: FULL POWER (Dark Animus) -- Not avoidable?
 
 GTFO.SpellID["139803"] = {
 	--desc = "Triumphant Rush (Manchu)";
@@ -909,10 +951,23 @@ GTFO.SpellID["135096"] = {
 
 -- TODO: Summon Ball Lightning (Lei Shen) -- Avoidable?
 
+GTFO.SpellID["136543"] = {
+	--desc = "Summon Ball Lightning (Lei Shen)";
+	soundFunction = function() 
+		if (GTFO_FindEvent("LeiShenBallLightning")) then
+			-- Multiple hits = fail
+			return 3;
+		else
+			-- Ignore first ball lightning, but fail on future ones
+			GTFO_AddEvent("LeiShenBallLightning", 5);
+			return 0;
+		end
+	end;
+};
+
 GTFO.SpellID["136850"] = {
 	--desc = "Lightning Whip (Lei Shen)";
 	sound = 3;
-	test = true; -- Verify
 };
 
 GTFO.SpellID["136326"] = {
@@ -921,6 +976,9 @@ GTFO.SpellID["136326"] = {
 	test = true; -- Verify
 };
 
+-- TODO: Fusion Slash (Lei Shen) -- Tank swap ability, fail on the 2nd stack
+-- TODO: Ruin Bolt (Ra-Den)
+-- TODO: Unstable Vita (Ra-Den) -- Lightning path, avoidable?
 
 -- ************
 -- * Pandaria *
@@ -1252,5 +1310,25 @@ GTFO.SpellID["137140"] = {
 
 GTFO.SpellID["136439"] = {
 	--desc = "Lightning Strike (Shan'ze Electrocutioner)";
+	sound = 3;
+};
+
+GTFO.SpellID["137300"] = {
+	--desc = "Electrical Storm (Shan Bu)";
+	sound = 3;
+};
+
+GTFO.SpellID["138863"] = {
+	--desc = "Shadow Crash (Shan Bu)";
+	sound = 3;
+};
+
+GTFO.SpellID["139281"] = {
+	--desc = "Boulder Impact (Palace Gatekeeper)";
+	sound = 3;
+};
+
+GTFO.SpellID["140531"] = {
+	--desc = "Desist (Hu'seng the Gatekeeper)";
 	sound = 3;
 };

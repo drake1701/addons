@@ -2,7 +2,7 @@
 ## Title: GTFO
 ## Notes: GTFO, you're dying!
 ## Author: Zensunim of Malygos
-## Version: 4.23
+## Version: 4.23.1
 ## DefaultState: Enabled
 ## SavedVariables: GTFOData
 Localization\enUS.lua

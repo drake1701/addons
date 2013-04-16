@@ -1,7 +1,7 @@
 local mod	= DBM:NewMod(829, "DBM-ThroneofThunder", nil, 362)
 local L		= mod:GetLocalizedStrings()
 
-mod:SetRevision(("$Revision: 9218 $"):sub(12, -3))
+mod:SetRevision(("$Revision: 9309 $"):sub(12, -3))
 mod:SetCreatureID(68905, 68904)--Lu'lin 68905, Suen 68904
 mod:SetModelID(46975)--Lu'lin, 46974 Suen
 
@@ -38,10 +38,10 @@ local warnLightOfDay					= mod:NewSpellAnnounce(137403, 2, nil, false)--Spammy, 
 local warnFanOfFlames					= mod:NewStackAnnounce(137408, 2, nil, mod:IsTank() or mod:IsHealer())
 local warnFlamesOfPassion				= mod:NewSpellAnnounce(137414, 3)--Todo, check target scanning
 local warnIceComet						= mod:NewSpellAnnounce(137419, 2)
-local warnNuclearInferno				= mod:NewCastAnnounce(137491, 4)--Heroic
+local warnNuclearInferno				= mod:NewCastAnnounce(137491, 4, 4)--Heroic
 --Dusk
 local warnDusk							= mod:NewAnnounce("warnDusk", 1, "Interface\\Icons\\achievement_zone_easternplaguelands")--"achievement_zone_easternplaguelands" (best Dusk icon i could find)
-local warnTidalForce					= mod:NewCastAnnounce(137531, 3)
+local warnTidalForce					= mod:NewCastAnnounce(137531, 3, 2)
 
 --Darkness
 local specWarnCrashingStarSoon			= mod:NewSpecialWarningSoon(137129, false, nil, nil, 2)
@@ -71,10 +71,11 @@ local timerFanOfFlamesCD				= mod:NewNextTimer(12, 137408, nil, mod:IsTank() or 
 local timerFanOfFlames					= mod:NewTargetTimer(30, 137408, nil, mod:IsTank())
 --local timerFlamesOfPassionCD			= mod:NewCDTimer(30, 137414)--Also very high variation. (31~65). Can be confuse, no use.
 local timerIceCometCD					= mod:NewCDTimer(20.5, 137419)--Every 20.5-25 seconds on normal. On 10 heroic, variables 20.5~41s. Maybe 25 heroic same?
+local timerNuclearInferno				= mod:NewBuffActiveTimer(12, 137491)
 local timerNuclearInfernoCD				= mod:NewCDTimer(49.5, 137491)
 --Dusk
 local timerTidalForce					= mod:NewBuffActiveTimer(18 ,137531)
-local timerTidalForceCD					= mod:NewCDTimer(74, 137531)
+local timerTidalForceCD					= mod:NewCDTimer(73, 137531)
 
 local berserkTimer						= mod:NewBerserkTimer(600)
 
@@ -91,6 +92,8 @@ function mod:OnCombatStart(delay)
 end
 
 function mod:OnCombatEnd()
+	phase3Started = false
+	self:UnregisterShortTermEvents()
 	if self.Options.RangeFrame then
 		DBM.RangeCheck:Hide()
 	end
@@ -121,15 +124,16 @@ function mod:SPELL_AURA_APPLIED(args)
 			timerBeastOfNightmaresCD:Start()
 		end
 	elseif args.spellId == 137408 then
-		warnFanOfFlames:Show(args.destName, args.amount or 1)
+		local amount = args.amount or 1
+		warnFanOfFlames:Show(args.destName, amount)
 		timerFanOfFlames:Start(args.destName)
 		timerFanOfFlamesCD:Start()
 		if args:IsPlayer() then
-			if (args.amount or 1) >= 2 then
-				specWarnFanOfFlames:Show(args.amount)
+			if amount >= 2 then
+				specWarnFanOfFlames:Show(amount)
 			end
 		else
-			if (args.amount or 1) >= 1 and not UnitDebuff("player", GetSpellInfo(137408)) and not UnitIsDeadOrGhost("player") then
+			if amount >= 2 and not UnitDebuff("player", GetSpellInfo(137408)) and not UnitIsDeadOrGhost("player") then
 				specWarnFanOfFlamesOther:Show(args.destName)
 			end
 		end
@@ -154,9 +158,7 @@ end
 
 function mod:SPELL_SUMMON(args)
 	if args.spellId == 137419 then
-		warnIceComet:Show()
-		specWarnIceComet:Show()
-		timerIceCometCD:Start()
+		self:SendSync("Comet")
 	end
 end
 
@@ -231,6 +233,9 @@ function mod:OnSync(msg)
 		warnDusk:Show()
 		timerIceCometCD:Start(17)--This seems to reset, despite what last CD was (this can be a bad thing if it was do any second)
 		timerTidalForceCD:Start(26)
+		if self:IsDifficulty("heroic10", "heroic25") then
+			timerNuclearInfernoCD:Start(63)
+		end
 		--timerCosmicBarrageCD:Start(54)
 	elseif msg == "Phase3" then
 		self:UnregisterShortTermEvents()
@@ -240,7 +245,18 @@ function mod:OnSync(msg)
 			phase3Started = true
 			timerIceCometCD:Start(11)--This seems to reset, despite what last CD was (this can be a bad thing if it was do any second)
 			timerTidalForceCD:Start(20)
+			if self:IsDifficulty("heroic10", "heroic25") then
+				timerNuclearInfernoCD:Start(57)
+			end
 			--timerCosmicBarrageCD:Start(48)
+		end
+	elseif msg == "Comet" then
+		warnIceComet:Show()
+		specWarnIceComet:Show()
+		if phase3Started then -- cd longer on phase 3.
+			timerIceCometCD:Start(30.5)
+		else
+			timerIceCometCD:Start()
 		end
 	elseif msg == "TidalForce" then
 		warnTidalForce:Show()
@@ -257,6 +273,11 @@ function mod:OnSync(msg)
 	elseif msg == "Inferno" then
 		warnNuclearInferno:Show()
 		specWarnNuclearInferno:Show()
-		timerNuclearInfernoCD:Start()
+		timerNuclearInferno:Start()
+		if phase3Started then
+			timerNuclearInfernoCD:Start(73)
+		else
+			timerNuclearInfernoCD:Start()
+		end
 	end
 end

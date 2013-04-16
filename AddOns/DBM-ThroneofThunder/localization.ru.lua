@@ -56,7 +56,8 @@ L:SetWarningLocalization({
 
 L:SetOptionLocalization({
 	PHealthFrame		= "Показывать оставшееся здоровье босса до спадения $spell:136442\n(Требуется включить окно отображения здоровья босса)",
-	RangeFrame			= "Показывать окно проверки дистанции"
+	RangeFrame			= "Показывать окно проверки дистанции",
+	AnnounceCooldowns	= "Отсчитавать какой сейчас каст $spell:137166 для рейдовых кулдаунов",
 })
 
 ------------
@@ -73,7 +74,8 @@ L:SetOptionLocalization({
 	specWarnCrystalShell	= "Спец-предупреждение, когда на Вас нет дебаффа $spell:137633",
 	InfoFrame				= "Информационное окно для игроков без $spell:137633",
 	SetIconOnTurtles		= "Устанавливать метки на $journal:7129",
-	ClearIconOnTurtles		= "Убирать метки с $journal:7129, когда активируется $spell:133971"
+	ClearIconOnTurtles		= "Убирать метки с $journal:7129, когда активируется $spell:133971",
+	AnnounceCooldowns		= "Отсчитавать какой сейчас каст $spell:134920 для рейдовых кулдаунов"
 })
 
 L:SetMiscLocalization({
@@ -90,7 +92,14 @@ L:SetTimerLocalization({
 })
 
 L:SetOptionLocalization({
-	timerBreaths			= "Отсчёт времени до следующего дыхания"
+	timerBreaths			= "Отсчёт времени до следующего дыхания",
+	AnnounceCooldowns		= "Отсчитавать какой сейчас каст Буйство для рейдовых кулдаунов",
+	Never					= "Никогда",
+	Every					= "Каждый (последовательно)",
+	EveryTwo				= "Кулдауны каждый 2",
+	EveryThree				= "Кулдауны каждый 3",
+	EveryTwoExcludeDiff		= "Кулдауны каждый 2 (искл. Диффузия)",
+	EveryThreeExcludeDiff	= "Кулдауны каждый 3 (искл. Диффузия)"
 })
 
 L:SetMiscLocalization({

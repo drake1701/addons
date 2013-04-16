@@ -31,7 +31,11 @@ function GUI:CreateMenuButton()
 	button:SetHighlightTexture("Interface\\MiniMap\\UI-MiniMap-ZoomButton-Highlight","ADD")
 	button:RegisterForClicks("LeftButtonUp","RightButtonUp")
 	button:SetScript("OnClick", function(self,mouseButton) 		
-			EasyMenu(options, menuFrame, button, 0 , 0, "MENU",AUTO_HIDE_DELAY);
+			if mouseButton == "LeftButton" then
+				GUI:ToggleMinimize(not GUI:GetIsMinimized())
+			else
+				EasyMenu(options, menuFrame, button, 0 , 0, "MENU",AUTO_HIDE_DELAY);
+			end
 	end)
 	return button
 end

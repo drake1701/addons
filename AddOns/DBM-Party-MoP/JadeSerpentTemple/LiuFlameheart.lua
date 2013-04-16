@@ -1,7 +1,7 @@
 local mod	= DBM:NewMod(658, "DBM-Party-MoP", 1, 313)
 local L		= mod:GetLocalizedStrings()
 
-mod:SetRevision(("$Revision: 9224 $"):sub(12, -3))
+mod:SetRevision(("$Revision: 9314 $"):sub(12, -3))
 mod:SetCreatureID(56732)
 mod:SetModelID(39487)
 mod:SetZone()
@@ -30,13 +30,6 @@ local specWarnJadeFire			= mod:NewSpecialWarningMove(107110)
 local timerDragonStrikeCD		= mod:NewNextTimer(10.5, 106823)
 local timerJadeDragonStrikeCD	= mod:NewNextTimer(10.5, 106841)
 local timerJadeFireCD			= mod:NewNextTimer(3.5, 107045)
-
-function mod:JadeFireTarget(targetname)
-	warnJadeFire:Show(targetname)
-	if targetname == UnitName("player") then
-		specWarnJadeFire:Show()
-	end
-end
 
 function mod:OnCombatStart(delay)
 --	timerDragonStrikeCD:Start(-delay)--Unknown, tank pulled before i could start a log to get an accurate first timer.

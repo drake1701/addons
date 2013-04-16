@@ -1,7 +1,7 @@
 ## Interface: 50200
 ## Title: PetBattleTeams
 ## Author: Nullberri
-## Version: r30 3.1.4
+## Version: r31 3.2.0
 ## X-Category: Pet Battles
 ## X-Localizations: enUS
 ## SavedVariables: PetBattleTeamsDB,PetBattleTeamsSettings

@@ -56,6 +56,7 @@ function GUI:OnInitialize()
 			showSelectedTeam =true,
 			showControls = true,
 			showRoster = true,
+			minimized = false,
 			SelectedTeamScrolling = false,
 		}
 	}
@@ -74,6 +75,10 @@ function GUI:InitializeGUI()
 	if not self.mainFrame then
 		self.mainFrame =  GUI:CreateMainFrame()
 		
+		local menuButton = GUI:CreateMenuButton()
+		self.menuButton =  menuButton
+		
+		self:ToggleMinimize(self:GetIsMinimized())
 		
 		self.mainFrame:SetLocked(self:GetLocked())
 		self.mainFrame:Hide()
@@ -83,7 +88,11 @@ function GUI:InitializeGUI()
 			self.mainFrame:SetComponentPoints(GUI:GetComponentPoints())
 			self.mainFrame:Show()
 		end
+		
+		
 	end
+	
+	
 end
 
 function GUI:SetAttached(enabled)
@@ -163,6 +172,21 @@ function GUI:GetComponentPoints()
 end
 
 
+function GUI:ToggleMinimize(enabled)
+	if enabled then
+		self.menuButton:SetPoint("CENTER",PetJournal,"TOPRIGHT",-40,-10)
+		self.menuButton:SetParent(PetJournal)
+	else
+		self.menuButton:SetPoint("CENTER",self.mainFrame,"TOPRIGHT",-10,-10)
+		self.menuButton:SetParent(self.mainFrame)
+	end
+	self.mainFrame:SetShown(not enabled)
+	self.db.global.minimized = enabled
+end
+
+function GUI:GetIsMinimized()
+	return self.db.global.minimized
+end
 
 
 

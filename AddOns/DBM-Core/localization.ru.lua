@@ -1,12 +1,14 @@
 ﻿if GetLocale() ~= "ruRU" then return end
 
 DBM_CORE_NEED_SUPPORT				= "Вы - программист или хороший переводчик? Команда разработчиков DBM нуждается в вашей помощи. Присоединяйтесь к нам -  зайдите на www.deadlybossmods.com или отправьте сообщение на tandanu@deadlybossmods.com или nitram@deadlybossmods.com."
-DBM_HOW_TO_USE_MOD					= "Добро пожаловать в DBM. Для доступа к настройкам наберите /dbm в чате. При желании, загрузите определенные зоны вручную для изменений специфических настроек для каждого босса. DBM пытается подстраиваться под вас на основе вашей специализации на момент первого запуска, но некоторые могут захотеть включить дополнительные опции. Многие запрошенные пользователями предупреждения уже существуют, но отключены по-умолчанию для определенных специализаций. Особенно те, которые касаются танков."
+DBM_HOW_TO_USE_MOD					= "Добро пожаловать в DBM. Для доступа к настройкам наберите /dbm в чате. При желании, загрузите определенные зоны вручную для изменений специфических настроек для каждого босса. DBM пытается подстраиваться под вас на основе вашей специализации на момент первого запуска, но некоторые могут захотеть включить дополнительные опции."
 
 DBM_CORE_LOAD_MOD_ERROR				= "Ошибка при загрузке босс модуля для %s: %s"
 DBM_CORE_LOAD_MOD_SUCCESS			= "Загружен модуль для '%s'. Для дополнительных настроек введите /dbm или /dbm help в чате."
 DBM_CORE_LOAD_GUI_ERROR				= "Не удалось загрузить GUI: %s"
-DBM_CORE_LOAD_GUI_COMBAT			= "GUI не может быть изначально загружено в бою. GUI будет загружено вне боя. После загрузки GUI вы сможете загружать его в бою."
+DBM_CORE_LOAD_GUI_COMBAT			= "GUI не может быть изначально загружено в бою. GUI будет загружено после боя. После загрузки GUI вы сможете загружать его в бою."
+
+DBM_CORE_BIGWIGS_ICON_CONFLICT		= "DBM обнаружил, что у Вас включена установка меток в Bigwigs и DBM одновременно. Пожалуйста отключите метки в одном из них, чтобы избежать конфликта с лидером вашей группы"
 
 DBM_CORE_COMBAT_STARTED				= "%s вступает в бой. Удачи! :)"
 DBM_CORE_COMBAT_STARTED_IN_PROGRESS	= "%s вступает в бой (в процессе). Удачи! :)"
@@ -55,11 +57,14 @@ DBM_CORE_WHISPER_COMBAT_END_KILL_STATS		= "%s одержал победу над
 DBM_CORE_WHISPER_COMBAT_END_WIPE_AT			= "%s потерпел поражение от %s на %s"
 DBM_CORE_WHISPER_COMBAT_END_WIPE_STATS_AT	= "%s потерпел поражение от %s на %s. Общее количество вайпов у них - %d."
 
-DBM_CORE_VERSIONCHECK_HEADER		= "Deadly Boss Mods - версии"
-DBM_CORE_VERSIONCHECK_ENTRY			= "%s: %s (r%d)"
-DBM_CORE_VERSIONCHECK_ENTRY_NO_DBM	= "%s: DBM не установлен"
-DBM_CORE_VERSIONCHECK_FOOTER		= "Найдено %d |4игрок:игрока:игроков; с установленным Deadly Boss Mods"
+DBM_CORE_VERSIONCHECK_HEADER		= "Boss Mod - Версии"
+DBM_CORE_VERSIONCHECK_ENTRY			= "%s: %s (r%d)"--One Boss mod
+DBM_CORE_VERSIONCHECK_ENTRY_TWO		= "%s: %s (r%d) и %s (r%d)"--Two Boss mods
+DBM_CORE_VERSIONCHECK_ENTRY_NO_DBM	= "%s: Boss Mod не установлен"
+DBM_CORE_VERSIONCHECK_FOOTER		= "Найдено %d |4игрок:игрока:игроков; с DBM и %d |4игрок:игрока:игроков; с Bigwigs"
 DBM_CORE_YOUR_VERSION_OUTDATED      = "Ваша версия Deadly Boss Mods устарела! Пожалуйста, посетите http://dev.deadlybossmods.com для загрузки последней версии."
+--DBM_BIG_WIGS
+--DBM_BIG_WIGS_ALPHA
 
 DBM_CORE_UPDATEREMINDER_HEADER		= "Ваша версия Deadly Boss Mods устарела.\n Версия %s (r%d) доступна для загрузки здесь:"
 DBM_CORE_UPDATEREMINDER_FOOTER		= "Нажмите " .. (IsMacClient() and "Cmd-C" or "Ctrl-C")  ..  ", чтобы скопировать ссылку загрузки в буфер обмена."
@@ -73,7 +78,7 @@ DBM_PIZZA_ERROR_USAGE				= "Использование: /dbm [broadcast] timer <
 
 DBM_CORE_ERROR_DBMV3_LOADED			= "Deadly Boss Mods запущен дважды, поскольку у Вас установлены и включены DBMv3 и DBMv4!\nНажмите кнопку \"ОК\" для отключения DBMv3 и перезагрузки интерфейса.\nНаведите порядок в вашей папке AddOns, удалив старые папки DBMv3."
 
-DBM_CORE_MINIMAP_TOOLTIP_HEADER		= "Deadly Boss Mods"
+--DBM_CORE_MINIMAP_TOOLTIP_HEADER (Same as English locales)
 DBM_CORE_MINIMAP_TOOLTIP_FOOTER		= "Shift+щелчок или щелкните правой кнопкой мыши, чтобы переместить\nAlt+shift+щелчок для свободного перетаскивания"
 
 DBM_CORE_RANGECHECK_HEADER			= "Проверка дистанции (%d м)"
@@ -184,10 +189,10 @@ DBM_CORE_AUTO_SPEC_WARN_TEXTS.you 		= "%s на вас"
 DBM_CORE_AUTO_SPEC_WARN_TEXTS.target 	= "%s на |3-5(>%%s<)"
 DBM_CORE_AUTO_SPEC_WARN_TEXTS.close 	= "%s на |3-5(>%%s<) около вас"
 DBM_CORE_AUTO_SPEC_WARN_TEXTS.move 		= "%s - отбегите"
-DBM_CORE_AUTO_SPEC_WARN_TEXTS.run 		= "%s - бегите"
+DBM_CORE_AUTO_SPEC_WARN_TEXTS.run 		= "%s - убегайте"
 DBM_CORE_AUTO_SPEC_WARN_TEXTS.cast 		= "%s - прекратите чтение заклинаний"
 DBM_CORE_AUTO_SPEC_WARN_TEXTS.count 	= "%s! (%%d)"
-DBM_CORE_AUTO_SPEC_WARN_TEXTS.stack 	= "На вас %%d стаков от %s" --too long?	
+DBM_CORE_AUTO_SPEC_WARN_TEXTS.stack 	= "На вас %%d стаков от %s" --too long?
 DBM_CORE_AUTO_SPEC_WARN_TEXTS.switch 	= ">%s< - переключитесь"
 
 -- Auto-generated Special Warning Localizations
@@ -200,8 +205,8 @@ DBM_CORE_AUTO_SPEC_WARN_OPTIONS.interrupt	= "Спец-предупреждени
 DBM_CORE_AUTO_SPEC_WARN_OPTIONS.you 		= "Спец-предупреждение, когда на вас \n $spell:%s"
 DBM_CORE_AUTO_SPEC_WARN_OPTIONS.target 		= "Спец-предупреждение, когда на ком-то \n $spell:%s"
 DBM_CORE_AUTO_SPEC_WARN_OPTIONS.close 		= "Спец-предупреждение, когда на ком-то рядом с вами \n $spell:%s"
-DBM_CORE_AUTO_SPEC_WARN_OPTIONS.move 		= "Спец-предупреждение, когда на вас \n $spell:%s"
-DBM_CORE_AUTO_SPEC_WARN_OPTIONS.run 		= "Спец-предупреждение для $spell:%s"
+DBM_CORE_AUTO_SPEC_WARN_OPTIONS.move 		= "Спец-предупреждение \"отбегите\" для $spell:%s"
+DBM_CORE_AUTO_SPEC_WARN_OPTIONS.run 		= "Спец-предупреждение \"убегайте\" для $spell:%s"
 DBM_CORE_AUTO_SPEC_WARN_OPTIONS.cast 		= "Спец-предупреждение о применении заклинания $spell:%s"
 DBM_CORE_AUTO_SPEC_WARN_OPTIONS.count 		= "Спец-предупреждение для $spell:%s"
 DBM_CORE_AUTO_SPEC_WARN_OPTIONS.stack 		= "Спец-предупреждение, когда на вас >=%d стаков \n $spell:%s"

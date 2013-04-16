@@ -1,7 +1,7 @@
 local mod	= DBM:NewMod(825, "DBM-ThroneofThunder", nil, 362)
 local L		= mod:GetLocalizedStrings()
 
-mod:SetRevision(("$Revision: 9248 $"):sub(12, -3))
+mod:SetRevision(("$Revision: 9300 $"):sub(12, -3))
 mod:SetCreatureID(67977)
 mod:SetModelID(46559)
 mod:SetUsedIcons(8, 7, 6, 5, 4, 3)
@@ -49,11 +49,13 @@ local berserkTimer					= mod:NewBerserkTimer(780)
 mod:AddBoolOption("InfoFrame")
 mod:AddBoolOption("SetIconOnTurtles", false)
 mod:AddBoolOption("ClearIconOnTurtles", false)--Different option, because you may want auto marking but not auto clearing. or you may want auto clearning when they "die" but not auto marking when they spawn
+mod:AddBoolOption("AnnounceCooldowns", mod:HasRaidCooldown())
 
 local shelldName = GetSpellInfo(137633)
 local shellConcussion = GetSpellInfo(136431)
 local stompActive = false
 local stompCount = 0
+local stompCast = 0--The one we reset every 3
 local firstRockfall = false--First rockfall after a stomp
 local shellsRemaining = 0
 local lastConcussion = 0
@@ -79,6 +81,7 @@ end
 function mod:OnCombatStart(delay)
 	stompActive = false
 	stompCount = 0
+	stompCast = 0
 	firstRockfall = false--First rockfall after a stomp
 	shellsRemaining = 0
 	lastConcussion = 0
@@ -131,12 +134,21 @@ function mod:SPELL_CAST_START(args)
 	elseif args.spellId == 134920 then
 		stompActive = true
 		stompCount = stompCount + 1
+		if stompCast == 4 then stompCast = 0 end
+		stompCast = stompCast + 1
 		warnQuakeStomp:Show(stompCount)
 		specWarnQuakeStomp:Show()
 		timerStompActive:Start()
 		timerRockfallCD:Start(7.4)--When the spam of rockfalls start
 		timerStompCD:Start(nil, stompCount+1)
 		countdownStomp:Start()
+		if self.Options.AnnounceCooldowns then
+			if DBM.Options.UseMasterVolume then
+				PlaySoundFile("Interface\\AddOns\\DBM-Core\\Sounds\\Corsica_S\\"..stompCast..".ogg", "Master")
+			else
+				PlaySoundFile("Interface\\AddOns\\DBM-Core\\Sounds\\Corsica_S\\"..stompCast..".ogg")
+			end
+		end
 	end
 end
 
@@ -164,16 +176,30 @@ mod:RegisterOnUpdateHandler(function(self)
 			local uId = "raid"..i.."target"
 			local guid = UnitGUID(uId)
 			if adds[guid] then
+				for g,i in pairs(adds) do
+					if i == 8 and g ~= guid then -- always set skull on first we see
+						adds[g] = adds[guid]
+						adds[guid] = 8
+						break
+					end
+				end
 				SetRaidTarget(uId, adds[guid])
 				iconsSet = iconsSet + 1
 				adds[guid] = nil
 			end
-			local guid2 = UnitGUID("mouseover")
-			if adds[guid2] then
-				SetRaidTarget("mouseover", adds[guid2])
-				iconsSet = iconsSet + 1
-				adds[guid2] = nil
+		end
+		local guid2 = UnitGUID("mouseover")
+		if adds[guid2] then
+			for g,i in pairs(adds) do
+				if i == 8 and g ~= guid2 then -- always set skull on first we see
+					adds[g] = adds[guid2]
+					adds[guid2] = 8
+					break
+				end
 			end
+			SetRaidTarget("mouseover", adds[guid2])
+			iconsSet = iconsSet + 1
+			adds[guid2] = nil
 		end
 	end
 end, 0.2)

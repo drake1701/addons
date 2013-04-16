@@ -214,10 +214,7 @@ function GUI:CreateMainFrame()
 	bandageButton:SetPoint("TOPLEFT",reviveButton,"TOPRIGHT",1,0)
 	bandageButton:SetParent(widget)
 	
-	local menuButton = GUI:CreateMenuButton()
-	widget.menuButton =  menuButton
-	menuButton:SetPoint("CENTER",widget,"TOPRIGHT",-10,-10)
-	menuButton:SetParent(widget)
+	
 	
 	widget:SetScript("OnDragStart",OnDragStart)
 	widget:SetScript("OnDragStop",OnDragStop)

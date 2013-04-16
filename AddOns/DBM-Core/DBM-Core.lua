@@ -44,9 +44,9 @@
 --  Globals/Default Options  --
 -------------------------------
 DBM = {
-	Revision = tonumber(("$Revision: 9248 $"):sub(12, -3)),
-	DisplayVersion = "5.2.4 alpha", -- the string that is shown as version
-	ReleaseRevision = 9213 -- the revision of the latest stable version that is available
+	Revision = tonumber(("$Revision: 9321 $"):sub(12, -3)),
+	DisplayVersion = "5.2.5 alpha", -- the string that is shown as version
+	ReleaseRevision = 9314 -- the revision of the latest stable version that is available
 }
 
 -- Legacy crap; that stupid "Version" field was never a good idea.
@@ -225,9 +225,15 @@ local tinsert, tremove, twipe = table.insert, table.remove, table.wipe
 local type = type
 local select = select
 local floor = math.floor
+local GetNumGroupMembers = GetNumGroupMembers
+local GetRaidRosterInfo = GetRaidRosterInfo
+local IsInRaid = IsInRaid
+local IsInGroup = IsInGroup
+local IsInInstance = IsInInstance
 local UnitAffectingCombat = UnitAffectingCombat
 local UnitExists = UnitExists
 local GetSpellInfo = GetSpellInfo
+local EJ_GetSectionInfo = EJ_GetSectionInfo
 
 -- for Phanx' Class Colors
 local RAID_CLASS_COLORS = CUSTOM_CLASS_COLORS or RAID_CLASS_COLORS
@@ -625,10 +631,10 @@ do
 						sort			= tonumber(GetAddOnMetadata(i, "X-DBM-Mod-Sort") or math.huge) or math.huge,
 						type			= GetAddOnMetadata(i, "X-DBM-Mod-Type") or "OTHER",
 						category		= GetAddOnMetadata(i, "X-DBM-Mod-Category") or "Other",
-						name			= GetAddOnMetadata(i, "X-DBM-Mod-Name") or "",
+						name			= GetAddOnMetadata(i, "X-DBM-Mod-Name") or GetRealZoneText(tonumber(GetAddOnMetadata(i, "X-DBM-Mod-MapID"))) or "",
 						zone			= {strsplit(",", GetAddOnMetadata(i, "X-DBM-Mod-LoadZone") or "BogusZone")},--workaround, so mods with zoneids and no zonetext don't get loaded by default before zoneids even checked
 						zoneId			= {strsplit(",", GetAddOnMetadata(i, "X-DBM-Mod-LoadZoneID") or "")},
-						subTabs			= GetAddOnMetadata(i, "X-DBM-Mod-SubCategories") and {strsplit(",", GetAddOnMetadata(i, "X-DBM-Mod-SubCategories"))},
+						subTabs			= GetAddOnMetadata(i, "X-DBM-Mod-SubCategoriesID") and {strsplit(",", GetAddOnMetadata(i, "X-DBM-Mod-SubCategoriesID"))} or GetAddOnMetadata(i, "X-DBM-Mod-SubCategories") and {strsplit(",", GetAddOnMetadata(i, "X-DBM-Mod-SubCategories"))},
 						oneFormat		= tonumber(GetAddOnMetadata(i, "X-DBM-Mod-Has-Single-Format") or 0) == 1,
 						hasLFR			= tonumber(GetAddOnMetadata(i, "X-DBM-Mod-Has-LFR") or 0) == 1,
 						hasChallenge	= tonumber(GetAddOnMetadata(i, "X-DBM-Mod-Has-Challenge") or 0) == 1,
@@ -649,7 +655,12 @@ do
 					end
 					if self.AddOns[#self.AddOns].subTabs then
 						for k, v in ipairs(self.AddOns[#self.AddOns].subTabs) do
-							self.AddOns[#self.AddOns].subTabs[k] = (self.AddOns[#self.AddOns].subTabs[k]):trim()
+							local id = tonumber(self.AddOns[#self.AddOns].subTabs[k])
+							if id then
+								self.AddOns[#self.AddOns].subTabs[k] = GetRealZoneText(id):trim()
+							else
+								self.AddOns[#self.AddOns].subTabs[k] = (self.AddOns[#self.AddOns].subTabs[k]):trim()
+							end
 						end
 					end
 				end
@@ -679,7 +690,7 @@ do
 				"LFG_PROPOSAL_SUCCEEDED",
 				"UPDATE_BATTLEFIELD_STATUS",
 				"UPDATE_MOUSEOVER_UNIT",
-				"PLAYER_TARGET_CHANGED"	,
+				"PLAYER_TARGET_CHANGED",
 				"CINEMATIC_START",
 				"LFG_COMPLETION_REWARD",
 				"ACTIVE_TALENT_GROUP_CHANGED"
@@ -703,16 +714,6 @@ do
 				else
 					-- other event or cinematics enabled
 					return oldMovieEventHandler and oldMovieEventHandler(self, event, movieId, ...)
-				end
-			end)
-		elseif modname == "DBM-BurningCrusade" then
-			-- workaround to ban really old ZA/ZG mods that are still loaded through the compatibility layer. These mods should be excluded by the compatibility layer by design, however they are no longer loaded through the compatibility layer.
-			-- that means this is unnecessary if you are using a recent version of DBM-BC. However, if you are still on an old version of DBM-BC then filtering ZA/ZG through DBM-Core wouldn't be possible and no one really ever updates DBM-BC
-			self:Schedule(0, function()
-				for i = #self.AddOns, 1, -1 do
-					if checkEntry(bannedMods, self.AddOns[i].modId) then -- DBM-BC loads mods directly into this table and doesn't respect the bannedMods list of DBM-Core (just its own list of banned mods) (design fail)
-						table.remove(self.AddOns, i)
-					end
 				end
 			end)
 		end
@@ -1085,9 +1086,19 @@ end
 
 do
 	local sortMe = {}
+	
 	local function sort(v1, v2)
-		return (v1.revision or 0) > (v2.revision or 0)
+		if v1.revision and not v2.revision then
+			return true
+		elseif v2.revision and not v1.revision then
+			return false
+		elseif v1.revision and v2.revision then
+			return v1.revision > v2.revision
+		else
+			return (v1.bwarevision or v1.bwrevision or 0) > (v2.bwarevision or v2.bwrevision or 0)
+		end
 	end
+
 	function DBM:ShowVersions(notify)
 		for i, v in pairs(raid) do
 			table.insert(sortMe, v)
@@ -1095,25 +1106,33 @@ do
 		table.sort(sortMe, sort)
 		self:AddMsg(DBM_CORE_VERSIONCHECK_HEADER)
 		for i, v in ipairs(sortMe) do
-			if v.displayVersion and not v.bwrevision then--DBM, no BigWigs
+			if v.displayVersion and not (v.bwrevision or v.bwarevision) then--DBM, no BigWigs
 				self:AddMsg(DBM_CORE_VERSIONCHECK_ENTRY:format(v.name, "DBM "..v.displayVersion, v.revision))
 				if notify and v.revision < DBM.ReleaseRevision then
 					SendChatMessage(chatPrefixShort..DBM_CORE_YOUR_VERSION_OUTDATED, "WHISPER", nil, v.name)
 				end
-			elseif v.displayVersion and v.bwrevision then--DBM & BigWigs
-				self:AddMsg(DBM_CORE_VERSIONCHECK_ENTRY_TWO:format(v.name, "DBM "..v.displayVersion, v.revision, DBM_BIG_WIGS, v.bwrevision))
-			elseif not v.displayVersion and v.bwrevision then--BigWigs, No DBM
-				self:AddMsg(DBM_CORE_VERSIONCHECK_ENTRY:format(v.name, DBM_BIG_WIGS, v.bwrevision))
+			elseif v.displayVersion and (v.bwrevision or v.bwarevision) then--DBM & BigWigs
+				self:AddMsg(DBM_CORE_VERSIONCHECK_ENTRY_TWO:format(v.name, "DBM "..v.displayVersion, v.revision, v.bwarevision and DBM_BIG_WIGS_ALPHA or DBM_BIG_WIGS, v.bwarevision or v.bwrevision))
+			elseif not v.displayVersion and (v.bwrevision or v.bwarevision) then--BigWigs, No DBM
+				self:AddMsg(DBM_CORE_VERSIONCHECK_ENTRY:format(v.name, v.bwarevision and DBM_BIG_WIGS_ALPHA or DBM_BIG_WIGS, v.bwarevision or v.bwrevision))
 			else
 				self:AddMsg(DBM_CORE_VERSIONCHECK_ENTRY_NO_DBM:format(v.name))
 			end
 		end
+		local TotalUsers = #sortMe
+		local NoDBM = 0
+		local NoBigwigs = 0
 		for i = #sortMe, 1, -1 do
 			if not sortMe[i].revision then
-				table.remove(sortMe, i)
+				NoDBM = NoDBM + 1
+			end
+			if not (sortMe[i].bwarevision or sortMe[i].bwrevision) then
+				NoBigwigs = NoBigwigs + 1
 			end
 		end
-		self:AddMsg(DBM_CORE_VERSIONCHECK_FOOTER:format(#sortMe))
+		local TotalDBM = TotalUsers - NoDBM
+		local TotalBW = TotalUsers - NoBigwigs
+		self:AddMsg(DBM_CORE_VERSIONCHECK_FOOTER:format(TotalDBM, TotalBW))
 		for i = #sortMe, 1, -1 do
 			sortMe[i] = nil
 		end
@@ -1348,7 +1367,8 @@ do
 	local function updateAllRoster()
 		if IsInRaid() then
 			table.wipe(raidShortNames)
-			local playerWithHigherVersionPromoted = false
+			enableIcons = false
+			local latestRevision = tonumber(DBM.Revision)
 			if not inRaid then
 				inRaid = true
 				sendSync("H")
@@ -1385,12 +1405,16 @@ do
 					else
 						raidShortNames[shortname] = DBM_CORE_GENERIC_WARNING_DUPLICATE:format(name:gsub("%-.*$", ""))
 					end
-					if not playerWithHigherVersionPromoted and rank >= 1 and raid[name].revision and raid[name].revision > tonumber(DBM.Revision) then
-						playerWithHigherVersionPromoted = true
+					--Something is wrong here, need to investigate. I watched MULTIPLE revisions OLDER than mine setting icons, revisions that HAVE this change. it is NOT disabling icons for revisions. I am seeing 5.2.3 release set icons when i have 5.2.4 alpha, even some 5.2.2 alphas setting icons when there is a 5.2.3 and 5.2.4 alpha in raid. this should not happen!
+					--Maybe this improve wrong icon setting? (but, older verison also to be updated)
+					if raid[name].revision and raid[name].revision > tonumber(DBM.Revision) then
+						latestRevision = raid[name].revision
 					end
 				end
 			end
-			enableIcons = not playerWithHigherVersionPromoted
+			if latestRevision == tonumber(DBM.Revision) and DBM:GetRaidRank(playerName) > 0 then
+				enableIcons = true
+			end
 			for i, v in pairs(raid) do
 				if not v.updated then
 					raidUIds[v.id] = nil
@@ -2055,9 +2079,9 @@ do
 		end
 	end
 	
-	syncHandlers["VRA"] = function(sender, bwrevision)--Sent by bigwigs Alphas
-		if bwrevision and raid[sender] then
-			raid[sender].bwrevision = bwrevision
+	syncHandlers["VRA"] = function(sender, bwarevision)--Sent by bigwigs Alphas
+		if bwarevision and raid[sender] then
+			raid[sender].bwarevision = bwarevision
 		end
 	end
 
@@ -2085,7 +2109,7 @@ do
 					if found then
 						showedUpdateReminder = true
 						if not DBM.Options.BlockVersionUpdateNotice then
-							DBM:ShowUpdateReminder(displayVersion, revision)
+							DBM:ShowUpdateReminder(displayVersion, version)
 						else
 							DBM:AddMsg(DBM_CORE_UPDATEREMINDER_HEADER:match("([^\n]*)"))
 							DBM:AddMsg(DBM_CORE_UPDATEREMINDER_HEADER:match("\n(.*)"):format(displayVersion, version))
@@ -2095,6 +2119,7 @@ do
 				end
 			end
 		end
+		DBM:GROUP_ROSTER_UPDATE()
 	end
 
 	syncHandlers["U"] = function(sender, time, text)
@@ -2813,7 +2838,7 @@ function DBM:UNIT_HEALTH(uId)
 	if #inCombat == 0 and bossIds[cId] and InCombatLockdown() and UnitAffectingCombat(uId) and healthCombatInitialized then -- StartCombat by UNIT_HEALTH event, for older instances.
 		if combatInfo[LastZoneText] then
 			for i, v in ipairs(combatInfo[LastZoneText]) do
-				if v.type == "combat" and v.multiMobPullDetection and checkEntry(v.multiMobPullDetection, cId) or v.mob == cId then
+				if not v.mod.disableHealthCombat and (v.type == "combat" and v.multiMobPullDetection and checkEntry(v.multiMobPullDetection, cId) or v.mob == cId) then
 					self:StartCombat(v.mod, health > 0.97 and 0.5 or math.min(20, (lastCombatStarted and GetTime() - lastCombatStarted) or 2.1), nil, health, health < 0.90) -- Above 97%, boss pulled during combat, set min delay (0.5) / Below 97%, combat enter detection failure, use normal delay (max 20s) / Do not record kill time below 90% (late combat detection)
 				end
 			end
@@ -2821,7 +2846,7 @@ function DBM:UNIT_HEALTH(uId)
 		-- copy & paste, lol
 		if combatInfo[LastZoneMapID] then
 			for i, v in ipairs(combatInfo[LastZoneMapID]) do
-				if v.type == "combat" and v.multiMobPullDetection and checkEntry(v.multiMobPullDetection, cId) or v.mob == cId then
+				if not v.mod.disableHealthCombat and (v.type == "combat" and v.multiMobPullDetection and checkEntry(v.multiMobPullDetection, cId) or v.mob == cId) then
 					self:StartCombat(v.mod, health > 0.97 and 0.5 or math.min(20, (lastCombatStarted and GetTime() - lastCombatStarted) or 2.1), nil, health, health < 0.90) -- Above 97%, boss pulled during combat, set min delay (0.5) / Below 97%, combat enter detection failure, use normal delay (max 20s) / Do not record kill time below 90% (late combat detection)
 				end
 			end
@@ -3334,7 +3359,6 @@ do
 		self:Schedule(10, requestTimers)
 		self:Schedule(14, requestTimers)
 		self:Schedule(18, requestTimers)
---		self:LFG_UPDATE()
 --		self:Schedule(10, function() if not DBM.Options.HelpMessageShown then DBM.Options.HelpMessageShown = true DBM:AddMsg(DBM_CORE_NEED_SUPPORT) end end)
 		self:Schedule(10, function() if not DBM.Options.SettingsMessageShown then DBM.Options.SettingsMessageShown = true self:AddMsg(DBM_HOW_TO_USE_MOD) end end)
 		if type(RegisterAddonMessagePrefix) == "function" then
@@ -3342,7 +3366,7 @@ do
 				self:AddMsg("Error: unable to register DBM addon message prefix (reached client side addon message filter limit), synchronization will be unavailable") -- TODO: confirm that this actually means that the syncs won't show up
 			end
 			if not RegisterAddonMessagePrefix("BigWigs") then
-			
+				self:AddMsg("Error: unable to register BigWigs addon message prefix (reached client side addon message filter limit), BigWigs version checks will be unavailable")
 			end
 		end
 	end
@@ -3604,17 +3628,14 @@ function DBM:Capitalize(str)
 	return str:sub(1, numBytes):upper()..str:sub(numBytes + 1):lower()
 end
 
+--Credits to Funkeh`
 function DBM:RoleCheck()
 	if not DBM.Options.SetPlayerRole then return end
 	if not InCombatLockdown() and IsInGroup() and not IsPartyLFG() then
 		local spec = GetSpecialization()
 		local role = GetSpecializationRole(spec)
-		if role == "TANK" and UnitGroupRolesAssigned("player") ~= "TANK" then
-			UnitSetRole("player", "TANK")
-		elseif role == "HEALER" and UnitGroupRolesAssigned("player") ~= "HEALER" then
-			UnitSetRole("player", "HEALER")
-		elseif role == "DAMAGER" and UnitGroupRolesAssigned("player") ~= "DAMAGER" then
-			UnitSetRole("player", "DAMAGER")
+		if UnitGroupRolesAssigned("player") ~= role then
+			UnitSetRole("player", role)
 		end
 	end
 end
@@ -3678,10 +3699,7 @@ do
 	local modsById = setmetatable({}, {__mode = "v"})
 	local mt = {__index = bossModPrototype}
 
-	function DBM:NewMod(name, modId, modSubTab, instanceId, encounterId)
-		if type(name) == "number" then
-			encounterId = name
-		end
+	function DBM:NewMod(name, modId, modSubTab, instanceId)
 		name = tostring(name) -- the name should never be a number of something as it confuses sync handlers that just receive some string and try to get the mod from it
 		if modsById[name] then error("DBM:NewMod(): Mod names are used as IDs and must therefore be unique.", 2) end
 		local obj = setmetatable(
@@ -3703,7 +3721,6 @@ do
 				countdowns = {},
 				modId = modId,
 				instanceId = instanceId,
-				encounterId = encounterId,
 				revision = 0,
 				localization = self:GetModLocalization(name)
 			},
@@ -3716,13 +3733,15 @@ do
 			end
 		end
 
-		if obj.localization.general.name == "name" then
-			if encounterId then
-				local t = EJ_GetEncounterInfo(encounterId)
-				obj.localization.general.name = string.split(",", t)
-			else
-				obj.localization.general.name = name
-			end
+		if tonumber(name) then
+			local t = EJ_GetEncounterInfo(tonumber(name))
+			obj.localization.general.name = string.split(",", t)
+		elseif name:match("z%d+") then
+			local t = GetRealZoneText(string.sub(name, 2))
+			obj.localization.general.name = string.split(",", t)
+		elseif name:match("d%d+") then
+			local t = GetDungeonInfo(string.sub(name, 2))
+			obj.localization.general.name = string.split(",", t)
 		end
 		table.insert(self.Mods, obj)
 		modsById[name] = obj
@@ -3900,7 +3919,6 @@ function bossModPrototype:GetBossTarget(cid)
 end
 
 local targetScanCount = 0
-
 function bossModPrototype:BossTargetScanner(cid, returnFunc, scanInterval, scanTimes, isEnemyScan, isFinalScan)
 	--Increase scan count
 	targetScanCount = targetScanCount + 1
@@ -3927,36 +3945,6 @@ function bossModPrototype:BossTargetScanner(cid, returnFunc, scanInterval, scanT
 	else--target was nil, lets schedule a rescan here too.
 		if targetScanCount < scanTimes then--Make sure not to infinite loop here as well.
 			self:ScheduleMethod(scanInterval, "BossTargetScanner", cid, returnFunc, scanInterval, scanTimes, isEnemyScan)
-		end
-	end
-end
-
-function bossModPrototype:GetThreatTarget(cid)
-	cid = cid or self.creatureId
-	local name, realm, uid
-	if self:GetUnitCreatureId("target") == cid then
-		if UnitDetailedThreatSituation("player", "target") == 1 then
-			return "player"
-		end
-	elseif IsInRaid() then
-		for i = 1, GetNumGroupMembers() do
-			if self:GetUnitCreatureId("raid"..i.."target") == cid then
-				for x = 1, GetNumGroupMembers() do
-					if UnitDetailedThreatSituation("raid"..x, "raid"..i.."target") == 1 then
-						return "raid"..x
-					end
-				end
-			end
-		end
-	elseif IsInGroup() then
-		for i = 1, GetNumSubgroupMembers() do
-			if self:GetUnitCreatureId("party"..i.."target") == cid then
-				for x = 1, GetNumSubgroupMembers() do
-					if UnitDetailedThreatSituation("party"..x, "party"..i.."target") == 1 then
-						return "party"..x
-					end
-				end
-			end
 		end
 	end
 end
@@ -4010,9 +3998,7 @@ function bossModPrototype:AntiSpam(time, id)
 	end
 end
 
---Simple talent checker.
---It checks for key skills in spellbook, without having to do in dept talent point checks.
-
+--Simple spec stuff
 function bossModPrototype:IsMelee()
 	return class == "ROGUE"
 	or class == "WARRIOR"
@@ -4107,6 +4093,14 @@ function bossModPrototype:IsHealer()
 	or (class == "MONK" and (GetSpecialization() == 2))
 end
 
+function bossModPrototype:HasRaidCooldown()
+	return class == "WARRIOR"--Rallying Cry/Demoralizing Banner
+	or class == "PALADIN"--Aura Mastery
+	or class == "ROGUE"--Smoke Bomb
+	or (class == "PRIEST" and (GetSpecialization() == 1))--Power Word: Barrier
+	or (class == "SHAMAN" and (GetSpecialization() == 3))--Spirit Link Totem
+end
+
 --These don't matter since they don't check talents
 function bossModPrototype:IsPhysical()
 	return self:IsMelee() or class == "HUNTER"
@@ -4135,7 +4129,7 @@ function bossModPrototype:GetBossHP(cId)
 	for i = 1, 5 do
 		local guid = UnitGUID("boss"..i)
 		if guid and tonumber(guid:sub(6, 10), 16) == cId then
-			return UnitHealth("boss"..i) / UnitHealthMax("boss"..i) * 100
+			return UnitHealth("boss"..i) / UnitHealthMax("boss"..i)
 		end
 	end
 	local idType = (IsInRaid() and "raid") or "party"
@@ -4143,7 +4137,7 @@ function bossModPrototype:GetBossHP(cId)
 		local unitId = ((i == 0) and "target") or idType..i.."target"
 		local guid = UnitGUID(unitId)
 		if guid and (tonumber(guid:sub(6, 10), 16)) == cId then
-			return UnitHealth(unitId) / UnitHealthMax(unitId) * 100
+			return UnitHealth(unitId) / UnitHealthMax(unitId)
 		end
 	end
 	return nil
