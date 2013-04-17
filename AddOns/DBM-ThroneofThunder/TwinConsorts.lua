@@ -1,7 +1,7 @@
 local mod	= DBM:NewMod(829, "DBM-ThroneofThunder", nil, 362)
 local L		= mod:GetLocalizedStrings()
 
-mod:SetRevision(("$Revision: 9309 $"):sub(12, -3))
+mod:SetRevision(("$Revision: 9323 $"):sub(12, -3))
 mod:SetCreatureID(68905, 68904)--Lu'lin 68905, Suen 68904
 mod:SetModelID(46975)--Lu'lin, 46974 Suen
 
@@ -181,6 +181,8 @@ function mod:UNIT_DIED(args)
 	if cid == 68905 then--Lu'lin
 		--timerCosmicBarrageCD:Cancel()
 		timerTidalForceCD:Cancel()
+		timerDayCD:Cancel()
+		timerDuskCD:Cancel()
 		timerLightOfDayCD:Start()
 		timerFanOfFlamesCD:Start(19)
 		--She also does Flames of passion, but this is done 3 seconds after Lu'lin dies, is a 3 second timer worth it?
