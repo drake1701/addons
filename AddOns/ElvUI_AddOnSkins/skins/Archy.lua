@@ -4,7 +4,7 @@ local S = E:GetModule('Skins')
 
 local name = "ArchySkin"
 
-local function SkinArchy(self)
+function AS:SkinArchy()
 	local function SkinArchyArtifactFrame()
 		AS:SkinFrame(ArchyArtifactFrame)
 
@@ -33,7 +33,8 @@ local function SkinArchy(self)
 				solveButton:StyleButton()
 			end
 
-			if fragmentBar then
+			if fragmentBar and not fragmentBar.skinned then
+				fragmentBar.skinned = true
 				AS:SkinStatusBar(fragmentBar)	
 			end
 		end	
@@ -58,4 +59,4 @@ local function SkinArchy(self)
  	ArchyDistanceIndicatorFrameCrateButtonIcon:SetDrawLayer("OVERLAY")
 end
 
-AS:RegisterSkin(name,SkinArchy)
+AS:RegisterSkin(name,AS.SkinArchy)

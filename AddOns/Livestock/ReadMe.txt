@@ -97,7 +97,7 @@ Fine-tuning Livestock:  Options and Preferences
 
 Slash Commands for Livestock
 
-	There are a few slash commands for Livestock, and are listed below.
+	There are a few slash commands for Livestock, and are listed below. /livestock and /ls both work for commands.
 
 	"/livestock" - This will bring up the menu bar containing the Livestock dropdown lists for mounts and pets as well as the 3D viewer.
 

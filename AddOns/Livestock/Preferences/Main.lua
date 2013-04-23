@@ -59,38 +59,6 @@ mb4:SetScript("OnClick", function()
 	end
 end)
 
---local mb5 = CreateFrame("CheckButton", "LivestockMainPreferencesFrameShowSlowLandMounts", mainprefs, "UICheckButtonTemplate")
---mb5:SetHeight(26)
---mb5:SetWidth(26)
---mb5:SetPoint("TOPLEFT", 15, -275)
---mb5:SetScript("OnClick", function()
---	LivestockSettings.useslowland = 1 - LivestockSettings.useslowland
---	if LivestockSettings.useslowland == 0 then
---		for k in pairs(LivestockSettings.Mounts) do
---			if LivestockSettings.Mounts[k].type == "land" and LivestockSettings.Mounts[k].speed == "slow" then
---				LivestockSettings.Mounts[k].show = 0
---			end
---		end
---	end
---	Livestock.RebuildMenu("LAND")
---end)
-
---local mb6 = CreateFrame("CheckButton", "LivestockMainPreferencesFrameShowSlowFlyingMounts", mainprefs, "UICheckButtonTemplate")
---mb6:SetHeight(26)
---mb6:SetWidth(26)
---mb6:SetPoint("TOPLEFT", 15, -303)
---mb6:SetScript("OnClick", function()
---	LivestockSettings.useslowflight = 1 - LivestockSettings.useslowflight
---	if LivestockSettings.useslowflight == 0 then
---		for k in pairs(LivestockSettings.Mounts) do
---			if LivestockSettings.Mounts[k].type == "flying" and LivestockSettings.Mounts[k].speed == "slow" then
---				LivestockSettings.Mounts[k].show = 0
---			end
---		end
---	end
---	Livestock.RebuildMenu("FLYING")
---end)
-
 local mb7 = CreateFrame("Button", "LivestockCritterMacroButton", mainprefs, "GameMenuButtonTemplate")
 mb7:SetHeight(25)
 mb7:SetWidth(115)
@@ -148,8 +116,6 @@ PlaceFS("LivestockMainPreferencesFrameButtonsToggleTitle", "GameFontNormalLarge"
 PlaceFS("LivestockMainPreferencesFrameMacroTitle", "GameFontNormalLarge", "TOP", 0, -120)
 --PlaceFS("LivestockMainPreferencesFrameOtherTitle", "GameFontNormalLarge", "TOP", 0, -250)
 PlaceFS("LivestockMainPreferencesFrameMacroText", "ChatFontNormal", "TOP", 0, -150)
---PlaceFS("LivestockMainPreferencesFrameUseSlowFlyingText", "ChatFontNormal", "TOPLEFT", 45, -315)
---PlaceFS("LivestockMainPreferencesFrameUseSlowLandText", "ChatFontNormal", "TOPLEFT", 45, -280)
 PlaceFS("LivestockMainPreferencesFrameShowSmartMountsLabel", "ChatFontNormal", "TOPLEFT", 275, -95)
 PlaceFS("LivestockMainPreferencesFrameShowLandMountsLabel", "ChatFontNormal", "TOPLEFT", 115, -95)
 PlaceFS("LivestockMainPreferencesFrameShowFlyingMountsLabel", "ChatFontNormal", "TOPLEFT", 275, -60)

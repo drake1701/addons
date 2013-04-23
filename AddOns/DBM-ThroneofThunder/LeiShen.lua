@@ -1,7 +1,7 @@
 local mod	= DBM:NewMod(832, "DBM-ThroneofThunder", nil, 362)
 local L		= mod:GetLocalizedStrings()
 
-mod:SetRevision(("$Revision: 9318 $"):sub(12, -3))
+mod:SetRevision(("$Revision: 9344 $"):sub(12, -3))
 mod:SetCreatureID(68397)--Diffusion Chain Conduit 68696, Static Shock Conduit 68398, Bouncing Bolt conduit 68698, Overcharge conduit 68697
 mod:SetModelID(46770)
 mod:SetUsedIcons(8, 7, 6, 5, 4, 3, 2, 1)--All icons can be used, because if a pillar is level 3, it puts out 4 debuffs on 25 man (if both are level 3, then you will have 8)
@@ -84,6 +84,8 @@ local timerSummonBallLightningCD		= mod:NewNextTimer(45.5, 136543)--Seems exact 
 local timerViolentGaleWinds				= mod:NewBuffActiveTimer(18, 136889)
 local timerViolentGaleWindsCD			= mod:NewNextTimer(30.5, 136889)
 
+local berserkTimer						= mod:NewBerserkTimer(900)--Confirmed in LFR, probably the same in all modes though?
+
 local countdownThunderstruck			= mod:NewCountdown(46, 135095)
 
 local soundDecapitate					= mod:NewSound(134912)
@@ -133,6 +135,7 @@ function mod:OnCombatStart(delay)
 	timerThunderstruckCD:Start(25-delay)
 	countdownThunderstruck:Start(25-delay)
 	timerDecapitateCD:Start(40-delay)--First seems to be 45, rest 50. it's a CD though, not a "next"
+	berserkTimer:Start(-delay)
 	self:RegisterShortTermEvents(
 		"UNIT_HEALTH_FREQUENT"
 	)-- Do not use on phase 3.
@@ -261,6 +264,9 @@ function mod:SPELL_AURA_APPLIED(args)
 			DBM.RangeCheck:Show(8)--Assume 8 since spell tooltip has no info
 		end
 	elseif args.spellId == 136914 then
+		--TODO add prints to figure out how this remotely doesn't work, when it's impossible.
+		--http://worldoflogs.com/reports/rt-gankfbp409i7qpvw/xe/?s=13273&e=13760&x=spellid+%3D+136914
+		--In above log, with warnings turned on, never saw a single one. not warnElectricalShock, not specWarnElectricalShock and certainly not specWarnElectricalShockOther
 		local amount = args.amount or 1
 		if not (amount % 3 == 0) then return end
 		warnElectricalShock:Show(args.destName, amount)

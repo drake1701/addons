@@ -1,7 +1,7 @@
 local mod	= DBM:NewMod(821, "DBM-ThroneofThunder", nil, 362)
 local L		= mod:GetLocalizedStrings()
 
-mod:SetRevision(("$Revision: 9310 $"):sub(12, -3))
+mod:SetRevision(("$Revision: 9326 $"):sub(12, -3))
 mod:SetCreatureID(68065, 70212, 70235, 70247)--flaming 70212. Frozen 70235, Venomous 70247
 mod:SetMainBossID(68065)
 mod:SetModelID(47414)--Hydra Fire Head, 47415 Frost Head, 47416 Poison Head
@@ -283,11 +283,11 @@ function mod:CHAT_MSG_RAID_BOSS_EMOTE(msg, _, _, _, target)
 --		timerAcidRainCD:Cancel()
 		timerNetherTearCD:Cancel()
 		timerRampage:Start()
-		if not self.Options.AnnounceCooldowns == "Every" then
-			if (self.Options.AnnounceCooldowns == "EveryTwoExcludeDiff" or self.Options.AnnounceCooldowns == "EveryTwo") and rampageCast >= 2 then rampageCast = 0 end--Option is set to one of the twos and we're already at 2, reset cast count
+		if not (self.Options.AnnounceCooldowns == "Every") then
+			if ((self.Options.AnnounceCooldowns == "EveryTwoExcludeDiff") or (self.Options.AnnounceCooldowns == "EveryTwo")) and rampageCast >= 2 then rampageCast = 0 end--Option is set to one of the twos and we're already at 2, reset cast count
 			if rampageCast >= 3 then rampageCast = 0 end--We already checked and know option isn't set to 2 or never, so it's definitely set to 3, no need to check option.
 		end
-		if self.Options.AnnounceCooldowns == "Never" or (arcaneInFront > 0 or arcaneRecent) and (self.Options.AnnounceCooldowns == "EveryTwoExcludeDiff" or self.Options.AnnounceCooldowns == "EveryThreeExcludeDiff") then return end--You have a diffused player, don't call out cds
+		if (self.Options.AnnounceCooldowns == "Never") or (arcaneInFront > 0 or arcaneRecent) and ((self.Options.AnnounceCooldowns == "EveryTwoExcludeDiff") or (self.Options.AnnounceCooldowns == "EveryThreeExcludeDiff")) then return end--You have a diffused player, don't call out cds
 		rampageCast = rampageCast + 1
 		if rampageCast > 10 then return end --failsafe
 		if DBM.Options.UseMasterVolume then

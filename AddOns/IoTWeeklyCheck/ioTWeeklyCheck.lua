@@ -8,6 +8,13 @@ local IoTMainframe
 local iotwiicon = "Interface\\ICONS\\inv_qiraj_jewelglyphed"
 local tx_optionsframe = "Interface\\icons\\Icon_PetFamily_Mechanical"
 local tx_chkminimap   = "Interface\\icons\\INV_Misc_Map03"
+local chest_icon = " - "
+local rare_icon = " - "
+local nalak_name = EJ_GetEncounterInfo(814)
+local nalak_icon = "|TInterface\\EncounterJournal\\UI-EJ-BOSS-Nalak:20|t"
+--local chest_icon = "|TInterface\\Icons\\Trade_Archaeology_ChestofTinyGlassAnimals:12|t "
+--local rare_icon = "|TInterface\\Icons\\Achievement_Boss_Archaedas:12|t "
+local quest_icon = "|TInterface\\CURSOR\\QUEST:12|t "
 
 local keylink -- Key to the Palace of Lei Shen - item
 local ritualstone_name
@@ -57,15 +64,25 @@ local function DrawMainframe(frame, istooltip)
  frame:AddDoubleLine(getitemname(keylink), completedstring(32626))
  frame:AddLine(" ")
  frame:AddLine(getitemname(ritualstone_name)..":")
- frame:AddDoubleLine(" - "..AddColor(rare_name,WHITE), completedstring(32610))
- frame:AddDoubleLine(" - "..AddColor(select(8,GetAchievementInfo(8104)),WHITE), completedstring(32609))
+ frame:AddDoubleLine(rare_icon..AddColor(rare_name,WHITE), completedstring(32610))
+ frame:AddDoubleLine(chest_icon..AddColor(select(8,GetAchievementInfo(8104)),WHITE), completedstring(32609))
+ frame:AddLine(" ")
+ -- check if the character has completed the first summoning quest
+ if IsQuestFlaggedCompleted(32708) and IoTWeeklyItems_Options["ctk_quest_name"] ~= nil then
+  if IsQuestFlaggedCompleted(32640) or IsQuestFlaggedCompleted(32641) then
+   frame:AddDoubleLine(quest_icon..AddColor(IoTWeeklyItems_Options["ctk_quest_name"],WHITE), AddColor(COMPLETE,LIGHT_GREEN))
+  else
+   frame:AddDoubleLine(quest_icon..AddColor(IoTWeeklyItems_Options["ctk_quest_name"],WHITE), AddColor(INCOMPLETE,LIGHT_RED))
+  end
+ end
+ frame:AddDoubleLine(quest_icon..AddColor(GetAchievementCriteriaInfo(8105,1),WHITE), completedstring(32505))
  frame:AddLine(" ")
  frame:AddLine(AddColor(select(2,GetAchievementInfo(8110))..":", GOLD))
  frame:AddLine(" - "..getitemname(deng_itemname))
  frame:AddDoubleLine(" - "..getitemname(haqin_itemname), completedstring(32611))
  frame:AddLine(" - "..getitemname(vu_itemname))
  frame:AddLine(" ")
- frame:AddDoubleLine(AddColor(GetAchievementCriteriaInfo(8105,1),WHITE), completedstring(32505))
+ frame:AddDoubleLine(nalak_icon..AddColor(nalak_name,WHITE), completedstring(32518))
  if not istooltip then
   frame:AddLine(" ")
   frame:AddLine(" ")
@@ -81,10 +98,19 @@ local function CreateMainframe(arg)
  if arg == "print" then
   print("--- "..iwcchatheader.."---")
   print(getitemname(keylink)..chatseparator..completedstring(32626))
-  print(getitemname(ritualstone_name)..chatseparator..AddColor(rare_name,GREY)..chatseparator..completedstring(32610))
-  print(getitemname(ritualstone_name)..chatseparator..AddColor(select(8,GetAchievementInfo(8104)),GREY)..chatseparator..completedstring(32609))
+  print(getitemname(ritualstone_name)..rare_icon..AddColor(rare_name,GREY)..chatseparator..completedstring(32610))
+  print(getitemname(ritualstone_name)..chest_icon..AddColor(select(8,GetAchievementInfo(8104)),GREY)..chatseparator..completedstring(32609))
+ -- check if the character has completed the first summoning quest
+  if IsQuestFlaggedCompleted(32708) and IoTWeeklyItems_Options["ctk_quest_name"] ~= nil then
+   if IsQuestFlaggedCompleted(32640) or IsQuestFlaggedCompleted(32641) then
+    print(quest_icon..AddColor(IoTWeeklyItems_Options["ctk_quest_name"],GREY)..chatseparator..AddColor(COMPLETE,LIGHT_GREEN))
+   else
+    print(quest_icon..AddColor(IoTWeeklyItems_Options["ctk_quest_name"],GREY)..chatseparator..AddColor(INCOMPLETE,LIGHT_RED))
+   end
+  end
+  print(AddColor(quest_icon..GetAchievementCriteriaInfo(8105,1),GREY)..chatseparator..completedstring(32505)) 
   print(AddColor(select(2,GetAchievementInfo(8110))..":", GREY)..chatseparator..completedstring(32611))
-  print(AddColor(GetAchievementCriteriaInfo(8105,1),GREY)..chatseparator..completedstring(32505)) 
+  print(AddColor(nalak_icon..nalak_name,GREY)..chatseparator..completedstring(32518)) 
   print("---------")
   return
  end
@@ -183,9 +209,22 @@ local ldbset = false
 local eventframe = CreateFrame("FRAME","IoTWIEventFrame")
 eventframe:RegisterEvent("VARIABLES_LOADED")
 eventframe:RegisterEvent("GET_ITEM_INFO_RECEIVED")
+eventframe:RegisterEvent("QUEST_LOG_UPDATE")
 local function eventhandler(self, event, ...)
 
- if event == "GET_ITEM_INFO_RECEIVED" then
+ if event == "QUEST_LOG_UPDATE" then
+  local i, s
+  for i = 1, GetNumQuestLogEntries() do
+   s = GetQuestLink(i)
+   if s ~= nil then
+    s = string.match(s, "Hquest:(%d+)");
+    if (s == "32640" or s == "32641") then
+     IoTWeeklyItems_Options["ctk_quest_name"] = select(1,GetQuestLogTitle(i))
+     eventframe:UnregisterEvent("QUEST_LOG_UPDATE");
+    end
+   end
+  end
+ elseif event == "GET_ITEM_INFO_RECEIVED" then
   if keylink == nil then
    _, keylink = GetItemInfo(94222)
   end
@@ -215,6 +254,9 @@ local function eventhandler(self, event, ...)
         hide = false,
         minimapPos = 220,
     }
+  end
+  if IoTWeeklyItems_Options["ctk_quest_name"] == nil then
+   IoTWeeklyItems_Options["ctk_quest_name"] = "<champions of the thunder king quest>"
   end
 
   if ldb and not ldbset then

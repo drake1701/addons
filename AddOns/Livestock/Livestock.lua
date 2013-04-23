@@ -42,10 +42,13 @@ local defaults = {
 	indooraspects = 0, -- Smart Mounting casts AotC / AotP when inside
 	movingaspects = 0, -- Smart Mounting casts AotC / AotP when outside and moving
 	groupaspects = 0, -- Smart Mounting casts AotC when in a group
+	hawkaspects = 0, -- Smart Mounting casts AotH when cancelling AotC / AotP
+	mountaspects = 0, -- Smart Mounting casts AotH when mounting
 	slowfall = 0, -- Smart Mounting casts Slow Fall / Levitate while falling and not in combat
 	useweights = 0, -- Whether or not Smart Mounting should use weighted summons
 	moonkin = 0, -- Cast Moonkin Form when dismounting from Flight Form (balance druids)
 	newpet = 0, -- New companion pets are disabled by default
+	newmount = 0, -- New mounts are disabled by default
 	waterstrider = 0, -- Use Azure Water Strider on water when you can't fly
 	waterstrider2 = 0, -- Use Azure Water Strider while underwater
 	zenflight = 0, -- Smart Mounting casts Zen Flight when moving (outdoors, out of combat)
@@ -96,9 +99,12 @@ local stringstable = { -- strings to be localized in the GUI.  This table is ind
 	["LivestockSmartPreferencesFrameIndoorHunterAspectsText"] = L.LIVESTOCK_FONTSTRING_INDOORHUNTERASPECTSLABEL,
 	["LivestockSmartPreferencesFrameMovingHunterAspectsText"] = L.LIVESTOCK_FONTSTRING_MOVINGHUNTERASPECTSLABEL,
 	["LivestockSmartPreferencesFrameGroupHunterAspectsText"] = L.LIVESTOCK_FONTSTRING_GROUPHUNTERASPECTSLABEL,
+	["LivestockSmartPreferencesFrameHawkHunterAspectsText"] = L.LIVESTOCK_FONTSTRING_HAWKHUNTERASPECTSLABEL,
+	["LivestockSmartPreferencesFrameMountHunterAspectsText"] = L.LIVESTOCK_FONTSTRING_MOUNTHUNTERASPECTSLABEL,
 	["LivestockSmartPreferencesFrameSlowFallWhileFallingText"] = L.LIVESTOCK_FONTSTRING_SLOWFALLLABEL,
 	["LivestockSmartPreferencesFrameMoonkinText"] = L.LIVESTOCK_FONTSTRING_MOONKINLABEL,
-	["LivestockSmartPreferencesFrameNewPetText"] = L.LIVESTOCK_FONTSTRING_NEWPETLABEL,
+	["LivestockPetPreferencesFrameNewPetText"] = L.LIVESTOCK_FONTSTRING_NEWPETLABEL,
+	["LivestockSmartPreferencesFrameNewMountText"] = L.LIVESTOCK_FONTSTRING_NEWMOUNTLABEL,
 	["LivestockSmartPreferencesFrameWaterStriderText"] = L.LIVESTOCK_FONTSTRING_WATERSTRIDERLABEL,
 	["LivestockSmartPreferencesFrameWaterStrider2Text"] = L.LIVESTOCK_FONTSTRING_WATERSTRIDER2LABEL,
 	["LivestockSmartPreferencesFrameZenFlightText"] = L.LIVESTOCK_FONTSTRING_ZENFLIGHTLABEL,
@@ -243,6 +249,7 @@ function Livestock.CompanionEvent(self, event, ...)
 			print(event..": Rebuilding Livestock menus...")
 		end
 		Livestock.RenumberCompanions()
+		Livestock.RenumberMounts()
 		return
 	elseif event == "UNIT_SPELLCAST_SUCCEEDED" then
 		if unit == "player" then
@@ -500,8 +507,6 @@ function Livestock.RestoreUI(self, elapsed)
 	["LivestockMainPreferencesFrameShowCritters"] = LivestockSettings.showcritter,
 	["LivestockMainPreferencesFrameShowLandMounts"] = LivestockSettings.showland,
 	["LivestockMainPreferencesFrameShowFlyingMounts"] = LivestockSettings.showflying,
-	--["LivestockMainPreferencesFrameShowSlowLandMounts"] = LivestockSettings.useslowland,
-	--["LivestockMainPreferencesFrameShowSlowFlyingMounts"] = LivestockSettings.useslowflight,
 	["LivestockPetPreferencesFrameToggleAutosummon"] = LivestockSettings.summononmove,
 	["LivestockPetPreferencesFrameToggleAutosummonFavorite"] = LivestockSettings.summonfaveonmove,
 	["LivestockPetPreferencesFrameRestrictAutoSummonOnPVP"] = LivestockSettings.restrictautosummon,
@@ -511,6 +516,7 @@ function Livestock.RestoreUI(self, elapsed)
 	["LivestockPetPreferencesFrameToggleDismissOnStealth"] = LivestockSettings.dismissonstealth,
 	["LivestockPetPreferencesFrameToggleDismissOnStealthPVPOnly"] = LivestockSettings.PVPdismiss,
 	["LivestockPetPreferencesFrameNewPet"] = LivestockSettings.newpet,
+	["LivestockSmartPreferencesFrameNewMount"] = LivestockSettings.newmount,
 	["LivestockSmartPreferencesFrameToggleDruidLogic"] = LivestockSettings.druidlogic,
 	["LivestockSmartPreferencesFrameToggleWorgenLogic"] = LivestockSettings.worgenlogic,
 	["LivestockSmartPreferencesFrameToggleSafeFlying"] = LivestockSettings.safeflying,
@@ -522,6 +528,8 @@ function Livestock.RestoreUI(self, elapsed)
 	["LivestockSmartPreferencesFrameIndoorHunterAspects"] = LivestockSettings.indooraspects,
 	["LivestockSmartPreferencesFrameMovingHunterAspects"] = LivestockSettings.movingaspects,
 	["LivestockSmartPreferencesFrameGroupHunterAspects"] = LivestockSettings.groupaspects,
+	["LivestockSmartPreferencesFrameHawkHunterAspects"] = LivestockSettings.hawkaspects,
+	["LivestockSmartPreferencesFrameMountHunterAspects"] = LivestockSettings.mountaspects,
 	["LivestockSmartPreferencesFrameSlowFallWhileFalling"] = LivestockSettings.slowfall,
 	["LivestockSmartPreferencesFrameMoonkin"] = LivestockSettings.moonkin,
 	["LivestockSmartPreferencesFrameWaterStrider"] = LivestockSettings.waterstrider,
@@ -566,6 +574,8 @@ function Livestock.RestoreUI(self, elapsed)
 		LivestockSmartPreferencesFrameIndoorHunterAspectsText:SetTextColor(0.4, 0.4, 0.4)
 		LivestockSmartPreferencesFrameMovingHunterAspectsText:SetTextColor(0.4, 0.4, 0.4)
 		LivestockSmartPreferencesFrameGroupHunterAspectsText:SetTextColor(0.4, 0.4, 0.4)
+		LivestockSmartPreferencesFrameHawkHunterAspectsText:SetTextColor(0.4, 0.4, 0.4)
+		LivestockSmartPreferencesFrameMountHunterAspectsText:SetTextColor(0.4, 0.4, 0.4)
 	end
 	
 	if class ~= "MAGE" and class ~= "PRIEST" then
@@ -620,7 +630,11 @@ function Livestock.HideDropdowns() --  hide all the visible dropdown menus
 end
 
 function Livestock.HeaderButtonOnClick(token) -- when we click a main menu button, we should hide all dropdowns (so they don't overlap) and show the relevant menu, but only if it wasn't visible in the first place.  This lets the buttons act as true toggles.
-	Livestock.RenumberCompanions()
+	if token == "Critter" then
+		Livestock.RenumberCompanions()
+	else
+		Livestock.RenumberMounts()
+	end
 	Livestock.BuildMenu(token)
 
 	local menu, visible = _G["Livestock"..token.."Menu"]
@@ -855,6 +869,8 @@ function Livestock.CreateStateMaps(self)
 	self:SetAttribute("movingform", LivestockSettings.movingform)
 	self:SetAttribute("movingaspects", LivestockSettings.movingaspects)
 	self:SetAttribute("groupaspects", LivestockSettings.groupaspects)
+	self:SetAttribute("hawkaspects", LivestockSettings.hawkaspects)
+	self:SetAttribute("mountaspects", LivestockSettings.mountaspects)
 	self:SetAttribute("moonkin", LivestockSettings.moonkin)
 	self:SetAttribute("zenflight", LivestockSettings.zenflight)
 	
@@ -873,12 +889,15 @@ function Livestock.CreateStateMaps(self)
 	local movingform = self:GetAttribute("movingform")
 	local movingaspects = self:GetAttribute("movingaspects")
 	local groupaspects = self:GetAttribute("groupaspects")
+	local hawkaspects = self:GetAttribute("hawkaspects")
+	local mountaspects = self:GetAttribute("mountaspects")
 	local moonkinspell = self:GetAttribute("moonkinspell")
 	local moonkin = self:GetAttribute("moonkin")
 	local zenflight = self:GetAttribute("zenflight")
 	
 	if name == "state-form" or name == "catform" or name == "druidlogic" or name == "worgenlogic" or name == "waterwalkingtoggle" or name == "combatformstoggle" or name == "indooraspects" 
-	   or name == "safeflying" or name == "mountinstealth" or name == "movingform" or name == "movingaspects" or name == "groupaspects" or name == "moonkin" or name == "zenflight" then
+	   or name == "safeflying" or name == "mountinstealth" or name == "movingform" or name == "movingaspects" or name == "groupaspects" or name == "hawkaspects" or name == "mountaspects" 
+	   or name == "moonkin" or name == "zenflight" then
 		self:SetAttribute("state-smartmap",self:GetAttribute("state-smartmap"))
 		
 	elseif name == "state-smartmap" then
@@ -967,10 +986,9 @@ function Livestock.CreateStateMaps(self)
 	RegisterStateDriver(self, "form", "[form:1] 1; [form:2] 2; [form:3] 3; [form:4] 4; [form:5] 5; [form:6] 6; 0")
 end
 
-function Livestock.RenumberCompanions() -- because the game does not distinguish between learning a new mount or a new critter, it's safest just to redo both indices
+function Livestock.RenumberCompanions()
 	local numPets, numOwned = C_PetJournal.GetNumPets()
 
-	Livestock.RecycleTable(mountstable)
 	Livestock.RecycleTable(critterstable)
 
 	C_PetJournal.SetFlagFilter(LE_PET_JOURNAL_FLAG_COLLECTED, true)
@@ -1017,7 +1035,11 @@ function Livestock.RenumberCompanions() -- because the game does not distinguish
 			print(format(L.LIVESTOCK_INTERFACE_REMOVE, name))
 		end
 	end
-		
+end
+
+function Livestock.RenumberMounts()
+	Livestock.RecycleTable(mountstable)
+
 	for i = 1, GetNumCompanions("MOUNT") do
 		local _, name, spellID, _, _, mountFlags = GetCompanionInfo("MOUNT",i)
 		if name and not LivestockSettings.Mounts[name] then -- if the name is valid and we don't have SV data for it, we need to make it
@@ -1027,6 +1049,9 @@ function Livestock.RenumberCompanions() -- because the game does not distinguish
 				index = i,
 				spellID = spellID,
 			}
+			if LivestockSettings.newmount == 1 then
+				LivestockSettings.Mounts[name].show = 0
+			end
 			mountstable[name] = true
 			print(format(L.LIVESTOCK_INTERFACE_ADD, name))
 			
@@ -1055,6 +1080,9 @@ function Livestock.RenumberCompanions() -- because the game does not distinguish
 					type = "land",
 					spellID = spellID,
 				}
+				if LivestockSettings.newmount == 1 then
+					LivestockSettings.Mounts[name2].show = 0
+				end
 				mountstable[name2] = true
 			elseif mountFlags == 12 then -- water
 				LivestockSettings.Mounts[name].type = "water"
@@ -1167,7 +1195,18 @@ function Livestock.SmartPreClick(self)
 	end
 
 	if state == 1 then
-		if class == "SHAMAN" then
+		if class == "HUNTER" then
+			if LivestockSettings.indooraspects == 1 then
+				local spellName = UnitBuff("player", (GetNumGroupMembers() ~= 0 and LivestockSettings.groupaspects == 0 and GetSpellInfo(L.LIVESTOCK_SPELL_PACK) and L.LIVESTOCK_SPELL_PACK) or L.LIVESTOCK_SPELL_CHEETAH, nil );
+				self:SetAttribute("type", "spell")
+				if spellName and LivestockSettings.hawkaspects == 1 then
+					self:SetAttribute("spell", (GetSpellInfo(L.LIVESTOCK_SPELL_IRON_HAWK) and L.LIVESTOCK_SPELL_IRON_HAWK) or L.LIVESTOCK_SPELL_HAWK)
+				else
+					self:SetAttribute("spell", (GetNumGroupMembers() ~= 0 and LivestockSettings.groupaspects == 0 and GetSpellInfo(L.LIVESTOCK_SPELL_PACK) and L.LIVESTOCK_SPELL_PACK) or L.LIVESTOCK_SPELL_CHEETAH)
+				end
+				self.mounttype = nil
+			end
+		elseif class == "SHAMAN" then
 			if LivestockSettings.movingform == 1 and GetUnitSpeed("player") ~= 0 then
 				self:SetAttribute("type", "spell")
 				self:SetAttribute("spell", L.LIVESTOCK_SPELL_GHOSTWOLF)
@@ -1190,8 +1229,13 @@ function Livestock.SmartPreClick(self)
 			self.mounttype = Livestock.LandOrFlying()
 		
 			if LivestockSettings.movingaspects == 1 and GetUnitSpeed("player") ~= 0 then
+				local spellName = UnitBuff("player", (GetNumGroupMembers() ~= 0 and LivestockSettings.groupaspects == 0 and GetSpellInfo(L.LIVESTOCK_SPELL_PACK) and L.LIVESTOCK_SPELL_PACK) or L.LIVESTOCK_SPELL_CHEETAH, nil );
 				self:SetAttribute("type", "spell")
-				self:SetAttribute("spell", (GetNumGroupMembers() ~= 0 and LivestockSettings.groupaspects == 0 and GetSpellInfo(L.LIVESTOCK_SPELL_PACK) and L.LIVESTOCK_SPELL_PACK) or L.LIVESTOCK_SPELL_CHEETAH)
+				if spellName and LivestockSettings.hawkaspects == 1 then
+					self:SetAttribute("spell", (GetSpellInfo(L.LIVESTOCK_SPELL_IRON_HAWK) and L.LIVESTOCK_SPELL_IRON_HAWK) or L.LIVESTOCK_SPELL_HAWK)
+				else
+					self:SetAttribute("spell", (GetNumGroupMembers() ~= 0 and LivestockSettings.groupaspects == 0 and GetSpellInfo(L.LIVESTOCK_SPELL_PACK) and L.LIVESTOCK_SPELL_PACK) or L.LIVESTOCK_SPELL_CHEETAH)
+				end
 				self.mounttype = nil
 			end
 		
@@ -1213,9 +1257,20 @@ function Livestock.SmartPreClick(self)
 		self.mounttype = Livestock.LandOrFlying()
 		
 		if LivestockSettings.movingaspects == 1 and GetUnitSpeed("player") ~= 0 then
+			local spellName = UnitBuff("player", (GetNumGroupMembers() ~= 0 and LivestockSettings.groupaspects == 0 and GetSpellInfo(L.LIVESTOCK_SPELL_PACK) and L.LIVESTOCK_SPELL_PACK) or L.LIVESTOCK_SPELL_CHEETAH, nil );
 			self:SetAttribute("type", "spell")
-			self:SetAttribute("spell", (GetNumGroupMembers() ~= 0 and LivestockSettings.groupaspects == 0 and GetSpellInfo(L.LIVESTOCK_SPELL_PACK) and L.LIVESTOCK_SPELL_PACK) or L.LIVESTOCK_SPELL_CHEETAH)
+			if spellName and LivestockSettings.hawkaspects == 1 then
+				self:SetAttribute("spell", (GetSpellInfo(L.LIVESTOCK_SPELL_IRON_HAWK) and L.LIVESTOCK_SPELL_IRON_HAWK) or L.LIVESTOCK_SPELL_HAWK)
+			else
+				self:SetAttribute("spell", (GetNumGroupMembers() ~= 0 and LivestockSettings.groupaspects == 0 and GetSpellInfo(L.LIVESTOCK_SPELL_PACK) and L.LIVESTOCK_SPELL_PACK) or L.LIVESTOCK_SPELL_CHEETAH)
+			end
 			self.mounttype = nil
+		elseif LivestockSettings.mountaspects == 1 then
+			local spellName = UnitBuff("player", (GetSpellInfo(L.LIVESTOCK_SPELL_IRON_HAWK) and L.LIVESTOCK_SPELL_IRON_HAWK) or L.LIVESTOCK_SPELL_HAWK, nil );
+			if not spellName then
+				self:SetAttribute("type", "spell")
+				self:SetAttribute("spell", (GetSpellInfo(L.LIVESTOCK_SPELL_IRON_HAWK) and L.LIVESTOCK_SPELL_IRON_HAWK) or L.LIVESTOCK_SPELL_HAWK)
+			end
 		end
 		
 		if LivestockSettings.zenflight == 1 and GetUnitSpeed("player") ~= 0 and self.mounttype == "FLYING" then
@@ -1265,22 +1320,31 @@ function Livestock.SmartPreClick(self)
 		end
 		
 	elseif state == 5 then -- if in a land area, set the button to mount a land mount or possibly cast an instant travel form spell
-		local _, _, isActive = GetWorldPVPAreaInfo(1)
+		self.mounttype = Livestock.LandOrFlying()
 		if LivestockSettings.movingform == 1 and GetUnitSpeed("player") ~= 0 then
 			self:SetAttribute("type", "spell")
 			self:SetAttribute("spell", (class == "SHAMAN" and L.LIVESTOCK_SPELL_GHOSTWOLF) or L.LIVESTOCK_SPELL_TRAVELFORM)
+			self.mounttype = nil
 			self.clearmovingform = true
 		elseif LivestockSettings.movingaspects == 1 and GetUnitSpeed("player") ~= 0 then
+			local spellName = UnitBuff("player", (GetNumGroupMembers() ~= 0 and LivestockSettings.groupaspects == 0 and GetSpellInfo(L.LIVESTOCK_SPELL_PACK) and L.LIVESTOCK_SPELL_PACK) or L.LIVESTOCK_SPELL_CHEETAH, nil );
 			self:SetAttribute("type", "spell")
-			self:SetAttribute("spell", (GetNumGroupMembers() ~= 0 and LivestockSettings.groupaspects == 0 and GetSpellInfo(L.LIVESTOCK_SPELL_PACK) and L.LIVESTOCK_SPELL_PACK) or L.LIVESTOCK_SPELL_CHEETAH)
+			if spellName and LivestockSettings.hawkaspects == 1 then
+				self:SetAttribute("spell", (GetSpellInfo(L.LIVESTOCK_SPELL_IRON_HAWK) and L.LIVESTOCK_SPELL_IRON_HAWK) or L.LIVESTOCK_SPELL_HAWK)
+			else
+				self:SetAttribute("spell", (GetNumGroupMembers() ~= 0 and LivestockSettings.groupaspects == 0 and GetSpellInfo(L.LIVESTOCK_SPELL_PACK) and L.LIVESTOCK_SPELL_PACK) or L.LIVESTOCK_SPELL_CHEETAH)
+			end
+			self.mounttype = nil
+		elseif LivestockSettings.mountaspects == 1 then
+			local spellName = UnitBuff("player", (GetSpellInfo(L.LIVESTOCK_SPELL_IRON_HAWK) and L.LIVESTOCK_SPELL_IRON_HAWK) or L.LIVESTOCK_SPELL_HAWK, nil );
+			if not spellName then
+				self:SetAttribute("type", "spell")
+				self:SetAttribute("spell", (GetSpellInfo(L.LIVESTOCK_SPELL_IRON_HAWK) and L.LIVESTOCK_SPELL_IRON_HAWK) or L.LIVESTOCK_SPELL_HAWK)
+			end
 		elseif race == "Worgen" and LivestockSettings.worgenlogic == 1 then
 			self:SetAttribute("type", "spell")
 			self:SetAttribute("spell", L.LIVESTOCK_SPELL_RUNNINGWILD)
 			self.mounttype = nil
-		elseif (GetZoneText() == L.LIVESTOCK_ZONE_WINTERGRASP and isActive == false) then
-			self.mounttype = "FLYING"		
-		else
-			self.mounttype = "LAND"
 		end
 		return
 		
@@ -1308,7 +1372,7 @@ function Livestock.SmartPostClick(self)
 	end
 	
 	if self.mounttype then
-		Livestock.RenumberCompanions()
+		Livestock.RenumberMounts()
 		if self.mounttype == "LAND" then
 			Livestock.PickLandMount()
 		elseif self.mounttype == "WATER" then
@@ -1401,7 +1465,7 @@ function Livestock.NonSmartPostClick(self)
 	end
 	
 	if self.typeofmount then -- summon the relevant mount
-		Livestock.RenumberCompanions()
+		Livestock.RenumberMounts()
 		if self.typeofmount == "land" then
 			Livestock.PickLandMount()
 		elseif self.typeofmount == "flying" then
@@ -1823,6 +1887,7 @@ function Livestock.Slash(arg)
 		LivestockSettings.Critters = {}
 		LivestockSettings.Mounts = {}
 		Livestock.RenumberCompanions()
+		Livestock.RenumberMounts()
 	elseif cmd == "zone" or cmd == "subzone" then
 		Livestock.AddToZone(cmd, args)
 	elseif cmd == "nomount" or cmd == "mount" then

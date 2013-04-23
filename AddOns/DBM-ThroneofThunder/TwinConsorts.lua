@@ -1,7 +1,7 @@
 local mod	= DBM:NewMod(829, "DBM-ThroneofThunder", nil, 362)
 local L		= mod:GetLocalizedStrings()
 
-mod:SetRevision(("$Revision: 9323 $"):sub(12, -3))
+mod:SetRevision(("$Revision: 9331 $"):sub(12, -3))
 mod:SetCreatureID(68905, 68904)--Lu'lin 68905, Suen 68904
 mod:SetModelID(46975)--Lu'lin, 46974 Suen
 
@@ -183,6 +183,7 @@ function mod:UNIT_DIED(args)
 		timerTidalForceCD:Cancel()
 		timerDayCD:Cancel()
 		timerDuskCD:Cancel()
+		timerNuclearInfernoCD:Cancel()
 		timerLightOfDayCD:Start()
 		timerFanOfFlamesCD:Start(19)
 		--She also does Flames of passion, but this is done 3 seconds after Lu'lin dies, is a 3 second timer worth it?
@@ -192,6 +193,7 @@ function mod:UNIT_DIED(args)
 	elseif cid == 68904 then--Suen
 		--timerFlamesOfPassionCD:Cancel()
 		--timerBeastOfNightmaresCD:Start()--My group kills Lu'lin first. Need log of Suen being killed first to get first beast timer value
+		timerTidalForceCD:Cancel()
 	end
 end
 

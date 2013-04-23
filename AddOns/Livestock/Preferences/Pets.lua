@@ -51,7 +51,7 @@ end)
 local pb8 = Recompense.CreateButtonAndText("LivestockPetPreferencesFrameToggleDismissOnStealthPVPOnly", petprefs, 10, -136, "LivestockPetPreferencesFramePVPDismissText")
 pb8:SetScript("OnClick", function() LivestockSettings.PVPdismiss = 1 - LivestockSettings.PVPdismiss end)
 
-local pb9 = Recompense.CreateButtonAndText("LivestockPetPreferencesFrameNewPet", petprefs, 5, -154, "LivestockSmartPreferencesFrameNewPetText")
+local pb9 = Recompense.CreateButtonAndText("LivestockPetPreferencesFrameNewPet", petprefs, 5, -154, "LivestockPetPreferencesFrameNewPetText")
 pb9:SetScript("OnClick", function() LivestockSettings.newpet = 1 - LivestockSettings.newpet end)
 
 local pbb = CreateFrame("Button", "LivestockPetPreferencesFrameOpenLivestockMenuButton", petprefs, "GameMenuButtonTemplate")

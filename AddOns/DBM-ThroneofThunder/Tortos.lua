@@ -1,7 +1,7 @@
 local mod	= DBM:NewMod(825, "DBM-ThroneofThunder", nil, 362)
 local L		= mod:GetLocalizedStrings()
 
-mod:SetRevision(("$Revision: 9300 $"):sub(12, -3))
+mod:SetRevision(("$Revision: 9330 $"):sub(12, -3))
 mod:SetCreatureID(67977)
 mod:SetModelID(46559)
 mod:SetUsedIcons(8, 7, 6, 5, 4, 3)
@@ -43,6 +43,7 @@ local timerStompActive				= mod:NewBuffActiveTimer(10.8, 134920)--Duration of th
 local timerShellConcussion			= mod:NewBuffFadesTimer(20, 136431)
 
 local countdownStomp				= mod:NewCountdown(49, 134920, mod:IsHealer())
+local countdownBreath				= mod:NewCountdown(46, 133939, false) -- Coundown for the kicker. mod:IsRanged() and mod:IsDps()
 
 local berserkTimer					= mod:NewBerserkTimer(780)
 
@@ -55,7 +56,6 @@ local shelldName = GetSpellInfo(137633)
 local shellConcussion = GetSpellInfo(136431)
 local stompActive = false
 local stompCount = 0
-local stompCast = 0--The one we reset every 3
 local firstRockfall = false--First rockfall after a stomp
 local shellsRemaining = 0
 local lastConcussion = 0
@@ -81,7 +81,6 @@ end
 function mod:OnCombatStart(delay)
 	stompActive = false
 	stompCount = 0
-	stompCast = 0
 	firstRockfall = false--First rockfall after a stomp
 	shellsRemaining = 0
 	lastConcussion = 0
@@ -97,6 +96,7 @@ function mod:OnCombatStart(delay)
 	timerStompCD:Start(29-delay, 1)
 	countdownStomp:Start(29-delay)
 	timerBreathCD:Start(-delay)
+	countdownBreath:Start(-delay)
 	if self.Options.InfoFrame and self:IsDifficulty("heroic10", "heroic25") then
 		DBM.InfoFrame:SetHeader(L.WrongDebuff:format(shelldName))
 		DBM.InfoFrame:Show(5, "playergooddebuff", 137633)
@@ -122,6 +122,7 @@ function mod:SPELL_CAST_START(args)
 			specWarnStoneBreath:Show(args.sourceName)
 		end
 		timerBreathCD:Start()
+		countdownBreath:Start()
 	elseif args.spellId == 136294 then
 		warnCallofTortos:Show()
 		specWarnCallofTortos:Show()
@@ -134,19 +135,17 @@ function mod:SPELL_CAST_START(args)
 	elseif args.spellId == 134920 then
 		stompActive = true
 		stompCount = stompCount + 1
-		if stompCast == 4 then stompCast = 0 end
-		stompCast = stompCast + 1
 		warnQuakeStomp:Show(stompCount)
 		specWarnQuakeStomp:Show()
 		timerStompActive:Start()
 		timerRockfallCD:Start(7.4)--When the spam of rockfalls start
 		timerStompCD:Start(nil, stompCount+1)
 		countdownStomp:Start()
-		if self.Options.AnnounceCooldowns then
+		if self.Options.AnnounceCooldowns and stompCount < 11 then
 			if DBM.Options.UseMasterVolume then
-				PlaySoundFile("Interface\\AddOns\\DBM-Core\\Sounds\\Corsica_S\\"..stompCast..".ogg", "Master")
+				PlaySoundFile("Interface\\AddOns\\DBM-Core\\Sounds\\Corsica_S\\"..stompCount..".ogg", "Master")
 			else
-				PlaySoundFile("Interface\\AddOns\\DBM-Core\\Sounds\\Corsica_S\\"..stompCast..".ogg")
+				PlaySoundFile("Interface\\AddOns\\DBM-Core\\Sounds\\Corsica_S\\"..stompCount..".ogg")
 			end
 		end
 	end

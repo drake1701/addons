@@ -1,3 +1,16 @@
+Version 1.9.5
+
+- Performance improvements
+
+Version 1.9.4
+
+- Two new options for Aspect of the Hawk
+- New option: New mounts are disabled by default
+
+Version 1.9.3
+
+- Fixed Aspect of the Pack in groups
+
 Version 1.9.2
 
 - Updates for patch 5.2

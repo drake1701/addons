@@ -80,7 +80,7 @@ L:SetOptionLocalization({
 	InfoFrame				= "Show info frame for players without $spell:137633",
 	SetIconOnTurtles		= "Set icons on $journal:7129",
 	ClearIconOnTurtles		= "Clear icons on $journal:7129 when affected by $spell:133971",
-	AnnounceCooldowns		= "Count (up to 4) out which $spell:134920 cast it is for raid cooldowns"
+	AnnounceCooldowns		= "Count out which $spell:134920 cast it is for raid cooldowns"
 })
 
 L:SetMiscLocalization({
@@ -189,7 +189,8 @@ L:SetWarningLocalization({
 
 L:SetOptionLocalization({
 	warnDebuffCount				= "Show debuff count warnings when you absorb pools",
-	RangeFrame					= "Show range frame (5/2)"
+	RangeFrame					= "Show range frame (5/2)",
+	SetIconOnBigOoze			= "Set icon on $journal:6969"
 })
 
 -----------------
