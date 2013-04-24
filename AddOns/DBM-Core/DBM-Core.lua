@@ -44,7 +44,7 @@
 --  Globals/Default Options  --
 -------------------------------
 DBM = {
-	Revision = tonumber(("$Revision: 9348 $"):sub(12, -3)),
+	Revision = tonumber(("$Revision: 9354 $"):sub(12, -3)),
 	DisplayVersion = "5.2.5 alpha", -- the string that is shown as version
 	ReleaseRevision = 9314 -- the revision of the latest stable version that is available
 }
@@ -3860,6 +3860,10 @@ function bossModPrototype:SetCreatureID(...)
 		local cId = ...
 		bossIds[cId] = true
 	end
+end
+
+function bossModPrototype:SetQuestID(id)
+	self.questId = id
 end
 
 function bossModPrototype:Toggle()

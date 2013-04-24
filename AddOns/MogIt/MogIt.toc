@@ -1,8 +1,9 @@
 ﻿## Interface: 50200
 ## Title: MogIt
 ## Author: Aelobin (The Maelstrom EU) & Lombra (Defias Brotherhood EU)
-## Version: 3.1.2
+## Version: 3.1.3
 ## SavedVariables: MogItDB, MogItWishlist
+## OptionalDeps: DataStore_Container
 ## Notes: Transmogrification Assistant
 ## Notes-frFR: Transmogrification Assistante
 ## Notes-deDE: Transmogrifikation Assistentin
@@ -18,7 +19,7 @@
 ## X-Website: http://www.curse.com/addons/wow/mogit
 ## X-Email: aelobin@gmail.com
 ## X-Localizations: enUS, frFR, deDE, esES, esMX, ruRU, koKR, zhCN, zhTW, ptBR, itIT
-## X-Curse-Packaged-Version: 3.1.2
+## X-Curse-Packaged-Version: 3.1.3
 ## X-Curse-Project-Name: MogIt
 ## X-Curse-Project-ID: mogit
 ## X-Curse-Repository-ID: wow/mogit/mainline

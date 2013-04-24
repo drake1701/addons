@@ -1,9 +1,10 @@
 local mod	= DBM:NewMod(829, "DBM-ThroneofThunder", nil, 362)
 local L		= mod:GetLocalizedStrings()
 
-mod:SetRevision(("$Revision: 9331 $"):sub(12, -3))
+mod:SetRevision(("$Revision: 9350 $"):sub(12, -3))
 mod:SetCreatureID(68905, 68904)--Lu'lin 68905, Suen 68904
 mod:SetModelID(46975)--Lu'lin, 46974 Suen
+mod:SetQuestID(32755)
 
 mod:RegisterCombat("combat")
 
