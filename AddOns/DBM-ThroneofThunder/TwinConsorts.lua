@@ -1,10 +1,11 @@
 local mod	= DBM:NewMod(829, "DBM-ThroneofThunder", nil, 362)
 local L		= mod:GetLocalizedStrings()
 
-mod:SetRevision(("$Revision: 9350 $"):sub(12, -3))
+mod:SetRevision(("$Revision: 9383 $"):sub(12, -3))
 mod:SetCreatureID(68905, 68904)--Lu'lin 68905, Suen 68904
 mod:SetModelID(46975)--Lu'lin, 46974 Suen
 mod:SetQuestID(32755)
+mod:SetZone()
 
 mod:RegisterCombat("combat")
 
@@ -61,7 +62,7 @@ local specWarnTidalForce				= mod:NewSpecialWarningSpell(137531, nil, nil, nil, 
 --Light of Day (137403) has a HIGHLY variable cd variation, every 6-14 seconds. Not to mention it requires using SPELL_DAMAGE and SPELL_MISSED. for now i'm excluding it on purpose
 local timerDayCD						= mod:NewTimer(183, "timerDayCD", 122789) -- timer is 183 or 190 (confirmed in 10 man. variable)
 local timerCrashingStar					= mod:NewNextTimer(5.5, 137129)
---local timerCosmicBarrageCD				= mod:NewCDTimer(22, 136752)--Very high variation. (22~38s) Changed to Crashing Star stuff.
+local timerCosmicBarrageCD				= mod:NewCDTimer(22, 136752)--VERY IMPORTANT on heroic, do not remove. many heroic strat ignore adds and group up BEFORE day phase starts so adds come to middle at phase start. Variation is unimportant, timer isn't to see when next cast is, it's to show safety window for when no cast will happen
 local timerTearsOfTheSunCD				= mod:NewCDTimer(41, 137404)
 local timerTearsOfTheSun				= mod:NewBuffActiveTimer(10, 137404)
 local timerBeastOfNightmaresCD			= mod:NewCDTimer(51, 137375)
@@ -71,7 +72,7 @@ local timerLightOfDayCD					= mod:NewCDTimer(6, 137403, nil, false)--Trackable i
 local timerFanOfFlamesCD				= mod:NewNextTimer(12, 137408, nil, mod:IsTank() or mod:IsHealer())
 local timerFanOfFlames					= mod:NewTargetTimer(30, 137408, nil, mod:IsTank())
 --local timerFlamesOfPassionCD			= mod:NewCDTimer(30, 137414)--Also very high variation. (31~65). Can be confuse, no use.
-local timerIceCometCD					= mod:NewCDTimer(20.5, 137419)--Every 20.5-25 seconds on normal. On 10 heroic, variables 20.5~41s. Maybe 25 heroic same?
+local timerIceCometCD					= mod:NewCDTimer(20.5, 137419)--Every 20.5-25 seconds on normal. On 10 heroic, variables 20.5~41s. 25 heroic vary 20.5-27.
 local timerNuclearInferno				= mod:NewBuffActiveTimer(12, 137491)
 local timerNuclearInfernoCD				= mod:NewCDTimer(49.5, 137491)
 --Dusk
@@ -83,12 +84,30 @@ local berserkTimer						= mod:NewBerserkTimer(600)
 mod:AddBoolOption("RangeFrame")--For various abilities that target even melee. UPDATE, cosmic barrage (worst of the 3 abilities) no longer target melee. However, light of day and tears of teh sun still do. melee want to split into 2-3 groups (depending on how many) but no longer have to stupidly spread about all crazy and out of range of boss during cosmic barrage to avoid dying. On that note, MAYBE change this to ranged default instead of all.
 
 local phase3Started = false
+local invokeTiger = GetSpellInfo(138264)
+local invokeCrane = GetSpellInfo(138189)
+local invokeSerpent = GetSpellInfo(138267)
+local invokeOx = GetSpellInfo(138254)
+
+local function isRunner(unit)
+	if UnitDebuff(unit, invokeTiger) or nitDebuff(unit, invokeCrane) or nitDebuff(unit, invokeSerpent) or nitDebuff(unit, invokeOx) then
+		return true
+	end
+	return false
+end
+
+local constellationRunner
+do
+	constellationRunner = function(uId)
+		return isRunner(uId)
+	end
+end
 
 function mod:OnCombatStart(delay)
 	phase3Started = false
 	berserkTimer:Start(-delay)
 	if self.Options.RangeFrame then
-		DBM.RangeCheck:Show(8)
+		DBM.RangeCheck:Show(8, not constellationRunner)
 	end
 end
 
@@ -180,7 +199,7 @@ end
 function mod:UNIT_DIED(args)
 	local cid = self:GetCIDFromGUID(args.destGUID)
 	if cid == 68905 then--Lu'lin
-		--timerCosmicBarrageCD:Cancel()
+		timerCosmicBarrageCD:Cancel()
 		timerTidalForceCD:Cancel()
 		timerDayCD:Cancel()
 		timerDuskCD:Cancel()
@@ -206,7 +225,7 @@ function mod:UNIT_SPELLCAST_SUCCEEDED(uId, _, _, _, spellId)
 		warnNight:Show()
 		timerDayCD:Start()
 		timerDuskCD:Start()
-		--timerCosmicBarrageCD:Start(17)
+		--timerCosmicBarrageCD:Start(17)--I want to analyze a few logs and readd this once I know for certain this IS the minimum time.
 		timerTearsOfTheSunCD:Start(28.5)
 		timerBeastOfNightmaresCD:Start()
 	elseif spellId == 137187 and self:AntiSpam(2, 2) then--Lu'lin Ports away (Day Phase)
@@ -218,8 +237,8 @@ function mod:UNIT_SPELLCAST_SUCCEEDED(uId, _, _, _, spellId)
 end
 
 function mod:OnSync(msg)
-	if msg == "Phase2" then
-		--timerCosmicBarrageCD:Cancel()
+	if msg == "Phase2" and GetTime() - self.combatInfo.pull >= 5 then--Rare cases, this fires on pull, we need to ignore it if it happens within 5 sec of pull
+		timerCosmicBarrageCD:Cancel()
 		timerTearsOfTheSunCD:Cancel()
 		timerBeastOfNightmaresCD:Cancel()
 		warnDay:Show()
@@ -227,8 +246,11 @@ function mod:OnSync(msg)
 		timerIceCometCD:Start()
 		timerFanOfFlamesCD:Start()
 		--timerFlamesOfPassionCD:Start(12.5)
+		--Hard coded failsafe is in place on this fight. cooldown IS 45 seconds, BUT if a 2nd comet spawns before first inferno.
+		--I want to analyze more logs before coding in something fancy for this failsafe cause i want to verify it more first.
+		--For now, i'll just set it to 45. it is a cooldown timer.
 		if self:IsDifficulty("heroic10", "heroic25") then
-			timerNuclearInfernoCD:Start(50)
+			timerNuclearInfernoCD:Start(45)--45-50 second variation (cd is 45, but there is  hard code failsafe that if a commet has spawned recently it's extended
 		end
 		self:RegisterShortTermEvents(
 			"INSTANCE_ENCOUNTER_ENGAGE_UNIT"
@@ -241,8 +263,8 @@ function mod:OnSync(msg)
 		if self:IsDifficulty("heroic10", "heroic25") then
 			timerNuclearInfernoCD:Start(63)
 		end
-		--timerCosmicBarrageCD:Start(54)
-	elseif msg == "Phase3" then
+		--timerCosmicBarrageCD:Start(54)--I want to analyze a few logs and readd this once I know for certain this IS the minimum time.
+	elseif msg == "Phase3" and GetTime() - self.combatInfo.pull >= 5 then
 		self:UnregisterShortTermEvents()
 		timerFanOfFlamesCD:Cancel()--DO NOT CANCEL THIS ON YELL
 		if not phase3Started then
@@ -253,7 +275,7 @@ function mod:OnSync(msg)
 			if self:IsDifficulty("heroic10", "heroic25") then
 				timerNuclearInfernoCD:Start(57)
 			end
-			--timerCosmicBarrageCD:Start(48)
+			--timerCosmicBarrageCD:Start(48)--I want to analyze a few logs and readd this once I know for certain this IS the minimum time.
 		end
 	elseif msg == "Comet" then
 		warnIceComet:Show()
@@ -272,9 +294,9 @@ function mod:OnSync(msg)
 		warnCrashingStarSoon:Show()
 		specWarnCrashingStarSoon:Show()
 		timerCrashingStar:Start()
-		--if timerDayCD:GetTime() < 165 then
-			--timerCosmicBarrageCD:Start()
-		--end
+		if timerDayCD:GetTime() < 165 then
+			timerCosmicBarrageCD:Start()
+		end
 	elseif msg == "Inferno" then
 		warnNuclearInferno:Show()
 		specWarnNuclearInferno:Show()

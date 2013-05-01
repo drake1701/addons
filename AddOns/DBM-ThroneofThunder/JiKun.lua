@@ -1,10 +1,11 @@
 local mod	= DBM:NewMod(828, "DBM-ThroneofThunder", nil, 362)
 local L		= mod:GetLocalizedStrings()
 
-mod:SetRevision(("$Revision: 9354 $"):sub(12, -3))
+mod:SetRevision(("$Revision: 9392 $"):sub(12, -3))
 mod:SetCreatureID(69712)
 mod:SetModelID(46675)
 mod:SetQuestID(32749)
+mod:SetZone()
 
 mod:RegisterCombat("combat")
 
@@ -49,13 +50,11 @@ mod:AddBoolOption("RangeFrame", mod:IsRanged())
 
 local flockCount = 0
 local quillsCount = 0
-local trippleNest = false
 local flockName = EJ_GetSectionInfo(7348)
 
 function mod:OnCombatStart(delay)
 	flockCount = 0
 	quillsCount = 0
-	trippleNest = false
 	if self:IsDifficulty("normal10", "heroic10", "lfr25") then
 		timerQuillsCD:Start(60-delay, 1)
 	else
@@ -142,10 +141,20 @@ function mod:CHAT_MSG_RAID_BOSS_EMOTE(msg, _, _, _, target)
 	end
 end
 
---[[10N/LFR
-Nest4: Lower NE
+--[[LFR. I think LFR only uses 3 nest locations repeating, NE, SE, SW. but hard to confirm when boss dies within 5 nests.
+Nest1: Lower NE
+
+Nest2: Lower SE
+
+Nest3: Lower SW
+
+Nest4: Upper NE
 
 Nest5: Upper SE
+
+Nest6: Upper Middle
+
+Nest7: Lower NE
 --]]
 
 --[[10N
@@ -203,12 +212,12 @@ Nest18: Upper
 local function GetNestPositions(flockC)
 	local dir = DBM_CORE_UNKNOWN --direction
 	local loc = "" --location
-	if self:IsDifficulty("lfr25") then
+	if mod:IsDifficulty("lfr25") then
 		--LFR: L, L, L, U, U, U (Repeating)
 		if ((flockC-1) % 6) < 3 then dir = L.Lower -- 1,2,3,7,8,9,...
 		else                         dir = L.Upper -- 6,7,8,10,11,12,...
 		end
-	elseif self:IsDifficulty("normal10", "heroic10") then
+	elseif mod:IsDifficulty("normal10", "heroic10") then
 		--TODO, find out locations for these to improve the warnings.
 		if     flockC ==  1 then dir = L.Lower			--01
 		elseif flockC ==  2 then dir = L.Lower			--02    loc = L.SouthEast
@@ -227,7 +236,7 @@ local function GetNestPositions(flockC)
 		elseif flockC == 15 then dir = L.Upper			--17
 		elseif flockC == 16 then dir = L.Upper			--18
 		end
-	elseif self:IsDifficulty("normal25") then
+	elseif mod:IsDifficulty("normal25") then
 		--Nest Data Sources:
 		--http://www.youtube.com/watch?v=jo0BKuuh5xw
 		--http://www.youtube.com/watch?feature=player_detailpage&v=F0bxpAwdOnk#t=471s
@@ -253,7 +262,7 @@ local function GetNestPositions(flockC)
 		elseif flockC == 19 then dir, loc = L.UpperAndLower, "27-"..DBM_CORE_UNKNOWN..", 28-"..L.SouthEast	--Lower ? & Upper SE
 		elseif flockC == 20 then dir, loc = L.UpperAndLower, "29-"..L.Southeast..", 30-"..L.Middle			--Lower ? & Upper SE
 		end
-	elseif self:IsDifficulty("heroic25") then
+	elseif mod:IsDifficulty("heroic25") then
 		--maybe rework it still so the loc itself include upper/lower in each location. i just couldn't think of a clean way of doing it at the moment without completely breaking other difficulties or making message text REALLY long
 		--http://www.youtube.com/watch?feature=player_detailpage&v=nMSbQJBlKwM
 		if     flockC ==  1 then dir, loc = L.Lower,          "1-"..L.NorthEast												--Lower NE

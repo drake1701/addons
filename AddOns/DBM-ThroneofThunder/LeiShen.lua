@@ -1,10 +1,11 @@
 local mod	= DBM:NewMod(832, "DBM-ThroneofThunder", nil, 362)
 local L		= mod:GetLocalizedStrings()
 
-mod:SetRevision(("$Revision: 9350 $"):sub(12, -3))
+mod:SetRevision(("$Revision: 9383 $"):sub(12, -3))
 mod:SetCreatureID(68397)--Diffusion Chain Conduit 68696, Static Shock Conduit 68398, Bouncing Bolt conduit 68698, Overcharge conduit 68697
 mod:SetModelID(46770)
 mod:SetQuestID(32756)
+mod:SetZone()
 mod:SetUsedIcons(8, 7, 6, 5, 4, 3, 2, 1)--All icons can be used, because if a pillar is level 3, it puts out 4 debuffs on 25 man (if both are level 3, then you will have 8)
 
 mod:RegisterCombat("combat")
@@ -39,7 +40,6 @@ local warnSummonBallLightning			= mod:NewSpellAnnounce(136543, 3)--This seems to
 --Phase 3
 local warnPhase3						= mod:NewPhaseAnnounce(3)
 local warnViolentGaleWinds				= mod:NewSpellAnnounce(136889, 3)
-local warnElectricalShock				= mod:NewStackAnnounce(136914, 3, nil, mod:IsTank())
 
 --Conduits (All phases)
 local specWarnStaticShock				= mod:NewSpecialWarningYou(135695)
@@ -60,9 +60,6 @@ local specWarnFusionSlash				= mod:NewSpecialWarningSpell(136478, mod:IsTank(), 
 local specWarnLightningWhip				= mod:NewSpecialWarningSpell(136850, nil, nil, nil, 2)
 local specWarnSummonBallLightning		= mod:NewSpecialWarningSpell(136543, nil, nil, nil, 2)
 local specWarnOverloadedCircuits		= mod:NewSpecialWarningMove(137176)
---Phase 3
-local specWarnElectricalShock			= mod:NewSpecialWarningStack(136914, mod:IsTank(), 12)--You get about 12 stacks in 8 seconds, which is about how often you'll swap
-local specWarnElectricalShockOther		= mod:NewSpecialWarningTarget(136914, mod:IsTank())
 
 --Conduits (All phases)
 local timerStaticShock					= mod:NewBuffFadesTimer(8, 135695)
@@ -264,22 +261,6 @@ function mod:SPELL_AURA_APPLIED(args)
 		if self.Options.RangeFrame and self:IsRanged() then--Shouldn't target melee during a normal pillar, only during intermission when all melee are with ranged and out of melee range of boss
 			DBM.RangeCheck:Show(8)--Assume 8 since spell tooltip has no info
 		end
-	elseif args.spellId == 136914 then
-		--TODO add prints to figure out how this remotely doesn't work, when it's impossible.
-		--http://worldoflogs.com/reports/rt-gankfbp409i7qpvw/xe/?s=13273&e=13760&x=spellid+%3D+136914
-		--In above log, with warnings turned on, never saw a single one. not warnElectricalShock, not specWarnElectricalShock and certainly not specWarnElectricalShockOther
-		local amount = args.amount or 1
-		if not (amount % 3 == 0) then return end
-		warnElectricalShock:Show(args.destName, amount)
-		if amount >= 12 then
-			if args:IsPlayer() then
-				specWarnElectricalShock:Show(amount)
-			else
-				if not UnitDebuff("player", GetSpellInfo(136914)) and not UnitIsDeadOrGhost("player") then
-					specWarnElectricalShockOther:Show(args.destName)
-				end
-			end
-		end
 	elseif args.spellId == 137176 and self:AntiSpam(3, 5) and args:IsPlayer() then
 		specWarnOverloadedCircuits:Show()
 	end
@@ -379,18 +360,36 @@ end
 
 local function LoopIntermission()
 	if not southDestroyed then
-		timerOverchargeCD:Start(6.5)
+		if mod:IsDifficulty("lfr25") then
+			timerOverchargeCD:Start(17.5)
+		else
+			timerOverchargeCD:Start(6.5)
+		end
 	end
 	if not eastDestroyed then
-		timerDiffusionChainCD:Start(8)
+		if mod:IsDifficulty("lfr25") then
+			timerDiffusionChainCD:Start(17.5)
+		else
+			timerDiffusionChainCD:Start(8)
+		end
 	end
 	if not westDestroyed then
-		warnBouncingBolt:Schedule(15)
-		specWarnBouncingBolt:Schedule(15)
-		timerBouncingBoltCD:Start(15)
+		if mod:IsDifficulty("lfr25") then
+			warnBouncingBolt:Schedule(9)
+			specWarnBouncingBolt:Schedule(9)
+			timerBouncingBoltCD:Start(9)
+		else
+			warnBouncingBolt:Schedule(15)
+			specWarnBouncingBolt:Schedule(15)
+			timerBouncingBoltCD:Start(15)
+		end
 	end
 	if not northDestroyed then
-		timerStaticShockCD:Start(16)
+		if mod:IsDifficulty("lfr25") then
+			--Don't know LFR timer for this yet, best not to show it since this one is wrong.
+		else
+			timerStaticShockCD:Start(16)
+		end
 	end
 end
 
@@ -423,21 +422,33 @@ function mod:UNIT_SPELLCAST_SUCCEEDED(uId, _, _, _, spellId)
 		timerOverchargeCD:Cancel()
 		timerBouncingBoltCD:Cancel()
 		if not eastDestroyed then
-			timerDiffusionChainCD:Start(6)
+			if self:IsDifficulty("lfr25") then
+				timerDiffusionChainCD:Start(10)
+			else
+				timerDiffusionChainCD:Start(6)
+			end
 			if self.Options.RangeFrame then
 				DBM.RangeCheck:Show(8)
 			end
 		end
 		if not southDestroyed then
-			timerOverchargeCD:Start(6)
+			if self:IsDifficulty("lfr25") then
+				timerOverchargeCD:Start(10)
+			else
+				timerOverchargeCD:Start(6)
+			end
 		end
-		if not westDestroyed then
+		if not westDestroyed and not self:IsDifficulty("lfr25") then--Doesn't get cast in first wave in LFR, only second
 			warnBouncingBolt:Schedule(14)
 			specWarnBouncingBolt:Schedule(14)
 			timerBouncingBoltCD:Start(14)
 		end
 		if not northDestroyed then
-			timerStaticShockCD:Start(19)
+			if self:IsDifficulty("lfr25") then
+				--Still need LFR timing on this. Forgot to log first transition and we blew up static shock first so it not up in second transition log
+			else
+				timerStaticShockCD:Start(19)
+			end
 		end
 		self:Schedule(23, LoopIntermission)--Fire function to start second wave of specials timers
 	elseif spellId == 136395 and self:AntiSpam(2, 3) and not intermissionActive then--Bouncing Bolt (During intermission phases, it fires randomly, use scheduler and filter this :\)

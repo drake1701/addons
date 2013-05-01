@@ -1,3 +1,8 @@
+## 2.3.5
+ * Keybinding Support
+ * Fixed certain JC	Panther	mounts were not marked as flying
+ * Fixed unknown method of obtaining filters for ground mounts
+
 ## 2.3.4
  * Added missing 5.2 mounts
  * Improved zone filtering for better results
