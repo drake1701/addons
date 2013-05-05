@@ -16,7 +16,6 @@ L:SetOptionLocalization{
 
 L:SetMiscLocalization{
 	BrewStart			= "Der Sturm bricht los! Macht Euch fertig.",
-	BrewFinish			= "Ihr habt's geschafft! Schaffen wir das Bräu ins Kloster...",
 	BorokhulaPull		= "Letzte Chance, ihr schleimigen, züngelnden Kriecher!",
 	BorokhulaAdds		= "ruft Verstärkung!"
 }
@@ -29,6 +28,11 @@ L= DBM:GetModLocalization("d589")
 L:SetMiscLocalization{
 	ScargashPull		= "Your Alliance is WEAK!"--translate (trigger)
 }
+
+---------------------------
+-- Arena Of Annihilation --
+---------------------------
+L= DBM:GetModLocalization("d511")
 
 -------------------------
 -- Assault of Zan'vess --
@@ -64,15 +68,27 @@ L:SetMiscLocalization{
 ------------------------------
 L= DBM:GetModLocalization("d504")
 
-----------------------
--- Theramore's Fall --
-----------------------
-L= DBM:GetModLocalization("d566")
+-----------------------
+-- Dagger in the Dark --
+-----------------------
+L= DBM:GetModLocalization("d616")
 
----------------------------
--- Arena Of Annihilation --
----------------------------
-L= DBM:GetModLocalization("d511")
+L:SetTimerLocalization{
+	timerAddsCD		= "Neue Adds"
+}
+
+L:SetOptionLocalization{
+	timerAddsCD		= "Zeige Zeit bis ein Echsenlord neue Adds herbeiruft"
+}
+
+L:SetMiscLocalization{
+	LizardLord		= "Diese Saurok bewachen die Höhle. Räumen wir sie aus'm Weg!"
+}
+
+------------------------
+-- Greenstone Village --
+------------------------
+L= DBM:GetModLocalization("d492")
 
 --------------
 -- Landfall --
@@ -87,6 +103,11 @@ L:SetOptionLocalization{
 	WarnAchFiveAlive	= "Zeige Warnung bei Fehlschlag des Erfolgs \"Nummer 5 lebt!\""
 }
 
+----------------------
+-- Theramore's Fall --
+----------------------
+L= DBM:GetModLocalization("d566")
+
 --------------------------------
 -- Troves of the Thunder King --
 --------------------------------
@@ -96,10 +117,6 @@ L= DBM:GetModLocalization("d620")
 -- Unga Ingoo --
 ----------------
 L= DBM:GetModLocalization("d499")
-
-L:SetMiscLocalization{
-	Stage2	= "Nun, dieser Ort gibt eine genauso gute Braustätte ab wie jeder andere."
-}
 
 ------------------------
 -- Warlock Green Fire --

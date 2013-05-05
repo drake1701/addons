@@ -1,7 +1,7 @@
 local mod	= DBM:NewMod(832, "DBM-ThroneofThunder", nil, 362)
 local L		= mod:GetLocalizedStrings()
 
-mod:SetRevision(("$Revision: 9383 $"):sub(12, -3))
+mod:SetRevision(("$Revision: 9411 $"):sub(12, -3))
 mod:SetCreatureID(68397)--Diffusion Chain Conduit 68696, Static Shock Conduit 68398, Bouncing Bolt conduit 68698, Overcharge conduit 68697
 mod:SetModelID(46770)
 mod:SetQuestID(32756)
@@ -85,6 +85,7 @@ local timerViolentGaleWindsCD			= mod:NewNextTimer(30.5, 136889)
 local berserkTimer						= mod:NewBerserkTimer(900)--Confirmed in LFR, probably the same in all modes though?
 
 local countdownThunderstruck			= mod:NewCountdown(46, 135095)
+local countdownStaticShockFades			= mod:NewCountdownFades(7, 135695, false)--May confuse with thundershock option default so off as default.
 
 local soundDecapitate					= mod:NewSound(134912)
 
@@ -202,6 +203,7 @@ function mod:SPELL_AURA_APPLIED(args)
 			specWarnStaticShock:Show()
 			yellStaticShock:Yell()
 			timerStaticShock:Start()
+			countdownStaticShockFades:Start()
 		else
 			if not intermissionActive and self:IsMelee() then return end--Melee do not help soak these during normal phases, only during intermissions
 			local uId = DBM:GetRaidUnitId(args.destName)
@@ -384,12 +386,8 @@ local function LoopIntermission()
 			timerBouncingBoltCD:Start(15)
 		end
 	end
-	if not northDestroyed then
-		if mod:IsDifficulty("lfr25") then
-			--Don't know LFR timer for this yet, best not to show it since this one is wrong.
-		else
-			timerStaticShockCD:Start(16)
-		end
+	if not mod:IsDifficulty("lfr25") and not northDestroyed then--Doesn't cast a 2nd one in LFR
+		timerStaticShockCD:Start(16)
 	end
 end
 
@@ -445,7 +443,7 @@ function mod:UNIT_SPELLCAST_SUCCEEDED(uId, _, _, _, spellId)
 		end
 		if not northDestroyed then
 			if self:IsDifficulty("lfr25") then
-				--Still need LFR timing on this. Forgot to log first transition and we blew up static shock first so it not up in second transition log
+				timerStaticShockCD:Start(21)
 			else
 				timerStaticShockCD:Start(19)
 			end

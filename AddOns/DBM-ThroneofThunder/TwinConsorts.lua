@@ -1,7 +1,7 @@
 local mod	= DBM:NewMod(829, "DBM-ThroneofThunder", nil, 362)
 local L		= mod:GetLocalizedStrings()
 
-mod:SetRevision(("$Revision: 9383 $"):sub(12, -3))
+mod:SetRevision(("$Revision: 9404 $"):sub(12, -3))
 mod:SetCreatureID(68905, 68904)--Lu'lin 68905, Suen 68904
 mod:SetModelID(46975)--Lu'lin, 46974 Suen
 mod:SetQuestID(32755)
@@ -90,7 +90,7 @@ local invokeSerpent = GetSpellInfo(138267)
 local invokeOx = GetSpellInfo(138254)
 
 local function isRunner(unit)
-	if UnitDebuff(unit, invokeTiger) or nitDebuff(unit, invokeCrane) or nitDebuff(unit, invokeSerpent) or nitDebuff(unit, invokeOx) then
+	if UnitDebuff(unit, invokeTiger) or UnitDebuff(unit, invokeCrane) or UnitDebuff(unit, invokeSerpent) or UnitDebuff(unit, invokeOx) then
 		return true
 	end
 	return false

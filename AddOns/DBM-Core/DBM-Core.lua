@@ -44,9 +44,9 @@
 --  Globals/Default Options  --
 -------------------------------
 DBM = {
-	Revision = tonumber(("$Revision: 9395 $"):sub(12, -3)),
-	DisplayVersion = "5.2.5 alpha", -- the string that is shown as version
-	ReleaseRevision = 9314 -- the revision of the latest stable version that is available
+	Revision = tonumber(("$Revision: 9413 $"):sub(12, -3)),
+	DisplayVersion = "5.2.5", -- the string that is shown as version
+	ReleaseRevision = 9413 -- the revision of the latest stable version that is available
 }
 
 -- Legacy crap; that stupid "Version" field was never a good idea.
@@ -108,6 +108,7 @@ DBM.DefaultOptions = {
 	LogOnlyRaidBosses = false,
 	UseMasterVolume = true,
 	SetPlayerRole = true,
+	HideWatchFrame = false,
 	EnableModels = true,
 	RangeFrameFrames = "radar",
 	RangeFrameUpdates = "Average",
@@ -152,6 +153,7 @@ DBM.DefaultOptions = {
 	LatencyThreshold = 250,
 	BigBrotherAnnounceToRaid = false,
 	SettingsMessageShown = false,
+	ForumsMessageShown = false,
 	AlwaysShowSpeedKillTimer = true,
 	DisableCinematics = false,
 	DisableCinematicsOutside = false,
@@ -203,6 +205,7 @@ local LastZoneMapID = -1
 local queuedBattlefield = {}
 local loadDelay = nil
 local myRealRevision = DBM.Revision or DBM.ReleaseRevision
+local watchFrameRestore = false
 
 local enableIcons = true -- set to false when a raid leader or a promoted player has a newer version of DBM
 local guiRequested = false
@@ -1197,6 +1200,8 @@ do
 			StaticPopup_Show("DBM_CONFIRM_IGNORE", ignore)
 		elseif arg1 == "update" then
 			DBM:ShowUpdateReminder(arg2, arg3) -- displayVersion, revision
+		elseif arg1 == "forums" then
+			DBM:ShowUpdateReminder(nil, nil, DBM_FORUMS_COPY_URL_DIALOG)
 		elseif arg1 == "showRaidIdResults" then
 			DBM:ShowRaidIDRequestResults()
 		end
@@ -1895,11 +1900,8 @@ do
 				end
 			end
 		end
-		if instanceType == "scenario" then
-			--Depending on speed of computer, scenario check needs to run multiple times to ensure it fires properly (it will fail if it tries to start in a loading screen)
-			self:Schedule(4, DBM.ScenarioCheck)
-			self:Schedule(8, DBM.ScenarioCheck)
-			self:Schedule(12, DBM.ScenarioCheck)
+		if instanceType == "scenario" and self:GetModByName("d511") then--mod already loaded
+			self:Schedule(1, DBM.ScenarioCheck)
 		end
 	end
 end
@@ -1962,7 +1964,10 @@ function DBM:LoadMod(mod)
 		if DBM_GUI then
 			DBM_GUI:UpdateModList()
 		end
-		local _, instanceType, difficulty, _, maxPlayers = GetInstanceInfo()
+		local _, instanceType = GetInstanceInfo()
+		if instanceType == "scenario" then
+			self:Schedule(1, DBM.ScenarioCheck)
+		end
 		if not InCombatLockdown() then--We loaded in combat because a raid boss was in process, but lets at least delay the garbage collect so at least load mod is half as bad, to do our best to avoid "script ran too long"
 			collectgarbage("collect")
 		end
@@ -2445,74 +2450,91 @@ end
 -----------------------
 --  Update Reminder  --
 -----------------------
-function DBM:ShowUpdateReminder(newVersion, newRevision)
-	local frame = CreateFrame("Frame", nil, UIParent)
-	frame:SetFrameStrata("DIALOG")
-	frame:SetWidth(430)
-	frame:SetHeight(155)
-	frame:SetPoint("TOP", 0, -230)
-	frame:SetBackdrop({
-		bgFile = "Interface\\DialogFrame\\UI-DialogBox-Background",
-		edgeFile = "Interface\\DialogFrame\\UI-DialogBox-Border", tile = true, tileSize = 32, edgeSize = 32,
-		insets = {left = 11, right = 12, top = 12, bottom = 11},
-	})
-	local fontstring = frame:CreateFontString(nil, "ARTWORK", "GameFontNormal")
-	fontstring:SetWidth(410)
-	fontstring:SetHeight(0)
-	fontstring:SetPoint("TOP", 0, -16)
-	fontstring:SetText(DBM_CORE_UPDATEREMINDER_HEADER:format(newVersion, newRevision))
-	local editBox = CreateFrame("EditBox", nil, frame)
-	do
-		local editBoxLeft = editBox:CreateTexture(nil, "BACKGROUND")
-		local editBoxRight = editBox:CreateTexture(nil, "BACKGROUND")
-		local editBoxMiddle = editBox:CreateTexture(nil, "BACKGROUND")
-		editBoxLeft:SetTexture("Interface\\ChatFrame\\UI-ChatInputBorder-Left")
-		editBoxLeft:SetHeight(32)
-		editBoxLeft:SetWidth(32)
-		editBoxLeft:SetPoint("LEFT", -14, 0)
-		editBoxLeft:SetTexCoord(0, 0.125, 0, 1)
-		editBoxRight:SetTexture("Interface\\ChatFrame\\UI-ChatInputBorder-Right")
-		editBoxRight:SetHeight(32)
-		editBoxRight:SetWidth(32)
-		editBoxRight:SetPoint("RIGHT", 6, 0)
-		editBoxRight:SetTexCoord(0.875, 1, 0, 1)
-		editBoxMiddle:SetTexture("Interface\\ChatFrame\\UI-ChatInputBorder-Right")
-		editBoxMiddle:SetHeight(32)
-		editBoxMiddle:SetWidth(1)
-		editBoxMiddle:SetPoint("LEFT", editBoxLeft, "RIGHT")
-		editBoxMiddle:SetPoint("RIGHT", editBoxRight, "LEFT")
-		editBoxMiddle:SetTexCoord(0, 0.9375, 0, 1)
-	end
-	editBox:SetHeight(32)
-	editBox:SetWidth(250)
-	editBox:SetPoint("TOP", fontstring, "BOTTOM", 0, -4)
-	editBox:SetFontObject("GameFontHighlight")
-	editBox:SetTextInsets(0, 0, 0, 1)
-	editBox:SetFocus()
-	editBox:SetText("http://www.deadlybossmods.com")
-	editBox:HighlightText()
-	editBox:SetScript("OnTextChanged", function(self)
+do
+	local frame, fontstring, fontstringFooter
+	
+	local function createFrame()
+		frame = CreateFrame("Frame", nil, UIParent)
+		frame:SetFrameStrata("FULLSCREEN_DIALOG") -- yes, this isn't a fullscreen dialog, but I want it to be in front of other DIALOG frames (like DBM GUI which might open this frame...)
+		frame:SetWidth(430)
+		frame:SetHeight(140)
+		frame:SetPoint("TOP", 0, -230)
+		frame:SetBackdrop({
+			bgFile = "Interface\\DialogFrame\\UI-DialogBox-Background",
+			edgeFile = "Interface\\DialogFrame\\UI-DialogBox-Border", tile = true, tileSize = 32, edgeSize = 32,
+			insets = {left = 11, right = 12, top = 12, bottom = 11},
+		})
+		fontstring = frame:CreateFontString(nil, "ARTWORK", "GameFontNormal")
+		fontstring:SetWidth(410)
+		fontstring:SetHeight(0)
+		fontstring:SetPoint("TOP", 0, -16)
+		local editBox = CreateFrame("EditBox", nil, frame)
+		do
+			local editBoxLeft = editBox:CreateTexture(nil, "BACKGROUND")
+			local editBoxRight = editBox:CreateTexture(nil, "BACKGROUND")
+			local editBoxMiddle = editBox:CreateTexture(nil, "BACKGROUND")
+			editBoxLeft:SetTexture("Interface\\ChatFrame\\UI-ChatInputBorder-Left")
+			editBoxLeft:SetHeight(32)
+			editBoxLeft:SetWidth(32)
+			editBoxLeft:SetPoint("LEFT", -14, 0)
+			editBoxLeft:SetTexCoord(0, 0.125, 0, 1)
+			editBoxRight:SetTexture("Interface\\ChatFrame\\UI-ChatInputBorder-Right")
+			editBoxRight:SetHeight(32)
+			editBoxRight:SetWidth(32)
+			editBoxRight:SetPoint("RIGHT", 6, 0)
+			editBoxRight:SetTexCoord(0.875, 1, 0, 1)
+			editBoxMiddle:SetTexture("Interface\\ChatFrame\\UI-ChatInputBorder-Right")
+			editBoxMiddle:SetHeight(32)
+			editBoxMiddle:SetWidth(1)
+			editBoxMiddle:SetPoint("LEFT", editBoxLeft, "RIGHT")
+			editBoxMiddle:SetPoint("RIGHT", editBoxRight, "LEFT")
+			editBoxMiddle:SetTexCoord(0, 0.9375, 0, 1)
+		end
+		editBox:SetHeight(32)
+		editBox:SetWidth(250)
+		editBox:SetPoint("TOP", fontstring, "BOTTOM", 0, -4)
+		editBox:SetFontObject("GameFontHighlight")
+		editBox:SetTextInsets(0, 0, 0, 1)
+		editBox:SetFocus()
 		editBox:SetText("http://www.deadlybossmods.com")
 		editBox:HighlightText()
-	end)
-	local fontstring = frame:CreateFontString(nil, "ARTWORK", "GameFontNormal")
-	fontstring:SetWidth(410)
-	fontstring:SetHeight(0)
-	fontstring:SetPoint("TOP", editBox, "BOTTOM", 0, 0)
-	fontstring:SetText(DBM_CORE_UPDATEREMINDER_FOOTER)
-	local button = CreateFrame("Button", nil, frame)
-	button:SetHeight(24)
-	button:SetWidth(75)
-	button:SetPoint("BOTTOM", 0, 13)
-	button:SetNormalFontObject("GameFontNormal")
-	button:SetHighlightFontObject("GameFontHighlight")
-	button:SetNormalTexture(button:CreateTexture(nil, nil, "UIPanelButtonUpTexture"))
-	button:SetPushedTexture(button:CreateTexture(nil, nil, "UIPanelButtonDownTexture"))
-	button:SetHighlightTexture(button:CreateTexture(nil, nil, "UIPanelButtonHighlightTexture"))
-	button:SetText(DBM_CORE_OK)
-	button:SetScript("OnClick", function(self)
-		frame:Hide()
-	end)
+		editBox:SetScript("OnTextChanged", function(self)
+			editBox:SetText("http://www.deadlybossmods.com")
+			editBox:HighlightText()
+		end)
+		fontstringFooter = frame:CreateFontString(nil, "ARTWORK", "GameFontNormal")
+		fontstringFooter:SetWidth(410)
+		fontstringFooter:SetHeight(0)
+		fontstringFooter:SetPoint("TOP", editBox, "BOTTOM", 0, 0)
+		local button = CreateFrame("Button", nil, frame)
+		button:SetHeight(24)
+		button:SetWidth(75)
+		button:SetPoint("BOTTOM", 0, 13)
+		button:SetNormalFontObject("GameFontNormal")
+		button:SetHighlightFontObject("GameFontHighlight")
+		button:SetNormalTexture(button:CreateTexture(nil, nil, "UIPanelButtonUpTexture"))
+		button:SetPushedTexture(button:CreateTexture(nil, nil, "UIPanelButtonDownTexture"))
+		button:SetHighlightTexture(button:CreateTexture(nil, nil, "UIPanelButtonHighlightTexture"))
+		button:SetText(DBM_CORE_OK)
+		button:SetScript("OnClick", function(self)
+			frame:Hide()
+		end)
+
+	end
+
+	function DBM:ShowUpdateReminder(newVersion, newRevision, text)
+		if not frame then
+			createFrame()
+		end
+		frame:Show()
+		if newVersion then
+			fontstring:SetText(DBM_CORE_UPDATEREMINDER_HEADER:format(newVersion, newRevision))
+			fontstringFooter:SetText(DBM_CORE_UPDATEREMINDER_FOOTER)
+		elseif text then
+			fontstring:SetText(text)
+			fontstringFooter:SetText(DBM_CORE_UPDATEREMINDER_FOOTER_GENERIC)
+		end
+	end
 end
 
 ----------------------
@@ -2859,6 +2881,10 @@ function DBM:StartCombat(mod, delay, synced, syncedStartHp, noKillRecord)
 				end
 			end
 		end
+		if DBM.Options.HideWatchFrame and WatchFrame:IsVisible() and not (mod.type == "SCENARIO") then
+			WatchFrame:Hide()
+			watchFrameRestore = true
+		end
 	end
 end
 
@@ -3138,6 +3164,10 @@ function DBM:EndCombat(mod, wipe)
 		DBM.BossHealth:Hide()
 		DBM.Arrow:Hide(true)
 		self:ToggleRaidBossEmoteFrame(0)
+		if DBM.Options.HideWatchFrame and watchFrameRestore and not scenario then
+			WatchFrame:Show()
+			watchFrameRestore = false
+		end
 	end
 end
 
@@ -3174,7 +3204,7 @@ end
 function DBM:StartLogging(timer, checkFunc)
 	self:Unschedule(DBM.StopLogging)
 	local difficulty = self:GetCurrentInstanceDifficulty()
-	if DBM.Options.LogOnlyRaidBosses and difficulty ~= "normal10" and difficulty ~= "normal25" and difficulty ~= "heroic10" and difficulty ~= "heroic25" then return end
+	if DBM.Options.LogOnlyRaidBosses and difficulty ~= "normal10" and difficulty ~= "normal25" and difficulty ~= "heroic10" and difficulty ~= "heroic25" and difficulty ~= "lfr25" then return end
 	if DBM.Options.AutologBosses and not LoggingCombat() then--Start logging here to catch pre pots.
 		self:AddMsg("|cffffff00"..COMBATLOGENABLED.."|r")
 		LoggingCombat(1)
@@ -3441,6 +3471,7 @@ do
 		self:Schedule(18, requestTimers)
 --		self:Schedule(10, function() if not DBM.Options.HelpMessageShown then DBM.Options.HelpMessageShown = true DBM:AddMsg(DBM_CORE_NEED_SUPPORT) end end)
 		self:Schedule(10, function() if not DBM.Options.SettingsMessageShown then DBM.Options.SettingsMessageShown = true self:AddMsg(DBM_HOW_TO_USE_MOD) end end)
+		self:Schedule(16, function() if not DBM.Options.ForumsMessageShown then DBM.Options.ForumsMessageShown = DBM.ReleaseRevision self:AddMsg(DBM_FORUMS_MESSAGE) end end)
 		if type(RegisterAddonMessagePrefix) == "function" then
 			if not RegisterAddonMessagePrefix("D4") then -- main prefix for DBM4
 				self:AddMsg("Error: unable to register DBM addon message prefix (reached client side addon message filter limit), synchronization will be unavailable") -- TODO: confirm that this actually means that the syncs won't show up
@@ -4604,6 +4635,46 @@ do
 		table.insert(self.countdowns, obj)
 		return obj
 	end
+
+	function bossModPrototype:NewCountdownFades(timer, spellId, optionDefault, optionName, count, textDisabled)
+		if not spellId and not optionName then
+			error("NewCountdownFades: you must provide either spellId or optionName", 2)
+			return
+		end
+		local sound5 = self:NewSound(5, false, true)
+		local sound4 = self:NewSound(4, false, true)
+		local sound3 = self:NewSound(3, false, true)
+		local sound2 = self:NewSound(2, false, true)
+		local sound1 = self:NewSound(1, false, true)
+		timer = timer or 10
+		count = count or 5
+		spellId = spellId or 39505
+		local obj = setmetatable(
+			{
+				id = optionName or "CountdownFades"..spellId,
+				sound1 = sound1,
+				sound2 = sound2,
+				sound3 = sound3,
+				sound4 = sound4,
+				sound5 = sound5,
+				timer = timer,
+				count = count,
+				textDisabled = textDisabled,
+				mod = self
+			},
+			mt
+		)
+		if optionName then
+			obj.option = obj.id
+			self:AddBoolOption(optionName, optionDefault, "misc")
+		elseif not (optionName == false) then
+			obj.option = obj.id
+			self:AddBoolOption(obj.id, optionDefault, "misc")
+			self.localization.options[obj.id] = DBM_CORE_AUTO_COUNTDOWN_OPTION_TEXT2:format(spellId)
+		end
+		table.insert(self.countdowns, obj)
+		return obj
+	end	
 end
 
 ------------------------

@@ -1,7 +1,7 @@
 local mod	= DBM:NewMod(682, "DBM-MogushanVaults", nil, 317)
 local L		= mod:GetLocalizedStrings()
 
-mod:SetRevision(("$Revision: 9282 $"):sub(12, -3))
+mod:SetRevision(("$Revision: 9412 $"):sub(12, -3))
 mod:SetCreatureID(60143)
 mod:SetModelID(41256)
 mod:SetZone()
@@ -48,7 +48,7 @@ local timerFrailSoul				= mod:NewBuffFadesTimer(30, 117723)
 
 local berserkTimer					= mod:NewBerserkTimer(360)
 
-local countdownCrossedOver			= mod:NewCountdown(29, 116161)
+local countdownCrossedOver			= mod:NewCountdownFades(29, 116161)
 
 mod:AddBoolOption("SetIconOnVoodoo", false)
 
