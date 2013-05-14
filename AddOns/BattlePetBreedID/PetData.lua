@@ -1,9 +1,11 @@
 --[[
 BattlePetBreedID: Pet Data Module
-Last Update: March 11th, 2013; Patch 5.2.0 Live
+Last Update: April 27th; Patch 5.3.0 PTR build 15896
 
 If you would like a copy of this data in a different format for your own purposes or to be informed of future updates:
 Contact Simca@Malfurion - either through MMO-Champion, through Curse, or in-game
+
+You may use this data in any form for any purpose without my permission (though it'd be cool if you gave a shoutout somewhere).
 ]]--
 
 -- GLOBALS:
@@ -26,6 +28,7 @@ function BPBID.InitializeArrays()
 	BPBID.BreedStats[12] = {0.9, 0.4, 0.4}
 
 	-- fill base stats array
+	BPBID.BasePetStats[2] = {510.5, 8, 9.5}
 	BPBID.BasePetStats[39] = {8.5, 7.5, 8}
 	BPBID.BasePetStats[40] = {7, 8.5, 8.5}
 	BPBID.BasePetStats[41] = {7, 8.5, 8.5}
@@ -780,6 +783,21 @@ function BPBID.InitializeArrays()
 	BPBID.BasePetStats[1211] = {7, 8.5, 8.5}
 	BPBID.BasePetStats[1212] = {7, 8.5, 8.5}
 	BPBID.BasePetStats[1213] = {7, 8.5, 8.5}
+	BPBID.BasePetStats[1226] = {7.5, 8.5, 8}
+	BPBID.BasePetStats[1227] = {8.5, 8, 7.5}
+	BPBID.BasePetStats[1229] = {7.75, 8, 8.25}
+	BPBID.BasePetStats[1231] = {8, 8, 8}
+	BPBID.BasePetStats[1232] = {7.75, 8.25, 8}
+	BPBID.BasePetStats[1233] = {8.25, 8.5, 7.25}
+	BPBID.BasePetStats[1234] = {8.25, 8, 7.75}
+	BPBID.BasePetStats[1235] = {8, 8, 8}
+	BPBID.BasePetStats[1237] = {8, 8.25, 7.75}
+	BPBID.BasePetStats[1238] = {8.5, 8.5, 7}
+	BPBID.BasePetStats[1244] = {8, 8, 8}
+	BPBID.BasePetStats[1245] = {8, 8, 8}
+	BPBID.BasePetStats[1247] = {11, 16, 7}
+	BPBID.BasePetStats[1248] = {8.25, 8, 7.75}
+	BPBID.BasePetStats[1255] = {7.25, 8.75, 8.25}
 	
 	BPBID.BreedsPerSpecies[39] = {11}
 	BPBID.BreedsPerSpecies[40] = {8}
@@ -1477,7 +1495,7 @@ function BPBID.InitializeArrays()
 	BPBID.BreedsPerSpecies[1181] = {6, 9}
 	BPBID.BreedsPerSpecies[1182] = {3, 12}
 	BPBID.BreedsPerSpecies[1183] = {4}
-	BPBID.BreedsPerSpecies[1184] = {4} -- NEW Stunted Direhorn
+	BPBID.BreedsPerSpecies[1184] = {4}
 	BPBID.BreedsPerSpecies[1185] = {9}
 	BPBID.BreedsPerSpecies[1187] = {4}
 	BPBID.BreedsPerSpecies[1188] = {3}
@@ -1491,11 +1509,11 @@ function BPBID.InitializeArrays()
 	BPBID.BreedsPerSpecies[1196] = {9}
 	BPBID.BreedsPerSpecies[1197] = {7}
 	BPBID.BreedsPerSpecies[1198] = {8}
-	BPBID.BreedsPerSpecies[1200] = {8} -- NEW Pygmy Direhorn
+	BPBID.BreedsPerSpecies[1200] = {8}
 	BPBID.BreedsPerSpecies[1201] = {10}
 	BPBID.BreedsPerSpecies[1202] = {3, 10}
-	BPBID.BreedsPerSpecies[1204] = {11}
-	BPBID.BreedsPerSpecies[1205] = {10} -- NEW Direhorn Runt
+	BPBID.BreedsPerSpecies[1204] = {11} -- CURRENTLY UNUSED Pierre
+	BPBID.BreedsPerSpecies[1205] = {9, 10}
 	BPBID.BreedsPerSpecies[1206] = {10}
 	BPBID.BreedsPerSpecies[1207] = {12}
 	BPBID.BreedsPerSpecies[1208] = {11}
@@ -1503,4 +1521,17 @@ function BPBID.InitializeArrays()
 	BPBID.BreedsPerSpecies[1211] = {4, 5, 8, 10}
 	BPBID.BreedsPerSpecies[1212] = {4, 5, 8, 10}
 	BPBID.BreedsPerSpecies[1213] = {4, 5, 8, 10}
+	BPBID.BreedsPerSpecies[1226] = {8}
+	BPBID.BreedsPerSpecies[1227] = {6, 7}
+	BPBID.BreedsPerSpecies[1229] = {5, 10}
+	BPBID.BreedsPerSpecies[1231] = {3, 10}
+	BPBID.BreedsPerSpecies[1232] = {3}
+	BPBID.BreedsPerSpecies[1233] = {6, 8}
+	BPBID.BreedsPerSpecies[1234] = {7}
+	BPBID.BreedsPerSpecies[1235] = {5, 11}
+	BPBID.BreedsPerSpecies[1237] = {8}
+	BPBID.BreedsPerSpecies[1238] = {3, 6}
+	BPBID.BreedsPerSpecies[1244] = {7}
+	BPBID.BreedsPerSpecies[1245] = {3}
+	BPBID.BreedsPerSpecies[1248] = {3}
 end

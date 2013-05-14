@@ -567,4 +567,4 @@ hooksecurefunc("BattlePetToolTip_Show", BPBID_Hook_BPTShow)
 hooksecurefunc("FloatingBattlePet_Show", BPBID_Hook_FBPTShow)
 -- BPBID.Hook_PJTEnter is called by the ADDON_LOADED event of Blizzard_PetJournal in BattlePetBreedID's Core
 -- BPBID.Hook_PJTLeave is called by the ADDON_LOADED event of Blizzard_PetJournal in BattlePetBreedID's Core
--- HSFUpdate and ChatEdit_InsertLink are handled in BattlePetBreedID's Core entirely
+-- HSFUpdate and ChatEdit_InsertLink are handled in BattlePetBreedID's Core entirely because they are unrelated to tooltips

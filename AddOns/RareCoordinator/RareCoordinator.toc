@@ -1,0 +1,11 @@
+## Interface: 50200
+## Title: RareCoordinator
+## Notes: Synces the rare mob kill timers across the realm
+## Author: Elvador
+## DefaultState: Enabled
+## SavedVariables: RCDB
+## X-Curse-Packaged-Version: v5.2.0-12
+## X-Curse-Project-Name: RareCoordinator
+## X-Curse-Project-ID: rarecoordinator
+## X-Curse-Repository-ID: wow/rarecoordinator/mainline
+RareCoordinator.lua

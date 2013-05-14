@@ -1,0 +1,12 @@
+tag v1.0.5
+91fa8b17565543cd2f23c66fc822849597aee2b2
+Kevin Ballard <kevin@sb.org>
+2013-03-05 22:35:20 -0800
+
+Tagging as v1.0.5
+
+
+--------------------
+
+Kevin Ballard:
+	- Bump TOC for 5.2

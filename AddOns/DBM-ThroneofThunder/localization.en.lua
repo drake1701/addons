@@ -76,7 +76,7 @@ L:SetWarningLocalization({
 
 L:SetOptionLocalization({
 	warnKickShell			= DBM_CORE_AUTO_ANNOUNCE_OPTIONS.spell:format(134031),
-	specWarnCrystalShell	= "Show special warning when you are missing $spell:137633 debuff",
+	specWarnCrystalShell	= "Show special warning when you are missing\n $spell:137633 debuff",
 	InfoFrame				= "Show info frame for players without $spell:137633",
 	SetIconOnTurtles		= "Set icons on $journal:7129",
 	ClearIconOnTurtles		= "Clear icons on $journal:7129 when affected by $spell:133971",
@@ -177,7 +177,13 @@ L:SetOptionLocalization({
 	ArrowOnBeam					= "Show DBM Arrow during $journal:6882 to indicate which direction to move",
 	SetIconRays					= DBM_CORE_AUTO_ICONS_OPTION_TEXT:format("ej6891"),
 	SetIconLifeDrain			= DBM_CORE_AUTO_ICONS_OPTION_TEXT:format(133795),
-	InfoFrame					= "Show info frame for $spell:133795 stacks"
+	SetIconOnParasite			= DBM_CORE_AUTO_ICONS_OPTION_TEXT:format(133597),
+	InfoFrame					= "Show info frame for $spell:133795 stacks",
+	SetParticle					= "Automatically set particle density to low on pull\n(Restores previous setting on combat end)"
+})
+
+L:SetMiscLocalization({
+	LifeYell		= "Life Drain on %s (%d)"
 })
 
 ----------------
@@ -279,6 +285,10 @@ L:SetOptionLocalization({
 -- Ra-den --
 ------------
 L= DBM:GetModLocalization(831)
+
+L:SetMiscLocalization({
+	Defeat		= "Wait! I am... I am not your enemy."
+})
 
 -------------
 --  Trash  --

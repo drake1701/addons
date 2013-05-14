@@ -1,14 +1,14 @@
-﻿## Interface: 50100
+﻿## Interface: 50200
 ## Title: DeathNote
 ## Notes: Death analysis tool
 ## Author: Slaren
-## Version: v1.5
+## Version: v1.6
 ## OptionalDeps: LibStub, CallbackHandler-1.0, Ace3
 ## SavedVariables: DeathNoteDB
 ## SavedVariablesPerCharacter: DeathNoteData
 ## LoadManagers: AddonLoader
 ## X-LoadOn-Always: delayed
-## X-Curse-Packaged-Version: v1.5
+## X-Curse-Packaged-Version: v1.6
 ## X-Curse-Project-Name: Death Note
 ## X-Curse-Project-ID: deathnote
 ## X-Curse-Repository-ID: wow/deathnote/mainline

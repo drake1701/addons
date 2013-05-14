@@ -1,9 +1,8 @@
 local mod	= DBM:NewMod(820, "DBM-ThroneofThunder", nil, 362)
 local L		= mod:GetLocalizedStrings()
 
-mod:SetRevision(("$Revision: 9383 $"):sub(12, -3))
+mod:SetRevision(("$Revision: 9516 $"):sub(12, -3))
 mod:SetCreatureID(69017)--69070 Viscous Horror, 69069 good ooze, 70579 bad ooze (patched out of game, :\)
-mod:SetModelID(47009)
 mod:SetQuestID(32751)
 mod:SetZone()
 mod:SetUsedIcons(8, 7, 6, 5, 4, 3, 2, 1)--Although if you have 8 viscous horrors up, you are probably doing fight wrong.
@@ -166,7 +165,7 @@ function mod:SPELL_AURA_APPLIED(args)
 		warnEruptingPustules:Show(args.destName)
 		timerPustuleEruptionCD:Start()--not affected by metabolicBoost?
 		if self.Options.RangeFrame and not acidSpinesActive then--Check if acidSpinesActive is active, if they are, we should already have range 5 up
-			DBM.RangeCheck:Show(2)
+			DBM.RangeCheck:Show(3)
 		end
 	elseif args.spellId == 136225 then
 		warnPathogenGlands:Show(args.destName)
@@ -212,7 +211,7 @@ function mod:SPELL_AURA_REMOVED(args)
 		acidSpinesActive = false
 		if self.Options.RangeFrame then
 			if postulesActive then
-				DBM.RangeCheck:Show(2)
+				DBM.RangeCheck:Show(3)
 			else
 				DBM.RangeCheck:Hide()
 			end

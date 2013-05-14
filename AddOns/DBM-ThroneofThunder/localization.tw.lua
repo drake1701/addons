@@ -112,9 +112,10 @@ L:SetMiscLocalization({
 L= DBM:GetModLocalization(828)
 
 L:SetWarningLocalization({
-	warnFlock		= "%s %s %s",
-	specWarnFlock	= "%s %s %s",
-	specWarnBigBird	= "巢穴守護者:%s"
+	warnFlock			= "%s %s %s",
+	specWarnFlock		= "%s %s %s",
+	specWarnBigBird		= "巢穴守護者:%s",
+	specWarnBigBirdSoon	= "巢穴守護者即將出現:%s"
 })
 
 L:SetTimerLocalization({
@@ -160,7 +161,12 @@ L:SetOptionLocalization({
 	warnAddsLeft				= "提示還剩餘多少霧獸",
 	specWarnFogRevealed			= "為照出霧獸顯示特別警告",
 	ArrowOnBeam					= "為$journal:6882指示DBM箭頭移動方向",
-	InfoFrame					= "為$spell:133795堆疊顯示訊息框架"
+	InfoFrame					= "為$spell:133795堆疊顯示訊息框架",
+	SetParticle					= "開戰後自動將投影材質調為低(離開戰鬥後恢復設定)"
+})
+
+L:SetMiscLocalization({
+	LifeYell		= "%s中了生命吸取(%d)"
 })
 
 ----------------
@@ -259,6 +265,10 @@ L:SetOptionLocalization({
 -- Ra-den --
 ------------
 L= DBM:GetModLocalization(831)
+
+L:SetMiscLocalization({
+	Defeat		= "慢著!我不是你們的敵人。"
+})
 
 -------------
 --  Trash  --

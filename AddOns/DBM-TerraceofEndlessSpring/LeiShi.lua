@@ -1,9 +1,8 @@
 local mod	= DBM:NewMod(729, "DBM-TerraceofEndlessSpring", nil, 320)
 local L		= mod:GetLocalizedStrings()
 
-mod:SetRevision(("$Revision: 9248 $"):sub(12, -3))
+mod:SetRevision(("$Revision: 9500 $"):sub(12, -3))
 mod:SetCreatureID(62983)--62995 Animated Protector
-mod:SetModelID(42811)
 
 mod:RegisterCombat("combat")
 mod:RegisterKill("yell", L.Victory)--Kill detection is aweful. No death, no special cast. yell is like 40 seconds AFTER victory. terrible.
@@ -162,16 +161,30 @@ mod:RegisterOnUpdateHandler(function(self)
 			local uId = "raid"..i.."target"
 			local guid = UnitGUID(uId)
 			if guards[guid] then
+				for g,i in pairs(guards) do
+					if i == 8 and g ~= guid then -- always set skull on first we see
+						guards[g] = adds[guid]
+						guards[guid] = 8
+						break
+					end
+				end
 				SetRaidTarget(uId, guards[guid])
 				iconsSet = iconsSet + 1
 				guards[guid] = nil
 			end
-			local guid2 = UnitGUID("mouseover")
-			if guards[guid2] then
-				SetRaidTarget("mouseover", guards[guid2])
-				iconsSet = iconsSet + 1
-				guards[guid2] = nil
+		end
+		local guid2 = UnitGUID("mouseover")
+		if guards[guid2] then
+			for g,i in pairs(adds) do
+				if i == 8 and g ~= guid2 then -- always set skull on first we see
+					adds[g] = adds[guid2]
+					adds[guid2] = 8
+					break
+				end
 			end
+			SetRaidTarget("mouseover", guards[guid2])
+			iconsSet = iconsSet + 1
+			guards[guid2] = nil
 		end
 	end
 end, 0.05)

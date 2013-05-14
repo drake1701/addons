@@ -1,0 +1,12 @@
+tag v5.2.0-12
+29f1dd374b3f9bb7f26852541eddfe023d6438dc
+elvador <>
+2013-04-04 01:48:40 +0200
+
+Tagging as v5.2.0-12
+
+
+--------------------
+
+elvador:
+	- Bugfix: Version Check didn't work, Bugfix: The HP are now only shown if the Rare is alive, Feature Update: Too old times (>2 hours) are now deleted

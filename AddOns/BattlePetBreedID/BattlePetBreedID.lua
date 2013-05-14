@@ -482,7 +482,7 @@ end
 -- display breed on PetJournal's ScrollFrame
 local function BPBID_Hook_HSFUpdate(scrollFrame)
 	-- safety check AND make sure the user wants us here
-	if (scrollFrame ~= PetJournalListScrollFrame) or (not PetJournal:IsShown()) or (not BPBID_Options.Names.HSFUpdate) then return end
+	if (not ((scrollFrame == PetJournalListScrollFrame) or (scrollFrame == PetJournalEnhancedListScrollFrame))) or (not PetJournal:IsShown()) or (not BPBID_Options.Names.HSFUpdate) then return end
 	
 	-- loop for all shown buttons
 	for i = 1, #scrollFrame.buttons do

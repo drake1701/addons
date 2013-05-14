@@ -1,0 +1,45 @@
+------------------------------------------------------------------------
+r133 | deldinor | 2013-03-26 02:26:44 +0000 (Tue, 26 Mar 2013) | 1 line
+Changed paths:
+   A /tags/1.10 (from /trunk:132)
+
+Tagging as 1.10
+------------------------------------------------------------------------
+r132 | deldinor | 2013-03-26 02:26:10 +0000 (Tue, 26 Mar 2013) | 1 line
+Changed paths:
+   M /trunk/DailyGrind.lua
+   M /trunk/DailyGrind.toc
+   M /trunk/SupportFunctions.lua
+
+Added special-case support for Sunsong Ranch Work Orders.
+------------------------------------------------------------------------
+r130 | deldinor | 2013-03-18 04:52:08 +0000 (Mon, 18 Mar 2013) | 1 line
+Changed paths:
+   M /trunk/DailyGrind.lua
+   M /trunk/DailyGrind.toc
+
+Turned off debug flags (oops).
+------------------------------------------------------------------------
+r128 | deldinor | 2013-03-18 04:45:39 +0000 (Mon, 18 Mar 2013) | 2 lines
+Changed paths:
+   M /trunk/Bindings.xml
+   M /trunk/Blacklist.lua
+   M /trunk/Commands.lua
+   M /trunk/Common.lua
+   M /trunk/DailyGrind.lua
+   M /trunk/DailyGrind.toc
+   M /trunk/DailyGrind.wowproj
+   M /trunk/NpcBlacklist.lua
+   M /trunk/Options.lua
+   M /trunk/Rewards.lua
+   M /trunk/SupportFunctions.lua
+
+Added option for full automation of Repeatable Quests (with accompanying key bindings made available).
+Corrected issue where automation of Repeatable Quests would fail if the user's quest log was full (these quests are never added to the log, only turned in).
+------------------------------------------------------------------------
+r126 | deldinor | 2013-03-07 00:52:54 +0000 (Thu, 07 Mar 2013) | 1 line
+Changed paths:
+   M /trunk/DailyGrind.toc
+
+Just a compatibility version increment, no new features yet!
+------------------------------------------------------------------------

@@ -1,0 +1,49 @@
+------------------------------------------------------------------------
+r282 | laotseu | 2013-03-27 00:50:06 +0000 (Wed, 27 Mar 2013) | 1 line
+Changed paths:
+   A /tags/v50200-1 (from /trunk:281)
+
+Tagging as v50200-1
+------------------------------------------------------------------------
+r280 | LaoTseu | 2013-03-07 23:26:19 +0000 (Thu, 07 Mar 2013) | 1 line
+Changed paths:
+   M /trunk/AllPlayed.toc
+
+- TOC and version bump
+------------------------------------------------------------------------
+r278 | LaoTseu | 2013-03-03 20:20:04 +0000 (Sun, 03 Mar 2013) | 1 line
+Changed paths:
+   M /trunk/AllPlayed-enUS.lua
+   M /trunk/AllPlayed.lua
+   M /trunk/Config.lua
+
+- Ticket 31 - Running lvl total. The option to show the running total of character levels is off by default.
+------------------------------------------------------------------------
+r277 | LaoTseu | 2013-02-28 05:24:57 +0000 (Thu, 28 Feb 2013) | 1 line
+Changed paths:
+   M /trunk/AllPlayed.lua
+   M /trunk/Config.lua
+
+- Removed per-MOP compatibility
+------------------------------------------------------------------------
+r276 | LaoTseu | 2013-02-26 03:15:36 +0000 (Tue, 26 Feb 2013) | 2 lines
+Changed paths:
+   M /trunk/AllPlayed-enUS.lua
+   A /trunk/AllPlayed-esES.lua
+   A /trunk/AllPlayed-esMX.lua
+   A /trunk/AllPlayed-itIT.lua
+   A /trunk/AllPlayed-ptBR.lua
+   A /trunk/AllPlayed-ruRU.lua
+   M /trunk/AllPlayed.lua
+   M /trunk/AllPlayed.toc
+   M /trunk/Config.lua
+
+- Can now delete old characters
+- Add place-holder localization files for esES, esMX, ieIT, ptBR and ruRU in case someone decide to do the translations
+------------------------------------------------------------------------
+r275 | LaoTseu | 2013-01-23 21:12:55 +0000 (Wed, 23 Jan 2013) | 1 line
+Changed paths:
+   M /trunk/AllPlayed.lua
+
+- Padaren's racial Inner Peace double the amount of rested XP that a character can accumulate.
+------------------------------------------------------------------------

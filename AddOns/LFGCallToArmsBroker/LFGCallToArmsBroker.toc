@@ -1,0 +1,26 @@
+## Interface: 50200
+## Title : LFG Call to Arms Broker
+## Name: LFGCalltoArmsBroker
+## Author: Buranshe
+## Version: 1.0.5
+## SavedVariables: LFGCallToArmsBrokerDB
+## X-Curse-Packaged-Version: v1.0.5
+## X-Curse-Project-Name: LFG Call to Arms Broker
+## X-Curse-Project-ID: lfg-call-arms-broker
+## X-Curse-Repository-ID: wow/lfg-call-arms-broker/mainline
+
+## Notes: Provides a quick display for the LFG Call to Arms
+
+## OptionalDeps: Ace3, CallbackHandler-1.0, LibDataBroker-1.1, LibDBIcon-1.0
+
+## X-Category: Plugins - Data Broker
+
+libs\LibStub\LibStub.lua
+
+#@no-lib-strip@
+embeds.xml
+#@end-no-lib-strip@
+
+libs\LibDataBroker-1.1.lua
+
+Core.lua

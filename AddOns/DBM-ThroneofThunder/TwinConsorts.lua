@@ -1,9 +1,8 @@
 local mod	= DBM:NewMod(829, "DBM-ThroneofThunder", nil, 362)
 local L		= mod:GetLocalizedStrings()
 
-mod:SetRevision(("$Revision: 9404 $"):sub(12, -3))
+mod:SetRevision(("$Revision: 9491 $"):sub(12, -3))
 mod:SetCreatureID(68905, 68904)--Lu'lin 68905, Suen 68904
-mod:SetModelID(46975)--Lu'lin, 46974 Suen
 mod:SetQuestID(32755)
 mod:SetZone()
 
@@ -65,7 +64,7 @@ local timerCrashingStar					= mod:NewNextTimer(5.5, 137129)
 local timerCosmicBarrageCD				= mod:NewCDTimer(22, 136752)--VERY IMPORTANT on heroic, do not remove. many heroic strat ignore adds and group up BEFORE day phase starts so adds come to middle at phase start. Variation is unimportant, timer isn't to see when next cast is, it's to show safety window for when no cast will happen
 local timerTearsOfTheSunCD				= mod:NewCDTimer(41, 137404)
 local timerTearsOfTheSun				= mod:NewBuffActiveTimer(10, 137404)
-local timerBeastOfNightmaresCD			= mod:NewCDTimer(51, 137375)
+local timerBeastOfNightmaresCD			= mod:NewCDTimer(51, 137375, nil, mod:IsTank() or mod:IsHealer())
 --Light
 local timerDuskCD						= mod:NewTimer(360, "timerDuskCD", "Interface\\Icons\\achievement_zone_easternplaguelands")--it seems always 360s after combat entered. (day timer is variables, so not reliable to day phase)
 local timerLightOfDayCD					= mod:NewCDTimer(6, 137403, nil, false)--Trackable in day phase using UNIT event since boss1 can be used in this phase. Might be useful for heroic to not run behind in shadows too early preparing for a special
@@ -213,7 +212,7 @@ function mod:UNIT_DIED(args)
 	elseif cid == 68904 then--Suen
 		--timerFlamesOfPassionCD:Cancel()
 		--timerBeastOfNightmaresCD:Start()--My group kills Lu'lin first. Need log of Suen being killed first to get first beast timer value
-		timerTidalForceCD:Cancel()
+		timerNuclearInfernoCD:Cancel()
 	end
 end
 

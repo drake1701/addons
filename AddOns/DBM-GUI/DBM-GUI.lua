@@ -40,7 +40,7 @@
 
 
 
-local revision =("$Revision: 9413 $"):sub(12, -3)
+local revision =("$Revision: 9530 $"):sub(12, -3)
 local FrameTitle = "DBM_GUI_Option_"	-- all GUI frames get automatically a name FrameTitle..ID
 
 local PanelPrototype = {}
@@ -49,7 +49,7 @@ setmetatable(PanelPrototype, {__index = DBM_GUI})
 
 local L = DBM_GUI_Translations
 
-local usemodelframe = true		-- very beta
+local modelFrameCreated = false
 
 --------------------------------------------------------
 --  Cache frequently used global variables in locals  --
@@ -213,7 +213,12 @@ do
 	end
 end
 
-
+local function GetSharedMedia3()
+	if LibStub and LibStub("LibSharedMedia-3.0", true) then
+		return LibStub("LibSharedMedia-3.0", true)
+	end
+	return false
+end
 
 -- This function creates a check box
 -- Autoplaced buttons will be placed under the last widget
@@ -306,7 +311,20 @@ do
 		return link:gsub("|h%[(.*)%]|h", "|h%1|h")
 	end
 
-	function PanelPrototype:CreateCheckButton(name, autoplace, textleft, dbmvar, dbtvar)
+	local sounds = {
+		{ text = "SW 1", value = 1 },
+		{ text = "SW 2", value = 2 },
+		{ text = "SW 3", value = 3 },
+	}
+	if GetSharedMedia3() then
+		for k,v in next, GetSharedMedia3():HashTable("sound") do
+			if k ~= "None" and k ~= "NPCScan" then--NPCScan is a dummy inject of a custom sound in Silverdragon, we don't want that.
+				table.insert(sounds, {text=k, value=v})
+			end
+		end
+	end
+
+	function PanelPrototype:CreateCheckButton(name, autoplace, textleft, dbmvar, dbtvar, soundVal, mod)
 		if not name then
 			return
 		end
@@ -327,25 +345,53 @@ do
 		if name:find("%$journal:") then
 			name = name:gsub("%$journal:(%d+)", replaceJournalLinks)
 		end
-		if name and name:find("|H") then -- ...and replace it with a SimpleHTML frame
+		local dropdown
+		if soundVal and DBM.Options.ShowAdvSWSounds then
+		   dropdown = self:CreateDropdown(nil,sounds,mod.Options[soundVal], function(value)
+				mod.Options[soundVal] = value
+				DBM:PlaySpecialWarningSound(value)
+			end, 20, button)
+		end
+		local textbeside = button
+		local textpad = 0
+		local html
+                if dropdown then
+		  	dropdown:SetPoint("LEFT", button, "RIGHT", -20, 0)
+			textbeside = dropdown
+			textpad = 35
+	        end
+		if dropdown or 
+                   (name and name:find("|H")) then -- ...and replace it with a SimpleHTML frame
 			_G[buttonName.."Text"] = CreateFrame("SimpleHTML", buttonName.."Text", button)
-			local html = _G[buttonName.."Text"]
-			html:SetHeight(12)
+			html = _G[buttonName.."Text"]
 			html:SetFontObject("GameFontNormal")
-			html:SetPoint("LEFT", button, "RIGHT", 0, 1)
+			html:SetHyperlinksEnabled(true)
 			html:SetScript("OnHyperlinkClick", onHyperlinkClick)
 			html:SetScript("OnHyperlinkEnter", onHyperlinkEnter)
 			html:SetScript("OnHyperlinkLeave", onHyperlinkLeave)
-		end
+			html:SetHeight(25)
+			-- oscarucb: proper html encoding is required here for hyperlink line wrapping to work correctly
+			name = "<html><body><p>"..name.."</p></body></html>"
+                end
+		_G[buttonName .. 'Text']:SetWidth( self.frame:GetWidth() - 57 - ((dropdown and dropdown:GetWidth()) or 0))
 		_G[buttonName .. 'Text']:SetText(name or DBM_CORE_UNKNOWN)
-		_G[buttonName .. 'Text']:SetWidth( self.frame:GetWidth() - 50 )
 
 		if textleft then
 			_G[buttonName .. 'Text']:ClearAllPoints()
-			_G[buttonName .. 'Text']:SetPoint("RIGHT", button, "LEFT", 0, 0)
+			_G[buttonName .. 'Text']:SetPoint("RIGHT", textbeside, "LEFT", 0, 0)
 			_G[buttonName .. 'Text']:SetJustifyH("RIGHT")
 		else
 			_G[buttonName .. 'Text']:SetJustifyH("LEFT")
+		end
+
+		if html and not textleft then
+		  html:SetHeight(1) -- oscarucb: hack to discover wrapped height, so we can space multi-line options
+		  html:SetPoint("TOPLEFT",UIParent)
+		  local ht = select(4,html:GetBoundsRect()) or 25
+		  html:ClearAllPoints()
+		  html:SetPoint("TOPLEFT", textbeside, "TOPRIGHT", textpad, -4)
+		  html:SetHeight(ht)
+		  button.myheight = math.max(ht+12,button.myheight)
 		end
 
 		if dbmvar and DBM.Options[dbmvar] ~= nil then
@@ -362,7 +408,7 @@ do
 			local x = self:GetLastObj()
 			if x.mytype == "checkbutton" then
 				button:ClearAllPoints()
-				button:SetPoint('TOPLEFT', self:GetLastObj(), "BOTTOMLEFT", 0, 2)
+				button:SetPoint('TOPLEFT', x, "TOPLEFT", 0, -x.myheight)
 			else
 				button:ClearAllPoints()
 				button:SetPoint('TOPLEFT', 10, -12)
@@ -738,14 +784,6 @@ DBM_GUI_Bosses = CreateNewFauxScrollFrameList()
 DBM_GUI_Options = CreateNewFauxScrollFrameList()
 
 
-local function GetSharedMedia3()
-	if LibStub and LibStub("LibSharedMedia-3.0", true) then
-		return LibStub("LibSharedMedia-3.0", true)
-	end
-	return false
-end
-
-
 local UpdateAnimationFrame
 do
 	local function HideScrollBar(frame)
@@ -954,6 +992,7 @@ do
 			return
 		end
 
+		local changed = container.displayedFrame ~= frame
 		if ( container.displayedFrame ) then
 			container.displayedFrame:Hide()
 		end
@@ -969,6 +1008,10 @@ do
 			_G[frameName.."FOV"]:Show()
 			_G[frameName.."FOV"]:SetScrollChild(frame)
 			_G[frameName.."FOVScrollBar"]:SetMinMaxValues(0, mymax)
+			local val = _G[frameName.."FOVScrollBar"]:GetValue() or 0
+			if changed then
+			  _G[frameName.."FOVScrollBar"]:SetValue(0) -- scroll to top, and ensure widget appears
+			end
 
 			if frame.isfixed then
 				frame.isfixed = nil
@@ -1000,6 +1043,9 @@ do
 		frame:Show()
 
 		if DBM.Options.EnableModels then
+			if not modelFrameCreated then
+				CreateAnimationFrame()
+			end
 			DBM_BossPreview.enabled = false
 			DBM_BossPreview:Hide()
 			for _, mod in ipairs(DBM.Mods) do
@@ -1073,6 +1119,7 @@ function UpdateAnimationFrame(mod)
 end
 
 local function CreateAnimationFrame()
+	modelFrameCreated = true
 	local mobstyle = CreateFrame('PlayerModel', "DBM_BossPreview", DBM_GUI_OptionsFramePanelContainer)
 	mobstyle:SetPoint("BOTTOMRIGHT", DBM_GUI_OptionsFramePanelContainer, "BOTTOMRIGHT", -5, 5)
 	mobstyle:SetWidth( 300 )
@@ -1256,12 +1303,12 @@ local function CreateOptionsMenu()
 
 
 	DBM_GUI_Frame = DBM_GUI:CreateNewPanel(L.TabCategory_Options, "option")
-	if usemodelframe then CreateAnimationFrame() end
+	if DBM.Options.EnableModels then CreateAnimationFrame() end
 	do
 		----------------------------------------------
 		--             General Options              --
 		----------------------------------------------
-		local generaloptions = DBM_GUI_Frame:CreateArea(L.General, nil, 350, true)
+		local generaloptions = DBM_GUI_Frame:CreateArea(L.General, nil, 330, true)
 
 		local enabledbm = generaloptions:CreateCheckButton(L.EnableDBM, true)
 		enabledbm:SetScript("OnShow",  function() enabledbm:SetChecked(DBM:IsEnabled()) end)
@@ -1279,7 +1326,6 @@ local function CreateOptionsMenu()
 		local UseMasterVolume			= generaloptions:CreateCheckButton(L.UseMasterVolume, true, nil, "UseMasterVolume")
 		local DisableCinematics			= generaloptions:CreateCheckButton(L.DisableCinematics, true, nil, "DisableCinematics")
 		local DisableCinematicsOutside	= generaloptions:CreateCheckButton(L.DisableCinematicsOutside, true, nil, "DisableCinematicsOutside")
-		local SKT_Enabled				= generaloptions:CreateCheckButton(L.SKT_Enabled, true, nil, "AlwaysShowSpeedKillTimer")
 		local AutologBosses				= generaloptions:CreateCheckButton(L.AutologBosses, true, nil, "AutologBosses")
 		local AdvancedAutologBosses
 		if Transcriptor then
@@ -1327,9 +1373,27 @@ local function CreateOptionsMenu()
      	latencySlider:HookScript("OnShow", function(self) self:SetValue(DBM.Options.LatencyThreshold) end)
 		latencySlider:HookScript("OnValueChanged", function(self) DBM.Options.LatencyThreshold = self:GetValue() end)
 
+		local generaltimeroptions = DBM_GUI_Frame:CreateArea(L.TimerGeneral, nil, 85)
+		generaltimeroptions.frame:SetPoint('TOPLEFT', generaloptions.frame, "BOTTOMLEFT", 0, -20)
+
+		local SKT_Enabled	= generaltimeroptions:CreateCheckButton(L.SKT_Enabled, true, nil, "AlwaysShowSpeedKillTimer")
+
+		local challengeTimers = {
+			{	text	= L.Disable,				value	= "None" },
+			{	text	= L.ChallengeTimerPersonal,	value 	= "Personal"},
+			{	text	= L.ChallengeTimerGuild,	value 	= "Guild"},
+			{	text	= L.ChallengeTimerRealm,	value 	= "Realm"},
+		}
+		local ChallengeTimerDropDown = generaltimeroptions:CreateDropdown(L.ChallengeTimerOptions, challengeTimers,
+		DBM.Options.ChallengeBest, function(value)
+			DBM.Options.ChallengeBest = value
+		end
+		)
+		ChallengeTimerDropDown:SetPoint("TOPLEFT", generaltimeroptions.frame, "TOPLEFT", 0, -50)
+
 		--Model viewer options
 		local modelarea = DBM_GUI_Frame:CreateArea(L.ModelOptions, nil, 85)
-		modelarea.frame:SetPoint('TOPLEFT', generaloptions.frame, "BOTTOMLEFT", 0, -20)
+		modelarea.frame:SetPoint('TOPLEFT', generaltimeroptions.frame, "BOTTOMLEFT", 0, -20)
 
 		local enablemodels	= modelarea:CreateCheckButton(L.EnableModels,  true, nil, "EnableModels")--Needs someone smarter then me to hide/disable this option if not 4.0.6+
 
@@ -1437,7 +1501,7 @@ local function CreateOptionsMenu()
 		}
 		if GetSharedMedia3() then
 			for k,v in next, GetSharedMedia3():HashTable("sound") do
-				if k ~= "None" then -- lol ace .. playsound accepts empty strings.. quite.mp3 wtf!
+				if k ~= "None" and k ~= "NPCScan" then--NPCScan is a dummy inject of a custom sound in Silverdragon, we don't want that. then -- lol ace .. playsound accepts empty strings.. quite.mp3 wtf!
 					table.insert(Sounds, {text=k, value=v, sound=true})
 				end
 			end
@@ -1796,9 +1860,10 @@ local function CreateOptionsMenu()
 
 	do
 		local specPanel = DBM_GUI_Frame:CreateNewPanel(L.Panel_SpecWarnFrame, "option")
-		local specArea = specPanel:CreateArea(L.Area_SpecWarn, nil, 290, true)
+		local specArea = specPanel:CreateArea(L.Area_SpecWarn, nil, 310, true)
 		specArea:CreateCheckButton(L.SpecWarn_Enabled, true, nil, "ShowSpecialWarnings")
 		specArea:CreateCheckButton(L.SpecWarn_LHFrame, true, nil, "ShowLHFrame")
+		specArea:CreateCheckButton(L.SpecWarn_AdSound, true, nil, "ShowAdvSWSounds")
 
 		local showbutton = specArea:CreateButton(L.SpecWarn_DemoButton, 120, 16)
 		showbutton:SetPoint('TOPRIGHT', specArea.frame, "TOPRIGHT", -5, -5)
@@ -1813,7 +1878,7 @@ local function CreateOptionsMenu()
 		movemebutton:SetScript("OnClick", function() DBM:MoveSpecialWarning() end)
 
 		local fontSizeSlider = specArea:CreateSlider(L.SpecWarn_FontSize, 16, 100, 1)
-		fontSizeSlider:SetPoint("TOPLEFT", specArea.frame, "TOPLEFT", 20, -75)
+		fontSizeSlider:SetPoint("TOPLEFT", specArea.frame, "TOPLEFT", 20, -105)
 		do
 			local firstshow = true
 			fontSizeSlider:SetScript("OnShow", function(self)
@@ -1829,7 +1894,7 @@ local function CreateOptionsMenu()
 		end
 
 		local color1 = specArea:CreateColorSelect(64)
-		color1:SetPoint('TOPLEFT', specArea.frame, "TOPLEFT", 20, -125)
+		color1:SetPoint('TOPLEFT', specArea.frame, "TOPLEFT", 20, -155)
 		local color1text = specArea:CreateText(L.SpecWarn_FontColor, 80)
 		color1text:SetPoint("BOTTOM", color1, "TOP", 5, 4)
 		local color1reset = specArea:CreateButton(L.Reset, 64, 10, nil, GameFontNormalSmall)
@@ -1877,7 +1942,7 @@ local function CreateOptionsMenu()
 				DBM:ShowTestSpecialWarning()
 			end
 		)
-		FontDropDown:SetPoint("TOPLEFT", specArea.frame, "TOPLEFT", 130, -120)
+		FontDropDown:SetPoint("TOPLEFT", specArea.frame, "TOPLEFT", 130, -150)
 
 		-- SpecialWarn Sound
 		local Sounds = {
@@ -1900,21 +1965,21 @@ local function CreateOptionsMenu()
 				DBM.Options.SpecialWarningSound = value
 			end
 		)
-		SpecialWarnSoundDropDown:SetPoint("TOPLEFT", specArea.frame, "TOPLEFT", 130, -160)
+		SpecialWarnSoundDropDown:SetPoint("TOPLEFT", specArea.frame, "TOPLEFT", 130, -190)
 
 		local SpecialWarnSoundDropDown2 = specArea:CreateDropdown(L.SpecialWarnSound2, Sounds,
 			DBM.Options.SpecialWarningSound2, function(value)
 				DBM.Options.SpecialWarningSound2 = value
 			end
 		)
-		SpecialWarnSoundDropDown2:SetPoint("TOPLEFT", specArea.frame, "TOPLEFT", 130, -200)
+		SpecialWarnSoundDropDown2:SetPoint("TOPLEFT", specArea.frame, "TOPLEFT", 130, -230)
 		
 		local SpecialWarnSoundDropDown3 = specArea:CreateDropdown(L.SpecialWarnSound3, Sounds,
 			DBM.Options.SpecialWarningSound3, function(value)
 				DBM.Options.SpecialWarningSound3 = value
 			end
 		)
-		SpecialWarnSoundDropDown3:SetPoint("TOPLEFT", specArea.frame, "TOPLEFT", 130, -240)
+		SpecialWarnSoundDropDown3:SetPoint("TOPLEFT", specArea.frame, "TOPLEFT", 130, -270)
 
 
 		local resetbutton = specArea:CreateButton(L.SpecWarn_ResetMe, 120, 16)
@@ -2439,7 +2504,11 @@ do
 					addSpacer = true
 				elseif type(mod.Options[v]) == "boolean" then
 					lastButton = button
-					button = catpanel:CreateCheckButton(mod.localization.options[v], true)
+					if mod.Options[v .. "SpecialWarningSound"] then
+						button = catpanel:CreateCheckButton(mod.localization.options[v], true, nil, nil, nil, v .. "SpecialWarningSound", mod)
+					else
+						button = catpanel:CreateCheckButton(mod.localization.options[v], true)
+					end
 					if addSpacer then
 						button:SetPoint("TOPLEFT", lastButton, "BOTTOMLEFT", 0, -6)
 						addSpacer = false

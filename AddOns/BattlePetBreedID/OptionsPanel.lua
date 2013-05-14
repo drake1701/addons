@@ -230,7 +230,7 @@ blizzbugTitle:SetTextColor(1, 1, 1, 1)
 
 local OptBlizzBugChat = CreateCheckbox("Fix rarity for any chat links you make", 32, 32, "TOPLEFT", blizzbugTitle, "BOTTOMLEFT", 0, 0)
 local OptBlizzBugTooltip = CreateCheckbox("Fix rarity in Tooltips of others' chat links", 32, 32, "TOPLEFT", lastcheckbox, "BOTTOMLEFT", 0, 0)
-local OptBugBattleFontFix = CreateCheckbox("Use alternate rarity coloring method in-battle", 32, 32, "TOPLEFT", lastcheckbox, "BOTTOMLEFT", 0, 0)
+local OptBugBattleFontFix = CreateCheckbox("Use alternate rarity coloring method", 32, 32, "TOPLEFT", lastcheckbox, "BOTTOMLEFT", 0, 0)
 
 -- to disable rarity checkbox since it is dependent
 local function BPBID_OptNamesHSFUpdate_OnClick(self, button, down)
