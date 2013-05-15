@@ -40,7 +40,7 @@
 
 
 
-local revision =("$Revision: 9530 $"):sub(12, -3)
+local revision =("$Revision: 9546 $"):sub(12, -3)
 local FrameTitle = "DBM_GUI_Option_"	-- all GUI frames get automatically a name FrameTitle..ID
 
 local PanelPrototype = {}
@@ -50,6 +50,7 @@ setmetatable(PanelPrototype, {__index = DBM_GUI})
 local L = DBM_GUI_Translations
 
 local modelFrameCreated = false
+local soundsRegistered = false
 
 --------------------------------------------------------
 --  Cache frequently used global variables in locals  --
@@ -120,7 +121,12 @@ do
 		panel.panelid = #self.panels
 		return setmetatable(obj, prottypemetatable)
 	end
-
+	
+	function PanelPrototype:Refresh()
+		self.frame:Hide()
+		self.frame:Show()
+	end
+	
 	-- This function don't realy destroy a window, it just hides it
 	function PanelPrototype:Destroy()
 		if self.frame.FrameTyp == 2 then
@@ -215,6 +221,18 @@ end
 
 local function GetSharedMedia3()
 	if LibStub and LibStub("LibSharedMedia-3.0", true) then
+		if not soundsRegistered then--Register some of our own media
+			local LSM = LibStub("LibSharedMedia-3.0")
+			soundsRegistered = true
+			LSM:Register("sound", "Headless Horseman Laugh", [[Sound\Creature\HeadlessHorseman\Horseman_Laugh_01.ogg]])
+			LSM:Register("sound", "Yogg Saron: Laugh", [[Sound\Creature\YoggSaron\UR_YoggSaron_Slay01.ogg]])
+			LSM:Register("sound", "Loatheb: I see you", [[Sound\Creature\Loathstare\Loa_Naxx_Aggro02.ogg]])
+			LSM:Register("sound", "Lady Malande: Flee", [[Sound\Creature\LadyMalande\BLCKTMPLE_LadyMal_Aggro01.ogg]])
+			LSM:Register("sound", "Milhouse: Light You Up", [[Sound\Creature\MillhouseManastorm\TEMPEST_Millhouse_Pyro01.ogg]])
+			LSM:Register("sound", "Kael: Obey Me", [[Sound\Creature\PrinceKaelThas\TEMPEST_Kael_MndCntrl01.ogg]])
+			LSM:Register("sound", "Void Reaver: Marked", [[Sound\Creature\VoidReaver\TEMPEST_VoidRvr_Aggro01.ogg]])
+			LSM:Register("sound", "Kaz'rogal: Marked", [[Sound\Creature\KazRogal\CAV_Kaz_Mark02.ogg]])
+		end
 		return LibStub("LibSharedMedia-3.0", true)
 	end
 	return false
@@ -347,21 +365,23 @@ do
 		end
 		local dropdown
 		if soundVal and DBM.Options.ShowAdvSWSounds then
-		   dropdown = self:CreateDropdown(nil,sounds,mod.Options[soundVal], function(value)
+			dropdown = self:CreateDropdown(nil,sounds,mod.Options[soundVal], function(value)
 				mod.Options[soundVal] = value
 				DBM:PlaySpecialWarningSound(value)
 			end, 20, button)
+			dropdown:SetScript("OnShow", function(self)
+				self:SetSelectedValue(mod.Options[soundVal])
+			end)
 		end
 		local textbeside = button
 		local textpad = 0
 		local html
-                if dropdown then
-		  	dropdown:SetPoint("LEFT", button, "RIGHT", -20, 0)
+		if dropdown then
+			dropdown:SetPoint("LEFT", button, "RIGHT", -20, 0)
 			textbeside = dropdown
 			textpad = 35
-	        end
-		if dropdown or 
-                   (name and name:find("|H")) then -- ...and replace it with a SimpleHTML frame
+		end
+		if dropdown or (name and name:find("|H")) then -- ...and replace it with a SimpleHTML frame
 			_G[buttonName.."Text"] = CreateFrame("SimpleHTML", buttonName.."Text", button)
 			html = _G[buttonName.."Text"]
 			html:SetFontObject("GameFontNormal")
@@ -372,7 +392,7 @@ do
 			html:SetHeight(25)
 			-- oscarucb: proper html encoding is required here for hyperlink line wrapping to work correctly
 			name = "<html><body><p>"..name.."</p></body></html>"
-                end
+		end
 		_G[buttonName .. 'Text']:SetWidth( self.frame:GetWidth() - 57 - ((dropdown and dropdown:GetWidth()) or 0))
 		_G[buttonName .. 'Text']:SetText(name or DBM_CORE_UNKNOWN)
 
@@ -385,13 +405,13 @@ do
 		end
 
 		if html and not textleft then
-		  html:SetHeight(1) -- oscarucb: hack to discover wrapped height, so we can space multi-line options
-		  html:SetPoint("TOPLEFT",UIParent)
-		  local ht = select(4,html:GetBoundsRect()) or 25
-		  html:ClearAllPoints()
-		  html:SetPoint("TOPLEFT", textbeside, "TOPRIGHT", textpad, -4)
-		  html:SetHeight(ht)
-		  button.myheight = math.max(ht+12,button.myheight)
+			html:SetHeight(1) -- oscarucb: hack to discover wrapped height, so we can space multi-line options
+			html:SetPoint("TOPLEFT",UIParent)
+			local ht = select(4,html:GetBoundsRect()) or 25
+			html:ClearAllPoints()
+			html:SetPoint("TOPLEFT", textbeside, "TOPRIGHT", textpad, -4)
+			html:SetHeight(ht)
+			button.myheight = math.max(ht+12,button.myheight)
 		end
 
 		if dbmvar and DBM.Options[dbmvar] ~= nil then
@@ -1955,8 +1975,17 @@ local function CreateOptionsMenu()
 		}
 		if GetSharedMedia3() then
 			for k,v in next, GetSharedMedia3():HashTable("sound") do
-				if k ~= "None" then -- lol ace .. playsound accepts empty strings.. quite.mp3 wtf!
-					table.insert(Sounds, {text=k, value=v, sound=true})
+				if k ~= "None" and k ~= "NPCScan" then -- lol ace .. playsound accepts empty strings.. quite.mp3 wtf!
+					-- duplicates should be filtered out - TODO: make a generic function for all shared media / do not copy&paste
+					local insertme = true
+					for _, v2 in next, Sounds do
+						if v2.value == v then
+							insertme = false
+						end
+					end
+					if insertme then
+						table.insert(Sounds, {text=k, value=v, sound=true})
+					end
 				end
 			end
 		end
@@ -1988,6 +2017,9 @@ local function CreateOptionsMenu()
 		resetbutton:SetHighlightFontObject(GameFontNormalSmall)
 		resetbutton:SetScript("OnClick", function()
 				DBM.Options.SpecialWarningFont = DBM.DefaultOptions.SpecialWarningFont
+				DBM.Options.SpecialWarningSound = DBM.DefaultOptions.SpecialWarningSound
+				DBM.Options.SpecialWarningSound2 = DBM.DefaultOptions.SpecialWarningSound2
+				DBM.Options.SpecialWarningSound3 = DBM.DefaultOptions.SpecialWarningSound3
 				DBM.Options.SpecialWarningFontSize = DBM.DefaultOptions.SpecialWarningFontSize
 				DBM.Options.SpecialWarningFontColor[1] = DBM.DefaultOptions.SpecialWarningFontColor[1]
 				DBM.Options.SpecialWarningFontColor[2] = DBM.DefaultOptions.SpecialWarningFontColor[2]
@@ -1995,8 +2027,12 @@ local function CreateOptionsMenu()
 				DBM.Options.SpecialWarningPoint = DBM.DefaultOptions.SpecialWarningPoint
 				DBM.Options.SpecialWarningX = DBM.DefaultOptions.SpecialWarningX
 				DBM.Options.SpecialWarningY = DBM.DefaultOptions.SpecialWarningY
-				color1:SetColorRGB(DBM.Options.SpecialWarningFontColor[1], DBM.Options.SpecialWarningFontColor[2], DBM.Options.SpecialWarningFontColor[3])
+				FontDropDown:SetSelectedValue(DBM.Options.SpecialWarningFont)
+				SpecialWarnSoundDropDown:SetSelectedValue(DBM.Options.SpecialWarningSound)
+				SpecialWarnSoundDropDown2:SetSelectedValue(DBM.Options.SpecialWarningSound2)
+				SpecialWarnSoundDropDown3:SetSelectedValue(DBM.Options.SpecialWarningSound3)
 				fontSizeSlider:SetValue(DBM.DefaultOptions.SpecialWarningFontSize)
+				color1:SetColorRGB(DBM.Options.SpecialWarningFontColor[1], DBM.Options.SpecialWarningFontColor[2], DBM.Options.SpecialWarningFontColor[3])
 				DBM:UpdateSpecialWarningOptions()
 		end)
 	end
@@ -2031,6 +2067,8 @@ local function CreateOptionsMenu()
 				DBM.Options.HPFrameY = DBM.DefaultOptions.HPFrameY
 				DBM.Options.HealthFrameGrowUp = DBM.DefaultOptions.HealthFrameGrowUp
 				DBM.Options.HealthFrameWidth = DBM.DefaultOptions.HealthFrameWidth
+				growbttn:SetChecked(DBM.Options.HealthFrameGrowUp)
+				BarWidthSlider:SetValue(DBM.Options.HealthFrameWidth)
 				DBM.BossHealth:UpdateSettings()
 		end)
 
@@ -2489,6 +2527,7 @@ do
 					break
 				end
 			end
+			panel:Refresh()
 		end)
 		local button = panel:CreateCheckButton(L.Mod_Enabled, true)
 		button:SetScript("OnShow",  function(self) self:SetChecked(mod.Options.Enabled) end)
@@ -2533,12 +2572,9 @@ do
 					else
 						button:SetPoint("TOPLEFT", lastButton, "BOTTOMLEFT", 0, -10)
 					end
---					button:SetScript("OnShow", function(self)
---						-- set the correct selected value if the mod is being loaded after the gui is loaded (hack because the dropdown menu lacks a SetSelectedValue method)
---						_G[button:GetName().."Text"]:SetText(mod.localization.options[v])
---						button.value = v
---						button.text = mod.localization.options[v]
---					end)
+					button:SetScript("OnShow", function(self)
+						self:SetSelectedValue(mod.Options[v])
+					end)
 				end
 			end
 			catpanel:AutoSetDimension()

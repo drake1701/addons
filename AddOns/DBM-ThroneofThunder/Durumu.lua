@@ -1,7 +1,7 @@
 local mod	= DBM:NewMod(818, "DBM-ThroneofThunder", nil, 362)
 local L		= mod:GetLocalizedStrings()
 
-mod:SetRevision(("$Revision: 9498 $"):sub(12, -3))
+mod:SetRevision(("$Revision: 9542 $"):sub(12, -3))
 mod:SetCreatureID(68036)--Crimson Fog 69050, 
 mod:SetQuestID(32750)
 mod:SetZone()
@@ -205,7 +205,7 @@ function mod:OnCombatEnd()
 	if self.Options.InfoFrame then
 		DBM.InfoFrame:Hide()
 	end
-	if CVAR then--CVAR was set on pull which means we changed it, cahnge it back
+	if CVAR then--CVAR was set on pull which means we changed it, change it back
 		SetCVar("particleDensity", CVAR)
 	end
 end
