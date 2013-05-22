@@ -14,23 +14,23 @@
 #@debug@
 # ## Title: Collectinator - Development Version
 #@end-debug@
-## X-Curse-Packaged-Version: 2.0.1
+## X-Curse-Packaged-Version: 2.0.2
 ## X-Curse-Project-Name: Collectinator
 ## X-Curse-Project-ID: collectinator
 ## X-Curse-Repository-ID: wow/collectinator/mainline
 
 #@non-debug@
-## Notes: Description
-## Notes-frFR: Description
-## Notes-deDE: Beschreibung
-## Notes-koKR: Description
-## Notes-itIT: Descrizione
-## Notes-esMX: Description
+## Notes: Collectinator is an addon which will scan your pets and mounts and provide information on how to obtain them.
+## Notes-frFR: Collectinator is an addon which will scan your pets and mounts and provide information on how to obtain them.
+## Notes-deDE: Collectinator ist ein Addon, welches Haustiere und Reittiere abfragt und Informationen bietet, wie man sie bekommt.
+## Notes-koKR: Collectinator is an addon which will scan your pets and mounts and provide information on how to obtain them.
+## Notes-itIT: Collectinator è un addon che scansiona i tuoi famigli e le cavalcature e provvede informazioni su come ottenerle.
+## Notes-esMX: Collectinator is an addon which will scan your pets and mounts and provide information on how to obtain them.
 ## Notes-ruRU: Описание
-## Notes-zhCN: Description
-## Notes-esES: Description
-## Notes-zhTW: Description
-## Notes-ptBR: Description
+## Notes-zhCN: Collectinator is an addon which will scan your pets and mounts and provide information on how to obtain them.
+## Notes-esES: Collectinator is an addon which will scan your pets and mounts and provide information on how to obtain them.
+## Notes-zhTW: Collectinator is an addon which will scan your pets and mounts and provide information on how to obtain them.
+## Notes-ptBR: Collectinator is an addon which will scan your pets and mounts and provide information on how to obtain them.
 #@end-non-debug@
 #@debug@
 # ## Notes: Latest alpha version of Collectinator
@@ -39,11 +39,11 @@
 ## Author: Ackis, Torhal, Pompy, Ressy
 ## X-Donate: http://www.wowace.com/addons/collectinator/
 
-## Interface: 50200
-## X-Compatible-With: 50200
-## Version: 2.0.1
-## X-Revision: 421d12d
-## X-Date: 2013-03-05T05:09:22Z
+## Interface: 50300
+## X-Compatible-With: 50300
+## Version: 2.0.2
+## X-Revision: d1ccde1
+## X-Date: 2013-05-21T04:22:09Z
 
 ## X-Category: Tradeskill
 ## X-Localizations: enUS, frFR, zhCN, zhTW, deDE, itIT, koKR, esES, esMX, ruRU, ptBR

@@ -5,8 +5,8 @@ Player Data for Collectinator
 ************************************************************************
 File date: 2012-10-21T02:06:29Z
 File hash: a40ecbd
-Project hash: 421d12d
-Project version: 2.0.1
+Project hash: d1ccde1
+Project version: 2.0.2
 ************************************************************************
 Please see http://www.wowace.com/addons/collectinator/ for more information.
 ************************************************************************

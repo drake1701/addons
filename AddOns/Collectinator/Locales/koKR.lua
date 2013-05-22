@@ -6,7 +6,7 @@ koKR localization strings for Collectinator
 File date: 2012-09-12T01:10:19Z 
 File revision: @file-revision@ 
 Project revision: @project-revision@
-Project version: 2.0.1
+Project version: 2.0.2
 ************************************************************************
 Currently maintained by:
 http://www.wowace.com/addons/collectinator/localization/translators/
@@ -113,6 +113,7 @@ L["Jeremiah Payson"] = "제레미어 페이슨"
 L["Jilanne"] = "질란느"
 L["Katie Hunter"] = "케이티 헌터"
 L["Knight Dameron"] = "기사 대메론"
+L["Known"] = "이미 습득"
 L["KNOWN_DESC"] = "이미 습득한 수집품을 검색에 포함합니다."
 L["Larkin Thunderbrew"] = "라르킨 썬더브루"
 L["Lelanai"] = "렐라나이"

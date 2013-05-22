@@ -3,10 +3,10 @@
 Waypoint.lua
 Waypoing integration for Collectinator
 ************************************************************************
-File date: 2012-09-24T23:54:29Z
-File hash: 33d5a8f
-Project hash: 421d12d
-Project version: 2.0.1
+File date: 2013-04-09T03:32:20Z
+File hash: db26644
+Project hash: d1ccde1
+Project version: 2.0.2
 ************************************************************************
 Please see http://www.wowace.com/addons/collectinator/ for more information.
 ************************************************************************
@@ -537,6 +537,9 @@ function addon:AddWaypoint(collectable, acquire_id, location_id, npc_id)
 		elseif NORTHREND_IDNUMS[location_name] then
 			continent = 4
 			zone = NORTHREND_IDNUMS[location_name]
+		elseif PANDARIA_IDNUMS[location_name] then
+			continent = 6
+			zone = PANDARIA_IDNUMS[location_name]
 		elseif INSTANCE_LOCATIONS[location_name] then
 			local info = INSTANCE_LOCATIONS[location_name]
 

@@ -738,6 +738,12 @@ GTFO.SpellID["128880"] = {
 	sound = 1;
 };
 
+GTFO.SpellID["15577"] = {
+	--desc = "Whirlwind (Captains)";
+	sound = 1;
+};
+
+
 -- ********************************
 -- * Crypt of the Forgotten Kings *
 -- ********************************
@@ -996,6 +1002,13 @@ GTFO.SpellID["138006"] = {
 GTFO.SpellID["139210"] = {
 	--desc = "Focused Lightning - Pulse (Jin'rokh the Breaker)";
 	sound = 1;
+	negatingDebuffSpellID = 137422; -- Focused Lightning
+};
+
+GTFO.SpellID["137423"] = {
+	--desc = "Focused Lightning - Pulse (Jin'rokh the Breaker)";
+	sound = 1;
+	negatingDebuffSpellID = 137422; -- Focused Lightning
 };
 
 GTFO.SpellID["137485"] = {
@@ -1187,6 +1200,11 @@ GTFO.SpellID["138178"] = {
 	sound = 1;
 };
 
+GTFO.SpellID["138234"] = {
+	--desc = "Lightning Storm (Lightning Guardian)";
+	sound = 1;
+};
+
 GTFO.SpellID["137176"] = {
 	--desc = "Overloaded Circuits (Lei Shen)";
 	sound = 1;
@@ -1208,6 +1226,77 @@ GTFO.SpellID["135153"] = {
 };
 
 -- TODO: Ruin (Ra-Den)
+
+-- *********************
+-- * Blood in the Snow *
+-- *********************
+
+GTFO.SpellID["141379"] = {
+	--desc = "Blizzard (Frostmane Bonechiller)";
+	sound = 1;
+};
+
+GTFO.SpellID["141428"] = {
+	--desc = "Bonechilling Blizzard (Bonechiller Barafu)";
+	sound = 1;
+};
+
+GTFO.SpellID["133837"] = {
+	--desc = "Hekima's Scorn (Hekima the Wise)";
+	sound = 1;
+};
+
+-- ***************************
+-- * The Secrets of Ragefire *
+-- ***************************
+
+GTFO.SpellID["142413"] = {
+	--desc = "Pool of Embers (Kor'kron Emberguard)";
+	sound = 1;
+};
+
+GTFO.SpellID["142413"] = {
+	--desc = "Ruined Earth (Dark Shaman Xorenth)";
+	sound = 1;
+};
+
+GTFO.SpellID["142692"] = {
+	--desc = "Burning Embers (Embercore)";
+	sound = 1;
+};
+
+GTFO.SpellID["142768"] = {
+	--desc = "Shattered Earth (Overseer Elaglo)";
+	sound = 1;
+};
+
+-- **************************
+-- * Dark Heart of Pandaria *
+-- **************************
+
+GTFO.SpellID["142139"] = {
+	--desc = "Stone Rain (Earthborn Hatred)";
+	sound = 1;
+};
+
+GTFO.SpellID["142154"] = {
+	--desc = "Echo of Y'Shaarj (Heart of Y'Shaarj)";
+	sound = 1;
+};
+
+-- ***************************
+-- * Battle on the High Seas *
+-- ***************************
+
+GTFO.SpellID["143219"] = {
+	--desc = "Fire (Barrel Explosion)";
+	sound = 1;
+};
+
+GTFO.SpellID["142225"] = {
+	--desc = "Shark Hunt (Whale Shark)";
+	sound = 1;
+};
 
 -- ************
 -- * Pandaria *
@@ -1588,11 +1677,6 @@ GTFO.SpellID["135470"] = {
 	sound = 1;
 };
 
-GTFO.SpellID["114919"] = {
-	--desc = "Arcing Light (Light's Hammer)";
-	sound = 2;
-};
-
 GTFO.SpellID["131555"] = {
 	--desc = "Blizzard (Dmong Naruuk)";
 	sound = 2;
@@ -1660,7 +1744,7 @@ GTFO.SpellID["136345"] = {
 	--desc = "Stormcloud (Nalak)";
 	sound = 4;
 	negatingDebuffSpellID = 136340; -- Stormcloud
-	negatingIgnoreTime = 2;
+	negatingIgnoreTime = 4;
 };
 
 GTFO.SpellID["140560"] = {
@@ -1676,4 +1760,34 @@ GTFO.SpellID["140393"] = {
 GTFO.SpellID["137542"] = {
 	--desc = "Charged Bolt (Metal Lord Mono-Han)";
 	sound = 2;
+};
+
+GTFO.SpellID["136905"] = {
+	--desc = "Whirling Attack (Metal Lord Mono-Han)";
+	sound = 1;
+};
+
+GTFO.SpellID["138190"] = {
+	--desc = "Lightning Whirlwind (Shan'ze Battlemaster)";
+	sound = 1;
+};
+
+GTFO.SpellID["138720"] = {
+	--desc = "Lightning Strike (Forgemaster Vul'kon)";
+	sound = 1;
+};
+
+GTFO.SpellID["139445"] = {
+	--desc = "Meteor Storm (Sha Amalgamation)";
+	sound = 1;
+};
+
+GTFO.SpellID["139353"] = {
+	--desc = "Shadow Crash (Sha Amalgamation)";
+	sound = 1;
+};
+
+GTFO.SpellID["138539"] = {
+	--desc = "Stormbreath (Sparkmancer Vu)";
+	sound = 1;
 };

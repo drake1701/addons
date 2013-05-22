@@ -3,10 +3,10 @@
 Core.lua
 Core functions for Collectinator
 ************************************************************************
-File date: 2013-03-04T19:55:51Z
-File hash: 1dade60
-Project hash: 421d12d
-Project version: 2.0.1
+File date: 2013-04-20T18:25:58Z
+File hash: 92fb5f7
+Project hash: d1ccde1
+Project version: 2.0.2
 ************************************************************************
 Please see http://www.wowace.com/addons/collectinator/ for more information.
 ************************************************************************
@@ -39,9 +39,9 @@ local LibStub = _G.LibStub
 local addon = LibStub("AceAddon-3.0"):NewAddon(private.addon_name, "AceConsole-3.0", "AceEvent-3.0")
 _G.Collectinator = addon
 
---@alpha@
+--[===[@alpha@
 _G.COL = addon
---@end-alpha@
+--@end-alpha@]===]
 
 local L = LibStub("AceLocale-3.0"):GetLocale(private.addon_name)
 local Toast = LibStub("LibToast-1.0")
@@ -201,13 +201,9 @@ function addon:OnInitialize()
 				-- Obtain Filters
 				-------------------------------------------------------------------------------
 				obtain = {
+					-- Acquisition
 					achievement = true,
-					expansion0 = true,
-					expansion1 = true,
-					expansion2 = true,
-					expansion3 = true,
-					expansion4 = true,
-					instance = true,
+					coll_edition = true,
 					mobdrop = true,
 					profession = true,
 					pvp = true,
@@ -218,6 +214,17 @@ function addon:OnInitialize()
 					trainer = true,
 					vendor = true,
 					worlddrop = true,
+					store = true,
+					tcg = true,
+					promo = true,
+					misc = true,
+
+					-- Version
+					expansion0 = true,
+					expansion1 = true,
+					expansion2 = true,
+					expansion3 = true,
+					expansion4 = true,
 				},
 				-------------------------------------------------------------------------------
 				-- Quality Filters
@@ -324,9 +331,9 @@ function addon:OnInitialize()
 	debug_version = true
 	--@end-debug@]===]
 
-	--@alpha@
+	--[===[@alpha@
 	alpha_version = true
-	--@end-alpha@
+	--@end-alpha@]===]
 
 	version = debug_version and "Devel" or (alpha_version and version .. "-Alpha") or version
 

@@ -8,6 +8,7 @@ Usage:
 -- There is a simple configuration section at the top of LevelFlight.lua.
 
 History:
+-- 50300.1: ToC update.
 -- 50001.1: ToC update, nothing else.
 -- 40000.2: Fix chat output. Messed with the code a bit.
 -- 40000.1: ToC update. Added simple Lua configuration.

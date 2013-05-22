@@ -22,10 +22,12 @@ local function SetAutoHide(option)
 	if useAutoHide and (not InCombat) then SetCVar("nameplateShowEnemies", 0) end
 end
 
+--[[
 local function SetSpellCastWatcher(enable)
 	if enable then TidyPlates:StartSpellCastWatcher()
 	else TidyPlates:StopSpellCastWatcher()	end
 end
+--]]
 
 local function SetSoftTransitions(enable)
 	if enable then TidyPlates:EnableFadeIn()
@@ -42,7 +44,7 @@ TidyPlatesOptions = {
 	secondary = defaultSecondaryTheme,
 	FriendlyAutomation = NO_AUTOMATION,
 	EnemyAutomation = NO_AUTOMATION,
-	EnableCastWatcher = false,
+	--EnableCastWatcher = false,
 	DisableSoftTransitions = false,
 	WelcomeShown = false,
 	--VariableVersion = CurrentVariableVersion,
@@ -147,11 +149,11 @@ local AutomationDropdownItems = {
 					{ text = OUT_OF_COMBAT, notCheckable = 1 } ,
 					}
 
-local panel = PanelHelpers:CreatePanelFrame( "TidyPlatesInterfaceOptions", "Tidy Plates", titleString )
+TidyPlatesUIPanel = PanelHelpers:CreatePanelFrame( "TidyPlatesInterfaceOptions", "Tidy Plates", titleString )
 local helppanel = PanelHelpers:CreatePanelFrame( "TidyPlatesInterfaceOptionsHelp", "Troubleshooting" )
-panel:SetBackdrop({bgFile = "Interface/Tooltips/UI-Tooltip-Background", insets = { left = 2, right = 2, top = 2, bottom = 2 },})
+TidyPlatesUIPanel:SetBackdrop({bgFile = "Interface/Tooltips/UI-Tooltip-Background", insets = { left = 2, right = 2, top = 2, bottom = 2 },})
 
-panel:SetBackdropColor(0.06, 0.06, 0.06, .7)
+TidyPlatesUIPanel:SetBackdropColor(0.06, 0.06, 0.06, .7)
 
 -- Convert the Theme List into a Menu List
 local function UpdateThemeNames()
@@ -190,7 +192,7 @@ end
 
 local function ActivateInterfacePanel()
 
-
+	local panel = TidyPlatesUIPanel
 	panel.Label:SetFont("Interface\\Addons\\TidyPlates\\Media\\DefaultFont.ttf", 26)
 	panel.Label:SetPoint("TOPLEFT", panel, "TOPLEFT", 16+6, -16-4)
 
@@ -331,14 +333,16 @@ local primarySpecName, primarySpecDescription, primarySpecIcon, primarySpecBackg
 	BlizzOptionsButton:SetWidth(260)
 	BlizzOptionsButton:SetText("Nameplate Motion & Visibility")
 
+	--[[
 	-- Cast Watcher
 	panel.EnableCastWatcher = PanelHelpers:CreateCheckButton("TidyPlatesOptions_EnableCastWatcher", panel, "Show Off-Target Cast Bars")
 	panel.EnableCastWatcher:SetPoint("TOPLEFT", BlizzOptionsButton, "TOPLEFT", 0, -35)
 	panel.EnableCastWatcher:SetScript("OnClick", function(self) SetSpellCastWatcher(self:GetChecked()) end)
+--]]
 
 	-- Soft Transitions
 	panel.DisableSoftTransitions = PanelHelpers:CreateCheckButton("TidyPlatesOptions_DisableSoftTransitions", panel, "Disable Alpha/Scale Transition Effects")
-	panel.DisableSoftTransitions:SetPoint("TOPLEFT", panel.EnableCastWatcher, "TOPLEFT", 0, -35)
+	panel.DisableSoftTransitions:SetPoint("TOPLEFT", BlizzOptionsButton, "TOPLEFT", 0, -35)
 	panel.DisableSoftTransitions:SetScript("OnClick", function(self) SetSoftTransitions(not self:GetChecked()) end)
 
 	-- Minimap Button
@@ -361,7 +365,7 @@ local primarySpecName, primarySpecDescription, primarySpecIcon, primarySpecBackg
 	local function RefreshPanel()
 		panel.PrimarySpecTheme:SetValue(TidyPlatesOptions.primary)
 		panel.SecondarySpecTheme:SetValue(TidyPlatesOptions.secondary)
-		panel.EnableCastWatcher:SetChecked(TidyPlatesOptions.EnableCastWatcher)
+		--panel.EnableCastWatcher:SetChecked(TidyPlatesOptions.EnableCastWatcher)
 		panel.DisableSoftTransitions:SetChecked(TidyPlatesOptions.DisableSoftTransitions)
 
 		panel.EnableMinimapButton:SetChecked(TidyPlatesOptions.EnableMinimapButton)
@@ -412,12 +416,11 @@ local primarySpecName, primarySpecDescription, primarySpecIcon, primarySpecBackg
 end
 
 
-TidyPlatesInterfacePanel = panel
-InterfaceOptions_AddCategory(panel);
+InterfaceOptions_AddCategory(TidyPlatesUIPanel);
 
 
 local function ApplyAutomationSettings()
-	SetSpellCastWatcher(TidyPlatesOptions.EnableCastWatcher)
+	--SetSpellCastWatcher(TidyPlatesOptions.EnableCastWatcher)
 	SetSoftTransitions(not TidyPlatesOptions.DisableSoftTransitions)
 
 	if TidyPlatesOptions._EnableMiniButton then
@@ -429,11 +432,12 @@ local function ApplyAutomationSettings()
 end
 
 ApplyPanelSettings = function()
+	local panel = TidyPlatesUIPanel
 	TidyPlatesOptions.primary = panel.PrimarySpecTheme:GetValue()
 	TidyPlatesOptions.secondary = panel.SecondarySpecTheme:GetValue()
 	TidyPlatesOptions.FriendlyAutomation = panel.AutoShowFriendly:GetValue()
 	TidyPlatesOptions.EnemyAutomation = panel.AutoShowEnemy:GetValue()
-	TidyPlatesOptions.EnableCastWatcher = panel.EnableCastWatcher:GetChecked()
+	--TidyPlatesOptions.EnableCastWatcher = panel.EnableCastWatcher:GetChecked()
 	TidyPlatesOptions.DisableSoftTransitions = panel.DisableSoftTransitions:GetChecked()
 
 	TidyPlatesOptions.EnableMinimapButton = panel.EnableMinimapButton:GetChecked()
@@ -579,15 +583,25 @@ end
 function panelevents:PLAYER_LOGIN()
 	--TidyPlatesUtility:CreateMinimapButton()
 	UpdateThemeNames()
-	ActivateInterfacePanel()
+	
 	ShowWelcome()
 	LoadTheme(TidyPlatesDefaultThemeName)
 	ApplyAutomationSettings()
 	SetCVar("repositionfrequency", 0)
 end
 
-panel:SetScript("OnEvent", function(self, event, ...) panelevents[event]() end)
-for eventname in pairs(panelevents) do panel:RegisterEvent(eventname) end
+local panelHasBeenShown = false
+local function OnShowInterfacePanel()
+	if not panelHasBeenShown then
+		ActivateInterfacePanel()
+		panelHasBeenShown = true
+	end
+
+end
+
+TidyPlatesUIPanel:SetScript("OnEvent", function(self, event, ...) panelevents[event]() end)
+TidyPlatesUIPanel:SetScript("OnShow", OnShowInterfacePanel)
+for eventname in pairs(panelevents) do TidyPlatesUIPanel:RegisterEvent(eventname) end
 
 -------------------------------------------------------------------------------------
 -- Slash Commands
@@ -600,7 +614,7 @@ function slash_TidyPlates(arg)
 	if type(TidyPlatesSlashCommands[arg]) == 'function' then
 		TidyPlatesSlashCommands[arg]()
 		TidyPlates:ForceUpdate()
-	else InterfaceOptionsFrame_OpenToCategory(panel) end
+	else InterfaceOptionsFrame_OpenToCategory(TidyPlatesUIPanel) end
 end
 
 SLASH_TIDYPLATES1 = '/tidyplates'

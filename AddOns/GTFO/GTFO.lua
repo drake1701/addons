@@ -677,6 +677,17 @@ Change Log:
 		- Added Pandaria spells for A Little Patience
 		- Added Pandaria spells for Dagger in the Dark
 		- Added Pandaria spells for Pandaria (world)
+	v4.23.2
+		- Updated for patch 5.3
+		- Added Pandaria spells for Pandaria (world)
+		- Added Pandaria spells for Throne of Thunder
+		- Added Pandaria spells for Theramore's Fall
+		- Added Pandaria spells for Blood in the Snow
+		- Added Pandaria spells for The Secrets of Ragefire
+		- Added Pandaria spells for Dark Heart of Pandaria
+		- Added Pandaria spells for Battle on the High Seas
+		- Added Pandaria spells for Unga Ingoo
+
 
 ]]--
 GTFO = {
@@ -693,8 +704,8 @@ GTFO = {
 		IgnoreOptions = { };
 		TrivialDamagePercent = .5; -- Minimum % of HP lost required for an alert to be trivial
 	};
-	Version = "4.23.1"; -- Version number (text format)
-	VersionNumber = 42301; -- Numeric version number for checking out-of-date clients
+	Version = "4.23.2"; -- Version number (text format)
+	VersionNumber = 42302; -- Numeric version number for checking out-of-date clients
 	DataLogging = nil; -- Indicate whether or not the addon needs to run the datalogging function (for hooking)
 	DataCode = "4"; -- Saved Variable versioning, change this value to force a reset to default
 	CanTank = nil; -- The active character is capable of tanking

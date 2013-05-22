@@ -1693,6 +1693,11 @@ GTFO.SpellID["78862"] = {
 	sound = 1;
 };
 
+GTFO.SpellID["95822"] = {
+	--desc = "Twilight Flames (Sinestra, BoT 10H)";
+	sound = 1;
+};
+
 GTFO.SpellID["92958"] = {
 	--desc = "Twilight Pulse (Sinestra, BoT 10H)";
 	sound = 1;

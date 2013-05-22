@@ -231,3 +231,9 @@ GTFO.SpellID["15578"] = {
 		24239, -- Hex Lord Malacrass - ZA
 	};
 };
+
+GTFO.SpellID["114919"] = {
+	--desc = "Arcing Light (PvP)";
+	sound = 2;
+};
+

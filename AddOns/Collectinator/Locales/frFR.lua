@@ -6,7 +6,7 @@ frFR localization strings for Collectinator
 File date: 2012-09-12T01:10:19Z 
 File revision: @file-revision@ 
 Project revision: @project-revision@
-Project version: 2.0.1
+Project version: 2.0.2
 ************************************************************************
 Currently maintained by:
 http://www.wowace.com/addons/collectinator/localization/translators/
@@ -126,6 +126,7 @@ L["Jilanne"] = true
 L["Kall Worthaton"] = "Kall Vauthaton"
 L["Katie Hunter"] = true
 L["Knight Dameron"] = "Chevalier Dameron"
+L["Known"] = "Connus"
 L["KNOWN_DESC"] = "Intègre tous les objets de collection connus dans l'analyse."
 L["Larkin Thunderbrew"] = "Larkin Tonnebière"
 L["Lelanai"] = true

@@ -1,6 +1,6 @@
 --[[
 BattlePetBreedID: Pet Data Module
-Last Update: April 27th; Patch 5.3.0 PTR build 15896
+Last Update: May 21st; Patch 5.3.0 Live
 
 If you would like a copy of this data in a different format for your own purposes or to be informed of future updates:
 Contact Simca@Malfurion - either through MMO-Champion, through Curse, or in-game
@@ -654,18 +654,18 @@ function BPBID.InitializeArrays()
 	BPBID.BasePetStats[974] = {8, 8, 8}
 	BPBID.BasePetStats[975] = {8, 8, 8}
 	BPBID.BasePetStats[976] = {8, 8, 8}
-	BPBID.BasePetStats[977] = {8.5, 8.5, 8.5}
-	BPBID.BasePetStats[978] = {8.5, 8.5, 8.5}
-	BPBID.BasePetStats[979] = {8.5, 8.5, 8.5}
-	BPBID.BasePetStats[980] = {8.5, 8.5, 8.5}
-	BPBID.BasePetStats[981] = {8.5, 8.5, 8.5}
-	BPBID.BasePetStats[982] = {8.5, 8.5, 8.5}
-	BPBID.BasePetStats[983] = {8.5, 8.5, 8.5}
-	BPBID.BasePetStats[984] = {8.5, 8.5, 8.5}
-	BPBID.BasePetStats[985] = {8.5, 8.5, 8.5}
-	BPBID.BasePetStats[986] = {8.5, 8.5, 8.5}
-	BPBID.BasePetStats[987] = {8.5, 8.5, 8.5}
-	BPBID.BasePetStats[988] = {8.5, 8.5, 8.5}
+	BPBID.BasePetStats[977] = {8, 8, 8}
+	BPBID.BasePetStats[978] = {8, 8, 8}
+	BPBID.BasePetStats[979] = {8, 8, 8}
+	BPBID.BasePetStats[980] = {8, 8, 8}
+	BPBID.BasePetStats[981] = {8, 8, 8}
+	BPBID.BasePetStats[982] = {8, 8, 8}
+	BPBID.BasePetStats[983] = {8, 8, 8}
+	BPBID.BasePetStats[984] = {8, 8, 8}
+	BPBID.BasePetStats[985] = {8, 8, 8}
+	BPBID.BasePetStats[986] = {8, 8, 8}
+	BPBID.BasePetStats[987] = {8, 8, 8}
+	BPBID.BasePetStats[988] = {8, 8, 8}
 	BPBID.BasePetStats[989] = {8, 8, 8}
 	BPBID.BasePetStats[990] = {8, 8, 8}
 	BPBID.BasePetStats[991] = {8, 8, 8}
@@ -679,8 +679,8 @@ function BPBID.InitializeArrays()
 	BPBID.BasePetStats[999] = {8, 8, 8}
 	BPBID.BasePetStats[1000] = {8, 8, 8}
 	BPBID.BasePetStats[1001] = {8, 8, 8}
-	BPBID.BasePetStats[1002] = {9, 9, 9}
-	BPBID.BasePetStats[1003] = {9, 9, 9}
+	BPBID.BasePetStats[1002] = {8, 8, 8}
+	BPBID.BasePetStats[1003] = {8, 8, 8}
 	BPBID.BasePetStats[1004] = {8, 8, 8}
 	BPBID.BasePetStats[1005] = {8, 8, 8}
 	BPBID.BasePetStats[1006] = {8, 8, 8}
@@ -708,7 +708,7 @@ function BPBID.InitializeArrays()
 	BPBID.BasePetStats[1126] = {8, 8, 8}
 	BPBID.BasePetStats[1127] = {7.5, 8.5, 8}
 	BPBID.BasePetStats[1128] = {8, 8, 8}
-	BPBID.BasePetStats[1129] = {25.5, 11.5, 7.25}
+	BPBID.BasePetStats[1129] = {11.5, 15.5, 7.5}
 	BPBID.BasePetStats[1130] = {8, 8, 8}
 	BPBID.BasePetStats[1131] = {8, 8, 8}
 	BPBID.BasePetStats[1132] = {8, 8, 8}
@@ -759,14 +759,14 @@ function BPBID.InitializeArrays()
 	BPBID.BasePetStats[1183] = {8, 8, 8}
 	BPBID.BasePetStats[1184] = {8.25, 8, 7.75}
 	BPBID.BasePetStats[1185] = {8, 8, 8}
-	BPBID.BasePetStats[1187] = {25.5, 11.5, 7.25}
-	BPBID.BasePetStats[1188] = {25.5, 11.5, 7.25}
-	BPBID.BasePetStats[1189] = {25.5, 11.5, 7.25}
-	BPBID.BasePetStats[1190] = {25.5, 11.5, 7.25}
-	BPBID.BasePetStats[1191] = {25.5, 11.5, 7.25}
-	BPBID.BasePetStats[1192] = {25.5, 11.5, 7.25}
-	BPBID.BasePetStats[1193] = {25.5, 11.5, 7.25}
-	BPBID.BasePetStats[1194] = {25.5, 11.5, 7.25}
+	BPBID.BasePetStats[1187] = {11.625, 15.375, 7.625}
+	BPBID.BasePetStats[1188] = {11.375, 15.125, 7.75}
+	BPBID.BasePetStats[1189] = {11.875, 16, 7.25}
+	BPBID.BasePetStats[1190] = {11.125, 14.25, 7.875}
+	BPBID.BasePetStats[1191] = {12, 15.75, 7}
+	BPBID.BasePetStats[1192] = {11.625, 15, 7.375}
+	BPBID.BasePetStats[1193] = {11, 14.5, 7.5}
+	BPBID.BasePetStats[1194] = {11.25, 15.25, 7.875}
 	BPBID.BasePetStats[1195] = {25.5, 11.5, 7.25}
 	BPBID.BasePetStats[1196] = {8, 8, 8}
 	BPBID.BasePetStats[1197] = {8, 8, 8}
@@ -785,19 +785,23 @@ function BPBID.InitializeArrays()
 	BPBID.BasePetStats[1213] = {7, 8.5, 8.5}
 	BPBID.BasePetStats[1226] = {7.5, 8.5, 8}
 	BPBID.BasePetStats[1227] = {8.5, 8, 7.5}
+	BPBID.BasePetStats[1228] = {8, 8.25, 7.75}
 	BPBID.BasePetStats[1229] = {7.75, 8, 8.25}
+	BPBID.BasePetStats[1230] = {8.25, 8.25, 7.5}
 	BPBID.BasePetStats[1231] = {8, 8, 8}
 	BPBID.BasePetStats[1232] = {7.75, 8.25, 8}
 	BPBID.BasePetStats[1233] = {8.25, 8.5, 7.25}
 	BPBID.BasePetStats[1234] = {8.25, 8, 7.75}
 	BPBID.BasePetStats[1235] = {8, 8, 8}
+	BPBID.BasePetStats[1236] = {7.5, 8.25, 8.25}
 	BPBID.BasePetStats[1237] = {8, 8.25, 7.75}
 	BPBID.BasePetStats[1238] = {8.5, 8.5, 7}
+	BPBID.BasePetStats[1243] = {8, 8, 8}
 	BPBID.BasePetStats[1244] = {8, 8, 8}
 	BPBID.BasePetStats[1245] = {8, 8, 8}
 	BPBID.BasePetStats[1247] = {11, 16, 7}
 	BPBID.BasePetStats[1248] = {8.25, 8, 7.75}
-	BPBID.BasePetStats[1255] = {7.25, 8.75, 8.25}
+	BPBID.BasePetStats[1255] = {7.75, 8.375, 7.875}
 	
 	BPBID.BreedsPerSpecies[39] = {11}
 	BPBID.BreedsPerSpecies[40] = {8}

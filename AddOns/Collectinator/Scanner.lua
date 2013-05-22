@@ -3,10 +3,10 @@
 Scanner.lua
 Database scanning for Collectinator
 ************************************************************************
-File date: 2013-01-05T03:49:44Z
-File hash: 91b6a1c
-Project hash: 421d12d
-Project version: 2.0.1
+File date: 2013-03-09T18:32:14Z
+File hash: 2547f1c
+Project hash: d1ccde1
+Project version: 2.0.2
 ************************************************************************
 Please see http://www.wowace.com/addons/collectinator/ for more information.
 ************************************************************************

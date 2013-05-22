@@ -2,10 +2,10 @@
 ************************************************************************
 Custom.lua
 ************************************************************************
-File date: 2013-03-05T05:07:50Z
-File hash: 153e8ff
-Project hash: 421d12d
-Project version: 2.0.1
+File date: 2013-04-21T04:32:34Z
+File hash: 55d7fb5
+Project hash: d1ccde1
+Project version: 2.0.2
 ************************************************************************
 Please see http://www.wowace.com/addons/arl/ for more information.
 ************************************************************************
@@ -69,6 +69,12 @@ function addon:InitCustom()
 	AddCustom("FIONA'S_CHARM",	Z.EASTERN_PLAGUELANDS,		34.8,	69.2)
 	AddCustom("OOZING_BAG")
 	AddCustom("PRIMAL_EGG",		Z.PANDARIA)
+	AddCustom("HEROIC")
+	AddCustom("NORMAL")
+	AddCustom("FISHING_DAILIES")
+	AddCustom("LFR")
+	AddCustom("OLYMPICS")
+	AddCustom("DIREHORN")
 
 	self.InitCustom = nil
 end

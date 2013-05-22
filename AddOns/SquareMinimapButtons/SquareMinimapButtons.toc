@@ -1,4 +1,4 @@
-## Interface: 50200
+## Interface: 50300
 ## Title: |cffC495DDTukui|r & |cff1784d1ElvUI|r Square Minimap Buttons & Bar
 ## Version: 2.7
 ## Notes: Minimap Button Bar / Minimap Button Skinning

@@ -1,4 +1,4 @@
-## Interface: 50200
+## Interface: 50300
 ## Title: JunkDrop
 ## Version: v0.8
 ## Author: Ric Fischer playing Desertdwarf / Renewed Hope / US-Kirin Tor

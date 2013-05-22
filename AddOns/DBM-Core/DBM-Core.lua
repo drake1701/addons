@@ -44,9 +44,9 @@
 --  Globals/Default Options  --
 -------------------------------
 DBM = {
-	Revision = tonumber(("$Revision: 9548 $"):sub(12, -3)),
-	DisplayVersion = "5.2.6 alpha", -- the string that is shown as version
-	ReleaseRevision = 9413 -- the revision of the latest stable version that is available
+	Revision = tonumber(("$Revision: 9594 $"):sub(12, -3)),
+	DisplayVersion = "5.3.1 alpha", -- the string that is shown as version
+	ReleaseRevision = 9592 -- the revision of the latest stable version that is available
 }
 
 -- Legacy crap; that stupid "Version" field was never a good idea.
@@ -73,7 +73,7 @@ DBM.DefaultOptions = {
 	SpecialWarningSound2 = "Sound\\Creature\\AlgalonTheObserver\\UR_Algalon_BHole01.wav",
 	SpecialWarningSound3 = "Sound\\Creature\\KilJaeden\\KILJAEDEN02.wav",
 	ModelSoundValue = "Short",
-	ChallengeBest = "Personal",
+	ChallengeBest = "Realm",
 	CountdownVoice = "Corsica",
 	ShowCountdownText = false,
 	RaidWarningPosition = {
@@ -718,7 +718,6 @@ do
         		healthCombatInitialized = true
 			end)
 			-- setup MovieFrame hook (TODO: replace this by a proper filtering function that only filters certain movie IDs (which requires some API for boss mods to specify movie IDs and default actions)))
-			-- do not use HookScript here, the movie must not even be started to prevent a strange WoW crash bug on OS X with some movies
 			local oldMovieEventHandler = MovieFrame:GetScript("OnEvent")
 			MovieFrame:SetScript("OnEvent", function(self, event, movieId, ...)
 				if event == "PLAY_MOVIE" and (DBM.Options.DisableCinematics and IsInInstance() or (DBM.Options.DisableCinematicsOutside and not IsInInstance())) then
@@ -1746,6 +1745,7 @@ end
 
 function DBM:LFG_PROPOSAL_SHOW()
 	DBM.Bars:CreateBar(40, DBM_LFG_INVITE, "Interface\\Icons\\Spell_Holy_BorrowedTime")
+	PlaySoundFile("Sound\\interface\\levelup2.wav", "Master")--Because regular sound uses SFX channel which is too low of volume most of time
 end
 
 function DBM:LFG_PROPOSAL_FAILED()
@@ -1762,14 +1762,13 @@ end
 
 function DBM:PLAYER_REGEN_ENABLED()
 	if loadDelay then
-		local modsToLoad = loadDelay
 		loadDelay = nil
-		if type(modsToLoad) == "table" then
+		if type(loadDelay) == "table" then
 			for i, v in ipairs(modsToLoad) do
 				DBM:LoadMod(v)
 			end
 		else
-			DBM:LoadMod(modsToLoad)
+			DBM:LoadMod(loadDelay)
 		end
 	end
 	if guiRequested and not IsAddOnLoaded("DBM-GUI") then
@@ -1933,12 +1932,12 @@ do
 		--Work around for the zone ID/area updating slow because the world map doesn't always have correct information on zone change
 		--unless we apsolutely make sure we force it to right zone before asking for info.
 		if WorldMapFrame:IsVisible() and not IsInInstance() then --World map is open and we're not in an instance, (such as flying from zone to zone doing archaeology)
-			local C, Z = GetCurrentMapContinent(), GetCurrentMapZone()--Save current map settings.
+			local openMapID = GetCurrentMapAreaID()--Save current map settings.
 			SetMapToCurrentZone()--Force to right zone
-			LastZoneMapID = GetCurrentMapAreaID() or -1 --Set accurate zone area id into cache
-			local C2, Z2 = GetCurrentMapContinent(), GetCurrentMapZone()--Get right info after we set map to right place.
-			if C2 ~= C or Z2 ~= Z then
-				SetMapZoom(C, Z)--Restore old map settings if they differed to what they were prior to forcing mapchange and user has map open.
+			local correctMapID = GetCurrentMapAreaID()--Get right info after we set map to right place.
+			LastZoneMapID = correctMapID or -1 --Set accurate zone area id into cache
+			if openMapID ~= correctMapID then
+				SetMapByID(openMapID)--Restore old map settings if they differed to what they were prior to forcing mapchange and user has map open.
 			end
 		else--Map isn't open, no reason to save/restore settings, just make sure the information is correct and that's it.
 			SetMapToCurrentZone()
@@ -1985,11 +1984,13 @@ function DBM:LoadMod(mod)
 	--IF we are fighting a boss, we don't have much of a choice but to try and load anyways since script ran too long isn't actually a guarentee.
 	--it's mainly for slower computers that fail to load mods in combat. Most can load in combat if we delay the garbage collect
 	if InCombatLockdown() and IsInInstance() and not IsEncounterInProgress() then
-		if loadDelay then
+		if loadDelay and loadDelay ~= mod then
 			if type(loadDelay) ~= "table" then
 				loadDelay = { loadDelay }
 			end
-			loadDelay[#loadDelay + 1] = mod
+			if not loadDelay[mod] then
+				loadDelay[#loadDelay + 1] = mod
+			end
 		else
 			loadDelay = mod
 		end
@@ -2009,6 +2010,7 @@ function DBM:LoadMod(mod)
 		end
 		return false
 	else
+		loadDelay = nil
 		if DBM.Options.ShowLoadMessage then--Make load option optional for advanced users, option is NOT in the GUI.
 			self:AddMsg(DBM_CORE_LOAD_MOD_SUCCESS:format(tostring(mod.name)))
 		end
@@ -3862,7 +3864,7 @@ function DBM:MovieFilter(mod, ...)
 			i = i + 2
 			default = nil
 		end
-		mod:AddBoolOption(tostring(id), default == "Block", "BlockMovies")
+		mod:AddBoolOption(tostring(id), default == "OnlyFirst", "BlockMovies")
 		-- mod:AddButton
 	end
 end
@@ -4843,10 +4845,10 @@ do
 		)
 		if optionName then
 			obj.option = optionName
-			self:AddBoolOption(optionName, optionDefault, "announce")
+			self:AddBoolOption(optionName, optionDefault, "misc")
 		elseif not (optionName == false) then
 			obj.option = "Yell"..(yellText or spellId)
-			self:AddBoolOption("Yell"..(yellText or spellId), optionDefault, "announce")
+			self:AddBoolOption("Yell"..(yellText or spellId), optionDefault, "misc")
 			self.localization.options["Yell"..(yellText or spellId)] = DBM_CORE_AUTO_YELL_OPTION_TEXT:format(spellId)
 		end
 		return obj
@@ -5194,6 +5196,11 @@ do
 	local mt = {__index = timerPrototype}
 
 	function timerPrototype:Start(timer, ...)
+		--Move entire coundown object here and eliminate seperate countdown options.
+		--Timers should have a popup of their own with "none" "5" and "10" options for countdown voice.
+		--Which voice that's used still controled by primary setting in gui still. Working on GUI will be changed to "primary"
+		--Smart coding in this function to check if any audio countdowns are currently running if we are to start another one, if so, use a voice not currently running? else, always prefer users primary preference.
+		--Maybe add a preferred voice order if more voices get added to mod?
 		if timer and type(timer) ~= "number" then
 			return self:Start(nil, timer, ...) -- first argument is optional!
 		end
@@ -5316,13 +5323,14 @@ do
 	end
 
 	function timerPrototype:AddOption(optionDefault, optionName)
+		--Do some stuff if countdownDefault isn't nil to make audio countdown checkbox for this timer on by default
 		if optionName ~= false then
 			self.option = optionName or self.id
 			self.mod:AddBoolOption(self.option, optionDefault, "timer")
 		end
 	end
 
-	function bossModPrototype:NewTimer(timer, name, icon, optionDefault, optionName, r, g, b)
+	function bossModPrototype:NewTimer(timer, name, icon, optionDefault, optionName, r, g, b, countdownDefault)--countdownDefault should be a number, such as 5 or 10 hard coded in boss mod to say "audio countdown is on by default for this timer and default count start point is 5 or 10
 		local icon = (type(icon) == "string" and icon:match("ej%d+") and select(4, EJ_GetSectionInfo(string.sub(icon, 3))) ~= "" and select(4, EJ_GetSectionInfo(string.sub(icon, 3)))) or (type(icon) == "number" and select(3, GetSpellInfo(icon))) or icon or "Interface\\Icons\\Spell_Nature_WispSplode"
 		local obj = setmetatable(
 			{
@@ -5338,7 +5346,7 @@ do
 			},
 			mt
 		)
-		obj:AddOption(optionDefault, optionName)
+		obj:AddOption(optionDefault, optionName)--countdownDefault
 		table.insert(self.timers, obj)
 		return obj
 	end
@@ -5348,10 +5356,10 @@ do
 	-- todo: disable the timer if the player already has the achievement and when the ACHIEVEMENT_EARNED event is fired
 	-- problem: heroic/normal achievements :[
 	-- local achievementTimers = {}
-	local function newTimer(self, timerType, timer, spellId, timerText, optionDefault, optionName, texture, r, g, b)
+	local function newTimer(self, timerType, timer, spellId, timerText, optionDefault, optionName, texture, r, g, b, countdownDefault)--countdownDefault should be a number, such as 5 or 10 hard coded in boss mod to say "audio countdown is on by default for this timer and default count start point is 5 or 10
 		-- new argument timerText is optional (usually only required for achievement timers as they have looooong names)
 		if type(timerText) == "boolean" or type(optionDefault) == "string" then -- check if the argument was skipped
-			return newTimer(self, timerType, timer, spellId, nil, timerText, optionDefault, optionName, texture, r, g, b)
+			return newTimer(self, timerType, timer, spellId, nil, timerText, optionDefault, optionName, texture, r, g, b, countdownDefault)
 		end
 		local spellName, icon
 		local unparsedId = spellId
@@ -5392,7 +5400,7 @@ do
 			},
 			mt
 		)
-		obj:AddOption(optionDefault, optionName)
+		obj:AddOption(optionDefault, optionName)--countdownDefault
 		table.insert(self.timers, obj)
 		-- todo: move the string creation to the GUI with SetFormattedString...
 		if timerType == "achievement" then

@@ -1,7 +1,7 @@
 local mod	= DBM:NewMod(828, "DBM-ThroneofThunder", nil, 362)
 local L		= mod:GetLocalizedStrings()
 
-mod:SetRevision(("$Revision: 9522 $"):sub(12, -3))
+mod:SetRevision(("$Revision: 9562 $"):sub(12, -3))
 mod:SetCreatureID(69712)
 mod:SetQuestID(32749)
 mod:SetZone()
@@ -55,6 +55,7 @@ local flockName = EJ_GetSectionInfo(7348)
 function mod:OnCombatStart(delay)
 	flockCount = 0
 	quillsCount = 0
+	timerTalonRakeCD:Start(24)
 	if self:IsDifficulty("normal10", "heroic10", "lfr25") then
 		timerQuillsCD:Start(60-delay, 1)
 	else

@@ -1,4 +1,4 @@
-## Interface: 50200
+## Interface: 50300
 ## Title: IoT Weekly Check
 ## Author: Fluffies  EU-Well of Eternity
 ## Notes: Tracks your character's weekly business in the Isle of Thunder.

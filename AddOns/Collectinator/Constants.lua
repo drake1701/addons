@@ -3,10 +3,10 @@
 Constants.lua
 Constants used within Collectinator
 ************************************************************************
-File date: 2013-03-05T05:07:50Z
-File hash: 153e8ff
-Project hash: 421d12d
-Project version: 2.0.1
+File date: 2013-05-21T04:22:09Z
+File hash: 7cd49ad
+Project hash: d1ccde1
+Project version: 2.0.2
 ************************************************************************
 Please see http://www.wowace.com/addons/collectinator/ for more information.
 ************************************************************************
@@ -311,6 +311,7 @@ private.ACQUIRE_NAMES = {
 	[12]	= _G.BATTLE_PET_SOURCE_9, -- TCG
 	[13]	= L["Collectors Edition"],
 	[14]	= _G.BATTLE_PET_SOURCE_8, -- Promotion
+	[15]	= _G.MISCELLANEOUS,
 }
 
 private.ACQUIRE_STRINGS = {
@@ -328,6 +329,7 @@ private.ACQUIRE_STRINGS = {
 	"TCG",			-- 12
 	"COLLECTORS_EDITION",	-- 13
 	"PROMO",		-- 14
+	"MISC",			-- 15
 }
 
 private.ACQUIRE_TYPES = GenerateLookup_ID(private.ACQUIRE_STRINGS)
@@ -650,6 +652,7 @@ private.ZONE_NAMES = {
 	THE_VEILED_STAIR = _G.GetMapNameByID(873),
 	KUN_LAI_SUMMIT = _G.GetMapNameByID(879),
 	THE_JADE_FOREST = _G.GetMapNameByID(880),
+	SUNSTRIDER_ISLE = _G.GetMapNameByID(893),
 	AMMEN_VALE = _G.GetMapNameByID(894),
 	NEW_TINKERTOWN = _G.GetMapNameByID(895),
 	MOGUSHAN_VAULTS = _G.GetMapNameByID(896),
@@ -663,6 +666,7 @@ private.ZONE_NAMES = {
 	ISLE_OF_GIANTS = _G.GetMapNameByID(929),
 	THRONE_OF_THUNDER = _G.GetMapNameByID(930),
 	ISLE_OF_THUNDER = _G.GetMapNameByID(933)
+
 }
 
 do
@@ -715,8 +719,12 @@ private.BOSS_NAMES = {
 	SKADI_THE_RUTHLESS = _G.EJ_GetEncounterInfo(643),
 	SHA_OF_ANGER = _G.EJ_GetEncounterInfo(691),
 	ELEGON = _G.EJ_GetEncounterInfo(726),
+	HORRIDON = _G.EJ_GetEncounterInfo(819),
+	PRIMORDIUS = _G.EJ_GetEncounterInfo(820),
 	DARK_ANIMUS = _G.EJ_GetEncounterInfo(824),
-	JI_KUN = _G.EJ_GetEncounterInfo(828)
+	OONDASTA = _G.EJ_GetEncounterInfo(826),
+	JI_KUN = _G.EJ_GetEncounterInfo(828),
+
 	
 }
 

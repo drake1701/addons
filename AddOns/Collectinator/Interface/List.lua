@@ -253,7 +253,7 @@ function private.InitializeListFrame()
 		local old_selected = ListFrame.selected_entry
 		ListFrame.selected_entry = nil
 
-		if old_selected then
+		if old_selected and old_selected.button then
 			old_selected.button.selected_texture:Hide()
 			Bar_OnLeave(old_selected.button)
 		end
@@ -616,7 +616,8 @@ function private.InitializeListFrame()
 			[REP2.PANDACOMMON2]			= "pandacommon2",
 			[REP2.GUILD]				= "guild",
 			[REP2.NETHERWING]			= "netherwing",
-			[REP2.BRAWLERS]				= "brawler",
+			[REP2.BRAWLERS]				= "brawlers",
+			[REP2.PANDACOMMON3]			= "pandacommon3",
 		}
 
 		-- Returns true if any of the filter flags are turned on.
@@ -774,6 +775,10 @@ function private.InitializeListFrame()
 			-------------------------------------------------------------------------------
 			local current_tab = MainPanel.tabs[addon.db.profile.current_tab]
 			local expanded_button = current_tab["expand_button_" .. MainPanel.current_collectable_type]
+
+
+			QTip:Release(acquire_tooltip)
+			self.selected_entry = nil
 
 			if expanded_button then
 				MainPanel.expand_button:Expand(current_tab)
@@ -972,7 +977,12 @@ function private.InitializeListFrame()
 			cur_button:SetText(cur_entry.text)
 			cur_button:SetScript("OnEnter", Bar_OnEnter)
 			cur_button:SetScript("OnLeave", Bar_OnLeave)
-			cur_button:SetScript("OnClick", Bar_OnClick)
+
+			if cur_entry.type == "entry" then
+				cur_button:SetScript("OnClick", ListItem_OnClick)
+			else
+				cur_button:SetScript("OnClick", Bar_OnClick)
+			end
 			cur_button:Enable()
 
 			-- This function could possibly have been called from a mouse click or by scrolling. Since, in those cases, the list entries have
@@ -1329,7 +1339,7 @@ function private.InitializeListFrame()
 				end
 			elseif acquire_type == A.PROFESSION and obtain_filters.profession then
 				func = ExpandProfessionData
-				--@alpha@
+				--[===[@alpha@
 			elseif acquire_type == A.ACHIEVEMENT and obtain_filters.achievement then
 				func = ExpandAchievementData
 			elseif acquire_type > num_acquire_types then
@@ -1338,7 +1348,7 @@ function private.InitializeListFrame()
 				entry.collectable = collectable
 
 				entry_index = ListFrame:InsertEntry(entry, parent_entry, entry_index, entry_type, true)
-				--@end-alpha@
+				--@end-alpha@]===]
 			end
 
 			if func then
@@ -1425,9 +1435,10 @@ function private.InitializeListFrame()
 						local expand = false
 						local type = "subheader"
 						local entry = AcquireTable()
+						local location_type = location_collectables[collectable_id]
 
 						-- Add World Drop entries as normal entries.
-						if location_collectables[collectable_id] and location_collectables[collectable_id] == "world_drop" then
+						if location_type and (location_type == "world_drop" or location_type == "pet_battle") then
 							expand = true
 							type = "entry"
 						end
@@ -1704,8 +1715,24 @@ do
 			if location and drop_location ~= location then
 				return
 			end
+			local location_collectables = private.location_list[identifier].collectables[collectable.type]
+			local drop_type = location_collectables[collectable.id]
 			local quality_color = select(4, _G.GetItemQualityColor(collectable.quality)):sub(3)
-			addline_func(0, -1, false, L["World Drop"], quality_color, location_text, CATEGORY_COLORS["location"])
+
+			if drop_type == "world_drop" then
+				addline_func(0, -1, false, L["World Drop"], quality_color, location, CATEGORY_COLORS["location"])
+			elseif drop_type == "pet_battle" then
+				for level_range, coord_list in pairs(collectable.zone_list[identifier]) do
+					addline_func(0, -1, false, _G.BATTLE_PET_SOURCE_5, quality_color)
+
+					for coord_index = 1, #coord_list do
+						local x, y = (":"):split(coord_list[coord_index])
+						addline_func(1, -2, true, ("%s (%s)"):format(identifier, level_range), CATEGORY_COLORS["location"], COORD_FORMAT:format(x, y), CATEGORY_COLORS.coords)
+					end
+				end
+			else
+				addline_func(0, -1, false, _G.UNKNOWN, quality_color, location, CATEGORY_COLORS["location"])
+			end
 		end,
 
 		[A.PROFESSION] = function(collectable, identifier, location, acquire_info, addline_func)

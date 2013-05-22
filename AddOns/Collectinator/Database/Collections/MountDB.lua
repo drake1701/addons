@@ -2,10 +2,10 @@
 ************************************************************************
 MountDB.lua
 ************************************************************************
-File date: 2013-03-04T19:55:51Z
-File hash: 1dade60
-Project hash: 421d12d
-Project version: 2.0.1
+File date: 2013-05-21T04:22:09Z
+File hash: 7cd49ad
+Project hash: d1ccde1
+Project version: 2.0.2
 ************************************************************************
 Please see http://www.wowace.com/addons/collectinator/ for more information.
 ************************************************************************
@@ -1438,7 +1438,7 @@ function addon:InitMounts()
 	-- Brewfest Ram - 43899
 	mount = AddMount(43899, V.TBC, Q.RARE) -- Item: 33976
 	mount:SetItemID(33976)
-	mount:AddFilters(F.ALLIANCE, F.HORDE, F.IBOP, F.WORLD_EVENTS, F.VENDOR)
+	mount:AddFilters(F.ALLIANCE, F.HORDE, F.IBOP, F.WORLD_EVENTS, F.VENDOR, F.RETIRED)
 	mount:AddVendor(24468, 24510)
 	mount:AddWorldEvent("BREWFEST")
 
@@ -1554,6 +1554,7 @@ function addon:InitMounts()
 	mount:SetItemID(32768)
 	mount:AddFilters(F.ALLIANCE, F.HORDE, F.IBOP, F.INSTANCE, F.MOB_DROP)
 	mount:AddMobDrop(23035)
+	mount:AddCustom("HEROIC")
 
 	-- Fiery Warhorse's Reins - 36702
 	mount = AddMount(36702, V.TBC, Q.EPIC) -- Item: 30480
@@ -2523,7 +2524,7 @@ function addon:InitMounts()
 	-- Thundering Ruby Cloud Serpent -- 132036
 	mount = AddMount(132036, V.MOP, Q.EPIC)
 	mount:SetItemID(90655)
-	mount:AddFilters(F.ALLIANCE, F.HORDE, F.MOB_DROP, F.THE_AUGUST_CELESTIALS)
+	mount:AddFilters(F.ALLIANCE, F.HORDE, F.MOB_DROP, F.THE_AUGUST_CELESTIALS, F.IBOP)
 	mount:AddMobDrop(64403)
 
 	-- Violet Pandaren Phoenix -- 132119
@@ -2594,7 +2595,7 @@ function addon:InitMounts()
 	-- Ghastly Charger's Skull -- 136505
 	mount = AddMount(136505, V.MOP, Q.EPIC)
 	mount:SetItemID(93671)
-	mount:AddFilters(F.ALLIANCE, F.HORDE, F.TCG)
+	mount:AddFilters(F.ALLIANCE, F.HORDE, F.TCG, F.IBOE)
 	mount:AddCustom("TCG")
 
 	-- Reins of the Amber Primordial Direhorn -- 138424
@@ -2602,6 +2603,7 @@ function addon:InitMounts()
 	mount:SetItemID(94230)
 	mount:AddFilters(F.ALLIANCE, F.HORDE, F.IBOP, F.MOB_DROP)
 	mount:AddMobDrop(69841)
+	mount:AddCustom("DIREHORN")
 
 	-- Reins of the Armored Skyscreamer -- 136400
 	mount = AddMount(136400, V.MOP, Q.EPIC)
@@ -2650,25 +2652,26 @@ function addon:InitMounts()
 	mount:SetItemID(94231)
 	mount:AddFilters(F.ALLIANCE, F.HORDE, F.IBOP, F.MOB_DROP)
 	mount:AddMobDrop(69842)
+	mount:AddCustom("DIREHORN")
 
---[[ Even in-game??
 	-- Reins of the Red Primal Raptor -- 138641
 	mount = AddMount(138641, V.MOP, Q.EPIC)
 	mount:SetItemID(94291)
 	mount:AddFilters(F.ALLIANCE, F.HORDE, F.IBOP)
---]]
+	mount:AddCustom("PRIMAL_EGG")
 
 	-- Reins of the Slate Primordial Direhorn -- 138425
 	mount = AddMount(138425, V.MOP, Q.EPIC)
 	mount:SetItemID(94229)
 	mount:AddFilters(F.ALLIANCE, F.HORDE, F.IBOP, F.MOB_DROP)
 	mount:AddMobDrop(69769)
+	mount:AddCustom("DIREHORN")
 
 	-- Reins of the Thundering Cobalt Cloud Serpent -- 139442
 	mount = AddMount(139442, V.MOP, Q.EPIC)
 	mount:SetItemID(95057)
 	mount:AddFilters(F.ALLIANCE, F.HORDE, F.IBOP, F.MOB_DROP)
-	mount:AddMobDrop(69562)
+	mount:AddMobDrop(69099)
 
 	-- Sky Claw -- 134359
 	mount = AddMount(134359, V.MOP, Q.EPIC)
@@ -2682,14 +2685,41 @@ function addon:InitMounts()
 	mount:AddFilters(F.ALLIANCE, F.HORDE, F.IBOP, F.MOB_DROP)
 	mount:AddMobDrop(68476)
 
+-- 5.3 added mounts
 
+	-- Hearthsteed -- 142073
+	mount = AddMount(142073, V.MOP, Q.EPIC)
+	mount:SetItemID(98618)
+	mount:AddFilters(F.ALLIANCE, F.HORDE, F.IBOP)
+	mount:AddAchievement(8345)
+
+	-- Armored Red Dragonhawk -- 142266
+	mount = AddMount(142266, V.MOP, Q.EPIC)
+	mount:SetItemID(98104)
+	mount:AddFilters(F.HORDE, F.IBOP)
+	mount:AddAchievement(8302)
+
+	-- Armored Blue Dragonhawk -- 142478
+	mount = AddMount(142478, V.MOP, Q.EPIC)
+	mount:SetItemID(98259)
+	mount:AddFilters(F.ALLIANCE, F.IBOP)
+	mount:AddAchievement(8304)
+
+	-- Brawler's Burly Mushan Beast -- 142641
+	mount = AddMount(142641, V.MOP, Q.EPIC)
+	mount:SetItemID(98405)
+	mount:AddFilters(F.ALLIANCE, F.HORDE, F.IBOP)
+	mount:AddVendor(68363, 68364)
+
+	-- Enchanted Fey Dragon -- 142878
+	mount = AddMount(142878, V.MOP, Q.EPIC)
+	mount:SetItemID(97989)
+	mount:AddFilters(F.ALLIANCE, F.HORDE, F.IBOP, F.STORE)
 
 ----------------------------------------------------------------------------------------------------
 
 	self.InitMounts = nil
 end
-
-
 
 --[[
 Apparentely not in game yet!
@@ -2824,4 +2854,4 @@ Apparentely not in game yet!
 
 
 
------------------------------]]
+]]--

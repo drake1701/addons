@@ -1,10 +1,14 @@
-## Interface: 50200
+## Interface: 50300
 ## Title: GTFO
 ## Notes: GTFO, you're dying!
 ## Author: Zensunim of Malygos
-## Version: 4.23.1
+## Version: 4.23.2
 ## DefaultState: Enabled
 ## SavedVariables: GTFOData
+## X-Curse-Packaged-Version: r11
+## X-Curse-Project-Name: GTFO
+## X-Curse-Project-ID: gtfo
+## X-Curse-Repository-ID: wow/gtfo/mainline
 Localization\enUS.lua
 Localization\esES.lua
 Localization\esMX.lua

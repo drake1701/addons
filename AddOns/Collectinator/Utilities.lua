@@ -5,8 +5,8 @@ Utilitiy functions used for Collectinator
 ************************************************************************
 File date: 2013-01-27T04:27:43Z
 File hash: 2be3d04
-Project hash: 421d12d
-Project version: 2.0.1
+Project hash: d1ccde1
+Project version: 2.0.2
 ************************************************************************
 Please see http://www.wowace.com/addons/collectinator/ for more information.
 ************************************************************************
@@ -62,7 +62,7 @@ function private:AddListEntry(lookup_list, identifier, name, location, coord_x, 
 		entry.coord_y = coord_y
 	end
 
-	--@alpha@
+	--[===[@alpha@
 	if not NO_LOCATION_LISTS then
 		NO_LOCATION_LISTS = {
 			[self.custom_list] = true,
@@ -77,7 +77,7 @@ function private:AddListEntry(lookup_list, identifier, name, location, coord_x, 
 	if faction and lookup_list == self.mob_list then
 		addon:Debug("Mob %d (%s) has been assigned to faction %s.", identifier, name, entry.faction)
 	end
-	--@end-alpha@
+	--@end-alpha@]===]
 	lookup_list[identifier] = entry
 	return entry
 end

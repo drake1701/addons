@@ -562,6 +562,16 @@ GTFO.SpellID["122144"] = {
 	sound = 3;
 };
 
+-- **************
+-- * Unga Ingoo *
+-- **************
+
+GTFO.SpellID["121879"] = {
+	--desc = "BA-BAM! (Ba-Bam)";
+	sound = 3;
+	applicationOnly = true;
+};
+
 -- ********************************
 -- * Crypt of the Forgotten Kings *
 -- ********************************
@@ -879,6 +889,12 @@ GTFO.SpellID["136037"] = {
 	tankSound = 0;
 };
 
+GTFO.SpellID["139215"] = {
+	--desc = "Shockwave (Ritual Guard)";
+	sound = 3;
+	tankSound = 0;
+};
+
 GTFO.SpellID["138569"] = {
 	--desc = "Explosive Slam (Massive Anima Golem)";
 	sound = 3;
@@ -892,11 +908,13 @@ GTFO.SpellID["138569"] = {
 GTFO.SpellID["139803"] = {
 	--desc = "Triumphant Rush (Manchu)";
 	sound = 3;
+	soundLFR = 0;
 };
 
 GTFO.SpellID["139797"] = {
 	--desc = "Wild Smash (Manchu)";
 	sound = 3;
+	soundLFR = 0;
 };
 
 -- TODO: Unleashed Flame (Iron Qon) -- Fail when "Scorched" debuff is up
@@ -949,8 +967,6 @@ GTFO.SpellID["135096"] = {
 	damageMinimum = 300000; -- Adjust for heroics?
 };
 
--- TODO: Summon Ball Lightning (Lei Shen) -- Avoidable?
-
 GTFO.SpellID["136543"] = {
 	--desc = "Summon Ball Lightning (Lei Shen)";
 	soundFunction = function() 
@@ -979,6 +995,65 @@ GTFO.SpellID["136326"] = {
 -- TODO: Fusion Slash (Lei Shen) -- Tank swap ability, fail on the 2nd stack
 -- TODO: Ruin Bolt (Ra-Den)
 -- TODO: Unstable Vita (Ra-Den) -- Lightning path, avoidable?
+
+-- *********************
+-- * Blood in the Snow *
+-- *********************
+
+GTFO.SpellID["34779"] = {
+	--desc = "Freezing Circle (Bonechiller Barafu)";
+	sound = 3;
+	applicationOnly = true;
+};
+
+GTFO.SpellID["141413"] = {
+	--desc = "Ice Spike (Farastu)";
+	sound = 3;
+	negatingDebuffSpellID = 141410; -- Freeze Solid
+};
+
+-- ***************************
+-- * The Secrets of Ragefire *
+-- ***************************
+
+GTFO.SpellID["142329"] = {
+	--desc = "Electrified Ground (Kor'kron Dark Shaman)";
+	sound = 3;
+};
+
+-- ***************************
+-- * Battle on the High Seas *
+-- ***************************
+
+GTFO.SpellID["141846"] = {
+	--desc = "Fire (Ship Explosion)";
+	sound = 3;
+};
+
+GTFO.SpellID["141465"] = {
+	--desc = "Barrel Explosion (Lieutenants)";
+	sound = 3;
+};
+
+GTFO.SpellID["132993"] = {
+	--desc = "Bomb (Lieutenants)";
+	sound = 3;
+};
+
+GTFO.SpellID["132938"] = {
+	--desc = "Bombs Away! (Cannon)";
+	sound = 3;
+};
+
+GTFO.SpellID["132998"] = {
+	--desc = "Sticky Bomb (Lieutenants)";
+	sound = 4;
+};
+
+GTFO.SpellID["142293"] = {
+	--desc = "Shark Bite (Whale Shark)";
+	sound = 3;
+};
 
 -- ************
 -- * Pandaria *
@@ -1330,5 +1405,36 @@ GTFO.SpellID["139281"] = {
 
 GTFO.SpellID["140531"] = {
 	--desc = "Desist (Hu'seng the Gatekeeper)";
+	sound = 3;
+};
+
+GTFO.SpellID["136338"] = {
+	--desc = "Arc Nova (Nalak)";
+	sound = 3;
+	tankSound = 0;
+};
+
+GTFO.SpellID["138826"] = {
+	--desc = "Lightning Strike (Forgemaster Vul'kon)";
+	sound = 3;
+};
+
+GTFO.SpellID["138832"] = {
+	--desc = "Lightning Smash (Forgemaster Vul'kon)";
+	sound = 3;
+};
+
+GTFO.SpellID["139351"] = {
+	--desc = "Shadow Crash (Sha Amalgamation)";
+	sound = 3;
+};
+
+GTFO.SpellID["139375"] = {
+	--desc = "Shadow Burst (Sha Amalgamation)";
+	sound = 3;
+};
+
+GTFO.SpellID["138512"] = {
+	--desc = "Volt Fissure (Sparkmancer Vu)";
 	sound = 3;
 };

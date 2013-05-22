@@ -6,7 +6,7 @@ zhCN localization strings for Collectinator
 File date: 2012-09-12T01:10:19Z 
 File revision: @file-revision@ 
 Project revision: @project-revision@
-Project version: 2.0.1
+Project version: 2.0.2
 ************************************************************************
 Currently maintained by:
 http://www.wowace.com/addons/collectinator/localization/translators/
@@ -125,6 +125,7 @@ L["Jilanne"] = "基尔兰"
 L["Kall Worthaton"] = "卡尔·万金"
 L["Katie Hunter"] = "凯蒂·亨特"
 L["Knight Dameron"] = "骑士达米隆"
+L["Known"] = "已知"
 L["KNOWN_DESC"] = "扫描包含全部已知收藏品。"
 L["Larkin Thunderbrew"] = "拉尔金·雷酒"
 L["Lelanai"] = "莱兰奈"

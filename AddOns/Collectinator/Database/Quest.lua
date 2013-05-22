@@ -2,10 +2,10 @@
 ************************************************************************
 Quest.lua
 ************************************************************************
-File date: 2013-03-05T05:07:50Z
-File hash: 153e8ff
-Project hash: 421d12d
-Project version: 2.0.1
+File date: 2013-04-01T03:15:34Z
+File hash: 05cca78
+Project hash: d1ccde1
+Project version: 2.0.2
 ************************************************************************
 Please see http://www.wowace.com/addons/arl/ for more information.
 ************************************************************************
@@ -81,7 +81,8 @@ function addon:InitQuest()
 	AddQuest(13702,	Z.ICECROWN,				76.6,	19.2,	"Alliance") -- Quest IDs 13702, 13732-13735
 	AddQuest(13736,	Z.ICECROWN,				76.6,	24.4,	"Horde") -- Quest IDs 13736-13740
 	AddQuest(13906,	Z.UNGORO_CRATER,			71.4,	73.8,	"Horde")
-	AddQuest(13959,	Z.DALARN,				 0.0,	 0.0,	"Neutral")
+	AddQuest(13959,	Z.DALARAN,				 0.0,	 0.0,	"Neutral")
+	AddQuest(13960,	Z.DALARAN,				 0.0,	 0.0,	"Neutral")
 	AddQuest(24915,	Z.ICECROWN_CITADEL,			 0.0,	 0.0,	"Neutral")
 	AddQuest(25371,	Z.KELPTHAR_FOREST,			46.0,	46.8,	"Neutral")
 	AddQuest(25560,	Z.MOUNT_HYJAL,				39.1,	58.3,	"Neutral")
@@ -94,6 +95,8 @@ function addon:InitQuest()
 	AddQuest(29268, Z.NORTHERN_STRANGLETHORN,		76.0,	66.6,	"Horde")
 	AddQuest(29401, Z.ORGRIMMAR,				48.0,	47.0,	"Horde")
 	AddQuest(29412,	Z.STORMWIND_CITY,			58.8,	52.8,	"Alliance")
+	AddQuest(29413, Z.STORMWIND_CITY,			65.1,	33.3,	"Alliance")
+	AddQuest(29429,	Z.ORGRIMMAR,				54.5,	77.8,	"Horde")
 	AddQuest(29905,	Z.THE_JADE_FOREST,			58.9,	81.7,	"Alliance")
 	AddQuest(30188,	Z.THE_JADE_FOREST,			57.6,	44.8,	"Neutral")
 	AddQuest(31239,	Z.THE_JADE_FOREST,			28.0,	47.0,	"Horde")
