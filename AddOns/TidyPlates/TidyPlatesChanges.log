@@ -2,6 +2,13 @@ Pack Command:  		zip -vr TP_Release.zip TidyPlates* -x@exclude.lst
 Exclusion List: 	*.svn*   *.DS_Store*   exclude.lst   *.db   *.png   *.gif   *.jpg   *.tif   *.txt   *.psd   *.bmp   
 
 
+6.10.1
+- Panel: Reverted the dropdown menu init changes from beta4.  Seems to be messing up the panel.
+- Core: Blizz Spell Shadow: More thoroughly hidden
+- Hub: Threat/Warning Glow fix
+- Core: Spelltext; "Font Not Set" error - Hopefully fixed
+
+
 6.10
 ---------------------------
 Beta 6:

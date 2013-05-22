@@ -1,6 +1,6 @@
 --[[
 BattlePetBreedID: Pet Data Module
-Last Update: May 21st; Patch 5.3.0 Live
+Last Update: May 22nd; Patch 5.3.0 Live
 
 If you would like a copy of this data in a different format for your own purposes or to be informed of future updates:
 Contact Simca@Malfurion - either through MMO-Champion, through Curse, or in-game
@@ -1499,7 +1499,7 @@ function BPBID.InitializeArrays()
 	BPBID.BreedsPerSpecies[1181] = {6, 9}
 	BPBID.BreedsPerSpecies[1182] = {3, 12}
 	BPBID.BreedsPerSpecies[1183] = {4}
-	BPBID.BreedsPerSpecies[1184] = {4}
+	BPBID.BreedsPerSpecies[1184] = {4} -- Stunted Direhorn
 	BPBID.BreedsPerSpecies[1185] = {9}
 	BPBID.BreedsPerSpecies[1187] = {4}
 	BPBID.BreedsPerSpecies[1188] = {3}
@@ -1513,11 +1513,11 @@ function BPBID.InitializeArrays()
 	BPBID.BreedsPerSpecies[1196] = {9}
 	BPBID.BreedsPerSpecies[1197] = {7}
 	BPBID.BreedsPerSpecies[1198] = {8}
-	BPBID.BreedsPerSpecies[1200] = {8}
+	BPBID.BreedsPerSpecies[1200] = {8} -- Pygmy Direhorn
 	BPBID.BreedsPerSpecies[1201] = {10}
 	BPBID.BreedsPerSpecies[1202] = {3, 10}
-	BPBID.BreedsPerSpecies[1204] = {11} -- CURRENTLY UNUSED Pierre
-	BPBID.BreedsPerSpecies[1205] = {9, 10}
+	BPBID.BreedsPerSpecies[1204] = {11} -- UNUSED: Pierre
+	BPBID.BreedsPerSpecies[1205] = {3, 6, 7, 9, 10} -- Direhorn Runt
 	BPBID.BreedsPerSpecies[1206] = {10}
 	BPBID.BreedsPerSpecies[1207] = {12}
 	BPBID.BreedsPerSpecies[1208] = {11}
@@ -1525,17 +1525,23 @@ function BPBID.InitializeArrays()
 	BPBID.BreedsPerSpecies[1211] = {4, 5, 8, 10}
 	BPBID.BreedsPerSpecies[1212] = {4, 5, 8, 10}
 	BPBID.BreedsPerSpecies[1213] = {4, 5, 8, 10}
-	BPBID.BreedsPerSpecies[1226] = {8}
-	BPBID.BreedsPerSpecies[1227] = {6, 7}
-	BPBID.BreedsPerSpecies[1229] = {5, 10}
-	BPBID.BreedsPerSpecies[1231] = {3, 10}
-	BPBID.BreedsPerSpecies[1232] = {3}
-	BPBID.BreedsPerSpecies[1233] = {6, 8}
-	BPBID.BreedsPerSpecies[1234] = {7}
-	BPBID.BreedsPerSpecies[1235] = {5, 11}
-	BPBID.BreedsPerSpecies[1237] = {8}
-	BPBID.BreedsPerSpecies[1238] = {3, 6}
-	BPBID.BreedsPerSpecies[1244] = {7}
-	BPBID.BreedsPerSpecies[1245] = {3}
-	BPBID.BreedsPerSpecies[1248] = {3}
+	BPBID.BreedsPerSpecies[1226] = {3, 4, 5, 8, 10} -- NEW: Lil' Bad Wolf
+	BPBID.BreedsPerSpecies[1227] = {6, 7, 9} -- NEW: Menagerie Custodian
+	BPBID.BreedsPerSpecies[1228] = {4, 6, 8} -- NEW: Netherspace Abyssal
+	BPBID.BreedsPerSpecies[1229] = {5, 8, 10} -- NEW: Fiendish Imp
+	BPBID.BreedsPerSpecies[1230] = {6, 7, 9} -- NEW: Tideskipper
+	BPBID.BreedsPerSpecies[1231] = {3, 10, 11, 12} -- NEW: Tainted Waveling
+	BPBID.BreedsPerSpecies[1232] = {3, 10, 12} -- NEW: Coilfang Stalker
+	BPBID.BreedsPerSpecies[1233] = {4, 6, 7, 8} -- NEW: Pocket Reaver
+	BPBID.BreedsPerSpecies[1234] = {3, 6, 7, 9} -- NEW: Lesser Voidcaller
+	BPBID.BreedsPerSpecies[1235] = {5, 11, 12} -- NEW: Phoenix Hawk Hatchling
+	--BPBID.BreedsPerSpecies[1236] = {} -- NEW: Tito
+	BPBID.BreedsPerSpecies[1237] = {8} -- NEW: Gahz'rooki
+	BPBID.BreedsPerSpecies[1238] = {3, 6} -- NEW: Unborn Val'kyr
+	BPBID.BreedsPerSpecies[1243] = {8} -- NEW: Living Fluid
+	BPBID.BreedsPerSpecies[1244] = {7} -- NEW: Viscous Horror
+	BPBID.BreedsPerSpecies[1245] = {3} -- NEW: Filthling
+	BPBID.BreedsPerSpecies[1247] = {8} -- TAMER: Doopy
+	BPBID.BreedsPerSpecies[1248] = {3} -- NEW: Blossoming Ancient
+	BPBID.BreedsPerSpecies[1255] = {8} -- UNUSED: Murkimus Tyrannicus
 end

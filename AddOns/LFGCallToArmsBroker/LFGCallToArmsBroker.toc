@@ -2,9 +2,9 @@
 ## Title : LFG Call to Arms Broker
 ## Name: LFGCalltoArmsBroker
 ## Author: Buranshe
-## Version: 1.0.5
+## Version: 1.0.6
 ## SavedVariables: LFGCallToArmsBrokerDB
-## X-Curse-Packaged-Version: v1.0.5
+## X-Curse-Packaged-Version: v1.0.6
 ## X-Curse-Project-Name: LFG Call to Arms Broker
 ## X-Curse-Project-ID: lfg-call-arms-broker
 ## X-Curse-Repository-ID: wow/lfg-call-arms-broker/mainline

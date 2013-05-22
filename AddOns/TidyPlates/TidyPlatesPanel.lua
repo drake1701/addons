@@ -149,11 +149,11 @@ local AutomationDropdownItems = {
 					{ text = OUT_OF_COMBAT, notCheckable = 1 } ,
 					}
 
-TidyPlatesUIPanel = PanelHelpers:CreatePanelFrame( "TidyPlatesInterfaceOptions", "Tidy Plates", titleString )
+local panel = PanelHelpers:CreatePanelFrame( "TidyPlatesInterfaceOptions", "Tidy Plates", titleString )
 local helppanel = PanelHelpers:CreatePanelFrame( "TidyPlatesInterfaceOptionsHelp", "Troubleshooting" )
-TidyPlatesUIPanel:SetBackdrop({bgFile = "Interface/Tooltips/UI-Tooltip-Background", insets = { left = 2, right = 2, top = 2, bottom = 2 },})
+panel:SetBackdrop({bgFile = "Interface/Tooltips/UI-Tooltip-Background", insets = { left = 2, right = 2, top = 2, bottom = 2 },})
 
-TidyPlatesUIPanel:SetBackdropColor(0.06, 0.06, 0.06, .7)
+panel:SetBackdropColor(0.06, 0.06, 0.06, .7)
 
 -- Convert the Theme List into a Menu List
 local function UpdateThemeNames()
@@ -192,7 +192,7 @@ end
 
 local function ActivateInterfacePanel()
 
-	local panel = TidyPlatesUIPanel
+
 	panel.Label:SetFont("Interface\\Addons\\TidyPlates\\Media\\DefaultFont.ttf", 26)
 	panel.Label:SetPoint("TOPLEFT", panel, "TOPLEFT", 16+6, -16-4)
 
@@ -416,7 +416,8 @@ local primarySpecName, primarySpecDescription, primarySpecIcon, primarySpecBackg
 end
 
 
-InterfaceOptions_AddCategory(TidyPlatesUIPanel);
+TidyPlatesInterfacePanel = panel
+InterfaceOptions_AddCategory(panel);
 
 
 local function ApplyAutomationSettings()
@@ -432,7 +433,6 @@ local function ApplyAutomationSettings()
 end
 
 ApplyPanelSettings = function()
-	local panel = TidyPlatesUIPanel
 	TidyPlatesOptions.primary = panel.PrimarySpecTheme:GetValue()
 	TidyPlatesOptions.secondary = panel.SecondarySpecTheme:GetValue()
 	TidyPlatesOptions.FriendlyAutomation = panel.AutoShowFriendly:GetValue()
@@ -583,25 +583,15 @@ end
 function panelevents:PLAYER_LOGIN()
 	--TidyPlatesUtility:CreateMinimapButton()
 	UpdateThemeNames()
-	
+	ActivateInterfacePanel()
 	ShowWelcome()
 	LoadTheme(TidyPlatesDefaultThemeName)
 	ApplyAutomationSettings()
 	SetCVar("repositionfrequency", 0)
 end
 
-local panelHasBeenShown = false
-local function OnShowInterfacePanel()
-	if not panelHasBeenShown then
-		ActivateInterfacePanel()
-		panelHasBeenShown = true
-	end
-
-end
-
-TidyPlatesUIPanel:SetScript("OnEvent", function(self, event, ...) panelevents[event]() end)
-TidyPlatesUIPanel:SetScript("OnShow", OnShowInterfacePanel)
-for eventname in pairs(panelevents) do TidyPlatesUIPanel:RegisterEvent(eventname) end
+panel:SetScript("OnEvent", function(self, event, ...) panelevents[event]() end)
+for eventname in pairs(panelevents) do panel:RegisterEvent(eventname) end
 
 -------------------------------------------------------------------------------------
 -- Slash Commands
@@ -614,7 +604,7 @@ function slash_TidyPlates(arg)
 	if type(TidyPlatesSlashCommands[arg]) == 'function' then
 		TidyPlatesSlashCommands[arg]()
 		TidyPlates:ForceUpdate()
-	else InterfaceOptionsFrame_OpenToCategory(TidyPlatesUIPanel) end
+	else InterfaceOptionsFrame_OpenToCategory(panel) end
 end
 
 SLASH_TIDYPLATES1 = '/tidyplates'

@@ -206,6 +206,7 @@ do
 		if not style.threatborder.show then return end
 		threatborder = visual.threatborder
 		if activetheme.SetThreatColor then 
+			
 			threatborder:SetVertexColor(activetheme.SetThreatColor(unit) )
 		else
 			if InCombat and unit.reaction ~= "FRIENDLY" and unit.type == "NPC" then
@@ -355,7 +356,7 @@ do
 		unit.isCasting = true
 		UpdateIndicator_UpdateCastBar(bar)
 		castbar:Show()
-		if regions.spellshadow then regions.spellshadow:Hide() end
+		regions.spellshadow:Hide()
 		UpdateIndicator_CustomScaleText()
 		UpdateIndicator_CustomAlpha()
 	end
@@ -437,15 +438,14 @@ do
 		regions.raidicon:SetAlpha( 0 )                      
 		regions.highlight:SetTexture(nil)
 		
-		if regions.spellshadow and regions.spelltext then
-			regions.spellshadow:Hide()
-			regions.spelltext:Hide()  
-		end
+		regions.spellshadow:SetTexture(nil)
+		regions.spellshadow:Hide()
+		regions.spelltext:Hide()
 		
 		bars.health:SetStatusBarTexture(EMPTY_TEXTURE)
-		--bars.health:Hide()
 		bars.cast:SetStatusBarTexture(EMPTY_TEXTURE)
-		          
+		--bars.health:Hide()		
+          
           -- Anchoring
           extended.PlateAnchor = bargroup                                       -- Anchor Tidy Plates' Frame to the Health Bar/Statusbar                         -- STAGE 1
 
@@ -635,7 +635,7 @@ do
 			end
 			
 			-- Update Style/Indicators
-			if unitchanged then
+			if unitchanged or (not style)then
 				CheckNameplateStyle()
 				UpdateIndicator_Standard()
 				UpdateIndicator_HealthBar()
@@ -691,11 +691,11 @@ do
 		if activetheme.OnInitialize then activetheme.OnInitialize(extended) end	
 
 		-- Initial Data Gather
-		--UpdateUnitIdentity()
-		--CheckNameplateStyle()
+		UpdateUnitIdentity()
+		CheckNameplateStyle()
 		--UpdateIndicator_CustomAlpha()
 		-- No need to spend the CPU, now... wait until the alpha has finalized on the next cycle?
-		-- No; Delegate updates may be called between now and then
+		-- Delegate updates may be called between now and then
 		
 		--SetPlateQueue(plate)		-- Echo for a full update
 		plate.UpdateMe = true
@@ -834,12 +834,12 @@ do
 			unit.raidIcon = RaidIconCoordinate[ux][uy]
 		else unit.raidIcon = nil end
 		
-		ProcessUnitChanges()
 	end
 	
 	-- OnHealthUpdate
 	function OnHealthUpdate(source)
 		UpdateUnitCondition(source.parentPlate)
+		ProcessUnitChanges()
 		UpdateIndicator_HealthBar()		-- Just to be on the safe side
 	end
 	

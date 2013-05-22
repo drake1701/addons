@@ -1,7 +1,14 @@
 ------------------------------------------------------------------------
-r270 | kagaro | 2013-05-19 06:08:33 +0000 (Sun, 19 May 2013) | 1 line
+r272 | kagaro | 2013-05-22 13:52:47 +0000 (Wed, 22 May 2013) | 1 line
 Changed paths:
-   A /tags/v16.2 (from /trunk:269)
+   A /tags/v16.3 (from /trunk:271)
+
+GatherMate2_Data: Data update
+------------------------------------------------------------------------
+r271 | kagaro | 2013-05-22 13:52:44 +0000 (Wed, 22 May 2013) | 1 line
+Changed paths:
+   M /trunk/GatherMate2_Data.toc
+   M /trunk/TreasureData.lua
 
 GatherMate2_Data: Data update
 ------------------------------------------------------------------------
