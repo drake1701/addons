@@ -1,22 +1,21 @@
 ------------------------------------------------------------------------
-r98 | valana_tb | 2013-03-14 07:50:20 +0000 (Thu, 14 Mar 2013) | 2 lines
+r101 | valana_tb | 2013-05-24 20:20:50 +0000 (Fri, 24 May 2013) | 2 lines
 Changed paths:
-   A /tags/r98-release (from /trunk:97)
+   A /tags/r100-release (from /trunk:100)
 
-Tagging as r98-release:
-* Corrected my guild name.
+Tagging as r100-release:
+Updated for WoW 5.3.
 ------------------------------------------------------------------------
-r97 | valana_tb | 2013-03-14 07:49:27 +0000 (Thu, 14 Mar 2013) | 1 line
+r100 | valana_tb | 2013-05-24 20:17:42 +0000 (Fri, 24 May 2013) | 1 line
 Changed paths:
    M /trunk/TB_ReputationWatcher.toc
 
-* Corrected my guild name.
+Updated for WoW 5.3.
 ------------------------------------------------------------------------
-r95 | valana_tb | 2013-03-13 04:50:34 +0000 (Wed, 13 Mar 2013) | 2 lines
+r99 | valana_tb | 2013-04-14 02:49:21 +0000 (Sun, 14 Apr 2013) | 1 line
 Changed paths:
    M /trunk/TB_ReputationWatcher.lua
    M /trunk/TB_ReputationWatcher.toc
 
-* Updated my guild.
-* Updated for WoW 5.2.
+Now Horde.
 ------------------------------------------------------------------------

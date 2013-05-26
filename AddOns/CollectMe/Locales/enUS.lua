@@ -150,10 +150,10 @@ L["mount_69395"] = "Drops from Onxyia in 10 or 25 man encounters (?%). [BoP]" --
 L["mount_59568"] = "Reward from 10-man Eye of Eternity (Malygos) (?%). [SoEM] [BoP]" -- Blue Drake
 L["mount_66087"] = "This mount can be purchased from the Silver Covenant quartermaster at Argent Tournament for 150 Champion Seals and you must be exalted with Silver Covenant. [BoP]" -- Silver Covenant Hippogryph
 L["mount_65917"] = "Obtained from a lootcard of the WoW Trading Card 'El Pollo Grande'. [BoE]" -- Magic Rooster
-L["mount_72807"] = "Obtained from Glory of the Icecrown Raider (25 man) Achievement. [BoP]" -- Icebound Frostbrood Vanquisher
-L["mount_72808"] = "Obtained from Glory of the Icecrown Raider (10 man) Achievement. [BoP]" -- Bloodbathed Frsotbrood Vanquisher
+L["mount_72807"] = "Obtained from 'Glory of the Icecrown Raider' (25 man) Achievement. [BoP]" -- Icebound Frostbrood Vanquisher
+L["mount_72808"] = "Obtained from 'Glory of the Icecrown Raider' (10 man) Achievement. [BoP]" -- Bloodbathed Frsotbrood Vanquisher
 L["mount_71342"] = "Drops from Apothecary Hummel in Shadowfang Keep during Love is in the Air holiday festival. (?%) [BoP]" -- Big Love Rocket
-L["mount_75614"] = "Purchased from the Blizzard online store, Available on all characters present and future. Flies upto 310% if you own another 310% mount also rides on the ground as well." -- Celestial Steed
+L["mount_75614"] = "Purchased from the Blizzard online store." -- Celestial Steed
 L["mount_75207"] = "Reward from The Abyssal Ride quest in Kelp'thar Forest, requires Level 80 and Expert Riding. [BoP]" -- Abyssal Seahorse
 L["mount_88748"] = "Sold by Blacksmith Abasi Ramkahen Quartermaster in Uldum. (?%) [BoP]" -- Brown Riding Camel
 L["mount_84751"] = "Found while using Survey from Archaeology and requires 100 Fragments to complete. (?%) [BoP] " -- Fossilized Raptor
@@ -283,6 +283,9 @@ L["mount_138423"] = "Drops off Oondasta." -- Reins of the Cobalt Primordial Dire
 L["mount_136471"] = "Drops off Horridon in Throne of Thunder." -- Spawn of Horridon
 L["mount_136400"] = "Reward from Glory of the Thundering Raider." -- Armored Riding Pteradactyl
 L["mount_136505"] = "Loot card from the WoW Trading Card Game: Betrayal of the Guardian. [BoE]" -- Ghastly Charger's Skull
+L["mount_142641"] = "Sold for 1200g in the Brawler's guild. You need to be rank 10 or higher to purchase this mount." -- Brawler's Burly Mushan Beast
+L["mount_142073"] = "Hearthstibe promotion mount." -- Hearthsteed
+L["mount_142878"] = "No know method of obtaining." -- Enchanted Fey Dragon
 
 -- Alliance Mounts
 L["mount_60114"] = "Sold by Mei Francis in Dalaran for 750G. [BoP]" -- Armored Brown Bear
@@ -367,7 +370,7 @@ L["mount_130985"] = "Reward for obtaining the achievement 'Pandared Ambassador' 
 L["mount_136163"] = "Sold by the Operation Shieldwall quartermaster for 2000G. You need to be exalted with Operation Shieldwall. [BoA]" -- Grand Gryphon
 L["mount_135416"] = "??. [BoA]" -- Grand Armored Gryphon
 L["mount_140249"] = "Sold by the Kirin Tor Offensive quartermaster for 2100G. You need to be exalted with the Kirin Tor Offensive. [BoA]" -- Golden Primal Direhorn
-
+L["mount_142478"] = "Reward for the 'Mount Parade' achievement obtaining 200 mounts.[BoA]" -- Armored Blue Dragonhawk
 -- Horde Mounts
 L["mount_61230"] = "Sold by Mei Francis in Dalaran for 2000G. [BoP]" -- Armored Blue Wind Rider
 L["mount_60116"] = "Sold by Mei Francis in Dalaran for 750G. [BoP]" -- Armored Brown Bear
@@ -450,7 +453,7 @@ L["mount_18992"] = "Old 100% Ground Mount. Removed in favor of armored 100% moun
 L["mount_136164"] = "Sold by the Dominance Offensive quartermaster for 2000G. You need to be exalted with the Dominance Offensive. [BoA]" -- Grand Wyvern
 L["mount_135418"] = "?? [BoA]" -- Grand Armored Wyvern
 L["mount_140250"] = "Sold by the Sunreaver Onsalught quartermaster for 2100G. You need to be exalted with the Sunreaver Onsalught. [BoA]" -- Crimson Primal Direhorn
-
+L["mount_142266"] = "Reward for the 'Mount Parade' achievement obtaining 200 mounts. [BoA]" -- Armored Red Dragonhawk
 -- Paladin Mounts
 L["mount_23214"] = "Taught by the Paladin Trainer at Level 61 or obtained by completing the Level 60 Paladin Quest Line. [BoP]" -- Alliance Charger
 L["mount_13819"] = "Taught by the Paladin Trainer at Level 40. [BoP]" -- Alliance Warhorse
@@ -685,3 +688,9 @@ L["title_220"] = "Reward for pvp achievement 'Kahn' which required you to comple
 L["title_221"] = "Reward for completing all Isle of Giants achievements." -- the Stormbreaker
 L["title_222"] = "Reward for defeating Lei Shen in the Throne of Thunder raid on heroic difficulty" -- Storm's End
 L["title_223"] = "Awarded per battlegroup at the end of arena season 12 based on top ranked percentage. Top 0.0% - 0.5%." -- Malevolent Gladiator
+--L["title_xxx"] = "Awarded to the top 1000 of teams participating in the 2013 Tournament Arena Realm." -- Vanquisher
+L["title_229"] = "Reward for 'Master of Deepwind Gorge' achievement. " -- Gorgeous
+L["title_227"] = "Reward for 'Deadly Pet Brawler' win 1000 PvP pet battles through Find Battle with a full team of level 25 pets." -- Trainer
+L["title_228"] = "Complete the Vol'jin's troll uprising questline." -- Darkspear Revolutionary
+L["title_230"] = "Complete the Vol'jin's troll uprising questline." -- the Hordebreaker
+

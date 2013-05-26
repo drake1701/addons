@@ -1,7 +1,7 @@
 local mod	= DBM:NewMod("LichKing", "DBM-Icecrown", 5)
 local L		= mod:GetLocalizedStrings()
 
-mod:SetRevision(("$Revision: 40 $"):sub(12, -3))
+mod:SetRevision(("$Revision: 48 $"):sub(12, -3))
 mod:SetCreatureID(36597)
 mod:SetModelID(30721)
 mod:SetZone()
@@ -17,9 +17,9 @@ mod:RegisterEvents(
 	"SPELL_DISPEL",
 	"SPELL_AURA_APPLIED",
 	"SPELL_SUMMON",
-	"UNIT_HEALTH",
+	"UNIT_HEALTH target boss1",
 	"CHAT_MSG_MONSTER_YELL",
-	"UNIT_AURA"
+	"UNIT_AURA_UNFILTERED"
 )
 
 local isPAL = select(2, UnitClass("player")) == "PALADIN"
@@ -35,13 +35,13 @@ local warnShamblingEnrage	= mod:NewTargetAnnounce(72143, 3, nil, mod:IsHealer() 
 local warnNecroticPlague	= mod:NewTargetAnnounce(70337, 4) --Phase 1+ Ability
 local warnNecroticPlagueJump= mod:NewAnnounce("WarnNecroticPlagueJump", 4, 70337) --Phase 1+ Ability
 local warnInfest			= mod:NewSpellAnnounce(70541, 3, nil, mod:IsHealer()) --Phase 1 & 2 Ability
-local warnPhase2Soon		= mod:NewAnnounce("WarnPhase2Soon", 1, "Interface\\Icons\\Spell_Nature_WispSplode")
+local warnPhase2Soon		= mod:NewPrePhaseAnnounce(2)
 local valkyrWarning			= mod:NewAnnounce("ValkyrWarning", 3, 71844)--Phase 2 Ability
 local warnDefileSoon		= mod:NewSoonAnnounce(72762, 3)	--Phase 2+ Ability
 local warnSoulreaper		= mod:NewSpellAnnounce(69409, 4, nil, mod:IsTank() or mod:IsHealer()) --Phase 2+ Ability
 local warnDefileCast		= mod:NewTargetAnnounce(72762, 4) --Phase 2+ Ability
 local warnSummonValkyr		= mod:NewSpellAnnounce(69037, 3, 71844) --Phase 2 Add
-local warnPhase3Soon		= mod:NewAnnounce("WarnPhase3Soon", 1, "Interface\\Icons\\Spell_Nature_WispSplode")
+local warnPhase3Soon		= mod:NewPrePhaseAnnounce(3)
 local warnSummonVileSpirit	= mod:NewSpellAnnounce(70498, 2) --Phase 3 Add
 local warnHarvestSoul		= mod:NewTargetAnnounce(68980, 4) --Phase 3 Ability
 local warnTrapCast			= mod:NewTargetAnnounce(73539, 3) --Phase 1 Heroic Ability
@@ -90,7 +90,6 @@ local berserkTimer			= mod:NewBerserkTimer(900)
 local soundDefile			= mod:NewSound(72762)
 local soundShadowTrap		= mod:NewSound(73539)
 
-mod:AddBoolOption("SpecWarnHealerGrabbed", mod:IsTank() or mod:IsHealer(), "announce")
 mod:AddBoolOption("DefileIcon")
 mod:AddBoolOption("NecroticPlagueIcon")
 mod:AddBoolOption("RagingSpiritIcon", false)
@@ -99,7 +98,7 @@ mod:AddBoolOption("ValkyrIcon")
 mod:AddBoolOption("HarvestSoulIcon", false)
 mod:AddBoolOption("AnnounceValkGrabs", false)
 
-local phase	= 0
+local phase = 0
 local warned_preP2 = false
 local warned_preP3 = false
 local trapScansDone = 0
@@ -107,6 +106,7 @@ local playerLevel = UnitLevel("player")
 local warnedValkyrGUIDs = {}
 local plagueHop = GetSpellInfo(70338)--Hop spellID only, not cast one.
 local plagueExpires = {}
+local lastPlague
 
 function mod:OnCombatStart(delay)
 	phase = 0
@@ -434,14 +434,14 @@ function mod:CHAT_MSG_MONSTER_YELL(msg)
 	end
 end
 
-function mod:UNIT_AURA(uId)
+function mod:UNIT_AURA_UNFILTERED(uId)
 	local name = DBM:GetUnitFullName(uId)
 	if (not name) or (name == lastPlague) then return end
 	local expires = select(7, UnitDebuff(uId, plagueHop)) or 0
 	local spellId = select(11, UnitDebuff(uId, plagueHop)) or 0
 	if spellId == 70338 and expires > 0 and not plagueExpires[expires] then
 		plagueExpires[expires] = true
-		warnNecroticPlagueJump(name)
+		warnNecroticPlagueJump:Show(name)
 		timerNecroticPlagueCleanse:Start()
 		if self.Options.NecroticPlagueIcon then
 			self:SetIcon(uId, 5, 5)

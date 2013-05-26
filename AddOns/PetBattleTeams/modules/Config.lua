@@ -203,13 +203,12 @@ Config.options = {
 			},
 			ImportTeams = {
 				order = 102,
-				name = "Import teams",
+				name = "Reconstruct teams",
 				width = "double",
 				type = "execute",
-				desc = "Imports teams from previous version of PetBattleTeams",
+				desc = "Attempts to reconstuct teams with invalid pets",
 				func = function() 
-					local num = TeamManager:ImportTeams()
-					print("PetBattle Teams: Imported",num,"Teams.")
+					TeamManager:ReconstructTeams()
 				end,
 			},
 			

@@ -1,6 +1,6 @@
 --[[
 BattlePetBreedID: Pet Data Module
-Last Update: May 22nd; Patch 5.3.0 Live
+Last Update: May 24th; Patch 5.3.0 Live
 
 If you would like a copy of this data in a different format for your own purposes or to be informed of future updates:
 Contact Simca@Malfurion - either through MMO-Champion, through Curse, or in-game
@@ -1535,12 +1535,12 @@ function BPBID.InitializeArrays()
 	BPBID.BreedsPerSpecies[1233] = {4, 6, 7, 8} -- NEW: Pocket Reaver
 	BPBID.BreedsPerSpecies[1234] = {3, 6, 7, 9} -- NEW: Lesser Voidcaller
 	BPBID.BreedsPerSpecies[1235] = {5, 11, 12} -- NEW: Phoenix Hawk Hatchling
-	--BPBID.BreedsPerSpecies[1236] = {} -- NEW: Tito
+	BPBID.BreedsPerSpecies[1236] = {8} -- NEW: Tito
 	BPBID.BreedsPerSpecies[1237] = {8} -- NEW: Gahz'rooki
 	BPBID.BreedsPerSpecies[1238] = {3, 6} -- NEW: Unborn Val'kyr
 	BPBID.BreedsPerSpecies[1243] = {8} -- NEW: Living Fluid
 	BPBID.BreedsPerSpecies[1244] = {7} -- NEW: Viscous Horror
-	BPBID.BreedsPerSpecies[1245] = {3} -- NEW: Filthling
+	BPBID.BreedsPerSpecies[1245] = {3, 6, 9} -- NEW: Filthling
 	BPBID.BreedsPerSpecies[1247] = {8} -- TAMER: Doopy
 	BPBID.BreedsPerSpecies[1248] = {3} -- NEW: Blossoming Ancient
 	BPBID.BreedsPerSpecies[1255] = {8} -- UNUSED: Murkimus Tyrannicus

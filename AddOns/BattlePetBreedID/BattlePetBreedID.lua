@@ -67,7 +67,7 @@ function BPBID.CalculateBreedID(nSpeciesID, nQuality, nLevel, nMaxHP, nPower, nS
 	
 	-- due to a Blizzard bug, some pets from tooltips will have quality = 0. this means we don't know what the quality is.
 	-- so, we'll just test them all by adding another loop for rarity.
-	if (nQuality < 1) or (nQuality > 4) then
+	if (nQuality < 1) then
 		nQuality = 2
 		minQuality = 1
 		maxQuality = 4

@@ -1,7 +1,7 @@
 ## Interface: 50300
 ## Title: PetBattleTeams
 ## Author: Nullberri
-## Version: r31 3.2.0
+## Version: 3.2.0
 ## X-Category: Pet Battles
 ## X-Localizations: enUS
 ## SavedVariables: PetBattleTeamsDB,PetBattleTeamsSettings
@@ -16,7 +16,7 @@ libs\AceDB-3.0\AceDB-3.0.xml
 libs\LibPetBreedInfo-1.0\LibPetBreedInfo-1.0.lua
 libs\AceConfig-3.0\AceConfig-3.0.xml
 libs\EmbedHandler-1.0\EmbedHandler-1.0.xml
-
+libs\LibPetJournal-2.0\LibPetJournal-2.0.lua
 
 
 ##Main 

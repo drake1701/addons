@@ -40,7 +40,7 @@ GameTooltip:SetUnitDebuff("unit", [index] or ["name", "rank"][, "filter"]);
 * The untilCanceled return value is true if the buff doesn't have its own duration (e.g. stealth)
 ]]--
 
-SMARTBUFF_VERSION       = "v5.1d";
+SMARTBUFF_VERSION       = "v5.3a";
 SMARTBUFF_VERSIONNR     = 50001;
 SMARTBUFF_TITLE         = "SmartBuff";
 SMARTBUFF_SUBTITLE      = "Supports you in cast buffs";
@@ -95,7 +95,6 @@ local sRealmName = nil;
 local sPlayerName = nil;
 local sID = nil;
 local sPlayerClass = nil;
-local iLastSubgroup = 0;
 local tLastCheck = 0;
 local iGroupSetup = -1;
 local iLastBuffSetup = -1;
@@ -542,7 +541,7 @@ function SMARTBUFF_OnEvent(self, event, ...)
       if (UnitName(currentUnit) ~= sPlayerName and O.BlacklistTimer > 0) then
         cBlacklist[currentUnit] = GetTime();
         if (currentUnit and UnitName(currentUnit)) then
-          SMARTBUFF_AddMsgWarn(UnitName(currentUnit) .. " (" .. currentUnit .. ") blacklisted (" .. O.BlacklistTimer .. "sec)");
+          SMARTBUFF_AddMsgWarn(UnitName(currentUnit).." ("..currentUnit..") blacklisted ("..O.BlacklistTimer.."sec)");
         end
       end
     end
@@ -728,7 +727,6 @@ function SMARTBUFF_SetUnits()
       currentTemplate = tmp;
       SMARTBUFF_SetBuffs();
     end
-    SMARTBUFF_MiniGroup_Show();
     --SMARTBUFF_AddMsgD("Group type changed");
   end 
   
@@ -774,39 +772,16 @@ function SMARTBUFF_SetUnits()
             end
             if (name == sPlayerName and not server) then b = true; end
             cGroups[subgroup][j] = sRUnit;
-            --if (O.Debug) then s = "Add raid"..n .. ": " .. name .. "(" .. subgroup .. "/" .. class .. "/" .. classeng .. ")"; end
             j = j + 1;
-            -- Deactivated for Cataclysm
-            --[[
-            if (classeng == "HUNTER" or classeng == "WARLOCK" or classeng == "DEATHKNIGHT" or classeng == "MAGE") then
-              cGroups[subgroup][j] = "raidpet"..n;
-              --if (O.Debug) then s = s .. ", add raidpet"..n; end
-              j = j + 1;
-            end
-            ]]--
           end
         end
       end
     end --end for
+    
     if (not b or B[CS()][currentTemplate].SelfFirst) then
       SMARTBUFF_AddSoloSetup();
-      iLastSubgroup = psg;
       --SMARTBUFF_AddMsgD("Player not in selected groups or buff self first");
     end
-
-    if (iLastSubgroup ~= psg) then
-      SMARTBUFF_AddMsgWarn(SMARTBUFF_TITLE .. ": " .. SMARTBUFF_MSG_SUBGROUP);
-      if (O.ToggleSubGrpChanged) then
-        O.ToggleGrp[psg] = true;
-        if (SmartBuffOptionsFrame:IsVisible()) then
-          SMARTBUFF_ShowSubGroupsOptions();
-        else
-          SMARTBUFF_OptionsFrame_Open();
-        end
-      end
-      iLastSubgroup = psg;
-    end
-    --table.sort(cGroups);
     
     SMARTBUFF_AddMsgD("Raid Unit-Setup finished");
   
@@ -821,22 +796,14 @@ function SMARTBUFF_SetUnits()
     cGroups[1] = { };
     cGroups[1][0] = "player";
     SMARTBUFF_AddUnitToClass("player", 0);
-    if (sPlayerClass == "HUNTER" or sPlayerClass == "WARLOCK" or sPlayerClass == "DEATHKNIGHT" or sPlayerClass == "MAGE") then
-      -- Deactivated for Cataclysm 
-      --cGroups[1][9] = "pet";
-    end
     for j = 1, 4, 1 do
       cGroups[1][j] = "party"..j;
-      -- Deactivated for Cataclysm
-      --cGroups[1][j + 4] = "partypet"..j;
-      
       SMARTBUFF_AddUnitToClass("party", j);      
       SmartBuff_AddToUnitList(1, "party"..j, 1);
       SmartBuff_AddToUnitList(2, "party"..j, 1);
       --SMARTBUFF_AddMsgD("Add party"..j, 0, 1, 0.5);
     end
     SMARTBUFF_AddMsgD("Party Unit-Setup finished");
-    --table.sort(cGroups);
   
   -- Solo Setup
   else    
@@ -1003,11 +970,6 @@ function SMARTBUFF_SetBuffs()
     B[CS()][ct] = { };
     B[CS()][ct].SelfFirst = false;
   end
-  
-  -- update to 1.12c
-  if (B[CS()][ct].GrpBuffSize == nil) then
-    B[CS()][ct].GrpBuffSize = 4;
-  end  
   
   wipe(cBuffs);
   wipe(cBuffIndex);
@@ -1195,16 +1157,12 @@ function SMARTBUFF_PreCheck(mode, force)
   
   -- If buffs can't casted, hide UI elements
   if (C_PetBattles.IsInBattle() or UnitInVehicle("player") or UnitHasVehicleUI("player")) then
-    if (SmartBuff_KeyButton:IsVisible()) then
+    if (not InCombatLockdown() and SmartBuff_KeyButton:IsVisible()) then
       SmartBuff_KeyButton:Hide();
     end
-    if (SmartBuff_MiniGroup:IsVisible()) then
-      SmartBuff_MiniGroup:Hide();
-    end    
     return false;
   else
     SMARTBUFF_ShowSAButton();
-    SMARTBUFF_MiniGroup_Show();
   end
   
   SMARTBUFF_SetButtonTexture(SmartBuff_KeyButton, imgSB);
@@ -1270,7 +1228,7 @@ function SMARTBUFF_CheckBuffTimers()
           end
         end
       end
-      if (n >= B[CS()][ct].GrpBuffSize and cBuffTimer[subgroup]) then
+      if (cBuffTimer[subgroup]) then
         cBuffTimer[subgroup] = nil;
         SMARTBUFF_AddMsgD("Group " .. subgroup .. ": group timer reseted");
       end
@@ -1450,7 +1408,7 @@ end
 
 -- Synchronize the internal buff timers with the UI timers
 function SMARTBUFF_SyncBuffTimers()
-  if (not isInit or isSync or not O.UISync or isSetBuffs or SMARTBUFF_IsTalentFrameVisible()) then return; end
+  if (not isInit or isSync or isSetBuffs or SMARTBUFF_IsTalentFrameVisible()) then return; end
   isSync = true;
   tSync = GetTime();
   
@@ -1899,23 +1857,25 @@ function SMARTBUFF_BuffUnit(unit, subgroup, mode, spell)
                   bExpire = true;
                 end                
               
-                if (buff and cBuff.Type ~= SMARTBUFF_CONST_ITEM) then
-                  local cr, iid = SMARTBUFF_CountReagent(buffnS, cBuff.Chain);
-                  if (cr > 0) then
-                    buff = buffnS;
-                    if (cBuff.Type == SMARTBUFF_CONST_ITEMGROUP) then
-                      cds, cd = GetItemCooldown(iid);
-                      cd = (cds + cd) - time;
-                      --SMARTBUFF_AddMsgD(cr.." "..buffnS.." found, cd = "..cd);
-                      if (cd > 0) then
-                        buff = nil;
-                      end                     
+                if (buff) then
+                  if (cBuff.Type ~= SMARTBUFF_CONST_ITEM) then
+                    local cr, iid = SMARTBUFF_CountReagent(buffnS, cBuff.Chain);
+                    if (cr > 0) then
+                      buff = buffnS;
+                      if (cBuff.Type == SMARTBUFF_CONST_ITEMGROUP or cBuff.Type == SMARTBUFF_CONST_SCROLL) then
+                        cds, cd = GetItemCooldown(iid);
+                        cd = (cds + cd) - time;
+                        --SMARTBUFF_AddMsgD(cr.." "..buffnS.." found, cd = "..cd);
+                        if (cd > 0) then
+                          buff = nil;
+                        end
+                      end
+                      --SMARTBUFF_AddMsgD(cr .. " " .. buffnS .. " found");
+                    else
+                      --SMARTBUFF_AddMsgD("No " .. buffnS .. " found");
+                      buff = nil;
+                      bExpire = false;
                     end
-                    --SMARTBUFF_AddMsgD(cr .. " " .. buffnS .. " found");
-                  else
-                    --SMARTBUFF_AddMsgD("No " .. buffnS .. " found");
-                    buff = nil;
-                    bExpire = false;
                   end
                 end
                 
@@ -2170,7 +2130,7 @@ function SMARTBUFF_BuffUnit(unit, subgroup, mode, spell)
                   currentSpell = nil;
                   if (bufftarget == nil) then bufftarget = un; end
                   
-                  if (SMARTBUFF_CheckUnitLevel(unit, cBuff.IDS, cBuff.LevelsS) ~= nil or SMARTBUFF_IsItem(cBuff.Type) or cBuff.Type == SMARTBUFF_CONST_TRACK) then
+                  if (cBuff.IDS ~= nil or SMARTBUFF_IsItem(cBuff.Type) or cBuff.Type == SMARTBUFF_CONST_TRACK) then
                     -- clean up buff timer, if expired
                     if (bt and bt < 0 and bExpire) then 
                       bt = 0;
@@ -2291,7 +2251,13 @@ function SMARTBUFF_SetMissingBuffMessage(target, buff, icon, bCanCharge, nCharge
     local sd = O.SplashDuration;
     local si = "";
     
-    if (OG.SplashIcon) then si = string.format("\124T"..icon..":%d:%d:1:0\124t ", 12, 12) or "" end
+    if (OG.SplashIcon and icon) then 
+      local n = O.SplashIconSize;
+      if (n == nil or n <= 0) then
+        n = O.CurrentFontSize;
+      end
+      si = string.format("\124T%s:%d:%d:1:0\124t ", icon, n, n) or "";
+    end
     if (OG.SplashMsgShort and si == "") then si = buff end
     if (O.AutoTimer < 4) then
       sd = 1;
@@ -2416,11 +2382,6 @@ function SMARTBUFF_doCast(unit, id, spellName, levels, type)
         return 3;
       end
     end    
-  end
-  
-  -- check if target is to low for this spell
-  if (not SMARTBUFF_IsPlayer(unit) and SMARTBUFF_CheckUnitLevel(unit, id, levels) == nil) then
-    return 5;
   end
 
   -- check if you have enough mana/energy/rage to cast
@@ -2621,61 +2582,7 @@ function SMARTBUFF_CheckBuff(unit, buffName, isMine)
   end
   return false, 0;
 end
-
 -- END SMARTBUFF_CheckUnitBuffs
-
-
--- Will return the lower Id of the spell, if the unit level is lower
-function SMARTBUFF_CheckUnitLevel(unit, spellId, spellLevels)
-  if (not spellLevels or not spellId) then
-    return spellId;
-  end
-  
-  return spellId, nil;
-  
-  -- Deactivated for Cataclysm
-  --[[
-  local Id = spellId;
-  local uLevel = UnitLevel(unit);
-  local spellName, sRank = GetSpellBookItemName(Id, SMARTBUFF_BOOK_TYPE_SPELL);
-
-  if (sRank == nil or sRank == "") then
-    sRank = "Rank 1";
-  end
-  local _, _, spellRank = string.find(sRank, "(%d+)");
-  
-  spellRank = tonumber(spellRank);
-  i = spellRank;
-
-  --SMARTBUFF_AddMsgD(spellName .. sRank .. ":" .. spellRank .. ", " .. spellLevels[i]);
-  
-  while (i >= 1) do    
-    if (spellLevels[i] == nil or uLevel >= (spellLevels[i] - 10)) then
-      break;
-    end
-    i = i - 1;
-  end
-  
-  if (i > 0) then
-    Id = Id - (spellRank - i);
-    if (spellName) then
-      SMARTBUFF_AddMsgD(uLevel .. " " .. spellName .. " Rank " .. i .. ", ID = " .. Id);
-    end
-  else
-    Id = nil;
-    if (spellName) then
-      SMARTBUFF_AddMsgD(spellName .. ": no rank available for this level");
-    end
-  end;
-
-  if (spellName) then
-    SMARTBUFF_AddMsgD(uLevel.." "..spellName..", ID = ".. Id);
-  end
-  
-  return Id, i;
-  ]]--
-end
--- END SMARTBUFF_CheckUnitLevel
 
 
 -- Will return the name/description of the buff 
@@ -2781,7 +2688,7 @@ function SMARTBUFF_CountReagent(reagent, chain)
   local id = nil;
   local bag = 0;
   local slot = 0;
-  local tmpItem, itemName, texture, count;
+  local tmpItem, itemName, count;
   if (chain == nil) then chain = { reagent }; end
   for bag = 0, NUM_BAG_FRAMES do
     for slot = 1, GetContainerNumSlots(bag) do
@@ -2791,7 +2698,7 @@ function SMARTBUFF_CountReagent(reagent, chain)
           --print(chain[i]);
           if (chain[i] and string.find(tmpItem, "["..chain[i].."]", 1, true)) then
             --print("Item found: "..chain[i]);
-            texture, count = GetContainerItemInfo(bag, slot);
+            _, count = GetContainerItemInfo(bag, slot);
             id = GetContainerItemID(bag, slot);
             n = n + count;
           end
@@ -2894,7 +2801,7 @@ function SMARTBUFF_IsActiveBattlefield(zone)
       SMARTBUFF_AddMsgD("Battlefield status = none");
     end
     if (status and status == "active" and map) then
-      if (teamSize and teamSize > 0) then
+      if (teamSize and type(teamSize) == "number" and teamSize > 0) then
         return 2;      
       end
       return 1;
@@ -2975,6 +2882,7 @@ function SMARTBUFF_Options_Init(self)
   --if (O.ToggleAutoRest == nil) then  O.ToggleAutoRest = true; end
   if (O.RebuffTimer == nil) then O.RebuffTimer = 20; end
   if (O.SplashDuration == nil) then O.SplashDuration = 2; end
+  if (O.SplashIconSize == nil) then O.SplashIconSize = 12; end
   
   if (O.BuffTarget == nil) then O.BuffTarget = false; end
   if (O.BuffPvP == nil) then O.BuffPvP = false; end
@@ -2993,10 +2901,7 @@ function SMARTBUFF_Options_Init(self)
   if (O.AutoSwitchTemplateInst == nil) then  O.AutoSwitchTemplateInst = false; end
   if (O.InShapeshift == nil) then  O.InShapeshift = true; end
 
-  if (O.ToggleGrp == nil) then  O.ToggleGrp = {true, false, false, false, false, false, false, false}; end
-  if (O.ToggleSubGrpChanged == nil) then  O.ToggleSubGrpChanged = false; end
-  if (O.UISync == nil) then  O.UISync = true; end
-  if (O.CompMode == nil) then  O.CompMode = false; end
+  O.ToggleGrp = {true, true, true, true, true, true, true, true};
   
   if (O.ToggleMsgNormal == nil) then  O.ToggleMsgNormal = false; end
   if (O.ToggleMsgWarning == nil) then  O.ToggleMsgWarning = false; end
@@ -3010,14 +2915,6 @@ function SMARTBUFF_Options_Init(self)
       O.MinCharges = 1;
     else
       O.MinCharges = 3;
-    end
-  end
-  
-  if (O.ShowMiniGrp == nil) then
-    if (sPlayerClass == "DRUID" or sPlayerClass == "MAGE" or sPlayerClass == "PRIEST") then
-      O.ShowMiniGrp = true;
-    else
-      O.ShowMiniGrp = false;
     end
   end
   
@@ -3042,6 +2939,12 @@ function SMARTBUFF_Options_Init(self)
   
   if (O.OldWheelUp == nil) then O.OldWheelUp = ""; end
   if (O.OldWheelDown == nil) then O.OldWheelDown = ""; end
+  
+  if (O.ActionBtnX == nil) then
+    SMARTBUFF_SetButtonPos(SmartBuff_KeyButton);
+  else
+    SmartBuff_KeyButton:SetPoint("CENTER", UIParent, "CENTER", x, y);
+  end
   
   if (O.SplashX == nil) then O.SplashX = 100; end
   if (O.SplashY == nil) then O.SplashY = -100; end
@@ -3144,6 +3047,11 @@ function SMARTBUFF_Options_Init(self)
     OG.FirstStart = SMARTBUFF_VERSION;
     SMARTBUFF_OptionsFrame_Open(true);
     
+    if (OG.Tutorial == nil) then
+      OG.Tutorial = SMARTBUFF_VERSIONNR;
+      SMARTBUFF_ToggleTutorial();
+    end
+    
     SmartBuffWNF_lblText:SetText(SMARTBUFF_WHATSNEW);
     SmartBuffWNF:Show();    
   else
@@ -3163,6 +3071,13 @@ function SMARTBUFF_ResetAll()
   ReloadUI();
 end
 
+
+function SMARTBUFF_SetButtonPos(self)
+  local _, _, _, x, y = self:GetPoint();
+  O.ActionBtnX = x;
+  O.ActionBtnY = y;
+  print(format("x = %.0f, y = %.0f", x, y));
+end
 
 function SMARTBUFF_RebindKeys()
   local i;
@@ -3282,10 +3197,6 @@ function SMARTBUFF_command(msg)
     SmartBuff_KeyButton:SetPoint("CENTER", UIParent, "CENTER");
     SmartBuffOptionsFrame:ClearAllPoints();
     SmartBuffOptionsFrame:SetPoint("CENTER", UIParent, "CENTER");
-    SmartBuff_MiniGroup:ClearAllPoints();
-    SmartBuff_MiniGroup:SetPoint("CENTER", UIParent, "CENTER");
-  elseif (msg == "reload") then
-    SMARTBUFF_ShowSubGroupsOptions();
   elseif (msg == "test") then
   
     -- Test Code ******************************************
@@ -3322,12 +3233,7 @@ function SMARTBUFF_OToggle()
   O.Toggle = SMARTBUFF_toggleBool(O.Toggle, "Active = ");
   SMARTBUFF_CheckMiniMapButton();
   if (O.Toggle) then
-    SMARTBUFF_MiniGroup_Show();
     SMARTBUFF_SetUnits();
-  else
-    if (SmartBuff_MiniGroup:IsVisible()) then
-      SmartBuff_MiniGroup:Hide();
-    end
   end
 end
 
@@ -3396,27 +3302,6 @@ function SMARTBUFF_OInShapeshift()
 end
 function SMARTBUFF_OInCombat()
   O.InCombat = not O.InCombat;
-end
-
-function SMARTBUFF_OToggleGrp(i)
-  O.ToggleGrp[i] = not O.ToggleGrp[i];
-  if (SmartBuff_MiniGroup:IsVisible()) then
-    SMARTBUFF_SetUnits();
-  end
-end
-
-function SMARTBUFF_OToggleMiniGrp()
-  O.ShowMiniGrp = not O.ShowMiniGrp;
-end
-function SMARTBUFF_OToggleSubGrpChanged()
-  O.ToggleSubGrpChanged = not O.ToggleSubGrpChanged;
-end
-
-function SMARTBUFF_OToggleUISync()
-  O.UISync = not O.UISync;
-end
-function SMARTBUFF_OToggleCompMode()
-  O.CompMode = not O.CompMode;
 end
 
 function SMARTBUFF_OToggleMsgNormal()
@@ -3731,7 +3616,7 @@ function SMARTBUFF_Options_OnShow()
   SmartBuffOptionsFrame_cbSB:SetChecked(O.Toggle);
   SmartBuffOptionsFrame_cbAuto:SetChecked(O.ToggleAuto);
   SmartBuffOptionsFrameAutoTimer:SetValue(O.AutoTimer);
-  _G[SmartBuffOptionsFrameAutoTimer:GetName().."Text"]:SetText(SMARTBUFF_OFT_AUTOTIMER.." "..O.AutoTimer.." sec");
+  SmartBuff_SetSliderText(SmartBuffOptionsFrameAutoTimer, SMARTBUFF_OFT_AUTOTIMER, O.AutoTimer, INT_SPELL_DURATION_SEC);
   SmartBuffOptionsFrame_cbAutoCombat:SetChecked(O.ToggleAutoCombat);
   SmartBuffOptionsFrame_cbAutoChat:SetChecked(O.ToggleAutoChat);
   SmartBuffOptionsFrame_cbAutoSplash:SetChecked(O.ToggleAutoSplash);
@@ -3752,27 +3637,17 @@ function SMARTBUFF_Options_OnShow()
   SmartBuffOptionsFrame_cbScrollWheelUp:SetChecked(O.ScrollWheelUp);
   SmartBuffOptionsFrame_cbScrollWheelDown:SetChecked(O.ScrollWheelDown);
   SmartBuffOptionsFrame_cbInCombat:SetChecked(O.InCombat);
-  SmartBuffOptionsFrame_cbMiniGrp:SetChecked(O.ShowMiniGrp);
-  SmartBuffOptionsFrame_cbSubGrpChanged:SetChecked(O.ToggleSubGrpChanged);
   SmartBuffOptionsFrame_cbMsgNormal:SetChecked(O.ToggleMsgNormal);
   SmartBuffOptionsFrame_cbMsgWarning:SetChecked(O.ToggleMsgWarning);
   SmartBuffOptionsFrame_cbMsgError:SetChecked(O.ToggleMsgError);
   SmartBuffOptionsFrame_cbHideMmButton:SetChecked(O.HideMmButton);
   SmartBuffOptionsFrame_cbHideSAButton:SetChecked(O.HideSAButton);
-  SmartBuffOptionsFrame_cbUISync:SetChecked(O.UISync);
-  SmartBuffOptionsFrame_cbCompMode:SetChecked(O.CompMode);
-  
-  if (IsAddOnLoaded("SmartDebuff") and SMARTDEBUFF_Options ~= nil) then
-    SmartBuffOptionsFrame_cbSmartDebuff:SetChecked(SMARTDEBUFF_Options.ShowSF);
-  end
   
   SmartBuffOptionsFrameRebuffTimer:SetValue(O.RebuffTimer);
-  _G[SmartBuffOptionsFrameRebuffTimer:GetName().."Text"]:SetText(SMARTBUFF_OFT_REBUFFTIMER.." "..O.RebuffTimer.." sec");
-
+  SmartBuff_SetSliderText(SmartBuffOptionsFrameRebuffTimer, SMARTBUFF_OFT_REBUFFTIMER, O.RebuffTimer, INT_SPELL_DURATION_SEC);
   SmartBuffOptionsFrameBLDuration:SetValue(O.BlacklistTimer);
-  _G[SmartBuffOptionsFrameBLDuration:GetName().."Text"]:SetText(SMARTBUFF_OFT_BLDURATION.." "..O.BlacklistTimer.." sec");
+  SmartBuff_SetSliderText(SmartBuffOptionsFrameBLDuration, SMARTBUFF_OFT_BLDURATION, O.BlacklistTimer, INT_SPELL_DURATION_SEC);
 
-  SMARTBUFF_ShowSubGroupsOptions();
   SMARTBUFF_SetCheckButtonBuffs(0);
   
   SmartBuffOptionsFrame_cbSelfFirst:SetChecked(B[CS()][currentTemplate].SelfFirst);
@@ -3780,14 +3655,6 @@ function SMARTBUFF_Options_OnShow()
   SMARTBUFF_Splash_Show();
   
   SMARTBUFF_AddMsgD("Option frame updated: " .. currentTemplate);
-end
-
-function SMARTBUFF_ShowSubGroupsMini()
-  SMARTBUFF_ShowSubGroups("SmartBuff_MiniGroup", O.ToggleGrp);
-end
-
-function SMARTBUFF_ShowSubGroupsOptions()
-  SMARTBUFF_ShowSubGroups("SmartBuffOptionsFrame", O.ToggleGrp);
 end
 
 function SMARTBUFF_ShowSubGroups(frame, grpTable)
@@ -3804,6 +3671,7 @@ function SMARTBUFF_Options_OnHide()
   if (SmartBuffWNF:IsVisible()) then
     SmartBuffWNF:Hide();
   end
+  SMARTBUFF_ToggleTutorial(true);
   SmartBuffOptionsFrame:SetHeight(SMARTBUFF_OPTIONSFRAME_HEIGHT);
   --SmartBuff_BuffSetup:SetHeight(SMARTBUFF_OPTIONSFRAME_HEIGHT);
   wipe(cBuffsCombat);
@@ -3830,42 +3698,37 @@ function SmartBuff_ShowControls(sName, bShow)
   end
 end
 
-function SmartBuffOptionsFrameSlider_OnLoad(self, low, high, step)
+function SmartBuffOptionsFrameSlider_OnLoad(self, low, high, step, labels)
   _G[self:GetName().."Text"]:SetFontObject(GameFontNormalSmall);
-  if (self:GetOrientation() ~= "VERTICAL") then
-    _G[self:GetName().."Low"]:SetText(low);
+  if (labels) then
+    if (self:GetOrientation() ~= "VERTICAL") then
+      _G[self:GetName().."Low"]:SetText(low);
+    else
+      _G[self:GetName().."Low"]:SetText("");
+    end
+    _G[self:GetName().."High"]:SetText(high);
   else
     _G[self:GetName().."Low"]:SetText("");
+    _G[self:GetName().."High"]:SetText("");
   end
-  _G[self:GetName().."High"]:SetText(high);
   self:SetMinMaxValues(low, high);
   self:SetValueStep(step);
 end
 
-function SmartBuffOptionsFrameAutoTimer_OnValueChanged(self)
-  O.AutoTimer = self:GetValue();
-  _G[self:GetName().."Text"]:SetText(SMARTBUFF_OFT_AUTOTIMER.." "..O.AutoTimer.." sec");
-end
-
-function SmartBuffOptionsFrameGrpBuffSize_OnValueChanged(self)
-  local ct = currentTemplate;
-  local s = SMARTBUFF_OFT_GRPBUFFSIZE; 
-  B[CS()][ct].GrpBuffSize = self:GetValue();
-  _G[self:GetName().."Text"]:SetText(s.." "..B[CS()][ct].GrpBuffSize);
-end
-
-function SmartBuffOptionsFrameRebuffTimer_OnValueChanged(self)
-  O.RebuffTimer = self:GetValue();
-  _G[self:GetName().."Text"]:SetText(SMARTBUFF_OFT_REBUFFTIMER.." "..O.RebuffTimer.." sec");
+function SmartBuff_SetSliderText(self, text, value, valformat, setval)
+  if (not self or not value) then return end
+  local s;
+  if (setval) then self:SetValue(value) end
+  if (valformat) then
+    s = string.format(valformat, value);
+  else
+    s = tostring(value);
+  end
+  getglobal(self:GetName().."Text"):SetText(text.." "..WH..s.."|r");
 end
 
 function SmartBuff_BuffSetup_RBTime_OnValueChanged(self)
   _G[SmartBuff_BuffSetup_RBTime:GetName().."Text"]:SetText(WH..format("%.0f", self:GetValue()).."\nsec|r");
-end
-
-function SmartBuffOptionsFrameBLDuration_OnValueChanged(self)
-  O.BlacklistTimer = self:GetValue();
-  _G[self:GetName().."Text"]:SetText(SMARTBUFF_OFT_BLDURATION.." "..O.BlacklistTimer.." sec");
 end
 
 function SMARTBUFF_SetCheckButtonBuffs(mode) 
@@ -3877,21 +3740,9 @@ function SMARTBUFF_SetCheckButtonBuffs(mode)
   if (mode == 0) then
     SMARTBUFF_SetBuffs();
   end
-  
-  local s = SMARTBUFF_OFT_GRPBUFFSIZE;
-  SmartBuffOptionsFrameGrpBuffSize:SetValue(B[CS()][ct].GrpBuffSize);
-  _G[SmartBuffOptionsFrameGrpBuffSize:GetName().."Text"]:SetText(s.." "..B[CS()][ct].GrpBuffSize);
     
-  SmartBuffOptionsFrameGrpBuffSize:Hide();
-  SmartBuffOptionsFrame_cbCompMode:Hide();
-  
-  if (IsAddOnLoaded("SmartDebuff") and SMARTDEBUFF_Options ~= nil) then
-    SmartBuffOptionsFrame_cbSmartDebuff:Show();
-  else
-    SmartBuffOptionsFrame_cbSmartDebuff:Hide();
-  end
-  
   SmartBuffOptionsFrame_cbAntiDaze:Hide();
+  
   if (sPlayerClass == "HUNTER" or sPlayerClass == "ROGUE" or sPlayerClass == "WARRIOR") then    
     SmartBuffOptionsFrameBLDuration:Hide();
     if (sPlayerClass == "HUNTER") then
@@ -3967,26 +3818,18 @@ function SMARTBUFF_Splash_Show()
   SmartBuffSplashFrame:EnableMouse(true);
   SmartBuffSplashFrame:Show();
   SmartBuffSplashFrame:SetTimeVisible(60);
-  SmartBuffSplashFrame_csFont:Show();
-  SmartBuffSplashFrame_cbIcon:Show();
-  SmartBuffSplashFrame_cbIcon:SetChecked(OG.SplashIcon);
-  SmartBuffSplashFrame_cbMsgShort:Show();
-  SmartBuffSplashFrame_cbMsgShort:SetChecked(OG.SplashMsgShort);
-  SmartBuffSplashFrame_sldSize:Show();
+  SmartBuffSplashFrameOptions:Show();
 end
 
 function SMARTBUFF_Splash_Hide()
   if (not isInit) then return; end 
   SMARTBUFF_Splash_Clear();
   SMARTBUFF_Splash_ChangePos();
-  SmartBuffSplashFrame_csFont:Hide();
-  SmartBuffSplashFrame_cbIcon:Hide();
-  SmartBuffSplashFrame_cbMsgShort:Hide();
-  SmartBuffSplashFrame_sldSize:Hide();
   SmartBuffSplashFrame:SetBackdrop(nil);
   SmartBuffSplashFrame:EnableMouse(false);
   SmartBuffSplashFrame:SetFadeDuration(O.SplashDuration);
   SmartBuffSplashFrame:SetTimeVisible(O.SplashDuration);
+  SmartBuffSplashFrameOptions:Hide();
 end
 
 function SMARTBUFF_Splash_Clear()
@@ -4020,16 +3863,28 @@ function SMARTBUFF_Splash_ChangeFont(mode)
   if (mode > 1 or O.CurrentFontSize == nil) then
     O.CurrentFontSize = fHeight;
   end
-  f.size:SetValue(O.CurrentFontSize);
   fo:SetFont(fName, O.CurrentFontSize, fFlags);
-  
-  --SmartBuffSplashFrame:SetFontObject(_G[cFonts[iCurrentFont]]);
+  SmartBuffSplashFrameOptions.size:SetValue(O.CurrentFontSize);
   
   f:SetInsertMode("TOP");
   f:SetJustifyV("MIDDLE");
   if (mode > 0) then
+    local si = "";
+    if (OG.SplashIcon) then 
+      local n = O.SplashIconSize;
+      if (n == nil or n <= 0) then
+        n = O.CurrentFontSize;
+      end
+      si = string.format(" \124T%s:%d:%d:1:0\124t", "Interface\\Icons\\INV_Misc_QuestionMark", n, n) or "";
+    else
+      si = " BuffXYZ";
+    end
     SMARTBUFF_Splash_Clear();
-    f:AddMessage("Demo Text Font: " .. cFonts[iCurrentFont] .. "\ndrag'n'drop to move", O.ColSplashFont.r, O.ColSplashFont.g, O.ColSplashFont.b, 1.0);
+    if (OG.SplashMsgShort) then
+      f:AddMessage(cFonts[iCurrentFont].." >"..si.."\ndrag'n'drop to move", O.ColSplashFont.r, O.ColSplashFont.g, O.ColSplashFont.b, 1.0);
+    else
+      f:AddMessage(cFonts[iCurrentFont].." "..SMARTBUFF_MSG_NEEDS..si.."\ndrag'n'drop to move", O.ColSplashFont.r, O.ColSplashFont.g, O.ColSplashFont.b, 1.0);
+    end
   end
 end
 -- END Splash screen events
@@ -4184,27 +4039,6 @@ end
 -- END Playerlist functions
 
 
--- Mini group functions ---------------------------------------------------------------------------------------
-function SMARTBUFF_MiniGroup_OnShow()
-  SmartBuff_MiniGroup_Title:SetText(SMARTBUFF_TITLE .. " - " .. currentTemplate);
-  SMARTBUFF_ShowSubGroupsMini();
-end
-
-function SMARTBUFF_MiniGroup_OnHide()
-end
-
-function SMARTBUFF_MiniGroup_Show()
-  if (O.ShowMiniGrp and iGroupSetup == 3) then
-    SmartBuff_MiniGroup:Show();
-  else
-    if (SmartBuff_MiniGroup:IsVisible()) then
-      SmartBuff_MiniGroup:Hide();
-    end
-  end
-end
--- END Mini group functions
-
-
 -- Secure button functions, NEW TBC ---------------------------------------------------------------------------------------
 function SMARTBUFF_ShowSAButton()
   if (not InCombatLockdown()) then
@@ -4257,7 +4091,7 @@ function SMARTBUFF_OnPreClick(self, button, down)
   
   if (UnitCastingInfo("player")) then
     --print("Channeling...reset AutoBuff timer");
-    tAutoBuff = GetTime();
+    tAutoBuff = GetTime() + 0.7;
     return;
   end
   
@@ -4635,4 +4469,33 @@ end
 function SMARTBUFF_BuffOrderReset()
   InitBuffOrder(true);
   SMARTBUFF_BuffOrderOnScroll();
+end
+
+
+-- Help plate functions ---------------------------------------------------------------------------------------
+
+local HelpPlateList = {
+	FramePos = { x = 20, y = -20 },
+	FrameSize = { width = 480, height = 500 },
+	[1] = { ButtonPos = { x = 344,	y = -80 },  HighLightBox = { x = 260, y = -50, width = 204, height = 410 },	 ToolTipDir = "DOWN",  ToolTipText = "Spell list\nDrag'n'Drop to change the priority order" },
+	[2] = { ButtonPos = { x = 105,  y = -110 }, HighLightBox = { x = 10, y = -30, width = 230, height = 125 },  ToolTipDir = "DOWN",   ToolTipText = "Buff reminder options" },
+	[3] = { ButtonPos = { x = 105,  y = -250 }, HighLightBox = { x = 10, y = -165, width = 230, height = 135 },  ToolTipDir = "DOWN",   ToolTipText = "Character based options" },
+	[4] = { ButtonPos = { x = 200,  y = -320 }, HighLightBox = { x = 10, y = -300, width = 230, height = 90 },  ToolTipDir = "RIGHT",   ToolTipText = "Additional UI options" },
+}
+
+function SMARTBUFF_ToggleTutorial(close)
+	local helpPlate = HelpPlateList;
+	if (not helpPlate) then return end;
+	
+	local b = HelpPlate_IsShowing(helpPlate);
+	if (close) then
+	  HelpPlate_Hide(false);
+	  return;
+	end
+	
+	if (not b) then
+		HelpPlate_Show(helpPlate, SmartBuffOptionsFrame, SmartBuffOptionsFrame_btnTutorial, true);
+	else
+		HelpPlate_Hide(true);
+	end
 end

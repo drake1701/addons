@@ -1,8 +1,49 @@
 Pack Command:  		zip -vr TP_Release.zip TidyPlates* -x@exclude.lst
 Exclusion List: 	*.svn*   *.DS_Store*   exclude.lst   *.db   *.png   *.gif   *.jpg   *.tif   *.txt   *.psd   *.bmp   
 
+6.11.2
+---------------------------
+- In reverting, I missed updating the TOC version for TidyPlatesHub.  Updated for 50300
+
+6.11.1
+---------------------------
+- Core: Fixed a cast bar bug, where the sub-object references were not being updated.  Addresses certain "attempt to perform arithmetic on field 'health' (a nil value)" errors
+
+6.11
+---------------------------
+- Basically, I've given up trying to quickly patch up 6.10.  I've reverted to 6.9.9, and made the changes necessary for it to work with WoW 5.3.  If you want the Performance Mode stuff, grab the old version, or keep an eye out for it to be Re-Beta'd as 6.12.  
+
+These are the changes that I've migrated:
+- Spell Casting Update, for WoW 5.3
+- Core: Set initial fonts during Init/Hooking.  Removes the possibility of :SetFont() errors.
+- Combo Points: "Anticipation" fix for non-english regions
+
+
+6.10.4
+---------------------------
+- Core: Fixed a major typo. Should fix SetStyle/Headline Mode and ClassIcon LUA errors at the very least.  Might explain some of the other elusive bugs.
+
+6.10.3
+---------------------------
+* Performance Mode:
+By default this is NOT enabled, reverting to the older, slower, reliable method.
+Using Performance Mode may break HHTD and other nameplate addons.  
+You may also experience 'hung' nameplates.  Please report these, and try to be as 
+specific as possible in describing the condition of the game when it occured.
+
+- Core: (Since 6.10.2) Performance Mode:  This enables the performance improvements introduced in 6.10. 	
+- Core: Reintegrated original Alpha locking
+- Core: More reorganization, pruning of old, dead methods
+- Core: Set initial fonts during Init/Hooking.  Removes the possibility of :SetFont() errors.  Not sure why I didn't do this years ago.
+- Panel: Removal of latent "Show Minimap Icon" button code
+
+6.10.2
+---------------------------
+- Panel: New Option: Performance Mode.  This enables the performance improvements introduced in 6.10.  By default this is NOT enabled.
+- Using "Performance Mode" may cause problems with other nameplate addons.  
 
 6.10.1
+---------------------------
 - Panel: Reverted the dropdown menu init changes from beta4.  Seems to be messing up the panel.
 - Core: Blizz Spell Shadow: More thoroughly hidden
 - Hub: Threat/Warning Glow fix

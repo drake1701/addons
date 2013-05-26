@@ -163,6 +163,16 @@ aeldra@sonnenkinder.org
 Changes: 
 Rev     Date        Description
 ------  ----------  -----------------------
+5.3a    2013-05-23  UI cleanup, removed old raid options
+                    Added buffs: Warlock (Blood Horror), Mage (Ice Ward), Hunter (Camouflage)
+                    Added items: Burning Seed, Orb of the Sin'dorei
+                    Added option to change the buff reminder icon size
+                    Added basic help system
+                    Fixed battleground LUA error
+                    Fixed item cooldown issue
+                    Updated TOC
+                    Thanks for donation: Ronald G. :)
+
 5.1d    2013-01-08  Fixed Warlock pet based buff issue
                     Fixed Rogue poisons issue if a fishing pole is equiped
                     Updated monk group buffs

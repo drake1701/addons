@@ -1,7 +1,7 @@
 local mod	= DBM:NewMod(821, "DBM-ThroneofThunder", nil, 362)
 local L		= mod:GetLocalizedStrings()
 
-mod:SetRevision(("$Revision: 9560 $"):sub(12, -3))
+mod:SetRevision(("$Revision: 9656 $"):sub(12, -3))
 mod:SetCreatureID(68065, 70212, 70235, 70247)--flaming 70212. Frozen 70235, Venomous 70247
 mod:SetMainBossID(68065)
 mod:SetQuestID(32748)
@@ -20,8 +20,7 @@ mod:RegisterEventsInCombat(
 	"SPELL_PERIODIC_DAMAGE",
 	"SPELL_PERIODIC_MISSED",
 	"CHAT_MSG_RAID_BOSS_EMOTE",
-	"UNIT_AURA",
-	"UNIT_SPELLCAST_SUCCEEDED",
+	"UNIT_SPELLCAST_SUCCEEDED boss1 boss2 boss3 boss4 boss5",
 	"UNIT_DIED"
 )
 
@@ -96,6 +95,8 @@ local activeHeadGUIDS = {}
 local iceTorrent = GetSpellInfo(139857)
 local torrentExpires = {}
 local arcaneRecent = false
+local cpuUsage1 = 0--This is going to be used regardless, because we use event SPELL_AURA_APPLIED for every other debuff
+local cpuWaste1 = 0--This is how many times we waste cpu to work around icy torrent not firing SPELL_AURA_APPLIED event. When we could simply get CLEU fixed and add what, 20 more SPELL_AURA_APPLIED events.
 
 local function isTank(unit)
 	-- 1. check blizzard tanks first
@@ -127,6 +128,8 @@ end
 
 function mod:OnCombatStart(delay)
 	table.wipe(activeHeadGUIDS)
+	cpuUsage1 = 0
+	cpuWaste1 = 0
 	rampageCount = 0
 	rampageCast = 0
 	fireInFront = 0
@@ -156,6 +159,7 @@ end
 
 function mod:OnCombatEnd()
 	self:UnregisterShortTermEvents()
+	print("DBM Debug:"..cpuUsage1.." CLEU, "..cpuWaste1.." UNIT_AURA.")
 end
 
 function mod:SPELL_CAST_SUCCESS(args)
@@ -169,6 +173,7 @@ function mod:SPELL_CAST_SUCCESS(args)
 end
 
 function mod:SPELL_AURA_APPLIED(args)
+	cpuUsage1 = cpuUsage1 + 1
 	if args.spellId == 139843 then
 		local uId = DBM:GetRaidUnitId(args.destName)
 		if isTank(uId) then
@@ -261,8 +266,12 @@ function mod:SPELL_PERIODIC_DAMAGE(_, _, _, _, destGUID, _, _, _, spellId)
 end
 mod.SPELL_PERIODIC_MISSED = mod.SPELL_PERIODIC_DAMAGE
 
-function mod:CHAT_MSG_RAID_BOSS_EMOTE(msg, _, _, _, target)
+function mod:CHAT_MSG_RAID_BOSS_EMOTE(msg)
 	if msg:find("spell:139458") then
+		self:UnregisterShortTermEvents()--Wipe short term events
+		self:RegisterShortTermEvents(--Re-register without UNIT_AURA. UNIT_AURA during rampage is ridiculous. This saves some CPU
+			"INSTANCE_ENCOUNTER_ENGAGE_UNIT"
+		)
 		rampageCount = rampageCount + 1
 		warnRampage:Show(rampageCount)
 		specWarnRampage:Show(rampageCount)
@@ -302,9 +311,9 @@ function mod:CHAT_MSG_RAID_BOSS_EMOTE(msg, _, _, _, target)
 		end
 		if fireBehind > 0 then
 			if self:IsDifficulty("lfr25") then
-				timerCinderCD:Start(12)--12-15 second variatio
+				timerCinderCD:Start(12)--12-15 second variation
 			else
-				timerCinderCD:Start(5)--5-8 second variatio
+				timerCinderCD:Start(5)--5-8 second variation
 			end
 		end
 		if arcaneBehind > 0 then
@@ -341,6 +350,13 @@ local function CheckHeads(GUID)
 			end
 		end
 	end
+	if iceBehind > 0 then--We only need UNIT_AURA if there is actually an ice head in back, so this is only time we register it
+		mod:UnregisterShortTermEvents()--Wipe old short term events
+		mod:RegisterShortTermEvents(--Update them with both IEEU and UNIT_AURA
+			"INSTANCE_ENCOUNTER_ENGAGE_UNIT",
+			"UNIT_AURA_UNFILTERED"
+		)
+	end
 --	print("DBM Boss Debug: ", "Active Heads: ".."Fire: "..fireInFront.." Ice: "..iceInFront.." Venom: "..venomInFront.." Arcane: "..arcaneInFront)
 --	print("DBM Boss Debug: ", "Inactive Heads: ".."Fire: "..fireBehind.." Ice: "..iceBehind.." Venom: "..venomBehind.." Arcane: "..arcaneBehind)
 end
@@ -353,7 +369,7 @@ end
 
 --Unfortunately we need to update the counts sooner than UNIT_DIED fires because we need those counts BEFORE CHAT_MSG_RAID_BOSS_EMOTE fires.
 function mod:UNIT_SPELLCAST_SUCCEEDED(uId, _, _, _, spellId)
-	if spellId == 70628 and self:AntiSpam(2, 3) then--Permanent Feign Death
+	if spellId == 70628 then--Permanent Feign Death
 		local cid = self:GetCIDFromGUID(UnitGUID(uId))
 		if cid == 70235 then--Frozen
 			iceInFront = iceInFront - 1
@@ -416,7 +432,8 @@ local function warnTorrent(name)
 end
 
 --Combat log bugged, UNIT_AURA only good way to work around.
-function mod:UNIT_AURA(uId)
+function mod:UNIT_AURA_UNFILTERED(uId)
+	cpuWaste1 = cpuWaste1 + 1
 	local name = DBM:GetUnitFullName(uId)
 	if not name then return end
 	local expires = select(7, UnitDebuff(uId, iceTorrent)) or 0

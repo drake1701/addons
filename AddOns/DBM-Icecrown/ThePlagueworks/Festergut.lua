@@ -1,7 +1,7 @@
 local mod	= DBM:NewMod("Festergut", "DBM-Icecrown", 2)
 local L		= mod:GetLocalizedStrings()
 
-mod:SetRevision(("$Revision: 40 $"):sub(12, -3))
+mod:SetRevision(("$Revision: 47 $"):sub(12, -3))
 mod:SetCreatureID(36626)
 mod:SetModelID(31006)
 mod:RegisterCombat("combat")
@@ -11,7 +11,7 @@ mod:RegisterEvents(
 	"SPELL_CAST_START",
 	"SPELL_AURA_APPLIED",
 	"SPELL_AURA_APPLIED_DOSE",
-	"UNIT_SPELLCAST_SUCCEEDED"
+	"UNIT_SPELLCAST_SUCCEEDED boss1"
 )
 
 local warnInhaledBlight		= mod:NewStackAnnounce(69166, 3)
@@ -166,7 +166,7 @@ function mod:SPELL_AURA_APPLIED(args)
 		end
 	elseif args.spellId == 69166 then	-- Inhaled Blight
 		local amount = args.amount or 1
-		warnInhaledBlight:Show(args.spellName, args.destName, amount)
+		warnInhaledBlight:Show(args.destName, amount)
 		if amount >= 3 then
 			specWarnInhaled3:Show(amount)
 			timerPungentBlight:Start()
@@ -175,7 +175,7 @@ function mod:SPELL_AURA_APPLIED(args)
 		end
 	elseif args.spellId == 72219 then	-- Gastric Bloat
 		local amount = args.amount or 1
-		warnGastricBloat:Show(args.spellName, args.destName, amount)
+		warnGastricBloat:Show(args.destName, amount)
 		timerGastricBloat:Start(args.destName)
 		timerGastricBloatCD:Start()
 		if args:IsPlayer() and amount >= 9 then

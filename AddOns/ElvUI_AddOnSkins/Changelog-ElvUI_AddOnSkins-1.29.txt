@@ -1,8 +1,0 @@
-2013-05-06  Michael Tindal  <mj.tindal@icloud.com>
-
-[87c592fafafc] [1.29]
-* ElvUI_AddOnSkins.toc:
-
-Version 1.29
-
-

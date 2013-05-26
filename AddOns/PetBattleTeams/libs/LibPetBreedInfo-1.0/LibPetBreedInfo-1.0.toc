@@ -1,6 +1,6 @@
-## Interface: 50200
+## Interface: 50300
 ## LoadOnDemand: 1
-## Title: Lib: LibPetBreedInfo-1.0.6
+## Title: Lib: LibPetBreedInfo-1.0.8
 ## Notes: 
 ## Author: Nullberri
 LibStub.lua

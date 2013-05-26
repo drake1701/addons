@@ -81,6 +81,11 @@ GTFO.SpellID["106938"] = {
 	sound = 3;
 };
 
+GTFO.SpellID["107053"] = {
+	--desc = "Jade Serpent Wave (Liu Flameheart)";
+	sound = 3;
+};
+
 GTFO.SpellID["106334"] = {
 	--desc = "Wash Away (Wise Mari)";
 	sound = 3;
@@ -954,6 +959,7 @@ GTFO.SpellID["136892"] = {
 GTFO.SpellID["136722"] = {
 	--desc = "Slumber Spores (Lu'lin)";
 	sound = 3;
+	applicationOnly = true;
 };
 
 GTFO.SpellID["134916"] = {
@@ -1436,5 +1442,36 @@ GTFO.SpellID["139375"] = {
 
 GTFO.SpellID["138512"] = {
 	--desc = "Volt Fissure (Sparkmancer Vu)";
+	sound = 3;
+};
+
+GTFO.SpellID["142327"] = {
+	--desc = "Crackling Fury (Wavebinder Se'sha)";
+	sound = 3;
+	damageMinimum = 300000;
+};
+
+GTFO.SpellID["142385"] = {
+	--desc = "Dark Twister (Wavebinder Se'sha)";
+	sound = 3;
+};
+
+GTFO.SpellID["142346"] = {
+	--desc = "Unstable Magma Totem (Jessina the Blazing)";
+	sound = 3;
+};
+
+GTFO.SpellID["142108"] = {
+	--desc = "Titanic Thunderclap (Commander Ag'troz)";
+	sound = 3;
+};
+
+GTFO.SpellID["141487"] = {
+	--desc = "Mortar Rocket (Kor'kron Mortar)";
+	sound = 3;
+};
+
+GTFO.SpellID["142146"] = {
+	--desc = "Rocket Swarm (Speegle Blasttorch)";
 	sound = 3;
 };

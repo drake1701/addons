@@ -1,7 +1,7 @@
 local mod	= DBM:NewMod("Deathwhisper", "DBM-Icecrown", 1)
 local L		= mod:GetLocalizedStrings()
 
-mod:SetRevision(("$Revision: 40 $"):sub(12, -3))
+mod:SetRevision(("$Revision: 47 $"):sub(12, -3))
 mod:SetCreatureID(36855)
 mod:SetModelID(30893)
 mod:SetUsedIcons(4, 5, 6, 7, 8)
@@ -15,7 +15,7 @@ mod:RegisterEvents(
 	"SPELL_INTERRUPT",
 	"SPELL_SUMMON",
 	"CHAT_MSG_MONSTER_YELL",
-	"UNIT_TARGET"
+	"UNIT_TARGET_UNFILTERED"
 )
 
 local canPurge = select(2, UnitClass("player")) == "MAGE"
@@ -169,7 +169,7 @@ do
 		elseif args.spellId == 70674 and not args:IsDestTypePlayer() and (UnitName("target") == L.Fanatic1 or UnitName("target") == L.Fanatic2 or UnitName("target") == L.Fanatic3) then
 			specWarnVampricMight:Show(args.destName)
 		elseif args.spellId == 71204 then
-			warnTouchInsignificance:Show(args.spellName, args.destName, args.amount or 1)
+			warnTouchInsignificance:Show(args.destName, args.amount or 1)
 			timerTouchInsignificance:Start(args.destName)
 			if args:IsPlayer() and (args.amount or 1) >= 3 and self:IsDifficulty("normal10", "normal25") then
 				specWarnTouchInsignificance:Show(args.amount)
@@ -228,7 +228,7 @@ function mod:SPELL_SUMMON(args)
 	end
 end
 
-function mod:UNIT_TARGET()
+function mod:UNIT_TARGET_UNFILTERED()
 	if empoweredAdherent or deformedFanatic then
 		self:TrySetTarget()
 	end

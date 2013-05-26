@@ -1,7 +1,7 @@
 local mod	= DBM:NewMod("Valithria", "DBM-Icecrown", 4)
 local L		= mod:GetLocalizedStrings()
 
-mod:SetRevision(("$Revision: 40 $"):sub(12, -3))
+mod:SetRevision(("$Revision: 47 $"):sub(12, -3))
 mod:SetCreatureID(36789)
 mod:SetModelID(30318)
 mod:SetUsedIcons(8)
@@ -16,7 +16,7 @@ mod:RegisterEvents(
 	"SPELL_DAMAGE",
 	"SPELL_MISSED",
 	"CHAT_MSG_MONSTER_YELL",
-	"UNIT_TARGET"
+	"UNIT_TARGET_UNFILTERED"
 )
 
 local warnCorrosion			= mod:NewStackAnnounce(70751, 2, nil, false)
@@ -150,7 +150,7 @@ function mod:SPELL_AURA_APPLIED(args)
 		self:Unschedule(warnGutSprayTargets)
 		self:Schedule(0.3, warnGutSprayTargets)
 	elseif args:IsSpellID(70751, 71738, 72022, 72023) and args:IsDestTypePlayer() then--Corrosion
-		warnCorrosion:Show(args.spellName, args.destName, args.amount or 1)
+		warnCorrosion:Show(args.destName, args.amount or 1)
 		timerCorrosion:Start(args.destName)
 	elseif args:IsSpellID(69325, 71730) then--Lay Waste
 		specWarnLayWaste:Show()
@@ -179,7 +179,7 @@ function mod:SPELL_DAMAGE(sourceGUID, sourceName, sourceFlags, sourceRaidFlags, 
 end
 mod.SPELL_MISSED = mod.SPELL_DAMAGE
 
-function mod:UNIT_TARGET()
+function mod:UNIT_TARGET_UNFILTERED()
 	if blazingSkeleton then
 		self:TrySetTarget()
 	end

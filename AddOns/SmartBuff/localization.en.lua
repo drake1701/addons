@@ -4,14 +4,16 @@
 
 -- Whats new info
 SMARTBUFF_WHATSNEW = "|cffffffffWhats new:|r\n\n"
-  .."- Fixed Warlock pet based buff issue\n\n"
-  .."- Fixed Rogue poisons issue if a fishing pole is equiped\n\n"
-  .."- Updated monk group buffs\n\n"
-  .."- Updated buff check (player characters)\n\n"
-  .."- Updated buff timer check for channeled buffs\n\n"
-  .."- Updated traditional chinese (Taiwan) localization, thanks to reiswind\n\n"
+  .."- UI cleanup, removed old raid options\n\n"
+  .."- Added buffs: Warlock (Blood Horror), Mage (Ice Ward), Hunter (Camouflage)\n\n"
+  .."- Added items: Burning Seed, Orb of the Sin'dorei\n\n"
+  .."- Added option to change the buff reminder icon size\n\n"
+  .."- Added basic help system\n\n"
+  .."- Fixed battleground LUA error\n\n"
+  .."- Fixed item cooldown issue\n\n"
+  .."- Updated TOC\n\n"
   .."- Please let me know if anything is missing (buffs/consumables/etc.), thanks!\n\n"
-  .."- Thanks for donation: reiswind :)\n\n"
+  .."- Thanks for donation: Ronald G. :)\n\n"
   ;
 
 
@@ -62,13 +64,10 @@ SMARTBUFF_OFT_AUTOREST       = "Disable in cities";
 SMARTBUFF_OFT_HUNTERPETS     = "Buff Hunter pets";
 SMARTBUFF_OFT_WARLOCKPETS    = "Buff Warlock pets";
 SMARTBUFF_OFT_ARULES         = "Advance rules";
-SMARTBUFF_OFT_GRP            = "Raid Subgroups to buff";
-SMARTBUFF_OFT_SUBGRPCHANGED  = "Open options menu";
 SMARTBUFF_OFT_BUFFS          = "Buffs/Abilities";
 SMARTBUFF_OFT_TARGET         = "Buffs the selected target";
 SMARTBUFF_OFT_DONE           = "Done";
 SMARTBUFF_OFT_APPLY          = "Apply";
-SMARTBUFF_OFT_GRPBUFFSIZE    = "Grp/Raid size";
 SMARTBUFF_OFT_CLASSBUFFSIZE  = "Class size";
 SMARTBUFF_OFT_MESSAGES       = "Disable messages";
 SMARTBUFF_OFT_MSGNORMAL      = "normal";
@@ -87,10 +86,7 @@ SMARTBUFF_OFT_AUTOSWITCHTMPINST = "Instances";
 SMARTBUFF_OFT_CHECKCHARGES   = "Check charges";
 SMARTBUFF_OFT_RBT            = "Reset BT";
 SMARTBUFF_OFT_BUFFINCITIES   = "Buff in cities";
-SMARTBUFF_OFT_UISYNC         = "UI sync";
 SMARTBUFF_OFT_BLDURATION     = "Blacklisted";
-SMARTBUFF_OFT_COMPMODE       = "Comp. mode";
-SMARTBUFF_OFT_MINIGRP        = "Mini group";
 SMARTBUFF_OFT_ANTIDAZE       = "Anti daze";
 SMARTBUFF_OFT_HIDESABUTTON   = "Hide action button";
 SMARTBUFF_OFT_INCOMBAT       = "in combat";
@@ -105,6 +101,10 @@ SMARTBUFF_OFT_NO             = "No";
 SMARTBUFF_OFT_PURGE_DATA     = "Are you sure you want to reset ALL SmartBuff data?\nThis action will force a reload of the UI!";
 SMARTBUFF_OFT_SPLASHICON     = "Show Icon";
 SMARTBUFF_OFT_SPLASHMSGSHORT = "Short Message";
+SMARTBUFF_OFT_FONTSTYLE      = "Font";
+SMARTBUFF_OFT_FONTSIZE       = "Font Size";
+SMARTBUFF_OFT_ICONSIZE       = "Icon Size";
+
 
 -- Options Frame Tooltip Text
 SMARTBUFF_OFTT               = "Toggles SmartBuff On/Off";
@@ -118,8 +118,6 @@ SMARTBUFF_OFTT_AUTOREST      = "Disable reminder in capital cities";
 SMARTBUFF_OFTT_HUNTERPETS    = "Buff the Hunter pets as well.";
 SMARTBUFF_OFTT_WARLOCKPETS   = "Buff the Warlock pets as well, except the " .. SMARTBUFF_DEMONTYPE .. ".";
 SMARTBUFF_OFTT_ARULES        = "Does not cast:\n- Thorns on Mages, Priests and Warlocks\n- Arcane Intellect on units without Mana\n- Divine Spirit on units without Mana";
-SMARTBUFF_OFTT_SUBGRPCHANGED = "Automatically opens the SmartBuff options menu,\nwhen you have changed the subgroup.";
-SMARTBUFF_OFTT_GRPBUFFSIZE   = "How many players missing the groupbuff and have to be in\nthe group/raid, that the groupbuff will be casted.";
 SMARTBUFF_OFTT_HIDEMMBUTTON  = "Hides the SmartBuff minimap button.";
 SMARTBUFF_OFTT_REBUFFTIMER   = "How many seconds before a buff expires,\nthe reminder should alert you.\n0 = Deactivated";
 SMARTBUFF_OFTT_SELFFIRST     = "Buffs your character first of all others.";
@@ -132,10 +130,7 @@ SMARTBUFF_OFTT_AUTOSWITCHTMP = "Automatically switches the template,\nif the gro
 SMARTBUFF_OFTT_AUTOSWITCHTMPINST = "Automatically switches the template,\nif the instance changes.";
 SMARTBUFF_OFTT_CHECKCHARGES  = "Displays low amount of\ncharges on a buff.\n0 = Deactivated";
 SMARTBUFF_OFTT_BUFFINCITIES  = "Buffs also if you are in capital cities.\nIf you are PvP flagged, it buffs in any case.";
-SMARTBUFF_OFTT_UISYNC        = "Activate syncronisation with the UI\nto retrive the timeleft of your buffs\nfrom other players.";
-SMARTBUFF_OFTT_BLDURATION    = "How many seconds, players will be blacklistet.\n0 = Deactivated";
-SMARTBUFF_OFTT_COMPMODE      = "Compatibility mode\nAttention!!!\nUses this mode only, if you are\nfacing problems to cast buffs on yourself.";
-SMARTBUFF_OFTT_MINIGRP       = "Show raid subgoup settings in an\nown movable mini group frame.";
+SMARTBUFF_OFTT_BLDURATION    = "How many seconds, players will be blacklisted.\n0 = Deactivated";
 SMARTBUFF_OFTT_ANTIDAZE      = "Automatically cancels the\naspect of the cheetah/pack\nif someone gets dazed\n(self or group).";
 SMARTBUFF_OFTT_SPLASHSTYLE   = "Changes the fontstyle of\nthe buff messages.";
 SMARTBUFF_OFTT_HIDESABUTTON  = "Hides the SmartBuff action button.";

@@ -30,6 +30,7 @@ local DESUMMON_PET = 5
 local FINISHED = 6
 local EMPTY_PET = "0x0000000000000000"
 local _
+local LibPetJournal = LibStub("LibPetJournal-2.0")
 
 --frame functions
 local function OnUpdate(self,elapsed)
@@ -174,7 +175,7 @@ function TeamManager:ResetUI()
 	self:SetSelected(1)
 end
 
-function TeamManager:ImportTeams()
+--[[function TeamManager:ImportTeams()
 	if PetBattleTeamsSettings and PetBattleTeamsSettings.teams and #PetBattleTeamsSettings.teams > 0 then
 		local teams = PetBattleTeamsSettings.teams
 		local start = self:GetNumTeams() +1
@@ -199,7 +200,7 @@ function TeamManager:ImportTeams()
 		return #teams
 	end
 	return 0
-end
+end]]
 
 function TeamManager:SetAutomaticallySaveTeams(enabled)
 	assert(type(enabled)== "boolean")
@@ -485,6 +486,8 @@ function TeamManager:UpdateTeamNewPet(petID,teamIndex,petIndex,sourceTeamIndex,s
 		local pet = {}
 		pet.petID = petID
 		pet.abilities = {}
+		pet.speciesID = C_PetJournal.GetPetInfoByPetID(pet.petID)
+		
 		if sourceTeamIndex and sourcePetIndex and  sourcePetIndex < PETS_PER_TEAM then
 			local _, sourceAbilities = self:GetPetInfo(sourceTeamIndex,sourcePetIndex)
 			
@@ -528,6 +531,7 @@ function TeamManager:CreateTeam()
 		
 		if self:GetAutomaticallySaveTeams() then 
 			pet.petID, pet.abilities[1], pet.abilities[2], pet.abilities[3] = C_PetJournal.GetPetLoadOutInfo(i)
+			pet.speciesID = C_PetJournal.GetPetInfoByPetID(pet.petID)
 		else
 			pet.petID, pet.abilities[1], pet.abilities[2], pet.abilities[3] = EMPTY_PET,0,0,0
 		end
@@ -574,6 +578,7 @@ function TeamManager.UpdateCurrentTeam()
 			pet = {}
 			pet.abilities = {}
 			pet.petID, pet.abilities[1], pet.abilities[2], pet.abilities[3] = C_PetJournal.GetPetLoadOutInfo(i)
+			pet.speciesID = C_PetJournal.GetPetInfoByPetID(pet.petID)
 			team[i] = pet
 		end
 		
@@ -647,8 +652,53 @@ function TeamManager:OnInitialize()
 	
 	local Cursor = PetBattleTeams:GetModule("Cursor")
 	Cursor.RegisterCallback(self,"BATTLE_PET_CURSOR_CHANGED")
+	
+	
+	
+	LibPetJournal.RegisterCallback(self,"PetListUpdated", "setupSpeciesIDRunOnce")
 end
 
+
+function TeamManager:setupSpeciesIDRunOnce()
+	local numTeams = self:GetNumTeams()
+	for team=1,numTeams do
+		for petIndex = 1, PETS_PER_TEAM do
+			local teamPetID = self.teams[team][petIndex].petID
+			local speciesID, _, level = C_PetJournal.GetPetInfoByPetID(teamPetID)
+			if speciesID then
+				self.teams[team][petIndex].speciesID = speciesID
+			end
+		end
+	end
+	LibPetJournal.UnregisterCallback(self,"PetListUpdated")
+end
+
+function TeamManager:ReconstructTeams()
+	local availablePets = {}
+	for _,petID in LibPetJournal:IteratePetIDs() do 
+		local speciesID, _, level, _, _, _, _, name = C_PetJournal.GetPetInfoByPetID(petID)
+		if not availablePets[speciesID] or availablePets[speciesID].level < level then
+			availablePets[speciesID] = {["petID"]=petID,["level"]=level,["name"]=name}
+		end
+	end
+	
+	local numTeams = self:GetNumTeams()
+	for team=1,numTeams do
+		for petIndex = 1, PETS_PER_TEAM do
+			local teamPetID = self.teams[team][petIndex].petID
+			local speciesID, _, level = C_PetJournal.GetPetInfoByPetID(teamPetID)
+			if speciesID then
+				self.teams[team][petIndex].speciesID = speciesID
+			else
+				local teamSpeciesID = self.teams[team][petIndex].speciesID
+				if teamSpeciesID and availablePets[teamSpeciesID] then
+					 self.teams[team][petIndex].petID = availablePets[teamSpeciesID].petID
+				end
+			end
+		end
+	end
+	TeamManager.callbacks:Fire("TEAM_UPDATED")
+end
 
 function TeamManager:BATTLE_PET_CURSOR_CHANGED(event,operation,petID,teamIndex,petIndex)
 	
@@ -681,7 +731,69 @@ function TeamManager:BATTLE_PET_CURSOR_CHANGED(event,operation,petID,teamIndex,p
 	end
 	
 	TeamManager.callbacks:Fire("TEAM_UPDATED")
-	
-	
-	
 end
+
+--/run PetBattleTeams.modules.TeamManager:FixTeams()
+function TeamManager:FixTeams()
+	--set theory functions
+	local function intersect(a, b)
+	  local ret = {}
+	  for _,b_ in pairs(b) do
+		if a[b_] then ret[b_]=b_ end
+	  end
+	  return ret
+	end
+
+	--map ability IDs to species with that ability
+	local abilities2species={};
+	for _,speciesID in LibPetJournal:IterateSpeciesIDs() do 
+	  local abilities = C_PetJournal.GetPetAbilityList(speciesID); 
+	  if abilities then
+		for j=1,#abilities do
+		  if not abilities2species[abilities[j]] then abilities2species[abilities[j]]= {} end
+		  abilities2species[abilities[j]][speciesID] = speciesID
+		end
+	  end
+	end 
+	
+	--map speciesIds to possible pet matches
+	local availablePets = {}
+	for _,petID in LibPetJournal:IteratePetIDs() do 
+	  local speciesID, _, level, _, _, _, _, name = C_PetJournal.GetPetInfoByPetID(petID)
+	  if not availablePets[speciesID] or availablePets[speciesID].level < level then
+		availablePets[speciesID] = {["petID"]=petID,["level"]=level,["name"]=name}
+	  end
+	end
+
+	--find intersections between an invalid pets previous ability ID's and currently valid pets
+	for i=1,#self.teams do
+		for j=1,PETS_PER_TEAM do 
+			if not C_PetJournal.GetPetInfoByPetID(self.teams[i][j].petID) then
+				
+				--get possible pet matches
+				local matches = abilities2species[self.teams[i][j].abilities[1]]
+				
+				for k=2,3 do
+				  matches = intersect(matches,abilities2species[self.teams[i][j].abilities[k]])
+				end
+				
+				--pick a pet from the possible matches
+				local maxLevel = 0
+				local pet = nil
+				for k,_ in pairs(matches) do
+					if availablePets[k] and availablePets[k].level > maxLevel then
+						pet = availablePets[k]
+						maxLevel = availablePets[k].level
+					end
+				end
+			
+				if pet then
+					self.teams[i][j].petID = pet.petID
+				end
+			end
+		end
+	end
+
+	self.callbacks:Fire("TEAM_UPDATED")
+end
+

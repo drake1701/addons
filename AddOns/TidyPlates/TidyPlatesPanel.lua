@@ -22,12 +22,10 @@ local function SetAutoHide(option)
 	if useAutoHide and (not InCombat) then SetCVar("nameplateShowEnemies", 0) end
 end
 
---[[
 local function SetSpellCastWatcher(enable)
 	if enable then TidyPlates:StartSpellCastWatcher()
 	else TidyPlates:StopSpellCastWatcher()	end
 end
---]]
 
 local function SetSoftTransitions(enable)
 	if enable then TidyPlates:EnableFadeIn()
@@ -44,7 +42,7 @@ TidyPlatesOptions = {
 	secondary = defaultSecondaryTheme,
 	FriendlyAutomation = NO_AUTOMATION,
 	EnemyAutomation = NO_AUTOMATION,
-	--EnableCastWatcher = false,
+	EnableCastWatcher = false,
 	DisableSoftTransitions = false,
 	WelcomeShown = false,
 	--VariableVersion = CurrentVariableVersion,
@@ -333,12 +331,11 @@ local primarySpecName, primarySpecDescription, primarySpecIcon, primarySpecBackg
 	BlizzOptionsButton:SetWidth(260)
 	BlizzOptionsButton:SetText("Nameplate Motion & Visibility")
 
-	--[[
 	-- Cast Watcher
 	panel.EnableCastWatcher = PanelHelpers:CreateCheckButton("TidyPlatesOptions_EnableCastWatcher", panel, "Show Off-Target Cast Bars")
 	panel.EnableCastWatcher:SetPoint("TOPLEFT", BlizzOptionsButton, "TOPLEFT", 0, -35)
 	panel.EnableCastWatcher:SetScript("OnClick", function(self) SetSpellCastWatcher(self:GetChecked()) end)
---]]
+	panel.EnableCastWatcher:Hide()
 
 	-- Soft Transitions
 	panel.DisableSoftTransitions = PanelHelpers:CreateCheckButton("TidyPlatesOptions_DisableSoftTransitions", panel, "Disable Alpha/Scale Transition Effects")
@@ -365,7 +362,7 @@ local primarySpecName, primarySpecDescription, primarySpecIcon, primarySpecBackg
 	local function RefreshPanel()
 		panel.PrimarySpecTheme:SetValue(TidyPlatesOptions.primary)
 		panel.SecondarySpecTheme:SetValue(TidyPlatesOptions.secondary)
-		--panel.EnableCastWatcher:SetChecked(TidyPlatesOptions.EnableCastWatcher)
+		panel.EnableCastWatcher:SetChecked(TidyPlatesOptions.EnableCastWatcher)
 		panel.DisableSoftTransitions:SetChecked(TidyPlatesOptions.DisableSoftTransitions)
 
 		panel.EnableMinimapButton:SetChecked(TidyPlatesOptions.EnableMinimapButton)
@@ -421,7 +418,7 @@ InterfaceOptions_AddCategory(panel);
 
 
 local function ApplyAutomationSettings()
-	--SetSpellCastWatcher(TidyPlatesOptions.EnableCastWatcher)
+	SetSpellCastWatcher(TidyPlatesOptions.EnableCastWatcher)
 	SetSoftTransitions(not TidyPlatesOptions.DisableSoftTransitions)
 
 	if TidyPlatesOptions._EnableMiniButton then
@@ -437,7 +434,7 @@ ApplyPanelSettings = function()
 	TidyPlatesOptions.secondary = panel.SecondarySpecTheme:GetValue()
 	TidyPlatesOptions.FriendlyAutomation = panel.AutoShowFriendly:GetValue()
 	TidyPlatesOptions.EnemyAutomation = panel.AutoShowEnemy:GetValue()
-	--TidyPlatesOptions.EnableCastWatcher = panel.EnableCastWatcher:GetChecked()
+	TidyPlatesOptions.EnableCastWatcher = panel.EnableCastWatcher:GetChecked()
 	TidyPlatesOptions.DisableSoftTransitions = panel.DisableSoftTransitions:GetChecked()
 
 	TidyPlatesOptions.EnableMinimapButton = panel.EnableMinimapButton:GetChecked()

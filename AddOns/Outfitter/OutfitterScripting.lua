@@ -554,7 +554,7 @@ local inInstance, instanceType = IsInInstance()
 if inInstance
 and ((setting.Enable5Man and instanceType == "party")
     or (setting.EnableRaid and instanceType == "raid")
-    or (setting.EnableBG and instanceType == "pvp"))
+    or (setting.EnableBG and instanceType == "pvp")
 	or (setting.EnableBG and instanceType == "arena")) then
         equip = true
 else

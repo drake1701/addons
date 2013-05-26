@@ -1260,6 +1260,11 @@ GTFO.SpellID["142413"] = {
 	sound = 1;
 };
 
+GTFO.SpellID["142411"] = {
+	--desc = "Ruined Earth (Dark Shaman Xorenth - Heroic)";
+	sound = 1;
+};
+
 GTFO.SpellID["142692"] = {
 	--desc = "Burning Embers (Embercore)";
 	sound = 1;
@@ -1276,6 +1281,11 @@ GTFO.SpellID["142768"] = {
 
 GTFO.SpellID["142139"] = {
 	--desc = "Stone Rain (Earthborn Hatred)";
+	sound = 1;
+};
+
+GTFO.SpellID["142202"] = {
+	--desc = "Malevolent Force (Heart of Y'Shaarj)";
 	sound = 1;
 };
 
@@ -1789,5 +1799,35 @@ GTFO.SpellID["139353"] = {
 
 GTFO.SpellID["138539"] = {
 	--desc = "Stormbreath (Sparkmancer Vu)";
+	sound = 1;
+};
+
+GTFO.SpellID["138539"] = {
+	--desc = "Stormbreath (Sparkmancer Vu)";
+	sound = 1;
+};
+
+GTFO.SpellID["142403"] = {
+	--desc = "Ruin (Wavebinder Se'sha)";
+	sound = 1;
+};
+
+GTFO.SpellID["142123"] = {
+	--desc = "Whirling Axe (Commander Ag'troz)";
+	sound = 1;
+};
+
+GTFO.SpellID["142043"] = {
+	--desc = "Burnin' (Hoff Greasegun)";
+	sound = 1;
+};
+
+GTFO.SpellID["142448"] = {
+	--desc = "Ruin (Augur Narali)";
+	sound = 1;
+};
+
+GTFO.SpellID["142208"] = {
+	--desc = "Airborne Toxin (Ruskan Goreblade)";
 	sound = 1;
 };

@@ -8891,6 +8891,7 @@ function Outfitter:GetCompanionIDByName(pName)
 			return vPetID
 		end
 	end
+	Outfitter:DebugMessage("GetCompanionByName(%s): Not found", tostring(pName))
 end
 
 function Outfitter:GetSummonedCompanionID()
@@ -8910,6 +8911,7 @@ function Outfitter:SummonCompanionByGUID(pID, pDelay)
 end
 
 function Outfitter:SummonCompanionByName(pName, pDelay)
+	Outfitter:DebugMessage("SummonCompanionByName(%s, %s)", tostring(pName), tostring(pDelay))
 	local vPetID = self:GetCompanionIDByName(pName)
 	if not vPetID then return false end
 	self:SummonCompanionByGUID(vPetID, pDelay)
@@ -8939,6 +8941,7 @@ function Outfitter:DismissCompanionByGUID(pID, pDelay)
 end
 
 function Outfitter:DismissCompanionByName(pName)
+	Outfitter:DebugMessage("DismissCompanionByName(%s)", tostring(pName))
 	local vPetID = self:GetCompanionIDByName(pName)
 	if not vPetID then return false end
 	self:DismissCompanionByGUID(vPetID)
