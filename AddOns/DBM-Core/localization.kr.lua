@@ -6,7 +6,6 @@ DBM_HOW_TO_USE_MOD					= "DBM 사용을 환영합니다. 대화창에서 /dbm he
 DBM_FORUMS_MESSAGE					= "오류나 잘못된 바를 발견하셨나요? 일부 전투에서 추가 알림, 특수 경고 또는 바가 있으면 좋을텐데라고 생각하셨나요?\n새로 개설된 Deadly Boss Mods 토론, 오류 제보 및 요청 게시판을 방문해 보세요. 주소는 |HDBM:forums|h|cff3588ffhttp://www.deadlybossmods.com|r 입니다. (링크를 클릭하신 후 주소를 복사하실 수 있습니다.)"
 DBM_FORUMS_COPY_URL_DIALOG			= "새로운 게시판을 방문해보세요.\r\n(Elitist Jerks에서 서비스를 제공합니다!)"
 
-
 DBM_CORE_LOAD_MOD_ERROR				= "%s 경보를 불러오는 중 오류 발생: %s"
 DBM_CORE_LOAD_MOD_SUCCESS			= "'%s' 경보를 불러왔습니다 !"
 DBM_CORE_LOAD_GUI_ERROR				= "설정창을 불러올 수 없습니다: %s"
@@ -43,8 +42,6 @@ DBM_CORE_MIN						= "분"
 DBM_CORE_MIN_FMT					= "%d분"
 DBM_CORE_SEC						= "초"
 DBM_CORE_SEC_FMT					= "%d초"
-DBM_CORE_DEAD						= "죽음"--DEAD
-DBM_CORE_OK							= "수락"--OKAY
 
 DBM_CORE_GENERIC_WARNING_DUPLICATE	= "%s 중 1명"
 DBM_CORE_GENERIC_WARNING_BERSERK	= "%s %s 후에 광폭화"
@@ -56,7 +53,6 @@ DBM_CORE_OPTION_HEALTH_FRAME		= "우두머리 체력 바 보기"
 
 DBM_CORE_OPTION_CATEGORY_TIMERS		= "바"
 DBM_CORE_OPTION_CATEGORY_WARNINGS	= "알림"
-DBM_CORE_OPTION_CATEGORY_MISC		= "기타 추가 기능"--MISCELLANEOUS
 
 DBM_CORE_AUTO_RESPONDED						= "전투중 받은 귓속말에 자동 응답합니다."
 DBM_CORE_STATUS_WHISPER						= "%s: %s, %d/%d 명이 생존해 있습니다."
@@ -104,9 +100,7 @@ DBM_CORE_RANGECHECK_SOUND_OPTION_2	= "지정 거리 이내 사람이 1명 이상
 DBM_CORE_RANGECHECK_SOUND_0			= "소리 없음"
 DBM_CORE_RANGECHECK_SOUND_1			= "기본 소리"
 DBM_CORE_RANGECHECK_SOUND_2			= "짜증나는 소리(-_-;)"
-DBM_CORE_RANGECHECK_HIDE			= "숨기기"--HIDE
 DBM_CORE_RANGECHECK_SETRANGE_TO		= "%d m"
-DBM_CORE_RANGECHECK_LOCK			= "창 잠금"--LOCK_FRAME
 DBM_CORE_RANGECHECK_OPTION_FRAMES	= "창 표시 방법"
 DBM_CORE_RANGECHECK_OPTION_RADAR	= "아이콘으로 표시"
 DBM_CORE_RANGECHECK_OPTION_TEXT		= "글자로 표시"
@@ -114,8 +108,6 @@ DBM_CORE_RANGECHECK_OPTION_BOTH		= "모두 표시"
 DBM_CORE_RANGERADAR_HEADER			= "거리 확인 (%dm)"
 DBM_CORE_RANGERADAR_IN_RANGE_TEXT	= "거리 이내 : %d명"
 
-DBM_CORE_INFOFRAME_LOCK				= "창 잠금"--LOCK_FRAME
-DBM_CORE_INFOFRAME_HIDE				= "숨기기"--HIDE
 DBM_CORE_INFOFRAME_SHOW_SELF		= "내 정보 항상 보기"
 
 DBM_LFG_INVITE						= "던전 입장"
@@ -137,9 +129,6 @@ DBM_CORE_SLASHCMD_HELP				= {
 DBM_ERROR_NO_PERMISSION				= "해당 명령어를 실행하기 위한 권한을 가지고 있지 않습니다."
 
 DBM_CORE_BOSSHEALTH_HIDE_FRAME		= "우두머리 체력 바 닫기"
-
-DBM_CORE_ALLIANCE					= "얼라이언스"--FACTION_ALLIANCE
-DBM_CORE_HORDE						= "호드"--FACTION_HORDE
 
 DBM_CORE_WORLD_BOSS					= "야외 우두머리"
 DBM_CORE_UNKNOWN					= "알 수 없음"--UNKNOWN

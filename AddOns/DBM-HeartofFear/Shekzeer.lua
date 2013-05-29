@@ -1,7 +1,7 @@
 local mod	= DBM:NewMod(743, "DBM-HeartofFear", nil, 330)
 local L		= mod:GetLocalizedStrings()
 
-mod:SetRevision(("$Revision: 9633 $"):sub(12, -3))
+mod:SetRevision(("$Revision: 9668 $"):sub(12, -3))
 mod:SetCreatureID(62837)--62847 Dissonance Field, 63591 Kor'thik Reaver, 63589 Set'thik Windblade
 mod:SetZone()
 mod:SetUsedIcons(1, 2)
@@ -303,7 +303,7 @@ function mod:UNIT_SPELLCAST_SUCCEEDED(uId, _, _, _, spellId)
 		if self.Options.RangeFrame then
 			DBM.RangeCheck:Hide()
 		end
-	elseif spellId == 125304 and self:AntiSpam(2, 1) then
+	elseif spellId == 125304 then
 		fieldCount = 0
 		timerPhase1:Cancel()--If you kill everything it should end early.
 		warnAdvance:Show()

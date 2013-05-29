@@ -1,7 +1,7 @@
 local mod	= DBM:NewMod("BPCouncil", "DBM-Icecrown", 3)
 local L		= mod:GetLocalizedStrings()
 
-mod:SetRevision(("$Revision: 47 $"):sub(12, -3))
+mod:SetRevision(("$Revision: 51 $"):sub(12, -3))
 mod:SetCreatureID(37970, 37972, 37973)
 mod:SetModelID(30858)
 mod:SetUsedIcons(7, 8)
@@ -115,10 +115,10 @@ end
 
 function mod:TrySetTarget()
 	if DBM:GetRaidRank() >= 1 and self.Options.ActivePrinceIcon then
-		for i = 1, DBM:GetNumGroupMembers() do
-			if UnitGUID("raid"..i.."target") == activePrince then
+		for uId in DBM:GetGroupMembers() do
+			if UnitGUID(uId.."target") == activePrince then
 				activePrince = nil
-				SetRaidTarget("raid"..i.."target", 8)
+				SetRaidTarget(uId.."target", 8)
 			end
 			if not (activePrince) then
 				break

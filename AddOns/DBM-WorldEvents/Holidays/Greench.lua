@@ -1,7 +1,7 @@
 local mod	= DBM:NewMod("Greench", "DBM-WorldEvents", 1)
 local L		= mod:GetLocalizedStrings()
 
-mod:SetRevision(("$Revision: 9656 $"):sub(12, -3))
+mod:SetRevision(("$Revision: 9665 $"):sub(12, -3))
 mod:SetCreatureID(54499)
 mod:SetModelID(39021)
 mod:SetReCombatTime(10)
@@ -14,7 +14,7 @@ mod:RegisterEvents(
 	"SPELL_CAST_SUCCESS",
 	"SPELL_AURA_APPLIED",
 	"SPELL_AURA_APPLIED_DOSE",
-	"UNIT_SPELLCAST_SUCCEEDED target focus mouseover"
+	"UNIT_SPELLCAST_SUCCEEDED target focus"
 )
 
 local warnShrinkHeart			= mod:NewSpellAnnounce(101873, 2)

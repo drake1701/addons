@@ -53,7 +53,15 @@ function BPBID_SetBreedTooltip(parent, speciesID, tblBreedID, rareness)
 	
 	-- set local reference to my tooltip or create it if it doesn't exist
 	-- it inherits TooltipBorderedFrameTemplate AND GameTooltipTemplate to match Blizzard's "psuedo-tooltips" yet still make it easy to use 
-	local breedtip = _G["BPBID_BreedTooltip"] or CreateFrame("GameTooltip", "BPBID_BreedTooltip", nil, "TooltipBorderedFrameTemplate,GameTooltipTemplate")
+	local breedtip
+	local breedtiptext
+	if (parent == FloatingBattlePetTooltip) then
+		breedtip = _G["BPBID_BreedTooltip2"] or CreateFrame("GameTooltip", "BPBID_BreedTooltip2", nil, "TooltipBorderedFrameTemplate,GameTooltipTemplate")
+		breedtiptext = "BPBID_BreedTooltip2"
+	else
+		breedtip = _G["BPBID_BreedTooltip"] or CreateFrame("GameTooltip", "BPBID_BreedTooltip", nil, "TooltipBorderedFrameTemplate,GameTooltipTemplate")
+		breedtiptext = "BPBID_BreedTooltip"
+	end
 	
 	-- check for existence of LibExtraTip and see if it has hooked our parent
 	if (BPBID.LibExtraTip) and (BPBID.LibExtraTip.GetExtraTip) then extratip = BPBID.LibExtraTip:GetExtraTip(parent) end
@@ -236,22 +244,22 @@ function BPBID_SetBreedTooltip(parent, speciesID, tblBreedID, rareness)
 	end
 	
 	-- fix wordwrapping on smaller tooltips
-	if _G["BPBID_BreedTooltipTextLeft1"] then
-		_G["BPBID_BreedTooltipTextLeft1"]:CanNonSpaceWrap(true)
+	if _G[breedtiptext .. "TextLeft1"] then
+		_G[breedtiptext .. "TextLeft1"]:CanNonSpaceWrap(true)
 	end
 	
 	-- fix fonts to all match (if multiple lines exist, which they should 99.9% of the time)
-	if _G["BPBID_BreedTooltipTextLeft2"] then
+	if _G[breedtiptext .. "TextLeft2"] then
 		-- get fonts from line 1
-		local fontpath, fontheight, fontflags = _G["BPBID_BreedTooltipTextLeft1"]:GetFont()
+		local fontpath, fontheight, fontflags = _G[breedtiptext .. "TextLeft1"]:GetFont()
 		
 		-- set iterator at line 2 to start
 		local iterline = 2
 		
 		-- match all fonts to line 1
-		while _G["BPBID_BreedTooltipTextLeft" .. iterline] do
-			_G["BPBID_BreedTooltipTextLeft" .. iterline]:SetFont(fontpath, fontheight, fontflags)
-			_G["BPBID_BreedTooltipTextLeft" .. iterline]:CanNonSpaceWrap(true)
+		while _G[breedtiptext .. "TextLeft" .. iterline] do
+			_G[breedtiptext .. "TextLeft" .. iterline]:SetFont(fontpath, fontheight, fontflags)
+			_G[breedtiptext .. "TextLeft" .. iterline]:CanNonSpaceWrap(true)
 			iterline = iterline + 1
 		end
 	end
@@ -506,15 +514,6 @@ function BPBID.Hook_PJTLeave(self, motion)
 	-- uncolor tooltip header
 	if (BPBID_Options.Names.PJTRarity) then
 		GameTooltipTextLeft1:SetTextColor(1, 1, 1)
-	end
-	
-	-- reshow Floating Battle Pet Tooltip if it is still up
-	if (PetJournalPetCard.petID) and (FloatingBattlePetTooltip:IsVisible()) then
-		-- get data from PetID (which can get from the current PetCard since we know the current PetCard has to be responsible for the tooltip too)
-		local speciesID, _, level = GPII(PetJournalPetCard.petID)
-		local _, maxHealth, power, speed, rarity = GPS(PetJournalPetCard.petID)
-		
-		BPBID_Hook_FBPTShow(speciesID, level, rarity, maxHealth, power, speed)
 	end
 end
 

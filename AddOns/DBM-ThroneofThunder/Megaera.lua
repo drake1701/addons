@@ -1,7 +1,7 @@
 local mod	= DBM:NewMod(821, "DBM-ThroneofThunder", nil, 362)
 local L		= mod:GetLocalizedStrings()
 
-mod:SetRevision(("$Revision: 9656 $"):sub(12, -3))
+mod:SetRevision(("$Revision: 9699 $"):sub(12, -3))
 mod:SetCreatureID(68065, 70212, 70235, 70247)--flaming 70212. Frozen 70235, Venomous 70247
 mod:SetMainBossID(68065)
 mod:SetQuestID(32748)
@@ -95,8 +95,6 @@ local activeHeadGUIDS = {}
 local iceTorrent = GetSpellInfo(139857)
 local torrentExpires = {}
 local arcaneRecent = false
-local cpuUsage1 = 0--This is going to be used regardless, because we use event SPELL_AURA_APPLIED for every other debuff
-local cpuWaste1 = 0--This is how many times we waste cpu to work around icy torrent not firing SPELL_AURA_APPLIED event. When we could simply get CLEU fixed and add what, 20 more SPELL_AURA_APPLIED events.
 
 local function isTank(unit)
 	-- 1. check blizzard tanks first
@@ -128,8 +126,6 @@ end
 
 function mod:OnCombatStart(delay)
 	table.wipe(activeHeadGUIDS)
-	cpuUsage1 = 0
-	cpuWaste1 = 0
 	rampageCount = 0
 	rampageCast = 0
 	fireInFront = 0
@@ -159,7 +155,6 @@ end
 
 function mod:OnCombatEnd()
 	self:UnregisterShortTermEvents()
-	print("DBM Debug:"..cpuUsage1.." CLEU, "..cpuWaste1.." UNIT_AURA.")
 end
 
 function mod:SPELL_CAST_SUCCESS(args)
@@ -173,7 +168,6 @@ function mod:SPELL_CAST_SUCCESS(args)
 end
 
 function mod:SPELL_AURA_APPLIED(args)
-	cpuUsage1 = cpuUsage1 + 1
 	if args.spellId == 139843 then
 		local uId = DBM:GetRaidUnitId(args.destName)
 		if isTank(uId) then
@@ -433,7 +427,6 @@ end
 
 --Combat log bugged, UNIT_AURA only good way to work around.
 function mod:UNIT_AURA_UNFILTERED(uId)
-	cpuWaste1 = cpuWaste1 + 1
 	local name = DBM:GetUnitFullName(uId)
 	if not name then return end
 	local expires = select(7, UnitDebuff(uId, iceTorrent)) or 0

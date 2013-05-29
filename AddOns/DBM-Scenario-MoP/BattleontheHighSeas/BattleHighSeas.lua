@@ -1,7 +1,7 @@
 local mod	= DBM:NewMod("d652", "DBM-Scenario-MoP")
 local L		= mod:GetLocalizedStrings()
 
-mod:SetRevision(("$Revision: 9656 $"):sub(12, -3))
+mod:SetRevision(("$Revision: 9665 $"):sub(12, -3))
 mod:SetZone()
 
 mod:RegisterCombat("scenario", 940)
@@ -9,7 +9,7 @@ mod:RegisterCombat("scenario", 940)
 mod:RegisterEventsInCombat(
 	"SPELL_CAST_START",
 	"UNIT_DIED",
-	"UNIT_SPELLCAST_SUCCEEDED target focus mouseover"
+	"UNIT_SPELLCAST_SUCCEEDED target focus"
 )
 
 --Lieutenant Drak'on

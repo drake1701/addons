@@ -1,7 +1,7 @@
 local mod	= DBM:NewMod("KaelThas", "DBM-TheEye")
 local L		= mod:GetLocalizedStrings()
 
-mod:SetRevision(("$Revision: 453 $"):sub(12, -3))
+mod:SetRevision(("$Revision: 455 $"):sub(12, -3))
 mod:SetCreatureID(19622)
 mod:SetModelID(20023)
 mod:SetZone()
@@ -23,7 +23,7 @@ mod:RegisterEvents(
 	"CHAT_MSG_MONSTER_EMOTE",
 	"CHAT_MSG_MONSTER_YELL",
 	"UNIT_DIED",
-	"UNIT_SPELLCAST_SUCCEEDED target focus mouseover"
+	"UNIT_SPELLCAST_SUCCEEDED target focus"
 )
 
 local warnGaze			= mod:NewAnnounce("WarnGaze", 4, 39414)

@@ -1,7 +1,7 @@
 local mod	= DBM:NewMod(832, "DBM-ThroneofThunder", nil, 362)
 local L		= mod:GetLocalizedStrings()
 
-mod:SetRevision(("$Revision: 9640 $"):sub(12, -3))
+mod:SetRevision(("$Revision: 9675 $"):sub(12, -3))
 mod:SetCreatureID(68397)--Diffusion Chain Conduit 68696, Static Shock Conduit 68398, Bouncing Bolt conduit 68698, Overcharge conduit 68697
 mod:SetQuestID(32756)
 mod:SetZone()
@@ -451,6 +451,8 @@ end
 function mod:UNIT_SPELLCAST_SUCCEEDED(uId, _, _, _, spellId)
 	if spellId == 137146 and self:AntiSpam(2, 2) then--Supercharge Conduits (comes earlier than other events so we use this one)
 		intermissionActive = true
+		specWarnDiffusionChainSoon:Cancel()
+		specWarnBouncingBoltSoon:Cancel()
 		timerThunderstruckCD:Cancel()
 		countdownThunderstruck:Cancel()
 		timerDecapitateCD:Cancel()

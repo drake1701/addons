@@ -1,7 +1,7 @@
 local mod	= DBM:NewMod(818, "DBM-ThroneofThunder", nil, 362)
 local L		= mod:GetLocalizedStrings()
 
-mod:SetRevision(("$Revision: 9607 $"):sub(12, -3))
+mod:SetRevision(("$Revision: 9678 $"):sub(12, -3))
 mod:SetCreatureID(68036)--Crimson Fog 69050, 
 mod:SetQuestID(32750)
 mod:SetZone()
@@ -238,8 +238,7 @@ function mod:SPELL_CAST_START(args)
 end
 
 local function findBeamJump(spellName, spellId)
-	for i=1, DBM:GetNumGroupMembers() do
-		local uId = "raid"..i
+	for uId in DBM:GetGroupMembers() do
 		local name = DBM:GetUnitFullName(uId)
 		if spellId == 139202 and UnitDebuff(uId, spellName) and lastBlue ~= name then
 			lastBlue = name

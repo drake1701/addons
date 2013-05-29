@@ -1,4 +1,4 @@
-## Interface: 50300
+## Interface: 50200
 ## Title: Overachiever - Trade
 ## Version: 0.71
 ## Author: Tuhljin
@@ -7,7 +7,7 @@
 ## LoadWith: Blizzard_TradeSkillUI
 ## Dependencies: Overachiever
 ## X-Child-Of: Overachiever
-## X-Curse-Packaged-Version: v0.71
+## X-Curse-Packaged-Version: 0.72
 ## X-Curse-Project-Name: Overachiever - achievement tools and tweaks
 ## X-Curse-Project-ID: overachiever
 ## X-Curse-Repository-ID: wow/overachiever/mainline

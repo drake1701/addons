@@ -1,7 +1,7 @@
 local mod	= DBM:NewMod(745, "DBM-HeartofFear", nil, 330)
 local L		= mod:GetLocalizedStrings()
 
-mod:SetRevision(("$Revision: 9656 $"):sub(12, -3))
+mod:SetRevision(("$Revision: 9668 $"):sub(12, -3))
 mod:SetCreatureID(62980)--63554 (Special invisible Vizier that casts the direction based spellid versions of attenuation)
 mod:SetZone()
 

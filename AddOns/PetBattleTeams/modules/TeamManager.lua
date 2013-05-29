@@ -477,9 +477,10 @@ function TeamManager:UpdateTeamNewPet(petID,teamIndex,petIndex,sourceTeamIndex,s
 	assert(type(petID) == "string")
 	assert(type(petIndex) == "number" and petIndex <= PETS_PER_TEAM and petIndex > 0)
 	assert(type(teamIndex) == "number")
-
+	if not petID then return end
 	if self:IsTeamLocked(teamIndex) or self:IsTeamLockedByUser(teamIndex) then return end
 	if self:TeamContainsPet(teamIndex,petID) then return  end
+	
 	local speciesID, customName, level, xp, maxXp, displayID, _,name, icon, petType, creatureID, sourceText, description, isWild, canBattle, tradable = C_PetJournal.GetPetInfoByPetID(petID)
 	
 	if speciesID and canBattle then
@@ -531,7 +532,10 @@ function TeamManager:CreateTeam()
 		
 		if self:GetAutomaticallySaveTeams() then 
 			pet.petID, pet.abilities[1], pet.abilities[2], pet.abilities[3] = C_PetJournal.GetPetLoadOutInfo(i)
-			pet.speciesID = C_PetJournal.GetPetInfoByPetID(pet.petID)
+			
+			if pet.petID then
+				pet.speciesID = C_PetJournal.GetPetInfoByPetID(pet.petID)
+			end
 		else
 			pet.petID, pet.abilities[1], pet.abilities[2], pet.abilities[3] = EMPTY_PET,0,0,0
 		end
@@ -578,7 +582,9 @@ function TeamManager.UpdateCurrentTeam()
 			pet = {}
 			pet.abilities = {}
 			pet.petID, pet.abilities[1], pet.abilities[2], pet.abilities[3] = C_PetJournal.GetPetLoadOutInfo(i)
-			pet.speciesID = C_PetJournal.GetPetInfoByPetID(pet.petID)
+			if pet.petID then
+				pet.speciesID = C_PetJournal.GetPetInfoByPetID(pet.petID)
+			end
 			team[i] = pet
 		end
 		
@@ -616,10 +622,7 @@ function TeamManager:OnInitialize()
 	self.teams = self.db.global.teams 
 	
 	
-	if self.db.global.hasImported == false then
-		StaticPopup_Show("PBT_IMPORT_TEAMS",nil,nil,self)
-		self.db.global.hasImported = true
-	end
+	
 	
 	--convert numbered petID's to new hex strings
 	for i=1,#self.teams do
@@ -664,9 +667,11 @@ function TeamManager:setupSpeciesIDRunOnce()
 	for team=1,numTeams do
 		for petIndex = 1, PETS_PER_TEAM do
 			local teamPetID = self.teams[team][petIndex].petID
-			local speciesID, _, level = C_PetJournal.GetPetInfoByPetID(teamPetID)
-			if speciesID then
-				self.teams[team][petIndex].speciesID = speciesID
+			if teamPetID then
+				local speciesID, _, level = C_PetJournal.GetPetInfoByPetID(teamPetID)
+				if speciesID then
+					self.teams[team][petIndex].speciesID = speciesID
+				end
 			end
 		end
 	end
@@ -686,13 +691,15 @@ function TeamManager:ReconstructTeams()
 	for team=1,numTeams do
 		for petIndex = 1, PETS_PER_TEAM do
 			local teamPetID = self.teams[team][petIndex].petID
-			local speciesID, _, level = C_PetJournal.GetPetInfoByPetID(teamPetID)
-			if speciesID then
-				self.teams[team][petIndex].speciesID = speciesID
-			else
-				local teamSpeciesID = self.teams[team][petIndex].speciesID
-				if teamSpeciesID and availablePets[teamSpeciesID] then
-					 self.teams[team][petIndex].petID = availablePets[teamSpeciesID].petID
+			if teamPetID then
+				local speciesID, _, level = C_PetJournal.GetPetInfoByPetID(teamPetID)
+				if speciesID then
+					self.teams[team][petIndex].speciesID = speciesID
+				else
+					local teamSpeciesID = self.teams[team][petIndex].speciesID
+					if teamSpeciesID and availablePets[teamSpeciesID] then
+						 self.teams[team][petIndex].petID = availablePets[teamSpeciesID].petID
+					end
 				end
 			end
 		end
@@ -768,7 +775,7 @@ function TeamManager:FixTeams()
 	--find intersections between an invalid pets previous ability ID's and currently valid pets
 	for i=1,#self.teams do
 		for j=1,PETS_PER_TEAM do 
-			if not C_PetJournal.GetPetInfoByPetID(self.teams[i][j].petID) then
+			if self.teams[i][j].petID and not C_PetJournal.GetPetInfoByPetID(self.teams[i][j].petID) then
 				
 				--get possible pet matches
 				local matches = abilities2species[self.teams[i][j].abilities[1]]

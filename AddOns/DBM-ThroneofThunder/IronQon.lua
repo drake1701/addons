@@ -1,7 +1,7 @@
 local mod	= DBM:NewMod(817, "DBM-ThroneofThunder", nil, 362)
 local L		= mod:GetLocalizedStrings()
 
-mod:SetRevision(("$Revision: 9656 $"):sub(12, -3))
+mod:SetRevision(("$Revision: 9678 $"):sub(12, -3))
 mod:SetCreatureID(68078, 68079, 68080, 68081)--Ro'shak 68079, Quet'zal 68080, Dam'ren 68081, Iron Qon 68078
 mod:SetMainBossID(68078)
 mod:SetQuestID(32754)
@@ -171,8 +171,7 @@ end
 
 local function checkArcing()
 	local arcingDebuffs = 0
-	for i = 1, GetNumGroupMembers() do
-		local uId = "raid"..i
+	for uId in DBM:GetGroupMembers() do
 		if UnitDebuff(uId, arcingName) then
 			arcingDebuffs = arcingDebuffs + 1
 		end

@@ -1,7 +1,7 @@
 local mod	= DBM:NewMod(744, "DBM-HeartofFear", nil, 330)
 local L		= mod:GetLocalizedStrings()
 
-mod:SetRevision(("$Revision: 9658 $"):sub(12, -3))
+mod:SetRevision(("$Revision: 9668 $"):sub(12, -3))
 mod:SetCreatureID(62543)
 mod:SetZone()
 
@@ -161,7 +161,7 @@ function mod:UNIT_SPELLCAST_SUCCEEDED(uId, _, _, _, spellId)
 		else
 			timerTempestSlashCD:Start()
 		end
-	elseif spellId == 123814 then--Do not add other spellids here either. 123814 is only cast once, it starts the channel. everything else is cast every 1-2 seconds as periodic triggers.
+	elseif spellId == 123814 and self:AntiSpam(2, 2) then--Do not add other spellids here either. 123814 is only cast once, it starts the channel. everything else is cast every 1-2 seconds as periodic triggers.
 		phase2 = true
 		intensifyCD = 10
 		if self.Options.RangeFrame then

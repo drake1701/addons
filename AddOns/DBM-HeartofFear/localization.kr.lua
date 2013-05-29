@@ -67,12 +67,12 @@ L= DBM:GetModLocalization(737)
 
 L:SetWarningLocalization({
 	warnReshapeLife				= "%s : >%s< (%d)",
-	warnReshapeLifeTutor		= "1: 대상 차단/공격, 2: 본인 차단, 3: 체력/의지력 회복, 4: 피조물에서 탈출",
+	warnReshapeLifeTutor		= "1: 대상 차단/중첩 생성, 2: 본인 차단, 3: 체력/의지력 회복(주로 3단계에서 사용), 4: 피조물에서 탈출(1,2단계에서 사용)",
 	warnAmberExplosion			= "주문시전 %2$s : >%1$s<",
 	warnAmberExplosionAM		= "호박석 괴수가 호박석 폭발 시전 중 - 지금 차단!",--personal warning.
 	warnInterruptsAvailable		= "%s의 호박석 폭발 차단 가능: >%s<",
 	warnWillPower				= "현재 의지력 : %s",
-	specwarnWillPower			= "의지력 낮음! - 약 5초 남음",
+	specwarnWillPower			= "의지력 낮음 - 피조물에서 탈출하거나 바닥을 드세요!",
 	specwarnAmberExplosionYou	= "당신에게 %s 사용 - 2번으로 차단!",
 	specwarnAmberExplosionAM	= "%s 시전: %s - 1번으로 차단!",
 	specwarnAmberExplosionOther	= "%s 시전: %s - 1번으로 차단!"
@@ -119,4 +119,17 @@ L:SetOptionLocalization({
 L:SetMiscLocalization({
 	PlayerDebuffs		= "시선 집중 대상",
 	YellPhase3			= "변명은 이제 지겹다, 여제! 당장 이 멍청이들을 쓸어버리지 않으면 내가 몸소 널 죽이겠다!"
+})
+
+-------------
+--  Trash  --
+-------------
+L = DBM:GetModLocalization("HoFTrash")
+
+L:SetGeneralLocalization({
+	name =	"공포의 심장: 일반구간"
+})
+
+L:SetOptionLocalization({
+	UnseenStrikeArrow	= "$spell:122949 주문의 영향을 누군가 받은 경우 DBM 화살표 보기"
 })

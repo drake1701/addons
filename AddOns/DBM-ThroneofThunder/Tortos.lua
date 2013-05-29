@@ -1,7 +1,7 @@
 local mod	= DBM:NewMod(825, "DBM-ThroneofThunder", nil, 362)
 local L		= mod:GetLocalizedStrings()
 
-mod:SetRevision(("$Revision: 9641 $"):sub(12, -3))
+mod:SetRevision(("$Revision: 9693 $"):sub(12, -3))
 mod:SetCreatureID(67977)
 mod:SetQuestID(32747)
 mod:SetZone()
@@ -98,9 +98,11 @@ function mod:OnCombatStart(delay)
 	countdownStomp:Start(29-delay)
 	timerBreathCD:Start(-delay)
 	countdownBreath:Start(-delay)
-	if self.Options.InfoFrame and self:IsDifficulty("heroic10", "heroic25") then
-		DBM.InfoFrame:SetHeader(L.WrongDebuff:format(shelldName))
-		DBM.InfoFrame:Show(5, "playergooddebuff", 137633)
+	if self:IsDifficulty("heroic10", "heroic25") then
+		if self.Options.InfoFrame then
+			DBM.InfoFrame:SetHeader(L.WrongDebuff:format(shelldName))
+			DBM.InfoFrame:Show(5, "playergooddebuff", 137633)
+		end
 		berserkTimer:Start(600-delay)
 	else
 		berserkTimer:Start(-delay)
@@ -171,9 +173,9 @@ end
 
 mod:RegisterOnUpdateHandler(function(self)
 	if hasHighestVersion and not (iconsSet == 3) then
-		for i = 1, DBM:GetNumGroupMembers() do
-			local uId = "raid"..i.."target"
-			local guid = UnitGUID(uId)
+		for uId in DBM:GetGroupMembers() do
+			local unitid = uId.."target"
+			local guid = UnitGUID(unitid)
 			if adds[guid] then
 				for g,i in pairs(adds) do
 					if i == 8 and g ~= guid then -- always set skull on first we see
@@ -182,7 +184,7 @@ mod:RegisterOnUpdateHandler(function(self)
 						break
 					end
 				end
-				SetRaidTarget(uId, adds[guid])
+				SetRaidTarget(unitid, adds[guid])
 				iconsSet = iconsSet + 1
 				adds[guid] = nil
 			end
@@ -208,11 +210,11 @@ function mod:SPELL_AURA_APPLIED(args)
 		shellsRemaining = shellsRemaining + 1
 		addsActivated = addsActivated - 1
 		if DBM:GetRaidRank() > 0 and self.Options.ClearIconOnTurtles then
-			for i = 1, DBM:GetNumGroupMembers() do
-				local uId = "raid"..i.."target"
-				local guid = UnitGUID(uId)
+			for uId in DBM:GetGroupMembers() do
+				local unitid = uId.."target"
+				local guid = UnitGUID(unitid)
 				if args.destGUID == guid then
-					SetRaidTarget(uId, 0)
+					SetRaidTarget(unitid, 0)
 				end
 			end
 		end
@@ -256,8 +258,6 @@ function mod:SPELL_CAST_SUCCESS(args)
 end
 
 --Does not show in combat log, so UNIT_AURA must be used instead
---This needs to be switched to RegisterUnitEvent once tandanu is done wit that code.
---that way dbm isn't checking if it's boss1 325635325 times a fight.
 function mod:UNIT_AURA(uId)
 	local _, _, _, _, _, duration, expires = UnitDebuff(uId, shellConcussion)
 	if expires and lastConcussion ~= expires then
