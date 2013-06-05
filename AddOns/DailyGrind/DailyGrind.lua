@@ -22,11 +22,17 @@ enabledText = "|cFF00FF00ENABLED|r";
 maxQuests = 25;
 repeatableWarning = "Be aware that this may cause undesired behavior with certain NPCs.";
 
+CharacterBlacklist = nil;
+CharacterNpcBlacklist = nil;
+CharacterRewardList = nil;
+CharacterSuspendKeyList = nil;
+AccountQuestHistory = nil;
+
 function DailyGrind:OnInitialize()
 	LibStub("AceConfigRegistry-3.0"):RegisterOptionsTable(addonName, self.Options)
 	local configDialog = LibStub("AceConfigDialog-3.0")
 	self.optionsFrames = {}
-	self.optionsFrames.DailyGrind = configDialog:AddToBlizOptions(addonName, addonName, nil, "General")
+	self.optionsFrames.DailyGrind = configDialog:AddToBlizOptions(addonName, addonFullName, nil, "General")
 	
     self:RegisterChatCommand("dailygrind", "ChatCommand");
     self:RegisterChatCommand("dg", "ChatCommand");
@@ -34,19 +40,39 @@ function DailyGrind:OnInitialize()
 end
 
 function DailyGrind:InitializeSettings()
-	if DailyGrindSettings == nil then
-		DailyGrindSettings = self.defaultSettings;
+	if not Settings then
+		Settings = self.defaultSettings;
+		
+		-- Upgrade from 1.x settings
+		if DailyGrindSettings then
+			Settings.Enabled = DailyGrindSettings.Enabled;
+			Settings.Blacklist = DailyGrindSettings.Blacklist;
+			Settings.NpcBlacklist = DailyGrindSettings.NpcBlacklist;
+			Settings.RewardList = DailyGrindSettings.Rewards;
+			Settings.AutoAcceptAllEnabled = DailyGrindSettings.AutoAcceptAllEnabled;
+			Settings.RepeatableQuestsEnabled = DailyGrindSettings.RepeatableQuestsEnabled;
+			Settings.SuspendKeys = {};
+			Settings.SuspendKeys[DailyGrindSettings.SuspendKey] = true;
+			DailyGrindSettings = nil;
+		end
 	end
-	DailyGrindSettings.Version = nil;
-	if DailyGrindQuests == nil then
-		DailyGrindQuests = {};
-	end
-	if DailyGrindSettings.NpcBlacklist == nil then
-		DailyGrindSettings.NpcBlacklist = {};
-	end
-	if DailyGrindSettings.SuspendKey == nil then
-		DailyGrindSettings.SuspendKey = "CTRL";
-	end
+	
+	if not QuestHistory then
+		QuestHistory = {};
+		
+		-- Upgrade from 1.x settings
+		if DailyGrindQuests then
+			QuestHistory = DailyGrindQuests;
+			DailyGrindQuests = nil;
+		end
+	end	
+	
+	-- Initialize lists
+	CharacterBlacklist = Blacklist:new();
+	CharacterNpcBlacklist = NpcBlacklist:new();
+	CharacterRewardList = RewardList:new();
+	CharacterSuspendKeyList = SuspendKeyList:new();
+	AccountQuestHistory = QuestList:new();
 end
 
 function DailyGrind:OnEnable()
@@ -72,7 +98,7 @@ function DailyGrind:QUEST_AUTOCOMPLETE(eventName, eventQuestId)
 	self:Debug("Quest title to complete: "..questTitle);
 	
 	local isDaily = isDaily or self:IsSpecialCaseQuest(questTitle);
-	local isInHistory = self:IsInList(DailyGrindQuests, questTitle);
+	local isInHistory = AccountQuestHistory:Contains(questTitle);
 	self:DebugQuest(isDaily, isInHistory);
 	
 	if (isInHistory or self:GetAutoAcceptAllEnabled()) and isDaily then
@@ -95,7 +121,7 @@ end
 function DailyGrind:GOSSIP_SHOW()
 	self:Debug("GOSSIP_SHOW");
 	
-	if not DailyGrindSettings.Enabled or self:IsSuspendKeyDown() then
+	if not Settings.Enabled or self:IsSuspendKeyDown() then
 		return;
 	end	
 	
@@ -105,8 +131,8 @@ function DailyGrind:GOSSIP_SHOW()
 	self:Debug(tostring(numActiveQuests).." active quest(s) detected.");
 	
 	local npcName, realm = UnitName("npc");
-	if self:IsBlacklistedNpc(npcName) and (numAvailableQuests > 0 or numActiveQuests > 0) then
-		self:PrintNpcBlacklist(": \""..npcName.."\" ignored.");
+	if CharacterNpcBlacklist:Contains(npcName) and (numAvailableQuests > 0 or numActiveQuests > 0) then
+		CharacterNpcBlacklist:Print(": \""..npcName.."\" ignored.");
 		return;
 	end
 	
@@ -117,11 +143,11 @@ function DailyGrind:GOSSIP_SHOW()
 			local questTitle = self:GetSanitizedActiveQuestTitle(activeQuests, i);
 			local isComplete = self:IsCompleteActiveQuest(activeQuests, i)
 			local isDaily = self:IsDailyActiveQuest(questTitle) or self:IsSpecialCaseQuest(questTitle);
-			local isInHistory = self:IsInList(DailyGrindQuests, questTitle);
+			local isInHistory = AccountQuestHistory:Contains(questTitle);
 						
 			if (isInHistory or self:GetAutoAcceptAllEnabled()) and isDaily and isComplete then
-				if self:IsBlacklisted(questTitle) then
-					self:PrintBlacklist(": \""..questTitle.."\" ignored.");
+				if CharacterBlacklist:Contains(questTitle) then
+					CharacterBlacklist:Print(": \""..questTitle.."\" ignored.");
 				else
 					self:Debug("Selecting \""..questTitle.."\" via GOSSIP_SHOW");
 					SelectGossipActiveQuest(i);
@@ -137,14 +163,14 @@ function DailyGrind:GOSSIP_SHOW()
 			local questTitle = self:SanitizeQuestTitle(availableQuests[self:GetAvailableQuestTitleIndex(i)]);
 			local isDaily = self:IsDailyAvailableQuest(availableQuests, i) or self:IsSpecialCaseQuest(questTitle);
 			local isRepeatable = self:IsRepeatableAvailableQuest(availableQuests, i);
-			local isInHistory = self:IsInList(DailyGrindQuests, questTitle);
+			local isInHistory = AccountQuestHistory:Contains(questTitle);
 			
 			if ((isInHistory or self:GetAutoAcceptAllEnabled()) and isDaily) or (isRepeatable and self:GetRepeatableQuestsEnabled()) then
 				if isRepeatable then
 					self:PrintRepeatable(": Attempting to turn in \""..questTitle.."\"");
 				end
-				if self:IsBlacklisted(questTitle) then
-					self:PrintBlacklist(": \""..questTitle.."\" ignored.");
+				if CharacterBlacklist:Contains(questTitle) then
+					CharacterBlacklist:Print(": \""..questTitle.."\" ignored.");
 				else
 					if self:GetNumPlayerActiveQuests() < maxQuests or isRepeatable then
 						self:Debug("Selecting \""..questTitle.."\" via GOSSIP_SHOW");
@@ -162,7 +188,7 @@ end
 function DailyGrind:QUEST_GREETING()
 	self:Debug("QUEST_GREETING");
 	
-	if not DailyGrindSettings.Enabled or self:IsSuspendKeyDown() then 
+	if not Settings.Enabled or self:IsSuspendKeyDown() then 
 		return; 
 	end	
 	
@@ -172,8 +198,8 @@ function DailyGrind:QUEST_GREETING()
 	self:Debug(tostring(numActiveQuests).." active quest(s) detected.");
 
 	local npcName, realm = UnitName("npc");
-	if self:IsBlacklistedNpc(npcName) and (numAvailableQuests > 0 or numActiveQuests > 0) then
-		self:PrintNpcBlacklist(": \""..npcName.."\" ignored.");
+	if CharacterNpcBlacklist:Contains(npcName) and (numAvailableQuests > 0 or numActiveQuests > 0) then
+		CharacterNpcBlacklist:Print(": \""..npcName.."\" ignored.");
 		return;
 	end
 	
@@ -183,13 +209,13 @@ function DailyGrind:QUEST_GREETING()
 			local questTitle = self:SanitizeQuestTitle(GetActiveTitle(i));
 			local isComplete = self:IsCompleteActiveQuest_Greeting(questTitle)
 			local isDaily = self:IsDailyActiveQuest(questTitle) or self:IsSpecialCaseQuest(questTitle);
-			local isInHistory = self:IsInList(DailyGrindQuests, questTitle);
+			local isInHistory = AccountQuestHistory:Contains(questTitle);
 			
 			self:Debug(questTitle.." isComplete = "..tostring(isComplete));
 			
 			if (isInHistory or self:GetAutoAcceptAllEnabled()) and isDaily and isComplete then 
-				if self:IsBlacklisted(questTitle) then 
-					self:PrintBlacklist(": \""..questTitle.."\" ignored.");
+				if CharacterBlacklist:Contains(questTitle) then 
+					CharacterBlacklist:Print(": \""..questTitle.."\" ignored.");
 				else
 					self:Debug("Selecting \""..questTitle.."\" via QUEST_GREETING");
 					SelectActiveQuest(i); 
@@ -204,14 +230,14 @@ function DailyGrind:QUEST_GREETING()
 			local questTitle = self:SanitizeQuestTitle(GetAvailableTitle(i));
 			local isTrivial, isDaily, isRepeatable = GetAvailableQuestInfo(i)
 			isDaily = isDaily or self:IsSpecialCaseQuest(questTitle);
-			local isInHistory = self:IsInList(DailyGrindQuests, questTitle);
+			local isInHistory = AccountQuestHistory:Contains(questTitle);
 			
 			if ((isInHistory or self:GetAutoAcceptAllEnabled()) and isDaily) or (isRepeatable and self:GetRepeatableQuestsEnabled()) then
 				if isRepeatable then
 					self:PrintRepeatable(": Attempting to turn in \""..questTitle.."\"");
 				end
-				if self:IsBlacklisted(questTitle) then 
-					self:PrintBlacklist(": \""..questTitle.."\" ignored.");
+				if CharacterBlacklist:Contains(questTitle) then 
+					CharacterBlacklist:Print(": \""..questTitle.."\" ignored.");
 				else 
 					if self:GetNumPlayerActiveQuests() < maxQuests then
 						self:Debug("Selecting \""..questTitle.."\" via QUEST_GREETING");
@@ -232,14 +258,14 @@ function DailyGrind:QUEST_DETAIL()
 	local questTitle = self:SanitizeQuestTitle(GetTitleText());
 	local npcName, realm = UnitName("npc");
 	
-	if not DailyGrindSettings.Enabled or self:IsSuspendKeyDown() or self:IsBlacklisted(questTitle) or self:IsBlacklistedNpc(npcName) then
+	if not Settings.Enabled or self:IsSuspendKeyDown() or CharacterBlacklist:Contains(questTitle) or CharacterNpcBlacklist:Contains(npcName) then
 		self:Debug("Skipping "..questTitle);
 		return;
 	end
 	
 	local isDailyOrWeekly = QuestIsDaily() == 1 or QuestIsWeekly() == 1 or self:IsSpecialCaseQuest(questTitle);
 	local isRepeatable = self:IsRepeatableQuest({GetGossipAvailableQuests()}, questTitle);
-	local isInHistory = self:IsInList(DailyGrindQuests, questTitle);
+	local isInHistory = AccountQuestHistory:Contains(questTitle);
 	self:DebugQuest(isDailyOrWeekly or isRepeatable, isInHistory);
 	
 	if (isInHistory or self:GetAutoAcceptAllEnabled()) and (isDailyOrWeekly or isRepeatable) then
@@ -258,14 +284,14 @@ function DailyGrind:QUEST_PROGRESS()
 	local questTitle = self:SanitizeQuestTitle(GetTitleText());
 	local npcName, realm = UnitName("npc");
 	
-	if not DailyGrindSettings.Enabled or self:IsSuspendKeyDown() or self:IsBlacklisted(questTitle) or self:IsBlacklistedNpc(npcName) then
+	if not Settings.Enabled or self:IsSuspendKeyDown() or CharacterBlacklist:Contains(questTitle) or CharacterNpcBlacklist:Contains(npcName) then
 		return;
 	end
 	
 	local isCompletable = IsQuestCompletable() == 1;
 	local isDailyOrWeekly = QuestIsDaily() == 1 or QuestIsWeekly() == 1 or self:IsSpecialCaseQuest(questTitle);
 	local isRepeatable = self:IsRepeatableQuest({GetGossipAvailableQuests()}, questTitle);
-	local isInHistory = self:IsInList(DailyGrindQuests, questTitle);
+	local isInHistory = AccountQuestHistory:Contains(questTitle);
 	self:DebugQuest(isDailyOrWeekly or isRepeatable, isInHistory);
 	
 	if (isInHistory or self:GetAutoAcceptAllEnabled()) and (isDailyOrWeekly or isRepeatable) and isCompletable then
@@ -283,13 +309,13 @@ function DailyGrind:CompleteQuest()
 	local npcName, realm = UnitName("npc");
 	local isDailyOrWeekly = QuestIsDaily() == 1 or QuestIsWeekly() == 1 or self:IsSpecialCaseQuest(questTitle);
 	local isRepeatable = self:IsRepeatableQuest({GetGossipAvailableQuests()}, questTitle);
-	local isInHistory = self:IsInList(DailyGrindQuests, questTitle);
+	local isInHistory = AccountQuestHistory:Contains(questTitle);
 	
 	self:Debug("Quest title to complete: "..questTitle);
 	self:DebugQuest(isDailyOrWeekly or isRepeatable, isInHistory);
 
 	--Attempt to turn in and record.
-	if DailyGrindSettings.Enabled and not self:IsSuspendKeyDown() and not self:IsBlacklisted(questTitle) and not self:IsBlacklistedNpc(npcName) then
+	if Settings.Enabled and not self:IsSuspendKeyDown() and not CharacterBlacklist:Contains(questTitle) and not CharacterNpcBlacklist:Contains(npcName) then
 		if (isInHistory or self:GetAutoAcceptAllEnabled()) and (isDailyOrWeekly or isRepeatable) then
 			local numQuestChoices = GetNumQuestChoices();
 			if numQuestChoices <= 1 then
@@ -307,7 +333,7 @@ function DailyGrind:CompleteQuest()
 	end
 	
 	if (isDailyOrWeekly or isRepeatable) and not isInHistory then
-		DailyGrindQuests[questTitle] = 1;	-- always record, even when disabled
+		AccountQuestHistory:Set(questTitle, 1);	-- always record, even when disabled
 	end
 end
 
@@ -320,15 +346,15 @@ function DailyGrind:SelectReward(questTitle)
 			choiceIndex = index;
 			itemName = value;
 		end
-		self:PrintRewardList(": \""..questTitle.."\" => \""..itemName.."\" automatically selected.");
+		CharacterRewardList:Print(": \""..questTitle.."\" => \""..itemName.."\" automatically selected.");
 		GetQuestReward(choiceIndex);
 	elseif numMyChoices > 1 then	-- 2+ matching items. Not so happy.
-		self:PrintRewardList(": \""..questTitle.."\" => Multiple matches found:\n");
+		CharacterRewardList:PrintImportant(": \""..questTitle.."\" => Multiple matches found:\n");
 		for index, value in pairs(myChoices) do	-- Build a string that displays all the conflicting rewards.
 			print(" - "..value);
 		end
 		print("  Please choose your reward manually and then review your "..rewardListText..".\n");
 	else	-- No matching items. Sad.
-		self:PrintRewardList(": \""..questTitle.."\" => No matching rewards found; please choose manually.");
+		CharacterRewardList:PrintImportant(": \""..questTitle.."\" => No matching rewards found; please choose manually.");
 	end
 end

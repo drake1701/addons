@@ -163,6 +163,9 @@ aeldra@sonnenkinder.org
 Changes: 
 Rev     Date        Description
 ------  ----------  -----------------------
+5.3b    2013-06-03  Fixed action button position issue
+                    Thanks for donation: Isabela, Ronald G. :)
+
 5.3a    2013-05-23  UI cleanup, removed old raid options
                     Added buffs: Warlock (Blood Horror), Mage (Ice Ward), Hunter (Camouflage)
                     Added items: Burning Seed, Orb of the Sin'dorei

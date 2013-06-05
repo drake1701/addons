@@ -40,7 +40,7 @@
 
 
 
-local revision =("$Revision: 9644 $"):sub(12, -3)
+local revision =("$Revision: 9731 $"):sub(12, -3)
 local FrameTitle = "DBM_GUI_Option_"	-- all GUI frames get automatically a name FrameTitle..ID
 
 local PanelPrototype = {}
@@ -1541,7 +1541,7 @@ local function CreateOptionsMenu()
 		--            Raid Warning Colors            --
 		-----------------------------------------------
 		local RaidWarningPanel = DBM_GUI_Frame:CreateNewPanel(L.Tab_RaidWarning, "option")
-		local raidwarnoptions = RaidWarningPanel:CreateArea(L.RaidWarning_Header, nil, 190, true)
+		local raidwarnoptions = RaidWarningPanel:CreateArea(L.RaidWarning_Header, nil, 220, true)
 
 		local ShowWarningsInChat 	= raidwarnoptions:CreateCheckButton(L.ShowWarningsInChat, true, nil, "ShowWarningsInChat")
 		local ShowFakedRaidWarnings = raidwarnoptions:CreateCheckButton(L.ShowFakedRaidWarnings,  true, nil, "ShowFakedRaidWarnings")
@@ -1567,17 +1567,32 @@ local function CreateOptionsMenu()
 		local countSounds = {
 			{	text	= "Mosh (Male)",	value 	= "Mosh"},
 			{	text	= "Corsica (Female)",value 	= "Corsica"},
+			{	text	= "Kolt (Male)",value 	= "Kolt"},
 			{	text	= "None",value 	= "None"},
 		}
 		local CountSoundDropDown = raidwarnoptions:CreateDropdown(L.CountdownVoice, countSounds,
 		DBM.Options.CountdownVoice, function(value)
 			DBM.Options.CountdownVoice = value
+			DBM:PlayCountSound(1, DBM.Options.CountdownVoice)
 		end
 		)
-		CountSoundDropDown:SetPoint("LEFT", RaidWarnSoundDropDown, "RIGHT", 30, 0)
+		CountSoundDropDown:SetPoint("TOPLEFT", RaidWarnSoundDropDown, "TOPLEFT", 0, -40)
+		
+		local countSounds2 = {
+			{	text	= "Mosh (Male)",	value 	= "Mosh"},
+			{	text	= "Corsica (Female)",value 	= "Corsica"},
+			{	text	= "Kolt (Male)",value 	= "Kolt"},
+		}
+		local CountSoundDropDown2 = raidwarnoptions:CreateDropdown(L.CountdownVoice2, countSounds,
+		DBM.Options.CountdownVoice2, function(value)
+			DBM.Options.CountdownVoice2 = value
+			DBM:PlayCountSound(1, DBM.Options.CountdownVoice2)
+		end
+		)
+		CountSoundDropDown2:SetPoint("LEFT", CountSoundDropDown, "RIGHT", 60, 0)
 
 		--Raid Warning Colors
-		local raidwarncolors = RaidWarningPanel:CreateArea(L.RaidWarnColors, nil, 175, true)
+		local raidwarncolors = RaidWarningPanel:CreateArea(L.RaidWarnColors, nil, 150, true)
 
 		local color1 = raidwarncolors:CreateColorSelect(64)
 		local color2 = raidwarncolors:CreateColorSelect(64)
@@ -1592,7 +1607,7 @@ local function CreateOptionsMenu()
 		local color3reset = raidwarncolors:CreateButton(L.Reset, 60, 10, nil, GameFontNormalSmall)
 		local color4reset = raidwarncolors:CreateButton(L.Reset, 60, 10, nil, GameFontNormalSmall)
 
-		color1:SetPoint('TOPLEFT', 30, -20)
+		color1:SetPoint('TOPLEFT', 30, -10)
 		color2:SetPoint('TOPLEFT', color1, "TOPRIGHT", 30, 0)
 		color3:SetPoint('TOPLEFT', color2, "TOPRIGHT", 30, 0)
 		color4:SetPoint('TOPLEFT', color3, "TOPRIGHT", 30, 0)

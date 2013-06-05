@@ -40,7 +40,7 @@ GameTooltip:SetUnitDebuff("unit", [index] or ["name", "rank"][, "filter"]);
 * The untilCanceled return value is true if the buff doesn't have its own duration (e.g. stealth)
 ]]--
 
-SMARTBUFF_VERSION       = "v5.3a";
+SMARTBUFF_VERSION       = "v5.3b";
 SMARTBUFF_VERSIONNR     = 50001;
 SMARTBUFF_TITLE         = "SmartBuff";
 SMARTBUFF_SUBTITLE      = "Supports you in cast buffs";
@@ -83,6 +83,7 @@ local isRebinding = false;
 local isParrot = false;
 local isSync = false;
 local isSyncReq = false;
+local isInitBtn = false;
 
 local isShapeshifted = false;
 local sShapename = "";
@@ -1138,7 +1139,11 @@ end
 
 -- Main Check functions
 function SMARTBUFF_PreCheck(mode, force)
-  if (not isInit) then return false; end  
+  if (not isInit) then return false end
+
+  if (not isInitBtn) then
+    SMARTBUFF_InitActionButtonPos();
+  end
 
   if (not O.Toggle) then
     if (mode == 0) then
@@ -2940,11 +2945,7 @@ function SMARTBUFF_Options_Init(self)
   if (O.OldWheelUp == nil) then O.OldWheelUp = ""; end
   if (O.OldWheelDown == nil) then O.OldWheelDown = ""; end
   
-  if (O.ActionBtnX == nil) then
-    SMARTBUFF_SetButtonPos(SmartBuff_KeyButton);
-  else
-    SmartBuff_KeyButton:SetPoint("CENTER", UIParent, "CENTER", x, y);
-  end
+  SMARTBUFF_InitActionButtonPos();
   
   if (O.SplashX == nil) then O.SplashX = 100; end
   if (O.SplashY == nil) then O.SplashY = -100; end
@@ -3052,6 +3053,11 @@ function SMARTBUFF_Options_Init(self)
       SMARTBUFF_ToggleTutorial();
     end
     
+    if (SMARTBUFF_VERSION == "v5.3b") then
+      SmartBuff_KeyButton:ClearAllPoints();
+      SmartBuff_KeyButton:SetPoint("CENTER", UIParent, "CENTER", 0, 100);
+    end
+    
     SmartBuffWNF_lblText:SetText(SMARTBUFF_WHATSNEW);
     SmartBuffWNF:Show();    
   else
@@ -3064,6 +3070,19 @@ function SMARTBUFF_Options_Init(self)
 end
 -- END SMARTBUFF_Options_Init
 
+function SMARTBUFF_InitActionButtonPos()  
+  if (InCombatLockdown()) then return end
+  
+  isInitBtn = true;
+  if (O.ActionBtnX == nil) then
+    SMARTBUFF_SetButtonPos(SmartBuff_KeyButton);
+  else
+    SmartBuff_KeyButton:ClearAllPoints();
+    SmartBuff_KeyButton:SetPoint("TOPLEFT", UIParent, "TOPLEFT", O.ActionBtnX, O.ActionBtnY);
+  end
+  --print(format("x = %.0f, y = %.0f", O.ActionBtnX, O.ActionBtnY));
+end
+
 
 function SMARTBUFF_ResetAll()  
   wipe(SMARTBUFF_Buffs);
@@ -3073,10 +3092,10 @@ end
 
 
 function SMARTBUFF_SetButtonPos(self)
-  local _, _, _, x, y = self:GetPoint();
+  local x, y = self:GetLeft(), self:GetTop() - UIParent:GetHeight();
   O.ActionBtnX = x;
   O.ActionBtnY = y;
-  print(format("x = %.0f, y = %.0f", x, y));
+  --print(format("x = %.0f, y = %.0f", x, y));
 end
 
 function SMARTBUFF_RebindKeys()

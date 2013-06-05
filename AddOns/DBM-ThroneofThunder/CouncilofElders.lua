@@ -1,7 +1,7 @@
 local mod	= DBM:NewMod(816, "DBM-ThroneofThunder", nil, 362)
 local L		= mod:GetLocalizedStrings()
 
-mod:SetRevision(("$Revision: 9656 $"):sub(12, -3))
+mod:SetRevision(("$Revision: 9709 $"):sub(12, -3))
 mod:SetCreatureID(69078, 69132, 69134, 69131)--69078 Sul the Sandcrawler, 69132 High Prestess Mar'li, 69131 Frost King Malakk, 69134 Kazra'jin --Adds: 69548 Shadowed Loa Spirit,
 mod:SetQuestID(32746)
 mod:SetZone()
@@ -311,11 +311,7 @@ function mod:SPELL_AURA_APPLIED(args)
 		warnDischarge:Show(dischargeCount)
 		specWarnDischarge:Show(dischargeCount)
 		if self.Options.AnnounceCooldowns then
-			if DBM.Options.UseMasterVolume then
-				PlaySoundFile("Interface\\AddOns\\DBM-Core\\Sounds\\Corsica_S\\"..dischargeCount..".ogg", "Master")
-			else
-				PlaySoundFile("Interface\\AddOns\\DBM-Core\\Sounds\\Corsica_S\\"..dischargeCount..".ogg")
-			end
+			DBM:PlayCountSound(dischargeCount)
 		end
 	elseif args.spellId == 137641 and args:IsPlayer() then
 		specWarnSoulFragment:Show()

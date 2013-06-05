@@ -44,9 +44,9 @@
 --  Globals/Default Options  --
 -------------------------------
 DBM = {
-	Revision = tonumber(("$Revision: 9699 $"):sub(12, -3)),
-	DisplayVersion = "5.3.2 alpha", -- the string that is shown as version
-	ReleaseRevision = 9689 -- the revision of the latest stable version that is available
+	Revision = tonumber(("$Revision: 9757 $"):sub(12, -3)),
+	DisplayVersion = "5.3.3 alpha", -- the string that is shown as version
+	ReleaseRevision = 9727 -- the revision of the latest stable version that is available
 }
 
 -- Legacy crap; that stupid "Version" field was never a good idea.
@@ -75,6 +75,7 @@ DBM.DefaultOptions = {
 	ModelSoundValue = "Short",
 	ChallengeBest = "Realm",
 	CountdownVoice = "Corsica",
+	CountdownVoice2 = "Kolt",
 	ShowCountdownText = false,
 	RaidWarningPosition = {
 		Point = "TOP",
@@ -165,7 +166,6 @@ DBM.DefaultOptions = {
 	LastRevision = 0,
 	FilterSayAndYell = false,
 	ChatFrame = "DEFAULT_CHAT_FRAME",
-	barrensSounds = true,
 }
 
 DBM.Bars = DBT:New()
@@ -181,6 +181,7 @@ DBM_OPTION_SPACER = newproxy(false)
 --  Locals  --
 --------------
 local enabled = true
+local blockEnable = false
 local lastCombatStarted = GetTime()
 local inCombat = {}
 local combatInfo = {}
@@ -207,8 +208,8 @@ local _, class = UnitClass("player")
 local LastZoneMapID = -1
 local queuedBattlefield = {}
 local loadDelay = nil
+local loadDelay2 = nil
 local stopDelay = nil
-local myRealRevision = DBM.Revision or DBM.ReleaseRevision
 local watchFrameRestore = false
 local currentSizes = nil
 
@@ -1826,16 +1827,10 @@ end
 
 function DBM:PLAYER_REGEN_ENABLED()
 	if loadDelay then
-		print("DBM Debug: Attemping to load queued mods")
-		if type(loadDelay) == "table" then
-			for i, v in ipairs(loadDelay) do
-				print("DBM Debug Table: loading ", v)
-				DBM:LoadMod(v)
-			end
-		else
-			print("DBM Debug: loading ", loadDelay)
-			DBM:LoadMod(loadDelay)
-		end
+		DBM:LoadMod(loadDelay)
+	end
+	if loadDelay2 then
+		DBM:LoadMod(loadDelay2)
 	end
 	if guiRequested and not IsAddOnLoaded("DBM-GUI") then
 		guiRequested = false
@@ -2054,14 +2049,9 @@ function DBM:LoadMod(mod)
 	--IF we are fighting a boss, we don't have much of a choice but to try and load anyways since script ran too long isn't actually a guarentee.
 	--it's mainly for slower computers that fail to load mods in combat. Most can load in combat if we delay the garbage collect
 	if InCombatLockdown() and IsInInstance() and not IsEncounterInProgress() then
-		print("DBM Debug: Mod load delayed because of combat: ", mod)
-		if loadDelay and loadDelay ~= mod then
-			if type(loadDelay) ~= "table" then
-				loadDelay = { loadDelay }
-			end
-			if not loadDelay[mod] then
-				loadDelay[#loadDelay + 1] = mod
-			end
+		self:AddMsg(DBM_CORE_LOAD_MOD_COMBAT:format(tostring(mod.name)))
+		if loadDelay and loadDelay ~= mod then--Check if load delay exists, but make sure this isn't a loop of same mod before making a second load delay
+			loadDelay2 = mod
 		else
 			loadDelay = mod
 		end
@@ -2108,11 +2098,8 @@ function DBM:LoadMod(mod)
 		if not InCombatLockdown() then--We loaded in combat because a raid boss was in process, but lets at least delay the garbage collect so at least load mod is half as bad, to do our best to avoid "script ran too long"
 			collectgarbage("collect")
 		end
-		if type(loadDelay) == "table" then
-			loadDelay[mod] = nil
-			if #loadDelay == 0 then
-				loadDelay = nil
-			end
+		if loadDelay2 == mod then
+			loadDelay2 = nil
 		elseif loadDelay == mod then
 			loadDelay = nil
 		end
@@ -2181,14 +2168,16 @@ do
 	end
 
 	syncHandlers["C"] = function(sender, delay, mod, revision, startHp)
-		if select(2, IsInInstance()) == "pvp" then return end
+		local _, instanceType = GetInstanceInfo()
+		if instanceType == "pvp" then return end
+		if not IsEncounterInProgress() and instanceType == "raid" and IsPartyLFG() then return end--Ignore syncs if we cannot validate IsEncounterInProgress as true
 		local lag = select(4, GetNetStats()) / 1000
 		delay = tonumber(delay or 0) or 0
 		mod = DBM:GetModByName(mod or "")
 		revision = tonumber(revision or 0) or 0
 		startHp = tonumber(startHp or -1) or -1
 		if mod and delay and (not mod.zones or mod.zones[LastZoneMapID]) and (not mod.minSyncRevision or revision >= mod.minSyncRevision) then
-			DBM:StartCombat(mod, delay + lag, true, startHp)
+			DBM:StartCombat(mod, delay + lag, true, startHp, nil, "Sync from: "..sender)
 		end
 	end
 
@@ -2264,11 +2253,7 @@ do
 			raid[sender].version = version
 			raid[sender].displayVersion = displayVersion
 			raid[sender].locale = locale
-			if revision ~= 99999 and revision > tonumber(DBM.Revision) then
-				if raid[sender].rank >= 1 then
-					enableIcons = false
-				end
-			end
+			local revDifference = revision - tonumber(DBM.Revision)
 			if version > tonumber(DBM.Version) and version ~= 99999 then -- Update reminder
 				if not showedUpdateReminder then
 					local found = false
@@ -2280,14 +2265,28 @@ do
 					end
 					if found then
 						showedUpdateReminder = true
-						if not DBM.Options.BlockVersionUpdateNotice then
+						if not DBM.Options.BlockVersionUpdateNotice or revDifference > 333 then
 							DBM:ShowUpdateReminder(displayVersion, version)
 						else
 							DBM:AddMsg(DBM_CORE_UPDATEREMINDER_HEADER:match("([^\n]*)"))
 							DBM:AddMsg(DBM_CORE_UPDATEREMINDER_HEADER:match("\n(.*)"):format(displayVersion, version))
 							DBM:AddMsg(("|HDBM:update:%s:%s|h|cff3588ff[http://www.deadlybossmods.com]"):format(displayVersion, version))
 						end
+	--					if revDifference > 400 then--WTF? Sorry but your DBM is being turned off until you update. Grossly out of date mods cause fps loss, freezes, lua error spam, or just very bad information, if mod is not up to date with latest changes. All around undesirable experience to put yourself or other raid mates through
+	--						DBM:AddMsg(DBM_CORE_UPDATEREMINDER_DISABLE:format(revDifference))
+	--						DBM:Disable(true)
+	--					end
 					end
+				end
+			end
+			if revision ~= 99999 and revision > tonumber(DBM.Revision) then
+				if raid[sender].rank >= 1 then
+					enableIcons = false
+				end
+				--Running alpha version that's out of date
+				if DBM.DisplayVersion:find("alpha") and (revDifference > 20) and not showedUpdateReminder then
+					showedUpdateReminder = true
+					DBM:AddMsg(DBM_CORE_UPDATEREMINDER_HEADER_ALPHA:format(revDifference))
 				end
 			end
 		end
@@ -2708,7 +2707,7 @@ do
 		if not checkEntry(inCombat, mod) then
 			buildTargetList()
 			if targetList[mob] and UnitAffectingCombat(targetList[mob]) then
-				DBM:StartCombat(mod, delay or 3)
+				DBM:StartCombat(mod, delay or 3, nil, nil, nil, "PLAYER_REGEN_DISABLED")
 			end
 			clearTargetList()
 		end
@@ -2767,7 +2766,7 @@ do
 		if combatInfo[LastZoneMapID] then
 			for i, v in ipairs(combatInfo[LastZoneMapID]) do
 				if v.type == "combat" and isBossEngaged(v.multiMobPullDetection or v.mob) then
-					self:StartCombat(v.mod, 0)
+					self:StartCombat(v.mod, 0, nil, nil, nil, "INSTANCE_ENCOUNTER_ENGAGE_UNIT")
 				end
 			end
 		end
@@ -2792,7 +2791,7 @@ do
 			for i, v in ipairs(combatInfo[LastZoneMapID]) do
 				if v.type == type and checkEntry(v.msgs, msg)
 				or v.type == type .. "_regex" and checkExpressionList(v.msgs, msg) then
-					DBM:StartCombat(v.mod, 0)
+					DBM:StartCombat(v.mod, 0, nil, nil, nil, "CHAT_MSG")
 				end
 			end
 		end
@@ -2812,13 +2811,6 @@ do
 	end
 
 	function DBM:CHAT_MSG_MONSTER_EMOTE(msg)
-		if DBM.Options.barrensSounds and LastZoneMapID == 11 then--Northern barrens caravan messages
-			if DBM.Options.UseMasterVolume then
-				PlaySoundFile("Sound\\interface\\UI_RaidBossWhisperWarning.ogg", "Master")
-			else
-				PlaySoundFile("Sound\\interface\\UI_RaidBossWhisperWarning.ogg")
-			end
-		end
 		return onMonsterMessage("emote", msg)
 	end
 
@@ -2885,7 +2877,11 @@ function checkWipe(confirm)
 	end
 end
 
-function DBM:StartCombat(mod, delay, synced, syncedStartHp, noKillRecord)
+function DBM:StartCombat(mod, delay, synced, syncedStartHp, noKillRecord, triggerEvent)
+	--Seeing more and more bad pulls during raids. Need to track down source of this problem. Bosses "engaging" during trash that should be impossible. Trolled syncs, or a mysterious bug on our end?
+	if triggerEvent and not IsEncounterInProgress() and IsInInstance() and not C_Scenario.IsInScenario() then--I've concluded all genuine RAID pulls, IsEncounterInProgress is ALWAYS true. So lets refine this debug to just printing bad pulls only so we don't get spams of 25 prints in LFR when an actual boss is engaged
+		print("DBM Combat Debug: Combat started by "..triggerEvent..". Encounter in progress: "..tostring(IsEncounterInProgress()))
+	end
 	if not checkEntry(inCombat, mod) then
 		if not mod.Options.Enabled then return end
 		-- HACK: makes sure that we don't detect a false pull if the event fires again when the boss dies...
@@ -3014,7 +3010,7 @@ function DBM:UNIT_HEALTH(uId)
 		if combatInfo[LastZoneMapID] then
 			for i, v in ipairs(combatInfo[LastZoneMapID]) do
 				if not v.mod.disableHealthCombat and (v.type == "combat" and v.multiMobPullDetection and checkEntry(v.multiMobPullDetection, cId) or v.mob == cId) then
-					self:StartCombat(v.mod, health > 0.97 and 0.5 or math.min(20, (lastCombatStarted and GetTime() - lastCombatStarted) or 2.1), nil, health, health < 0.90) -- Above 97%, boss pulled during combat, set min delay (0.5) / Below 97%, combat enter detection failure, use normal delay (max 20s) / Do not record kill time below 90% (late combat detection)
+					self:StartCombat(v.mod, health > 0.97 and 0.5 or math.min(20, (lastCombatStarted and GetTime() - lastCombatStarted) or 2.1), nil, health, health < 0.90, "UNIT_HEALTH") -- Above 97%, boss pulled during combat, set min delay (0.5) / Below 97%, combat enter detection failure, use normal delay (max 20s) / Do not record kill time below 90% (late combat detection)
 				end
 			end
 		end
@@ -3767,15 +3763,21 @@ end
 --------------------------
 --  Enable/Disable DBM  --
 --------------------------
-function DBM:Disable()
+function DBM:Disable(forced)
 	unschedule()
 	enabled = false
-	self.Options.Enabled = false
+	if not forced then
+		self.Options.Enabled = false
+	else
+		blockEnable = true
+	end
 end
 
 function DBM:Enable()
-	enabled = true
-	self.Options.Enabled = true
+	if not blockEnable then
+		enabled = true
+		self.Options.Enabled = true
+	end
 end
 
 function DBM:IsEnabled()
@@ -3897,7 +3899,7 @@ function DBM:FindDungeonIDs()
 	for i=1, 1000 do
 		local dungeon = GetDungeonInfo(i)
 		if dungeon then
-			print(i..": "..dungeon)
+			self:AddMsg(i..": "..dungeon)
 		end
 	end
 end
@@ -4388,8 +4390,16 @@ function bossModPrototype:IsTanking(unit, boss)
 	if UnitGroupRolesAssigned(unit) == "TANK" then
 		return true
 	end
-	if UnitExists(boss.."target") and UnitDetailedThreatSituation(unit, boss) then
-		return true
+	if boss then--Only checking one bossID as requested
+		if UnitExists(boss.."target") and UnitDetailedThreatSituation(unit, boss) then
+			return true
+		end
+	else--Check all of them if one isn't defined
+		for i = 1, 5 do
+			if UnitExists("boss"..i.."target") and UnitDetailedThreatSituation(unit, "boss"..i) then
+				return true
+			end
+		end
 	end
 	return false
 end
@@ -4714,7 +4724,7 @@ end
 do
 	local countdownProtoType = {}
 	local mt = {__index = countdownProtoType}
-	
+
 	local function showCountdown(timer)
 		TimerTracker_OnEvent(TimerTracker, "START_TIMER", 2, timer, timer)
 	end
@@ -4736,16 +4746,21 @@ do
 					DBM:Schedule(timer%1, showCountdown, floor(timer))
 				end
 			end
-			if DBM.Options.CountdownVoice == "None" then return end
-			if DBM.Options.CountdownVoice == "Mosh" then
+			local voice = DBM.Options.CountdownVoice
+			local voice2 = DBM.Options.CountdownVoice2
+			if voice == "None" then return end
+			if self.alternateVoice then--We already have an active countdown using primary voice, so fall back to secondary voice
+				voice = voice2
+			end
+			if voice == "Mosh" then--Voice only goes to 5
 				for i = count, 1, -1 do
 					if i <= 5 then
 						self.sound5:Schedule(timer-i, "Interface\\AddOns\\DBM-Core\\Sounds\\Mosh\\"..i..".ogg")
 					end
 				end
-			else--When/if more voices get added we can tweak it to use elseif rules, but for now else works smarter cause then ANY value will return to a default voice.
+			else--Voice that goes to 10
 				for i = count, 1, -1 do
-					self.sound5:Schedule(timer-i, "Interface\\AddOns\\DBM-Core\\Sounds\\Corsica_S\\"..i..".ogg")
+					self.sound5:Schedule(timer-i, "Interface\\AddOns\\DBM-Core\\Sounds\\"..voice.."\\"..i..".ogg")
 				end
 			end
 		end
@@ -4770,7 +4785,7 @@ do
 	end
 	countdownProtoType.Stop = countdownProtoType.Cancel
 
-	function bossModPrototype:NewCountdown(timer, spellId, optionDefault, optionName, count, textDisabled)
+	function bossModPrototype:NewCountdown(timer, spellId, optionDefault, optionName, count, textDisabled, altVoice)
 		if not spellId and not optionName then
 			error("NewCountdown: you must provide either spellId or optionName", 2)
 			return
@@ -4794,6 +4809,7 @@ do
 				timer = timer,
 				count = count,
 				textDisabled = textDisabled,
+				alternateVoice = altVoice,
 				mod = self
 			},
 			mt
@@ -4810,7 +4826,7 @@ do
 		return obj
 	end
 
-	function bossModPrototype:NewCountdownFades(timer, spellId, optionDefault, optionName, count, textDisabled)
+	function bossModPrototype:NewCountdownFades(timer, spellId, optionDefault, optionName, count, textDisabled, altVoice)
 		if not spellId and not optionName then
 			error("NewCountdownFades: you must provide either spellId or optionName", 2)
 			return
@@ -4834,6 +4850,7 @@ do
 				timer = timer,
 				count = count,
 				textDisabled = textDisabled,
+				alternateVoice = altVoice,
 				mod = self
 			},
 			mt
@@ -4862,15 +4879,15 @@ do
 		if not self.option or self.mod.Options[self.option] then
 			timer = timer or self.timer or 10
 			timer = timer <= 5 and self.timer or timer
-			if DBM.Options.CountdownVoice == "None" then return end
-			if DBM.Options.CountdownVoice == "Mosh" and timer == 5 then--Don't have 6-10 for him yet.
+			local voice = DBM.Options.CountdownVoice
+			if voice == "None" then return end
+			if voice == "Mosh" and timer <= 5 then--Don't have 6-10 for him yet.
 				for i = 1, timer do
 					self.sound5:Schedule(i, "Interface\\AddOns\\DBM-Core\\Sounds\\Mosh\\"..i..".ogg")
 				end
-			else--When/if more voices get added we can tweak it to use elseif rules, but for now else works smarter cause then ANY value will return to a default voice.
-				--Ugly as hel way to do it but i coudln't think of a different way to do it accurately
+			else--Voices that go to 10
 				for i = 1, timer do
-					self.sound5:Schedule(i, "Interface\\AddOns\\DBM-Core\\Sounds\\Corsica_S\\"..i..".ogg")
+					self.sound5:Schedule(i, "Interface\\AddOns\\DBM-Core\\Sounds\\"..voice.."\\"..i..".ogg")
 				end
 			end
 		end
@@ -5211,6 +5228,29 @@ do
 
 	function bossModPrototype:NewSpecialWarningPreWarn(text, optionDefault, time, ...)
 		return newSpecialWarning(self, "prewarn", text, time, optionDefault, ...)
+	end
+	
+	function DBM:PlayCountSound(number, forceVoice)
+		if number > 10 then return end
+		local voice, voice2
+		if forceVoice then--Primarlly for options
+			voice = forceVoice
+		else
+			voice = DBM.Options.CountdownVoice
+			voice2 = DBM.Options.CountdownVoice2
+		end
+		if number > 5 and (voice == "Mosh") then--Can't count past 5
+			if voice ~= voice2 then
+				voice = voice2--Fall back to secondary voice option if primary is mosh
+			else--Voice 1 and voice 2 were both set to "Mosh", they must really like mosh. At this point we must ignore their preference
+				voice = "Corsica"
+			end
+		end--If number is higher than 5 and users primary voice setting ismosh, fallback to secondary voice setting
+		if DBM.Options.UseMasterVolume then
+			PlaySoundFile("Interface\\AddOns\\DBM-Core\\Sounds\\"..voice.."\\"..number..".ogg", "Master")
+		else
+			PlaySoundFile("Interface\\AddOns\\DBM-Core\\Sounds\\"..voice.."\\"..number..".ogg")
+		end
 	end
 	
 	function DBM:PlaySpecialWarningSound(soundId)

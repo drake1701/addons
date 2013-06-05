@@ -1,9 +1,5 @@
 ## Title: CollectMe
 ## Notes: Displays a list of mounts, companions and titles which the character is missing and allows to summon companions and mounts
-## X-Curse-Packaged-Version: v2.4
-## X-Curse-Project-Name: Collect Me
-## X-Curse-Project-ID: collect_me
-## X-Curse-Repository-ID: wow/collect_me/mainline
 
 ## Author: Merla (Raina), Excitor0, Tolerant, LaserLock
 ## eMail: admin AT tschebel DOT net
@@ -11,7 +7,7 @@
 ## X-License: MIT modified with notification clause
 
 ## Interface: 50300
-## Version: 2.4
+## Version: 2.4.1
 
 ## X-credits: wowwiki
 

@@ -4,17 +4,11 @@
 function DailyGrind:ChatCommand(input)
 	local args = { strsplit(" ", input:trim(), 3) };
 	local command = args[1]:lower();
-	 
+	
 	if command == "" then
+		self:Debug("Default action");
 		self:ShowOptions();
 	
-	elseif command == "import" then
-		self:Import();
-		
-	elseif command == "reset" then
-		-- TODO: Implement confirmation.
-		self:Reset();
-		
   	elseif command == "enable" or command == "on" then
 		self:SetEnabled(true);
 		print(addonAbbr.." "..self:GetStatus());
@@ -32,17 +26,21 @@ function DailyGrind:ChatCommand(input)
 		print(addonAbbr.." "..self:GetAutoAcceptAllStatus());
 		
 	elseif command == "blacklist" or command == "bl" then
-		self:HandleBlacklist(args);
+		CharacterBlacklist:HandleCommand(args);
 	
 	elseif command == "npcblacklist" or command == "nbl" then
-		self:HandleNpcBlacklist(args);
+		CharacterNpcBlacklist:HandleCommand(args);
 		
 	elseif command == "rewardlist" or command == "rl" then
-		self:HandleRewardList(args);
+		CharacterRewardList:HandleCommand(args);
 		
 	elseif command == "repeatable" or command == "rpt" then
 		self:ToggleRepeatableQuests();
-		print(addonAbbr.." "..self:GetRepeatableQuestsStatus());
+		self:PrintDG(" "..self:GetRepeatableQuestsStatus());
+	
+	elseif command == "verbose" or command == "ver" then
+		self:ToggleVerbose()
+		self:PrintImportantDG(" "..self:GetVerboseStatus());
 	
 	elseif command == "trim" then
 		self:TrimList();
@@ -53,13 +51,9 @@ function DailyGrind:ChatCommand(input)
     end
 end
 
-function DailyGrind:Import()
-	print(addonAbbr.." Import feature has been deprecated. Use the new Auto-Accept All feature (/dg all).");
-end
-
-function DailyGrind:Reset()
-	DailyGrindQuests = {};
-	print(addonAbbr.." Quest history reset.");
+function DailyGrind:ResetHistory()
+	AccountQuestHistory:Clear();
+	self:PrintImportantDG(" Quest history reset.");
 end
 
 function DailyGrind:Toggle()
@@ -67,11 +61,11 @@ function DailyGrind:Toggle()
 end
 
 function DailyGrind:SetEnabled(state)
-	DailyGrindSettings.Enabled = state;
+	Settings.Enabled = state;
 end
 
 function DailyGrind:GetEnabled()
-	return DailyGrindSettings.Enabled;
+	return Settings.Enabled;
 end
 
 function DailyGrind:ToggleAutoAcceptAll()
@@ -79,36 +73,58 @@ function DailyGrind:ToggleAutoAcceptAll()
 end
 
 function DailyGrind:SetAutoAcceptAllEnabled(state)
-	DailyGrindSettings.AutoAcceptAllEnabled = state;
+	Settings.AutoAcceptAllEnabled = state;
 end
 
 function DailyGrind:GetAutoAcceptAllEnabled()
-	return DailyGrindSettings.AutoAcceptAllEnabled;
+	return Settings.AutoAcceptAllEnabled;
+end
+
+function DailyGrind:ToggleVerbose()
+	self:SetVerbose(not self:GetVerbose());
+end
+
+function DailyGrind:GetVerbose()
+	return Settings.Verbose;
+end
+
+function DailyGrind:SetVerbose(state)
+	Settings.Verbose = state;
 end
 
 function DailyGrind:GetStatus()
+	local status = addonTitle.." - ";
 	if self:GetEnabled() then
-		return addonTitle.." - "..enabledText;
+		return status..enabledText;
 	else
-		return addonTitle.." - "..disabledText;
+		return status..disabledText;
 	end
 end
 
 function DailyGrind:GetAutoAcceptAllStatus()
-	local all = "Auto-accept all quests option is ";
+	local status = "Auto-accept all quests option is ";
 	if self:GetAutoAcceptAllEnabled() then
-		return all..enabledText;
+		return status..enabledText;
 	else
-		return all..disabledText;
+		return status..disabledText;
+	end
+end
+
+function DailyGrind:GetVerboseStatus()
+	local status = "Verbose Mode - ";
+	if self:GetVerbose() then
+		return status..enabledText;
+	else
+		return status..disabledText;
 	end
 end
 
 function DailyGrind:SetRepeatableQuestsEnabled(state)
-	DailyGrindSettings.RepeatableQuestsEnabled = state;
+	Settings.RepeatableQuestsEnabled = state;
 end
 
 function DailyGrind:GetRepeatableQuestsEnabled()
-	return DailyGrindSettings.RepeatableQuestsEnabled;
+	return Settings.RepeatableQuestsEnabled;
 end
 
 function DailyGrind:ToggleRepeatableQuests()
@@ -124,21 +140,17 @@ function DailyGrind:GetRepeatableQuestsStatus()
 	end
 end
 
-function DailyGrind:SetSuspendKey(key)
-	DailyGrindSettings.SuspendKey = key;
-end
-
-function DailyGrind:GetSuspendKey()
-	return DailyGrindSettings.SuspendKey;
+function DailyGrind:GetSuspendKeys()
+	return Settings.SuspendKeys;
 end
 
 function DailyGrind:ShowHelp()
 	print("==]  "..self:GetStatus().."  [==\n");
 	print("Dailies that you complete are added to a database. Whenever you see that daily again, you will auto-accept/complete it.");
 	print("You may also set "..addonTitle.." to auto-accept ALL daily quests, whether or not you have seen them before, by using |c"..commandColor.."/dg all|r. Dailies that you complete with this option enabled will continue to be added to your database, so turning this option off later will not set you back.");
-	print("Usage:  |c"..commandColor.."/dg <enable|on> <disable|off> <tog[gle]> <all> <reset> <repeatable|rpt>|r\n");
-	print(rewardListText..": Set automatic reward preferences (|c"..commandColor.."/dg rl help|r for more info)");
-	print(blacklistText..": Ignore specific quests (|c"..commandColor.."/dg bl help|r for more info)");
-	print(npcBlacklistText..": Ignore quests from specific NPCs (|c"..commandColor.."/dg nbl help|r for more info)");
-	print("Hold "..self:GetSuspendKey().." while speaking to an NPC to suspend automation.");
+	print("Usage:  |c"..commandColor.."/dg <enable/on> <disable/off> <tog[gle]> <all> <repeatable/rpt> <ver[bose]>|r\n");
+	print(CharacterRewardList:GetTitle()..": Set automatic reward preferences (|c"..commandColor.."/dg rl help|r for more info)");
+	print(CharacterBlacklist:GetTitle()..": Ignore specific quests (|c"..commandColor.."/dg bl help|r for more info)");
+	print(CharacterNpcBlacklist:GetTitle()..": Ignore quests from specific NPCs (|c"..commandColor.."/dg nbl help|r for more info)");
+	print("Hold "..self:GetSuspendKeys().." while speaking to an NPC to suspend automation.");
 end

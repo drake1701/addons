@@ -4,16 +4,9 @@
 
 -- Whats new info
 SMARTBUFF_WHATSNEW = "|cffffffffWhats new:|r\n\n"
-  .."- UI cleanup, removed old raid options\n\n"
-  .."- Added buffs: Warlock (Blood Horror), Mage (Ice Ward), Hunter (Camouflage)\n\n"
-  .."- Added items: Burning Seed, Orb of the Sin'dorei\n\n"
-  .."- Added option to change the buff reminder icon size\n\n"
-  .."- Added basic help system\n\n"
-  .."- Fixed battleground LUA error\n\n"
-  .."- Fixed item cooldown issue\n\n"
-  .."- Updated TOC\n\n"
+  .."- Fixed action button position issue\n\n"
   .."- Please let me know if anything is missing (buffs/consumables/etc.), thanks!\n\n"
-  .."- Thanks for donation: Ronald G. :)\n\n"
+  .."- Thanks for donation: Isabela, Ronald G. :)\n\n"
   ;
 
 

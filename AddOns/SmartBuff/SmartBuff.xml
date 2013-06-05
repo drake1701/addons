@@ -418,7 +418,7 @@
       <AbsDimension x="32" y="32"/>
     </Size>    
 		<Anchors>
-			<Anchor point="CENTER">
+		  <Anchor point="CENTER">
 				<Offset>
 					<AbsDimension x="0" y="100" />
 				</Offset>

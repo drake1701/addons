@@ -12,6 +12,7 @@ function DailyGrind:GetActiveQuestTitleIndex(index)
 	return self:GetActiveQuestOffset() * (index - 1) + 1;
 end
 
+-- TODO: Consider revising this area.
 function DailyGrind:GetAvailableQuestOffset()
 	return 6;
 end
@@ -118,19 +119,18 @@ function DailyGrind:DebugQuest(isRepeating, isInHistory)
 end
 
 function DailyGrind:IsSuspendKeyDown()
-	local suspendKey = DailyGrind:GetSuspendKey();
 	local suspendKeyDown = false;
 	
-	if suspendKey == "ALT" and IsAltKeyDown() then 
+	if Settings.SuspendKeys["ALT"] and IsAltKeyDown() then 
 		suspendKeyDown = true;
-	elseif suspendKey == "CTRL" and IsControlKeyDown() then
+	elseif Settings.SuspendKeys["CTRL"] and IsControlKeyDown() then
 		suspendKeyDown = true;
-	elseif suspendKey == "SHIFT" and IsShiftKeyDown() then
+	elseif Settings.SuspendKeys["SHIFT"] and IsShiftKeyDown() then
 		suspendKeyDown = true;
 	end
 	
 	if suspendKeyDown then
-		self:Debug("Suspend Key ("..suspendKey..") is being held down.");
+		self:Debug("Suspend Key is being held down.");
 	end
 	
 	return suspendKeyDown;
@@ -142,10 +142,16 @@ end
 
 function DailyGrind:Debug(text)
 	if debugModeEnabled then
-		self:PrintDG("|cFFFF0000"..dgDebugText.."|r: "..tostring(text));
+		self:PrintImportantDG("|cFFFF0000"..dgDebugText.."|r: "..tostring(text));
 	end
 end
 
 function DailyGrind:PrintDG(text)
-	print(addonAbbr.." "..tostring(text));
+	if self:GetVerbose() then
+		print(addonAbbr.." "..tostring(text));
+	end
+end
+
+function DailyGrind:PrintImportantDG(text)
+	print(addonAbbr.." "..tostring(text));	
 end
