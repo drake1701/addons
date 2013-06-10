@@ -1,7 +1,7 @@
 local mod	= DBM:NewMod("Sindragosa", "DBM-Icecrown", 4)
 local L		= mod:GetLocalizedStrings()
 
-mod:SetRevision(("$Revision: 47 $"):sub(12, -3))
+mod:SetRevision(("$Revision: 58 $"):sub(12, -3))
 mod:SetCreatureID(36853)
 --mod:SetModelID(30362)--Does not scale correctly
 mod:SetUsedIcons(3, 4, 5, 6, 7, 8)
@@ -10,13 +10,13 @@ mod:SetMinSyncRevision(7)--Could break if someone is running out of date version
 
 mod:RegisterCombat("combat")
 
-mod:RegisterEvents(
+mod:RegisterEventsInCombat(
 	"SPELL_CAST_START",
 	"SPELL_AURA_APPLIED",
 	"SPELL_AURA_APPLIED_DOSE",
 	"SPELL_AURA_REMOVED",
 	"SPELL_CAST_SUCCESS",
-	"UNIT_HEALTH",
+	"UNIT_HEALTH boss1",
 	"CHAT_MSG_MONSTER_YELL"
 )
 

@@ -2,7 +2,7 @@ local mod	= DBM:NewMod("Chess", "DBM-Karazhan")
 local L		= mod:GetLocalizedStrings()
 
 local playerFactoin = UnitFactionGroup("player")
-mod:SetRevision(("$Revision: 472 $"):sub(12, -3))
+mod:SetRevision(("$Revision: 473 $"):sub(12, -3))
 --UNIT_DIED firing for king assumed
 if playerFactoin == "Alliance" then
 	mod:SetCreatureID(21752)--Warchief Blackhand
@@ -37,13 +37,10 @@ end
 function mod:SPELL_AURA_APPLIED(args)
 	if args.spellId == 39331 and not self:IsInCombat() then
 		DBM:StartCombat(self, 0)
-	elseif args.spellId == 30529 then
-		if not self:IsInCombat() then--Because game in session may not go away on wipe, we need to detect a repull off first hop into a chess peice
-			DBM:StartCombat(self, 0)
-		end
-		if args:IsPlayer() then
-			timerRecentlyInGame:Start()
-		end
+	elseif args.spellId == 30529 and args:IsPlayer() then
+		timerRecentlyInGame:Start()
+	elseif args.spellId == 30019 and not self:IsInCombat() then--Because game in session may not go away on wipe, we need to detect a repull off first hop into a chess peice
+		DBM:StartCombat(self, 0)
 	end
 end
 

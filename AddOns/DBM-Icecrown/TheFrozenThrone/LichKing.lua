@@ -1,7 +1,7 @@
 local mod	= DBM:NewMod("LichKing", "DBM-Icecrown", 5)
 local L		= mod:GetLocalizedStrings()
 
-mod:SetRevision(("$Revision: 53 $"):sub(12, -3))
+mod:SetRevision(("$Revision: 58 $"):sub(12, -3))
 mod:SetCreatureID(36597)
 mod:SetModelID(30721)
 mod:SetZone()
@@ -11,7 +11,7 @@ mod:SetMinSyncRevision(7)--Could break if someone is running out of date version
 
 mod:RegisterCombat("combat")
 
-mod:RegisterEvents(
+mod:RegisterEventsInCombat(
 	"SPELL_CAST_START",
 	"SPELL_CAST_SUCCESS",
 	"SPELL_DISPEL",

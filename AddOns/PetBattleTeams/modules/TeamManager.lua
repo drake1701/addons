@@ -572,20 +572,20 @@ end
 
 function TeamManager.UpdateCurrentTeam()
 	if not TeamManager:GetAutomaticallySaveTeams() then return end
-	
 	local selected = TeamManager:GetSelected()
-	
 	if not TeamManager:IsWorking() and not TeamManager:IsTeamLocked(selected) and not TeamManager:IsTeamLockedByUser(selected) then
 		
 		local team =  TeamManager.teams[selected]
-		for i = 1,PETS_PER_TEAM do
-			pet = {}
-			pet.abilities = {}
-			pet.petID, pet.abilities[1], pet.abilities[2], pet.abilities[3] = C_PetJournal.GetPetLoadOutInfo(i)
-			if pet.petID then
-				pet.speciesID = C_PetJournal.GetPetInfoByPetID(pet.petID)
+		if team then
+			for i = 1,PETS_PER_TEAM do
+				pet = {}
+				pet.abilities = {}
+				pet.petID, pet.abilities[1], pet.abilities[2], pet.abilities[3] = C_PetJournal.GetPetLoadOutInfo(i)
+				if pet.petID then
+					pet.speciesID = C_PetJournal.GetPetInfoByPetID(pet.petID)
+				end
+				team[i] = pet
 			end
-			team[i] = pet
 		end
 		
 		TeamManager.callbacks:Fire("TEAM_UPDATED",selected)

@@ -140,10 +140,6 @@ function DailyGrind:GetRepeatableQuestsStatus()
 	end
 end
 
-function DailyGrind:GetSuspendKeys()
-	return Settings.SuspendKeys;
-end
-
 function DailyGrind:ShowHelp()
 	print("==]  "..self:GetStatus().."  [==\n");
 	print("Dailies that you complete are added to a database. Whenever you see that daily again, you will auto-accept/complete it.");
@@ -152,5 +148,5 @@ function DailyGrind:ShowHelp()
 	print(CharacterRewardList:GetTitle()..": Set automatic reward preferences (|c"..commandColor.."/dg rl help|r for more info)");
 	print(CharacterBlacklist:GetTitle()..": Ignore specific quests (|c"..commandColor.."/dg bl help|r for more info)");
 	print(CharacterNpcBlacklist:GetTitle()..": Ignore quests from specific NPCs (|c"..commandColor.."/dg nbl help|r for more info)");
-	print("Hold "..self:GetSuspendKeys().." while speaking to an NPC to suspend automation.");
+	print("Hold "..CharacterSuspendKeyList:ToString().." while speaking to an NPC to suspend automation.");
 end

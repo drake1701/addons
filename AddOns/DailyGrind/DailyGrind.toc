@@ -5,7 +5,7 @@
 ## SavedVariablesPerCharacter: DailyGrindSettings, Settings
 ## Title: Daily Grind
 ## Version: 2.0
-## X-Curse-Packaged-Version: 2.0 beta 2
+## X-Curse-Packaged-Version: 2.0
 ## X-Curse-Project-Name: Daily Grind
 ## X-Curse-Project-ID: daily-grind
 ## X-Curse-Repository-ID: wow/daily-grind/mainline

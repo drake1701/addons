@@ -21,7 +21,7 @@ function SuspendKeyList:SetTable(value)
 	Settings.SuspendKeys = value;
 end
 
-function List:Set(item, value)
+function SuspendKeyList:Set(item, value)
 	local table = self:GetTable();
 	if not value then
 		table[item] = nil;
@@ -29,4 +29,15 @@ function List:Set(item, value)
 		table[item] = value;
 	end
 	self:SetTable(table);
+end
+
+function SuspendKeyList:ToString()
+	local list = "";
+	for index, item in pairs(self:GetTable()) do
+		if list:len() > 0 then
+			list = list.." or ";
+		end
+		list = list..index;
+	end
+	return list;
 end

@@ -1,9 +1,17 @@
 ------------------------------------------------------------------------
-r143 | deldinor | 2013-06-02 05:29:39 +0000 (Sun, 02 Jun 2013) | 1 line
+r145 | deldinor | 2013-06-06 23:48:47 +0000 (Thu, 06 Jun 2013) | 1 line
 Changed paths:
-   A /tags/2.0 beta 2 (from /trunk:142)
+   A /tags/2.0 (from /trunk:144)
 
-Tagging as 2.0 beta 2
+Tagging as 2.0
+------------------------------------------------------------------------
+r144 | deldinor | 2013-06-06 23:24:23 +0000 (Thu, 06 Jun 2013) | 2 lines
+Changed paths:
+   M /trunk/Commands.lua
+   M /trunk/SuspendKeyList.lua
+
+Fixed error when viewing help.
+Help now displays the current suspend keys.
 ------------------------------------------------------------------------
 r142 | deldinor | 2013-06-02 05:29:17 +0000 (Sun, 02 Jun 2013) | 1 line
 Changed paths:

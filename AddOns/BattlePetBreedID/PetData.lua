@@ -1,6 +1,6 @@
 --[[
 BattlePetBreedID: Pet Data Module
-Last Update: May 24th; Patch 5.3.0 Live
+Last Update: June 4th, 2013; Patch 5.3.0 Live
 
 If you would like a copy of this data in a different format for your own purposes or to be informed of future updates:
 Contact Simca@Malfurion - either through MMO-Champion, through Curse, or in-game
@@ -767,7 +767,7 @@ function BPBID.InitializeArrays()
 	BPBID.BasePetStats[1192] = {11.625, 15, 7.375}
 	BPBID.BasePetStats[1193] = {11, 14.5, 7.5}
 	BPBID.BasePetStats[1194] = {11.25, 15.25, 7.875}
-	BPBID.BasePetStats[1195] = {25.5, 11.5, 7.25}
+	BPBID.BasePetStats[1195] = {11, 15, 8}
 	BPBID.BasePetStats[1196] = {8, 8, 8}
 	BPBID.BasePetStats[1197] = {8, 8, 8}
 	BPBID.BasePetStats[1198] = {8, 8, 8}

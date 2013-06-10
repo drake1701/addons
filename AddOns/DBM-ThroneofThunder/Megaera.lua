@@ -1,7 +1,7 @@
 local mod	= DBM:NewMod(821, "DBM-ThroneofThunder", nil, 362)
 local L		= mod:GetLocalizedStrings()
 
-mod:SetRevision(("$Revision: 9754 $"):sub(12, -3))
+mod:SetRevision(("$Revision: 9774 $"):sub(12, -3))
 mod:SetCreatureID(68065, 70212, 70235, 70247)--flaming 70212. Frozen 70235, Venomous 70247
 mod:SetMainBossID(68065)
 mod:SetQuestID(32748)
@@ -11,6 +11,7 @@ mod:SetUsedIcons(7, 6, 4, 2)
 mod:RegisterCombat("combat")
 
 mod:RegisterEventsInCombat(
+	"RAID_BOSS_WHISPER",
 	"SPELL_CAST_SUCCESS",
 	"SPELL_AURA_APPLIED",
 	"SPELL_AURA_APPLIED_DOSE",
@@ -98,12 +99,13 @@ local arcaneRecent = false
 
 local function warnTorrent(name)
 	if not name then return end
-	print("DBM Torrent Debug: "..name)
 	warnTorrentofIce:Show(name)
 	if name == UnitName("player") then
-		specWarnTorrentofIceYou:Show()
-		timerTorrentofIce:Start()
-		yellTorrentofIce:Yell()
+		if self:AntiSpam(5, 1) then
+			specWarnTorrentofIceYou:Show()
+			timerTorrentofIce:Start()
+			yellTorrentofIce:Yell()
+		end
 	else
 		local uId = DBM:GetRaidUnitId(name)
 			if uId then
@@ -137,8 +139,8 @@ local function findTorrent()
 					iceIcon = 6
 				end
 			end
+			return--Stop loop once found
 		end
-		return--Stop loop once found
 	end
 	mod:Schedule(0.1, findTorrent)
 end
@@ -211,6 +213,15 @@ end
 function mod:OnCombatEnd()
 	self:UnregisterShortTermEvents()
 end
+
+function mod:RAID_BOSS_WHISPER(msg)
+	if msg:find("spell:139866") and self:AntiSpam(5, 1) then
+		specWarnTorrentofIceYou:Show()
+		yellTorrentofIce:Yell()
+		soundTorrentofIce:Play()
+	end
+end
+
 
 function mod:SPELL_CAST_SUCCESS(args)
 	if args.spellId == 140138 then

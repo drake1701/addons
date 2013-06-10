@@ -39,12 +39,11 @@
 --
 
 
-
 -------------------------------
 --  Globals/Default Options  --
 -------------------------------
 DBM = {
-	Revision = tonumber(("$Revision: 9757 $"):sub(12, -3)),
+	Revision = tonumber(("$Revision: 9785 $"):sub(12, -3)),
 	DisplayVersion = "5.3.3 alpha", -- the string that is shown as version
 	ReleaseRevision = 9727 -- the revision of the latest stable version that is available
 }
@@ -153,6 +152,7 @@ DBM.DefaultOptions = {
 	DontShowPT = true,
 	DontShowPTCountdownText = false,
 	DontPlayPTCountdown = false,
+	DontShowPTText = false,
 	LatencyThreshold = 250,
 	BigBrotherAnnounceToRaid = false,
 	SettingsMessageShown = false,
@@ -1083,12 +1083,6 @@ SlashCmdList["DEADLYBOSSMODS"] = function(msg)
 			return DBM:AddMsg(DBM_ERROR_NO_PERMISSION)
 		end
 		local timer = tonumber(cmd:sub(5)) or 10
-		local channel = (IsInGroup(LE_PARTY_CATEGORY_INSTANCE) and "INSTANCE_CHAT") or (IsInRaid() and "RAID_WARNING") or "PARTY"
-		DBM:Unschedule(SendChatMessage)
-		if IsInGroup() and timer > 1 then
-			SendChatMessage(DBM_CORE_ANNOUNCE_PULL:format(timer), channel)--Still give everyone first raid warning (but only that one)
-			DBM:Schedule(timer, SendChatMessage, DBM_CORE_ANNOUNCE_PULL_NOW, channel)
-		end
 		sendSync("PT", timer, LastZoneMapID)
 	elseif cmd:sub(1, 5) == "arrow" then
 		if not DBM:IsInRaid() then
@@ -1784,6 +1778,8 @@ do
 				stats.heroicPulls = stats.heroicPulls or 0
 				stats.challengeKills = stats.challengeKills or 0
 				stats.challengePulls = stats.challengePulls or 0
+				stats.flexKills = stats.flexKills or 0
+				stats.flexPulls = stats.flexPulls or 0
 				stats.normal25Kills = stats.normal25Kills or 0
 				stats.normal25Kills = stats.normal25Kills or 0
 				stats.normal25Pulls = stats.normal25Pulls or 0
@@ -2199,9 +2195,11 @@ do
 		end
 		if not dummyMod then
 			dummyMod = DBM:NewMod("PullTimerCountdownDummy")
+			DBM:GetModLocalization("PullTimerCountdownDummy"):SetGeneralLocalization{ name = DBM_CORE_MINIMAP_TOOLTIP_HEADER }
 			dummyMod.countdown = dummyMod:NewCountdown(0, 0, nil, nil, nil, true)
+			dummyMod.text = dummyMod:NewAnnounce("%s", 1, 2457)
 		end
-		--Cancel any existing pull timers before creating new ones, we don't want double countdowns or mismatching blizz countdown text (cause you can't call another one if one is inp rogress)
+		--Cancel any existing pull timers before creating new ones, we don't want double countdowns or mismatching blizz countdown text (cause you can't call another one if one is in progress)
 		if not DBM.Options.DontShowPT and DBM.Bars:GetBar(DBM_CORE_TIMER_PULL) then
 			DBM.Bars:CancelBar(DBM_CORE_TIMER_PULL) 
 		end
@@ -2211,7 +2209,7 @@ do
 		if not DBM.Options.DontShowPTCountdownText then
 			TimerTracker_OnEvent(TimerTracker, "PLAYER_ENTERING_WORLD")--easiest way to nil out timers on TimerTracker frame. This frame just has no actual star/stop functions :\
 		end
-		if timer == 0 then return end--"/dbm pull 0" will strictly be used to cancel the pull timer (which is w hy we let above part of code run but not below)
+		if timer == 0 then return end--"/dbm pull 0" will strictly be used to cancel the pull timer (which is why we let above part of code run but not below)
 		if not DBM.Options.DontShowPT then
 			DBM.Bars:CreateBar(timer, DBM_CORE_TIMER_PULL, "Interface\\Icons\\Spell_Holy_BorrowedTime")
 		end
@@ -2220,6 +2218,12 @@ do
 		end
 		if not DBM.Options.DontShowPTCountdownText then
 			TimerTracker_OnEvent(TimerTracker, "START_TIMER", 2, timer, timer)--Hopefully this doesn't taint. Initial tests show positive even though it is an intrusive way of calling a blizzard timer. It's too bad the max value doesn't seem to actually work
+		end
+		if not DBM.Options.DontShowPTText then
+			dummyMod.text:Show(DBM_CORE_ANNOUNCE_PULL:format(timer))
+--			DBM:AddMsg(DBM_CORE_ANNOUNCE_PULL:format(timer))
+			dummyMod.text:Schedule(timer, DBM_CORE_ANNOUNCE_PULL_NOW)
+--			DBM:Schedule(timer, DBM.AddMsg, DBM, DBM_CORE_ANNOUNCE_PULL_NOW)
 		end
 		DBM:StartLogging(timer, checkForActualPull)
 	end
@@ -2878,8 +2882,11 @@ function checkWipe(confirm)
 end
 
 function DBM:StartCombat(mod, delay, synced, syncedStartHp, noKillRecord, triggerEvent)
+	local _, instanceType = GetInstanceInfo()
 	--Seeing more and more bad pulls during raids. Need to track down source of this problem. Bosses "engaging" during trash that should be impossible. Trolled syncs, or a mysterious bug on our end?
-	if triggerEvent and not IsEncounterInProgress() and IsInInstance() and not C_Scenario.IsInScenario() then--I've concluded all genuine RAID pulls, IsEncounterInProgress is ALWAYS true. So lets refine this debug to just printing bad pulls only so we don't get spams of 25 prints in LFR when an actual boss is engaged
+	--I've concluded all genuine RAID pulls, IsEncounterInProgress is ALWAYS true.
+	--So lets refine this debug to just printing bad pulls and only in "raid" until we know for sure there is no other cause of bad pulls except bad syncs.
+	if triggerEvent and not IsEncounterInProgress() and instanceType == "raid" then
 		print("DBM Combat Debug: Combat started by "..triggerEvent..". Encounter in progress: "..tostring(IsEncounterInProgress()))
 	end
 	if not checkEntry(inCombat, mod) then
@@ -2909,18 +2916,14 @@ function DBM:StartCombat(mod, delay, synced, syncedStartHp, noKillRecord, trigge
 		else
 			if mod:IsDifficulty("lfr25") then
 				mod.stats.lfr25Pulls = mod.stats.lfr25Pulls + 1
-			elseif mod:IsDifficulty("normal5", "worldboss") then
+			elseif mod:IsDifficulty("normal5", "normal10", "worldboss") then
 				mod.stats.normalPulls = mod.stats.normalPulls + 1
-			elseif mod:IsDifficulty("heroic5") then
+			elseif mod:IsDifficulty("heroic5", "heroic10") then
 				mod.stats.heroicPulls = mod.stats.heroicPulls + 1
 			elseif mod:IsDifficulty("challenge5") then
 				mod.stats.challengePulls = mod.stats.challengePulls + 1
-			elseif mod:IsDifficulty("normal10") then
-				mod.stats.normalPulls = mod.stats.normalPulls + 1
-				local _, _, _, _, maxPlayers = GetInstanceInfo()
-				--Because we still combine 40 mans with 10 man raids, we use maxPlayers arg for player count.
-			elseif mod:IsDifficulty("heroic10") then
-				mod.stats.heroicPulls = mod.stats.heroicPulls + 1
+			elseif mod:IsDifficulty("flex") then
+				mod.stats.flexPulls = mod.stats.flexPulls + 1
 			elseif mod:IsDifficulty("normal25") then
 				mod.stats.normal25Pulls = mod.stats.normal25Pulls + 1
 			elseif mod:IsDifficulty("heroic25") then
@@ -2960,6 +2963,8 @@ function DBM:StartCombat(mod, delay, synced, syncedStartHp, noKillRecord, trigge
 				bestTime = mod.stats.heroicBestTime
 			elseif mod:IsDifficulty("challenge5") and mod.stats.challengeBestTime then
 				bestTime = mod.stats.challengeBestTime
+			elseif mod:IsDifficulty("flex") and mod.stats.flexBestTime then
+				bestTime = mod.stats.flexBestTime
 			elseif mod:IsDifficulty("normal25") and mod.stats.normal25BestTime then
 				bestTime = mod.stats.normal25BestTime
 			elseif mod:IsDifficulty("heroic25") and mod.stats.heroic25BestTime then
@@ -3086,8 +3091,8 @@ function DBM:EndCombat(mod, wipe)
 			--Fix for "attempt to perform arithmetic on field 'pull' (a nil value)" (which was actually caused by stats being nil, so we never did getTime on pull, fixing one SHOULD fix the other)
 			local thisTime = GetTime() - mod.combatInfo.pull
 			local wipeHP = ("%d%%"):format((mod.mainBossId and DBM:GetBossHealthByCID(mod.mainBossId) or mod.highesthealth and DBM:GetHighestBossHealth() or DBM:GetLowestBossHealth()) * 100)
-			local totalPulls = (savedDifficulty == "lfr25" and mod.stats.lfr25Pulls) or ((savedDifficulty == "heroic5" or savedDifficulty == "heroic10") and mod.stats.heroicPulls) or (savedDifficulty == "challenge5" and mod.stats.challengePulls) or (savedDifficulty == "normal25" and mod.stats.normal25Pulls) or (savedDifficulty == "heroic25" and mod.stats.heroic25Pulls) or ((savedDifficulty == "normal5" or savedDifficulty == "normal10" or savedDifficulty == "worldboss") and mod.stats.normalPulls) or 0
-			local totalKills = (savedDifficulty == "lfr25" and mod.stats.lfr25Kills) or ((savedDifficulty == "heroic5" or savedDifficulty == "heroic10") and mod.stats.heroicKills) or (savedDifficulty == "challenge5" and mod.stats.challengeKills) or (savedDifficulty == "normal25" and mod.stats.normal25Kills) or (savedDifficulty == "heroic25" and mod.stats.heroic25Kills) or ((savedDifficulty == "normal5" or savedDifficulty == "normal10" or savedDifficulty == "worldboss") and mod.stats.normalKills) or 0
+			local totalPulls = (savedDifficulty == "lfr25" and mod.stats.lfr25Pulls) or ((savedDifficulty == "heroic5" or savedDifficulty == "heroic10") and mod.stats.heroicPulls) or (savedDifficulty == "challenge5" and mod.stats.challengePulls) or (savedDifficulty == "flex" and mod.stats.flexPulls) or (savedDifficulty == "normal25" and mod.stats.normal25Pulls) or (savedDifficulty == "heroic25" and mod.stats.heroic25Pulls) or ((savedDifficulty == "normal5" or savedDifficulty == "normal10" or savedDifficulty == "worldboss") and mod.stats.normalPulls) or 0
+			local totalKills = (savedDifficulty == "lfr25" and mod.stats.lfr25Kills) or ((savedDifficulty == "heroic5" or savedDifficulty == "heroic10") and mod.stats.heroicKills) or (savedDifficulty == "challenge5" and mod.stats.challengeKills) or (savedDifficulty == "flex" and mod.stats.flexKills) or (savedDifficulty == "normal25" and mod.stats.normal25Kills) or (savedDifficulty == "heroic25" and mod.stats.heroic25Kills) or ((savedDifficulty == "normal5" or savedDifficulty == "normal10" or savedDifficulty == "worldboss") and mod.stats.normalKills) or 0
 			if thisTime < 30 then -- Normally, one attempt will last at least 30 sec.
 				if savedDifficulty == "lfr25" then
 					mod.stats.lfr25Pulls = mod.stats.lfr25Pulls - 1
@@ -3095,6 +3100,8 @@ function DBM:EndCombat(mod, wipe)
 					mod.stats.heroicPulls = mod.stats.heroicPulls - 1
 				elseif savedDifficulty == "challenge5" then
 					mod.stats.challengePulls = mod.stats.challengePulls - 1
+				elseif savedDifficulty == "flex" then
+					mod.stats.flexPulls = mod.stats.flexPulls - 1
 				elseif savedDifficulty == "normal25" then
 					mod.stats.normal25Pulls = mod.stats.normal25Pulls - 1
 				elseif savedDifficulty == "heroic25" then
@@ -3139,8 +3146,8 @@ function DBM:EndCombat(mod, wipe)
 			fireEvent("wipe", mod)
 		else
 			local thisTime = GetTime() - mod.combatInfo.pull
-			local lastTime = (savedDifficulty == "lfr25" and mod.stats.lfr25LastTime) or ((savedDifficulty == "heroic5" or savedDifficulty == "heroic10") and mod.stats.heroicLastTime) or (savedDifficulty == "challenge5" and mod.stats.challengeLastTime) or (savedDifficulty == "normal25" and mod.stats.normal25LastTime) or (savedDifficulty == "heroic25" and mod.stats.heroic25LastTime) or ((savedDifficulty == "normal5" or savedDifficulty == "normal10" or savedDifficulty == "worldboss") and mod.stats.normalLastTime) or nil
-			local bestTime = (savedDifficulty == "lfr25" and mod.stats.lfr25BestTime) or ((savedDifficulty == "heroic5" or savedDifficulty == "heroic10") and mod.stats.heroicBestTime) or (savedDifficulty == "challenge5" and mod.stats.challengeBestTime) or (savedDifficulty == "normal25" and mod.stats.normal25BestTime) or (savedDifficulty == "heroic25" and mod.stats.heroic25BestTime) or ((savedDifficulty == "normal5" or savedDifficulty == "normal10" or savedDifficulty == "worldboss") and mod.stats.normalBestTime) or nil
+			local lastTime = (savedDifficulty == "lfr25" and mod.stats.lfr25LastTime) or ((savedDifficulty == "heroic5" or savedDifficulty == "heroic10") and mod.stats.heroicLastTime) or (savedDifficulty == "challenge5" and mod.stats.challengeLastTime) or (savedDifficulty == "flex" and mod.stats.flexLastTime) or (savedDifficulty == "normal25" and mod.stats.normal25LastTime) or (savedDifficulty == "heroic25" and mod.stats.heroic25LastTime) or ((savedDifficulty == "normal5" or savedDifficulty == "normal10" or savedDifficulty == "worldboss") and mod.stats.normalLastTime) or nil
+			local bestTime = (savedDifficulty == "lfr25" and mod.stats.lfr25BestTime) or ((savedDifficulty == "heroic5" or savedDifficulty == "heroic10") and mod.stats.heroicBestTime) or (savedDifficulty == "challenge5" and mod.stats.challengeBestTime) or (savedDifficulty == "flex" and mod.stats.flexBestTime) or (savedDifficulty == "normal25" and mod.stats.normal25BestTime) or (savedDifficulty == "heroic25" and mod.stats.heroic25BestTime) or ((savedDifficulty == "normal5" or savedDifficulty == "normal10" or savedDifficulty == "worldboss") and mod.stats.normalBestTime) or nil
 			if savedDifficulty == "lfr25" then
 				if not mod.stats.lfr25Kills or mod.stats.lfr25Kills < 0 then mod.stats.lfr25Kills = 0 end
 				if mod.stats.lfr25Kills > mod.stats.lfr25Pulls then mod.stats.lfr25Kills = mod.stats.lfr25Pulls end--Fix logical error i've seen where for some reason we have more kills then pulls for boss as seen by - stats for wipe messages.
@@ -3176,6 +3183,14 @@ function DBM:EndCombat(mod, wipe)
 				if not mod.ignoreBestkill then
 					mod.stats.challengeLastTime = thisTime
 					mod.stats.challengeBestTime = math.min(bestTime or math.huge, thisTime)
+				end
+			elseif savedDifficulty == "flex" then
+				if not mod.stats.flexKills or mod.stats.flexKills < 0 then mod.stats.flexKills = 0 end
+				if mod.stats.flexKills > mod.stats.flexPulls then mod.stats.flexKills = mod.stats.flexPulls end
+				mod.stats.flexKills = mod.stats.flexKills + 1
+				if not mod.ignoreBestkill then
+					mod.stats.flexLastTime = thisTime
+					mod.stats.flexBestTime = math.min(bestTime or math.huge, thisTime)
 				end
 			elseif savedDifficulty == "normal10" then
 				if not mod.stats.normalKills or mod.stats.normalKills < 0 then mod.stats.normalKills = 0 end
@@ -3226,7 +3241,7 @@ function DBM:EndCombat(mod, wipe)
 					end
 				end
 			end
-			local totalKills = (savedDifficulty == "lfr25" and mod.stats.lfr25Kills) or ((savedDifficulty == "heroic5" or savedDifficulty == "heroic10") and mod.stats.heroicKills) or (savedDifficulty == "challenge5" and mod.stats.challengeKills) or (savedDifficulty == "normal25" and mod.stats.normal25Kills) or (savedDifficulty == "heroic25" and mod.stats.heroic25Kills) or mod.stats.normalKills
+			local totalKills = (savedDifficulty == "lfr25" and mod.stats.lfr25Kills) or ((savedDifficulty == "heroic5" or savedDifficulty == "heroic10") and mod.stats.heroicKills) or (savedDifficulty == "challenge5" and mod.stats.challengeKills) or (savedDifficulty == "flex" and mod.stats.flexKills) or (savedDifficulty == "normal25" and mod.stats.normal25Kills) or (savedDifficulty == "heroic25" and mod.stats.heroic25Kills) or mod.stats.normalKills
 			if DBM.Options.ShowKillMessage then
 				if not thisTime then--was a bad pull so we ignored thisTime
 					if scenario then
@@ -3377,6 +3392,8 @@ function DBM:GetCurrentInstanceDifficulty()
 		return "challenge5", CHALLENGE_MODE.." - "
 	elseif difficulty == 9 then--40 man raids have their own difficulty now, no longer returned as normal 10man raids
 		return "normal10", PLAYER_DIFFICULTY1.." ("..maxPlayers..") - "--Just use normal10 anyways, since that's where we been saving 40 man stuff for so long anyways, no reason to change it now, not like any 40 mans can be toggled between 10 and 40 where we NEED to tell the difference.
+	elseif difficulty == 10 then--ASSUMED. Pretty safe bet this is what blizz skipped 10 for.
+		return "flex", "Flex"--Will change to whatever global = flex difficulty. Don't worry localizers
 	elseif difficulty == 11 then--5.3 heroic scenario
 		return "heroic5", PLAYER_DIFFICULTY2.." - "
 	elseif difficulty == 12 then--5.3 normal scenario
@@ -3468,6 +3485,8 @@ do
 					bestTime = mod.stats.heroicBestTime
 				elseif mod:IsDifficulty("challenge5") and mod.stats.challengeBestTime then
 					bestTime = mod.stats.challengeBestTime
+				elseif mod:IsDifficulty("flex") and mod.stats.flexBestTime then
+					bestTime = mod.stats.flexBestTime
 				elseif mod:IsDifficulty("normal25") and mod.stats.normal25BestTime then
 					bestTime = mod.stats.normal25BestTime
 				elseif mod:IsDifficulty("heroic25") and mod.stats.heroic25BestTime then
@@ -3703,14 +3722,6 @@ do
 		end
 	end
 
-	local function filterRaidWarning(self, event, ...)
-		local msg = ...
-		if not msg and self then -- compatibility mode!
-			return filterRaidWarning(nil, nil, self, event)
-		end
-		return type(msg) == "string" and (not not msg:match("^%s*%*%*%*")), ...
-	end
-
 	local function filterSayYell(self, event, ...)
 		return DBM.Options.FilterSayAndYell and #inCombat > 0, ...
 	end
@@ -3719,25 +3730,10 @@ do
 	ChatFrame_AddMessageEventFilter("CHAT_MSG_BN_WHISPER_INFORM", filterOutgoing)
 	ChatFrame_AddMessageEventFilter("CHAT_MSG_WHISPER", filterIncoming)
 	ChatFrame_AddMessageEventFilter("CHAT_MSG_BN_WHISPER", filterIncoming)
-	ChatFrame_AddMessageEventFilter("CHAT_MSG_RAID_WARNING", filterRaidWarning)
-	ChatFrame_AddMessageEventFilter("CHAT_MSG_PARTY", filterRaidWarning)
-	ChatFrame_AddMessageEventFilter("CHAT_MSG_PARTY_LEADER", filterRaidWarning)
-	ChatFrame_AddMessageEventFilter("CHAT_MSG_INSTANCE_CHAT", filterRaidWarning)
-	ChatFrame_AddMessageEventFilter("CHAT_MSG_INSTANCE_CHAT_LEADER", filterRaidWarning)
 	ChatFrame_AddMessageEventFilter("CHAT_MSG_SAY", filterSayYell)
 	ChatFrame_AddMessageEventFilter("CHAT_MSG_YELL", filterSayYell)
 end
 
-
-do
-	local old = RaidWarningFrame:GetScript("OnEvent")
-	RaidWarningFrame:SetScript("OnEvent", function(self, event, msg, ...)
-		if msg:find("%*%*%* .* %*%*%*") then
-			return
-		end
-		return old(self, event, msg, ...)
-	end)
-end
 
 --Raid Boss Emote frame handler for core and BG mods.
 --This completely unregisteres or registers event so frame simply does or doesn't show events
@@ -3890,7 +3886,7 @@ function DBM:RoleCheck()
 	end
 	--Loot reminder even if spec isn't known or we are in LFR where we have a valid for role without us being ones that set us.
 	if lootrole and (role ~= lootrole) then
-		self:AddMsg(DBM_CORE_LOOT_SPEC_REMINDER:format(role or DBM_CORE_UNKNOWN, lootrole))
+		self:AddMsg(DBM_CORE_LOOT_SPEC_REMINDER:format(_G[role] or DBM_CORE_UNKNOWN, _G[lootrole]))
 	end
 end
 

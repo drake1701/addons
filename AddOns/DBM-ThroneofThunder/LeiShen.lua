@@ -1,7 +1,7 @@
 local mod	= DBM:NewMod(832, "DBM-ThroneofThunder", nil, 362)
 local L		= mod:GetLocalizedStrings()
 
-mod:SetRevision(("$Revision: 9749 $"):sub(12, -3))
+mod:SetRevision(("$Revision: 9783 $"):sub(12, -3))
 mod:SetCreatureID(68397)--Diffusion Chain Conduit 68696, Static Shock Conduit 68398, Bouncing Bolt conduit 68698, Overcharge conduit 68697
 mod:SetQuestID(32756)
 mod:SetZone()
@@ -377,7 +377,8 @@ function mod:CHAT_MSG_RAID_BOSS_EMOTE(msg, _, _, _, target)
 		elseif msg:find("spell:135683") then--West (Bouncing Bolt)
 			westDestroyed = true
 		end
-		if self:IsDifficulty("heroic10", "heroic25") then
+--[[		if self:IsDifficulty("heroic10", "heroic25") then
+			--Not consistent, more work needed?
 			--On heroic he gains ability perm when pillar dies.
 			--it will be cast 14 seconds later unless you get him to cast one of other ones first then it may be at 15-16 right after the other one
 			--not sure how it works after second intermission, probably up in air which one he casts first and other right after. thats why these are CD timers.
@@ -394,7 +395,7 @@ function mod:CHAT_MSG_RAID_BOSS_EMOTE(msg, _, _, _, target)
 				timerBouncingBoltCD:Start(14)
 				countdownBouncingBolt:Start(14)
 			end
-		end
+		end--]]
 		if phase == 2 then--Start Phase 2 timers
 			warnPhase2:Show()
 			timerSummonBallLightningCD:Start(15)

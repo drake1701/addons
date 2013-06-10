@@ -3,6 +3,10 @@
 ## X-Curse-Project-Name: LibAboutPanel
 ## X-Curse-Project-ID: libaboutpanel
 ## X-Curse-Repository-ID: wow/libaboutpanel/mainline
+## X-Curse-Packaged-Version: v2.4.2
+## X-Curse-Project-Name: Collect Me
+## X-Curse-Project-ID: collect_me
+## X-Curse-Repository-ID: wow/collect_me/mainline
 
 ## Notes: Adds an about panel to interface options.
 
