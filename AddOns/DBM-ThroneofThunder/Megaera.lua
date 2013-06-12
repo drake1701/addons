@@ -1,8 +1,8 @@
 local mod	= DBM:NewMod(821, "DBM-ThroneofThunder", nil, 362)
 local L		= mod:GetLocalizedStrings()
 
-mod:SetRevision(("$Revision: 9774 $"):sub(12, -3))
-mod:SetCreatureID(68065, 70212, 70235, 70247)--flaming 70212. Frozen 70235, Venomous 70247
+mod:SetRevision(("$Revision: 9808 $"):sub(12, -3))
+mod:SetCreatureID(68065, 70235, 70247)--Frozen 70235, Venomous 70247 (only 2 heads that ever start in front, so no need to look for combat with arcane or fire for combat detection)
 mod:SetMainBossID(68065)
 mod:SetQuestID(32748)
 mod:SetZone()
@@ -101,7 +101,7 @@ local function warnTorrent(name)
 	if not name then return end
 	warnTorrentofIce:Show(name)
 	if name == UnitName("player") then
-		if self:AntiSpam(5, 1) then
+		if mod:AntiSpam(5, 1) then
 			specWarnTorrentofIceYou:Show()
 			timerTorrentofIce:Start()
 			yellTorrentofIce:Yell()

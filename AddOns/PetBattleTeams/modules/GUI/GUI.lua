@@ -14,22 +14,22 @@ local _
 local eventFrame = CreateFrame("frame")
 
 local function OnEvent(self,event,...)
-	if event == "PET_JOURNAL_LIST_UPDATE" then
-		if not IsAddOnLoaded("Blizzard_PetJournal") then
-			LoadAddOn("Blizzard_PetJournal")
-		end
-		if not GUI.delayedInit then
+	if event == "ADDON_LOADED" then
+		local name = ...
+		if (IsAddOnLoaded("Blizzard_PetJournal") or name == "Blizzard_PetJournal") and not GUI.delayedInit then
 			GUI:InitializeGUI()
+			self:UnregisterEvent("ADDON_LOADED")
 		end
-		self:UnregisterEvent("PET_JOURNAL_LIST_UPDATE")		
+		
 	end
 	
 	if event == "PLAYER_REGEN_ENABLED" or event == "PET_BATTLE_CLOSE"  then
-		if GUI.delayedInit then
+		if GUI.delayedInit and IsAddOnLoaded("Blizzard_PetJournal")  then
 			GUI:InitializeGUI()
+			self:UnregisterEvent("PLAYER_REGEN_ENABLED")
+			self:UnregisterEvent("PET_BATTLE_CLOSE")
 		end
-		self:UnregisterEvent("PLAYER_REGEN_ENABLED")
-		self:UnregisterEvent("PET_BATTLE_CLOSE")
+		
 	end
 end
 
@@ -37,7 +37,7 @@ eventFrame:SetScript("OnEvent",OnEvent)
 eventFrame:RegisterEvent("PET_JOURNAL_LIST_UPDATE")
 eventFrame:RegisterEvent("PLAYER_REGEN_ENABLED")
 eventFrame:RegisterEvent("PET_BATTLE_CLOSE")
-
+eventFrame:RegisterEvent("ADDON_LOADED")
 
 function GUI:OnInitialize()
 	self.callbacks = LibStub("CallbackHandler-1.0"):New(self)
@@ -89,8 +89,9 @@ function GUI:InitializeGUI()
 			self.mainFrame:Show()
 		end
 		
-		
+		GUI:ToggleMinimize(GUI:GetIsMinimized())
 	end
+	
 	
 	
 end

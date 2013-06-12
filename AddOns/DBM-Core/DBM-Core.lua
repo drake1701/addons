@@ -43,9 +43,9 @@
 --  Globals/Default Options  --
 -------------------------------
 DBM = {
-	Revision = tonumber(("$Revision: 9785 $"):sub(12, -3)),
-	DisplayVersion = "5.3.3 alpha", -- the string that is shown as version
-	ReleaseRevision = 9727 -- the revision of the latest stable version that is available
+	Revision = tonumber(("$Revision: 9812 $"):sub(12, -3)),
+	DisplayVersion = "5.3.4 alpha", -- the string that is shown as version
+	ReleaseRevision = 9810 -- the revision of the latest stable version that is available
 }
 
 -- Legacy crap; that stupid "Version" field was never a good idea.
@@ -86,6 +86,7 @@ DBM.DefaultOptions = {
 	ShowFakedRaidWarnings = false,
 	WarningIconLeft = true,
 	WarningIconRight = true,
+	WarningIconChat = true,
 	StripServerName = true,
 	ShowLoadMessage = true,
 	ShowPizzaMessage = true,
@@ -696,20 +697,23 @@ do
 			if not DBM.Options.ShowMinimapButton then self:HideMinimapButton() end
 			self.AddOns = {}
 			for i = 1, GetNumAddOns() do
-				if GetAddOnMetadata(i, "X-DBM-Mod") and not checkEntry(bannedMods, GetAddOnInfo(i)) then
+				local name = GetAddOnInfo(i)
+				if GetAddOnMetadata(i, "X-DBM-Mod") and not checkEntry(bannedMods, name) then
 					table.insert(self.AddOns, {
 						sort			= tonumber(GetAddOnMetadata(i, "X-DBM-Mod-Sort") or math.huge) or math.huge,
 						type			= GetAddOnMetadata(i, "X-DBM-Mod-Type") or "OTHER",
 						category		= GetAddOnMetadata(i, "X-DBM-Mod-Category") or "Other",
 						name			= GetAddOnMetadata(i, "X-DBM-Mod-Name") or GetRealZoneText(tonumber(GetAddOnMetadata(i, "X-DBM-Mod-MapID"))) or "",
-						zoneId			= {strsplit(",", GetAddOnMetadata(i, "X-DBM-Mod-LoadZoneID") or "")},
+						zoneId			= {strsplit(",", GetAddOnMetadata(i, "X-DBM-Mod-LoadZoneID") or "")},--Still used by SetZone so all mods should still have even if they load off mapId
+						mapId			= {strsplit(",", GetAddOnMetadata(i, "X-DBM-Mod-MapID") or "")},
 						subTabs			= GetAddOnMetadata(i, "X-DBM-Mod-SubCategoriesID") and {strsplit(",", GetAddOnMetadata(i, "X-DBM-Mod-SubCategoriesID"))} or GetAddOnMetadata(i, "X-DBM-Mod-SubCategories") and {strsplit(",", GetAddOnMetadata(i, "X-DBM-Mod-SubCategories"))},
 						oneFormat		= tonumber(GetAddOnMetadata(i, "X-DBM-Mod-Has-Single-Format") or 0) == 1,
 						hasLFR			= tonumber(GetAddOnMetadata(i, "X-DBM-Mod-Has-LFR") or 0) == 1,
+						hasFlex			= tonumber(GetAddOnMetadata(i, "X-DBM-Mod-Has-Flex") or 0) == 1,
 						hasChallenge	= tonumber(GetAddOnMetadata(i, "X-DBM-Mod-Has-Challenge") or 0) == 1,
 						noHeroic		= tonumber(GetAddOnMetadata(i, "X-DBM-Mod-No-Heroic") or 0) == 1,
 						noStatistics	= tonumber(GetAddOnMetadata(i, "X-DBM-Mod-No-Statistics") or 0) == 1,
-						modId			= GetAddOnInfo(i),
+						modId			= name,
 					})
 					for i = #self.AddOns[#self.AddOns].zoneId, 1, -1 do
 						local id = tonumber(self.AddOns[#self.AddOns].zoneId[i])
@@ -717,6 +721,14 @@ do
 							self.AddOns[#self.AddOns].zoneId[i] = id
 						else
 							table.remove(self.AddOns[#self.AddOns].zoneId, i)
+						end
+					end
+					for i = #self.AddOns[#self.AddOns].mapId, 1, -1 do
+						local id = tonumber(self.AddOns[#self.AddOns].mapId[i])
+						if id then
+							self.AddOns[#self.AddOns].mapId[i] = id
+						else
+							table.remove(self.AddOns[#self.AddOns].mapId, i)
 						end
 					end
 					if self.AddOns[#self.AddOns].subTabs then
@@ -738,6 +750,7 @@ do
 				"ZONE_CHANGED",
 				"ZONE_CHANGED_INDOORS",
 				"GROUP_ROSTER_UPDATE",
+				--"INSTANCE_GROUP_SIZE_CHANGED",
 				"CHAT_MSG_ADDON",
 				"PLAYER_REGEN_DISABLED",
 				"PLAYER_REGEN_ENABLED",
@@ -763,7 +776,8 @@ do
 				"LFG_COMPLETION_REWARD",
 				"WORLD_STATE_TIMER_START",
 				"WORLD_STATE_TIMER_STOP",
-				"ACTIVE_TALENT_GROUP_CHANGED"
+				"ACTIVE_TALENT_GROUP_CHANGED",
+				"LOADING_SCREEN_DISABLED"
 			)
 			self:ZONE_CHANGED_NEW_AREA()
 			self:GROUP_ROSTER_UPDATE()
@@ -1598,6 +1612,12 @@ do
 		self:Schedule(1.5, updateAllRoster)
 	end
 
+--[[
+	function DBM:INSTANCE_GROUP_SIZE_CHANGED()
+		local _, instanceType, difficulty, _, maxPlayers, playerDifficulty, isDynamicInstance, _, instanceGroupSize = GetInstanceInfo()
+	end
+--]]
+
 	function DBM:IsInRaid()
 		return inRaid
 	end
@@ -1941,11 +1961,11 @@ end
 function DBM:WORLD_STATE_TIMER_START()
 	if DBM.Options.ChallengeBest == "None" or not C_Scenario.IsChallengeMode() then return end
 	local maps = GetChallengeModeMapTable()
-	local _, _, _, _, _, _, _, currentrzti = GetInstanceInfo()
+	local _, _, _, _, _, _, _, currentmapID = GetInstanceInfo()
 	for i = 1, 9 do
-		local _, rzti = GetChallengeModeMapInfo(maps[i])
-		if currentrzti == rzti then
-			local guildBest, realmBest = GetChallengeBestTime(rzti)
+		local _, mapID = GetChallengeModeMapInfo(maps[i])
+		if currentmapID == mapID then
+			local guildBest, realmBest = GetChallengeBestTime(mapID)
 			local lastTime, bestTime, medal = GetChallengeModeMapPlayerStats(maps[i])
 			if bestTime and DBM.Options.ChallengeBest == "Personal" then
 				DBM.Bars:CreateBar(ceil(bestTime / 1000), DBM_SPEED_CLEAR_TIMER_TEXT, "Interface\\Icons\\Spell_Holy_BorrowedTime")
@@ -1972,13 +1992,7 @@ function DBM:ZONE_CHANGED()
 		DBM:UpdateMapSizes()
 	end
 end
-
-function DBM:ZONE_CHANGED_INDOORS()
-	if DBM.RangeCheck:IsShown() or DBM.Arrow:IsShown() then
-		SetMapToCurrentZone()
-		DBM:UpdateMapSizes()
-	end
-end
+DBM.ZONE_CHANGED_INDOORS = DBM.ZONE_CHANGED
 
 function DBM:GetCurrentArea()
 	return LastZoneMapID
@@ -1988,10 +2002,9 @@ end
 --  Load Boss Mods on Demand  --
 --------------------------------
 do
---	local firstZoneChangedEvent = true
+	--Primarily for outdoor mods that can't load off GetInstanceInfo()
 	function DBM:ZONE_CHANGED_NEW_AREA()
 		--Work around for the zone ID/area updating slow because the world map doesn't always have correct information on zone change
-		--unless we apsolutely make sure we force it to right zone before asking for info.
 		if WorldMapFrame:IsVisible() and not IsInInstance() then --World map is open and we're not in an instance, (such as flying from zone to zone doing archaeology)
 			local openMapID = GetCurrentMapAreaID()--Save current map settings.
 			SetMapToCurrentZone()--Force to right zone
@@ -2005,25 +2018,28 @@ do
 			LastZoneMapID = GetCurrentMapAreaID() --Set accurate zone area id into cache
 		end
 --		self:AddMsg(GetZoneText()..", "..LastZoneMapID)--Debug
-		for i, v in ipairs(self.AddOns) do
-			if not IsAddOnLoaded(v.modId) and (checkEntry(v.zoneId, LastZoneMapID)) then --To Fix blizzard bug here as well. MapID loading requiring instance since we don't force map outside instances, prevent throne loading at login outside instances. -- TODO: this work-around implies that zoneID based loading is only used for instances
-				self:Unschedule(DBM.LoadMod, DBM, v)
-				self:Schedule(3, DBM.LoadMod, DBM, v)
-			end
+		self:LoadModsOnDemand("zoneId", LastZoneMapID)
+		DBM:UpdateMapSizes()
+	end
+	
+	--Faster and more accurate loading for instances, but useless outside of them
+	function DBM:LOADING_SCREEN_DISABLED()
+		if not IsInInstance() then return end
+		local _, instanceType, _, _, _, _, _, mapID = GetInstanceInfo()
+		self:LoadModsOnDemand("mapId", mapID)
+		if instanceType == "scenario" and self:GetModByName("d511") then--mod already loaded
+			self:Schedule(1, DBM.InstanceCheck, self)--Delayed because LOADING_SCREEN_DISABLED fires before ZONE_CHANGED_NEW_AREA but requires an updated LastZoneMapID
 		end
-		local _, instanceType = IsInInstance()
-		if instanceType == "pvp" and not self:GetModByName("AlteracValley") then
-			for i, v in ipairs(DBM.AddOns) do
-				if v.modId == "DBM-PvP" then
-					self:LoadMod(v)
-					break
+	end
+
+	function DBM:LoadModsOnDemand(checkTable, checkValue)
+		for i, v in ipairs(DBM.AddOns) do
+			if not IsAddOnLoaded(v.modId) and checkEntry(v[checkTable], checkValue) then
+				if self:LoadMod(v) and v.type == "SCENARIO" then
+					DBM:InstanceCheck()
 				end
 			end
 		end
-		if instanceType == "scenario" and self:GetModByName("d511") then--mod already loaded
-			self:Schedule(1, DBM.InstanceCheck)
-		end
-		DBM:UpdateMapSizes()
 	end
 end
 
@@ -2076,6 +2092,7 @@ function DBM:LoadMod(mod)
 				v.type = mod.type
 				v.oneFormat = mod.oneFormat
 				v.hasLFR = mod.hasLFR
+				v.hasFlex = mod.hasFlex
 				v.hasChallenge = mod.hasChallenge
 				v.noHeroic = mod.noHeroic
 			end
@@ -2083,13 +2100,10 @@ function DBM:LoadMod(mod)
 		if DBM_GUI then
 			DBM_GUI:UpdateModList()
 		end
-		local _, instanceType, _, _, _, _, _, mapID = GetInstanceInfo()
-		if mod.type == "PARTY" then
+		local _, instanceType, difficultyID, _, _, _, _, mapID = GetInstanceInfo()
+		if difficultyID == 8 then
 			RequestChallengeModeMapInfo()
 			RequestChallengeModeLeaders(mapID)
-		end
-		if instanceType == "scenario" then
-			self:Schedule(1, DBM.InstanceCheck)
 		end
 		if not InCombatLockdown() then--We loaded in combat because a raid boss was in process, but lets at least delay the garbage collect so at least load mod is half as bad, to do our best to avoid "script ran too long"
 			collectgarbage("collect")
@@ -2102,29 +2116,6 @@ function DBM:LoadMod(mod)
 		return true
 	end
 end
-
-do
-	if select(4, GetAddOnInfo("DBM-PvP")) and select(5, GetAddOnInfo("DBM-PvP")) then
-		local checkBG
-		function checkBG()
-			if not DBM:GetModByName("AlteracValley") and MAX_BATTLEFIELD_QUEUES then
-				for i = 1, MAX_BATTLEFIELD_QUEUES do
-					if GetBattlefieldStatus(i) == "confirm" then
-						for i, v in ipairs(DBM.AddOns) do
-							if v.modId == "DBM-PvP" then
-								DBM:LoadMod(v)
-								return
-							end
-						end
-					end
-				end
-				DBM:Schedule(1, checkBG)
-			end
-		end
-		DBM:Schedule(1, checkBG)
-	end
-end
-
 
 
 -----------------------------
@@ -2221,9 +2212,7 @@ do
 		end
 		if not DBM.Options.DontShowPTText then
 			dummyMod.text:Show(DBM_CORE_ANNOUNCE_PULL:format(timer))
---			DBM:AddMsg(DBM_CORE_ANNOUNCE_PULL:format(timer))
 			dummyMod.text:Schedule(timer, DBM_CORE_ANNOUNCE_PULL_NOW)
---			DBM:Schedule(timer, DBM.AddMsg, DBM, DBM_CORE_ANNOUNCE_PULL_NOW)
 		end
 		DBM:StartLogging(timer, checkForActualPull)
 	end
@@ -2258,7 +2247,7 @@ do
 			raid[sender].displayVersion = displayVersion
 			raid[sender].locale = locale
 			local revDifference = revision - tonumber(DBM.Revision)
-			if version > tonumber(DBM.Version) and version ~= 99999 then -- Update reminder
+			if version > tonumber(DBM.Version) then -- Update reminder
 				if not showedUpdateReminder then
 					local found = false
 					for i, v in pairs(raid) do
@@ -2283,14 +2272,22 @@ do
 					end
 				end
 			end
-			if revision ~= 99999 and revision > tonumber(DBM.Revision) then
+			if revision > tonumber(DBM.Revision) then
 				if raid[sender].rank >= 1 then
 					enableIcons = false
 				end
-				--Running alpha version that's out of date
-				if DBM.DisplayVersion:find("alpha") and (revDifference > 20) and not showedUpdateReminder then
-					showedUpdateReminder = true
-					DBM:AddMsg(DBM_CORE_UPDATEREMINDER_HEADER_ALPHA:format(revDifference))
+				if not showedUpdateReminder and DBM.DisplayVersion:find("alpha") and (revDifference > 20) then
+					local found = false
+					for i, v in pairs(raid) do
+						if v.revision == revision and v ~= raid[sender] then
+							found = true
+							break
+						end
+					end
+					if found then--Running alpha version that's out of date
+						showedUpdateReminder = true
+						DBM:AddMsg(DBM_CORE_UPDATEREMINDER_HEADER_ALPHA:format(revDifference))
+					end
 				end
 			end
 		end
@@ -3079,7 +3076,7 @@ function DBM:EndCombat(mod, wipe)
 				mod.combatInfo.killMobs[i] = true
 			end
 		end
-		self:Schedule(10, DBM.StopLogging)--small delay to catch kill/died combatlog events
+		self:Schedule(10, DBM.StopLogging, DBM)--small delay to catch kill/died combatlog events
 		if not savedDifficulty or not difficultyText then--prevent error if savedDifficulty or difficultyText is nil
 			savedDifficulty, difficultyText = self:GetCurrentInstanceDifficulty()
 		end
@@ -3371,33 +3368,33 @@ function DBM:StopLogging()
 end
 
 function DBM:GetCurrentInstanceDifficulty()
-	local _, instanceType, difficulty, _, maxPlayers = GetInstanceInfo()
+	local _, instanceType, difficulty, difficultyName, maxPlayers = GetInstanceInfo()
 	if difficulty == 0 then
 		return "worldboss", DBM_CORE_WORLD_BOSS.." - "
 	elseif difficulty == 1 then
-		return "normal5", PLAYER_DIFFICULTY1.." ("..maxPlayers..") - "
+		return "normal5", difficultyName.." - "
 	elseif difficulty == 2 then
-		return "heroic5", PLAYER_DIFFICULTY2.." ("..maxPlayers..") - "
+		return "heroic5", difficultyName.." - "
 	elseif difficulty == 3 then
-		return "normal10", PLAYER_DIFFICULTY1.." ("..maxPlayers..") - "
+		return "normal10", difficultyName.." - "
 	elseif difficulty == 4 then
-		return "normal25", PLAYER_DIFFICULTY1.." ("..maxPlayers..") - "
+		return "normal25", difficultyName.." - "
 	elseif difficulty == 5 then
-		return "heroic10", PLAYER_DIFFICULTY2.." ("..maxPlayers..") - "
+		return "heroic10", difficultyName.." - "
 	elseif difficulty == 6 then
-		return "heroic25", PLAYER_DIFFICULTY2.." ("..maxPlayers..") - "
+		return "heroic25", difficultyName.." - "
 	elseif difficulty == 7 then
-		return "lfr25", PLAYER_DIFFICULTY3.." - "
+		return "lfr25", difficultyName.." - "
 	elseif difficulty == 8 then
-		return "challenge5", CHALLENGE_MODE.." - "
+		return "challenge5", difficultyName.." - "
 	elseif difficulty == 9 then--40 man raids have their own difficulty now, no longer returned as normal 10man raids
-		return "normal10", PLAYER_DIFFICULTY1.." ("..maxPlayers..") - "--Just use normal10 anyways, since that's where we been saving 40 man stuff for so long anyways, no reason to change it now, not like any 40 mans can be toggled between 10 and 40 where we NEED to tell the difference.
-	elseif difficulty == 10 then--ASSUMED. Pretty safe bet this is what blizz skipped 10 for.
-		return "flex", "Flex"--Will change to whatever global = flex difficulty. Don't worry localizers
+		return "normal10", difficultyName.." - "--Just use normal10 anyways, since that's where we been saving 40 man stuff for so long anyways, no reason to change it now, not like any 40 mans can be toggled between 10 and 40 where we NEED to tell the difference.
 	elseif difficulty == 11 then--5.3 heroic scenario
-		return "heroic5", PLAYER_DIFFICULTY2.." - "
+		return "heroic5", difficultyName.." - "
 	elseif difficulty == 12 then--5.3 normal scenario
-		return "normal5", PLAYER_DIFFICULTY1.." - "
+		return "normal5", difficultyName.." - "
+	elseif difficulty == 14 then
+		return "flex", RAID_DIFFICULTY5
 	else--failsafe
 		return "normal5", ""
 	end
@@ -3924,7 +3921,8 @@ function DBM:UpdateMapSizes()
 	if dims then
 		currentSizes = dims
 --		print(DBM.MapSizes[mapName][floor][1], DBM.MapSizes[mapName][floor][2])
-	return end 
+		return
+	end 
 
 	-- failed, try Blizzard's map size
 	if not (a1 and b1 and c1 and d1) then
@@ -4023,14 +4021,14 @@ do
 
 		if tonumber(name) then
 			local t = EJ_GetEncounterInfo(tonumber(name))
-			obj.localization.general.name = string.split(",", t)
+			obj.localization.general.name = string.split(",", t or "")
 			obj.modelId = select(4, EJ_GetCreatureInfo(1, tonumber(name)))
 		elseif name:match("z%d+") then
 			local t = GetRealZoneText(string.sub(name, 2))
-			obj.localization.general.name = string.split(",", t)
+			obj.localization.general.name = string.split(",", t or "")
 		elseif name:match("d%d+") then
 			local t = GetDungeonInfo(string.sub(name, 2))
-			obj.localization.general.name = string.split(",", t)
+			obj.localization.general.name = string.split(",", t or "")
 		end
 		table.insert(self.Mods, obj)
 		modsById[name] = obj
@@ -4500,7 +4498,9 @@ do
 			text = text:gsub(">.-<", cachedColorFunctions[self.color])
 			RaidNotice_AddMessage(RaidWarningFrame, text, ChatTypeInfo["RAID_WARNING"]) -- the color option doesn't work (at least it didn't work during the WotLK beta...todo: check this (this would save some of the WTFs))
 			if DBM.Options.ShowWarningsInChat then
-				text = text:gsub(textureExp, "") -- textures @ chat frame can (and will) distort the font if using certain combinations of UI scale, resolution and font size TODO: is this still true as of cataclysm?
+				if not DBM.Options.WarningIconChat then
+					text = text:gsub(textureExp, "") -- textures @ chat frame can (and will) distort the font if using certain combinations of UI scale, resolution and font size TODO: is this still true as of cataclysm?
+				end
 				if DBM.Options.ShowFakedRaidWarnings then
 					for i = 1, select("#", GetFramesRegisteredForEvent("CHAT_MSG_RAID_WARNING")) do
 						local frame = select(i, GetFramesRegisteredForEvent("CHAT_MSG_RAID_WARNING"))
