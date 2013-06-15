@@ -1,7 +1,7 @@
 local mod	= DBM:NewMod(832, "DBM-ThroneofThunder", nil, 362)
 local L		= mod:GetLocalizedStrings()
 
-mod:SetRevision(("$Revision: 9794 $"):sub(12, -3))
+mod:SetRevision(("$Revision: 9821 $"):sub(12, -3))
 mod:SetCreatureID(68397)--Diffusion Chain Conduit 68696, Static Shock Conduit 68398, Bouncing Bolt conduit 68698, Overcharge conduit 68697
 mod:SetQuestID(32756)
 mod:SetZone()
@@ -12,6 +12,7 @@ mod:RegisterCombat("combat")
 mod:RegisterEventsInCombat(
 	"SPELL_CAST_START",
 	"SPELL_AURA_APPLIED",
+	"SPELL_AURA_APPLIED_DOSE",
 	"SPELL_AURA_REMOVED",
 	"SPELL_CAST_SUCCESS",
 	"CHAT_MSG_RAID_BOSS_EMOTE",
@@ -60,6 +61,9 @@ local specWarnLightningWhip				= mod:NewSpecialWarningSpell(136850, nil, nil, ni
 local specWarnSummonBallLightning		= mod:NewSpecialWarningCount(136543)
 local specWarnOverloadedCircuits		= mod:NewSpecialWarningMove(137176)
 local specWarnGorefiendsGrasp			= mod:NewSpecialWarningSpell(108199, false)--For heroic, gorefiends+stun timing is paramount to success
+--Phase 3
+local specWarnElectricalShock			= mod:NewSpecialWarningStack(136914, mod:IsTank(), 12)
+local specWarnElectricalShockOther		= mod:NewSpecialWarningTarget(136914, mod:IsTank())
 --Herioc
 local specWarnHelmOfCommand				= mod:NewSpecialWarningYou(139011, nil, nil, nil, 3)
 
@@ -215,7 +219,11 @@ function mod:SPELL_AURA_APPLIED(args)
 			staticIcon = staticIcon - 1
 		end
 		if not intermissionActive then
-			timerStaticShockCD:Start()
+			if phase == 3 then--Perm abilities he retains in heroic final phase get a 5 second bump on CD
+				timerStaticShockCD:Start(45)
+			else
+				timerStaticShockCD:Start()
+			end
 		end
 		self:Unschedule(warnStaticShockTargets)
 		self:Schedule(0.3, warnStaticShockTargets)
@@ -256,7 +264,11 @@ function mod:SPELL_AURA_APPLIED(args)
 			overchargeIcon = overchargeIcon + 1
 		end
 		if not intermissionActive then
-			timerOverchargeCD:Start()
+			if phase == 3 then--Perm abilities he retains in heroic final phase get a 5 second bump on CD
+				timerOverchargeCD:Start(45)
+			else
+				timerOverchargeCD:Start()
+			end
 		end
 		self:Unschedule(warnOverchargeTargets)
 		self:Schedule(0.3, warnOverchargeTargets)
@@ -296,15 +308,30 @@ function mod:SPELL_AURA_APPLIED(args)
 		end
 		self:Unschedule(warnHelmOfCommandTargets)
 		self:Schedule(0.3, warnHelmOfCommandTargets)
+	elseif args.spellId == 136914 then
+		local amount = args.amount or 1
+		if amount >= 12 and self:AntiSpam(2.5, 6) then
+			if args:IsPlayer() then
+				specWarnElectricalShock:Show(args.amount)
+			else
+				specWarnElectricalShockOther:Show(args.destName)
+			end
+		end
 	end
 end
+mod.SPELL_AURA_APPLIED_DOSE = mod.SPELL_AURA_APPLIED
 
 function mod:SPELL_CAST_SUCCESS(args)
 	if args.spellId == 135991 then
 		warnDiffusionChain:Show(args.destName)
 		if not intermissionActive then
-			timerDiffusionChainCD:Start()
-			specWarnDiffusionChainSoon:Schedule(36)
+			if phase == 3 then--Perm abilities he retains in heroic final phase get a 5 second bump on CD
+				timerDiffusionChainCD:Start(45)
+				specWarnDiffusionChainSoon:Schedule(41)
+			else
+				timerDiffusionChainCD:Start()
+				specWarnDiffusionChainSoon:Schedule(36)
+			end
 		end
 	elseif args.spellId == 136543 and self:AntiSpam(2, 1) then
 		ballsCount = ballsCount + 1
@@ -401,7 +428,7 @@ function mod:CHAT_MSG_RAID_BOSS_EMOTE(msg, _, _, _, target)
 		end--]]
 		if phase == 2 then--Start Phase 2 timers
 			warnPhase2:Show()
-			timerSummonBallLightningCD:Start(15)
+			timerSummonBallLightningCD:Start(15, 1)
 			timerLightningWhipCD:Start(30)
 			timerFussionSlashCD:Start(44)
 			if self.Options.RangeFrame and self:IsRanged() then--Only ranged need it in phase 2 and 3
@@ -413,7 +440,7 @@ function mod:CHAT_MSG_RAID_BOSS_EMOTE(msg, _, _, _, target)
 			timerLightningWhipCD:Start(21.5)
 			timerThunderstruckCD:Start(36)
 			countdownThunderstruck:Start(36)
-			timerSummonBallLightningCD:Start(41.5)
+			timerSummonBallLightningCD:Start(41.5, ballsCount+1)
 		end
 	end
 end
@@ -519,9 +546,15 @@ function mod:UNIT_SPELLCAST_SUCCEEDED(uId, _, _, _, spellId)
 	elseif spellId == 136395 and self:AntiSpam(2, 3) and not intermissionActive then--Bouncing Bolt (During intermission phases, it fires randomly, use scheduler and filter this :\)
 		warnBouncingBolt:Show()
 		specWarnBouncingBolt:Show()
-		timerBouncingBoltCD:Start()
-		countdownBouncingBolt:Start()
-		specWarnBouncingBoltSoon:Schedule(36)
+		if phase == 3 then--Perm abilities he retains in heroic final phase get a 5 second bump on CD
+			timerBouncingBoltCD:Start(45)
+			countdownBouncingBolt:Start(45)
+			specWarnBouncingBoltSoon:Schedule(41)
+		else
+			timerBouncingBoltCD:Start()
+			countdownBouncingBolt:Start()
+			specWarnBouncingBoltSoon:Schedule(36)
+		end
 	elseif spellId == 136869 and self:AntiSpam(2, 4) then--Violent Gale Winds
 		warnViolentGaleWinds:Show()
 		timerViolentGaleWinds:Start()

@@ -97,11 +97,11 @@ function GUI:InitializeGUI()
 end
 
 function GUI:SetAttached(enabled)
-	if UnitAffectingCombat("player") then print("PetBattleTeams: Can't change attachment during combat") return end
+	--[[if UnitAffectingCombat("player") then print("PetBattleTeams: Can't change attachment during combat") return end
 	self.db.global.attached = enabled
 	if self.mainFrame then 
 		self.mainFrame:SetAttached(enabled)
-	end
+	end]]
 end
 
 function GUI:SetHideInCombat(enabled )
@@ -125,7 +125,7 @@ function GUI:SetLocked(enabled)
 end
 
 function GUI:GetAttached()
-	return self.db.global.attached
+	return true--self.db.global.attached
 end
 
 function GUI:GetLocked()

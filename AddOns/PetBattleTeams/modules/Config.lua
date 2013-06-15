@@ -64,7 +64,7 @@ Config.options = {
 				type = "header",
 				
 			},
-			AttachToPetJournal = {
+			--[[AttachToPetJournal = {
 				order = 51,
 				name = "Attach PetBattle Teams to Pet Journal",
 				desc = "When attached, PetBattle Teams will only be usable from the Pet Journal.",
@@ -74,7 +74,7 @@ Config.options = {
 					GUI:SetAttached(val)
 				end,
 				get = function(info) return GUI:GetAttached() end
-			},
+			},]]
 			HideInCombat = {
 				order = 52,
 				name = "Hide PetBattle Teams while in combat or in a Pet Battle",
@@ -86,7 +86,7 @@ Config.options = {
 				end,
 				get = function(info) return GUI:GetHideInCombat() end
 			},
-			LockPosition = {
+			--[[LockPosition = {
 				order = 53,
 				name = "Lock PetBattle Teams Position",
 				type = "toggle",
@@ -96,7 +96,7 @@ Config.options = {
 					GUI:SetLocked(val)
 				end,
 				get = function(info) return GUI:GetLocked() end
-			},
+			},]]
 			showSelectedTeam = {
 				order = 60,
 				name = "Show the selected team indicator",
