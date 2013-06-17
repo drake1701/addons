@@ -120,17 +120,6 @@ L:SetTimerLocalization({
 	timerFlockCD	= "Nest (%d): %s"
 })
 
-L:SetOptionLocalization({
-	ShowNestArrows		= "Zeige DBM-Pfeil für Nestaktivierung",
-	Never				= "Nie",
-	Northeast			= "Blau - Unten NO & Oben NO",
-	Southeast			= "Grün - Unten SO & Oben SO",
-	Southwest			= "Violett - Unten SW & Oben SW/Mitte (25er/10er)",
-	West				= "Rot - Unten W & Oben Mitte (nur 25er)",
-	Northwest			= "Gelb - Unten NW & Oben NW (nur 25er)",
-	Guardians			= "Nestwächter"
-})
-
 L:SetMiscLocalization({
 	eggsHatchL		= "Die Eier in einem der unteren Nester beginnen, aufzubrechen!",
 	eggsHatchU		= "Die Eier in einem der oberen Nester beginnen, aufzubrechen!",

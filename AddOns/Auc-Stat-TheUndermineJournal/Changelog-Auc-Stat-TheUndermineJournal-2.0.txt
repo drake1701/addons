@@ -1,0 +1,19 @@
+tag 2.0
+ce3bbd067a73f5798695cf8772138566bfcc79b3
+Johnny C. Lam <jlam88@gmail.com>
+2012-10-20 10:23:55 -0400
+
+Tagging as 2.0 release.
+
+
+--------------------
+
+Johnny C. Lam:
+	- Remove unneeded method that was breaking market valuation using TUJ data.
+	- Mirror the TUJ tooltip data in the Auctioneer tooltip.
+	- Update for MoP, Auctioneer-5.14.5335, and latest TUJ addon data.
+	Use repository keyword substitution for localization.
+	- Project admin changes for simpler maintenance.
+	- Move project description files into the repository.
+	- Make the title match the project name.
+	- Use repository keyword in place of hard-coded project version number.

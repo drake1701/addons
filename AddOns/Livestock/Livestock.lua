@@ -1048,6 +1048,7 @@ function Livestock.RenumberMounts()
 				show = 1,
 				index = i,
 				spellID = spellID,
+				mountFlags = mountFlags,
 			}
 			if LivestockSettings.newmount == 1 then
 				LivestockSettings.Mounts[name].show = 0
@@ -1079,6 +1080,7 @@ function Livestock.RenumberMounts()
 					index = i,
 					type = "land",
 					spellID = spellID,
+					mountFlags = mountFlags,
 				}
 				if LivestockSettings.newmount == 1 then
 					LivestockSettings.Mounts[name2].show = 0
@@ -1099,10 +1101,12 @@ function Livestock.RenumberMounts()
 			local name2 = strconcat(name, "-")
 			LivestockSettings.Mounts[name].index = i
 			LivestockSettings.Mounts[name].spellID = spellID
+			LivestockSettings.Mounts[name].mountFlags = mountFlags
 			mountstable[name] = true
 			if LivestockSettings.Mounts[name2] then
 				LivestockSettings.Mounts[name2].index = i
 				LivestockSettings.Mounts[name2].spellID = spellID
+				LivestockSettings.Mounts[name2].mountFlags = mountFlags
 				mountstable[name2] = true
 			end
 		else
@@ -1378,7 +1382,7 @@ function Livestock.SmartPostClick(self)
 		elseif self.mounttype == "WATER" then
 			Livestock.PickWaterMount()
 		else
-			Livestock.PickFlyingMount()
+			Livestock.PickFlyingMount(false)
 		end
 	end
 	
@@ -1469,7 +1473,7 @@ function Livestock.NonSmartPostClick(self)
 		if self.typeofmount == "land" then
 			Livestock.PickLandMount()
 		elseif self.typeofmount == "flying" then
-			Livestock.PickFlyingMount()
+			Livestock.PickFlyingMount(false)
 		end
 		self.typeofmount = nil -- clear the mount flag
 	end
@@ -1620,15 +1624,15 @@ function Livestock.PickLandMount()
 	
 	if (debug) then
 		local number = temp[random(#temp)]
-		local _, creatureName = GetCompanionInfo("MOUNT",number)
-		print(format("MOUNT: '%s' is mount-index, land mount is '%s'", number, creatureName))
+		local _, name, spellID, _, _, mountFlags = GetCompanionInfo("MOUNT",number)
+		print(format("MOUNT: land mount is '%s', index '%s', mountFlags '%s'", name, number, mountFlags))
 		CallCompanion("MOUNT",number) -- call a random mount
 	else
 		CallCompanion("MOUNT",temp[random(#temp)]) -- call a random mount
 	end
 end
 
-function Livestock.PickFlyingMount()
+function Livestock.PickFlyingMount(breath)
 	local engineeringLevel = Livestock.GetProfSkillLevel(L.LIVESTOCK_SKILL_ENGR)
 	local tailoringLevel = Livestock.GetProfSkillLevel(L.LIVESTOCK_SKILL_TAILOR)
 	local serpentFlying = IsUsableSpell(L.LIVESTOCK_SPELL_CLOUDSERPENT) -- Cloud Serpent Riding
@@ -1680,7 +1684,13 @@ function Livestock.PickFlyingMount()
 				LivestockSettings.Mounts[k].spellID == 132036) and not serpentFlying then
 				-- don't try to use the cloud serpent mounts
 			else
-				tinsert(temp, LivestockSettings.Mounts[k].index)
+				if breath == true then
+					if LivestockSettings.Mounts[k].mountFlags == 31 then
+						tinsert(temp, LivestockSettings.Mounts[k].index)
+					end
+				else
+					tinsert(temp, LivestockSettings.Mounts[k].index)
+				end
 			end
 		end
 	end
@@ -1692,10 +1702,10 @@ function Livestock.PickFlyingMount()
 	
 	if (debug) then
 		local number = temp[random(#temp)]
-		local _, creatureName = GetCompanionInfo("MOUNT",number)
-		print(format("MOUNT: '%s' is mount-index, flying mount is '%s'", number, creatureName))
+		local _, name, spellID, _, _, mountFlags = GetCompanionInfo("MOUNT",number)
+		print(format("MOUNT: flying mount is '%s', index '%s', mountFlags '%s'", name, number, mountFlags))
 		CallCompanion("MOUNT",number) -- call a random mount
-	else	
+	else
 		CallCompanion("MOUNT",temp[random(#temp)]) -- call a random mount
 	end
 end
@@ -1743,7 +1753,7 @@ function Livestock.PickWaterMount()
 		end
 	elseif (breath == false) then
 		if Livestock.LandOrFlying() == "FLYING" then
-			Livestock.PickFlyingMount()
+			Livestock.PickFlyingMount(breath)
 			return
 		else
 			for k in pairs(LivestockSettings.Mounts) do -- see if we have the Azure Water Strider
@@ -1763,15 +1773,15 @@ function Livestock.PickWaterMount()
 		end
 	end
 	
-	if #temp == 0 then -- if no mounts are selected, choose a land mount instead
-		Livestock.PickLandMount()
+	if #temp == 0 then -- if no mounts are selected, choose a flying mount that can swim instead
+		Livestock.PickFlyingMount(breath)
 		return
 	end
 	
 	if (debug) then
 		local number = temp[random(#temp)]
-		local _, creatureName = GetCompanionInfo("MOUNT",number)
-		print(format("MOUNT: '%s' is mount-index, land mount is '%s'", number, creatureName))
+		local _, name, spellID, _, _, mountFlags = GetCompanionInfo("MOUNT",number)
+		print(format("MOUNT: water mount is '%s', index '%s', mountFlags '%s'", name, number, mountFlags))
 		CallCompanion("MOUNT",number) -- call a random mount
 	else
 		CallCompanion("MOUNT",temp[random(#temp)]) -- call a random mount
