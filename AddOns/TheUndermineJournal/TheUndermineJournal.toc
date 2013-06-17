@@ -1,0 +1,8 @@
+## Interface: 50300
+## Title: The Undermine Journal
+## Notes: Mon, June 17|nUSA-Stormrage
+## Version: 2.3
+TheUndermineJournal.lua
+SpellToItem.lua
+MarketData.lua
+GEMarketData.lua
