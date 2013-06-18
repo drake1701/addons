@@ -1,4 +1,4 @@
-## Interface: 50200
+## Interface: 50300
 ## Title: Tiller Tracker
 ## Version: 1.13.1
 ## Notes: Helps with the daily Tiller food quests ("A Dish for...") by keeping track of what quests have been completed that day, how many dishes need to be cooked, and what materials are required.
