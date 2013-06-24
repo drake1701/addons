@@ -1,7 +1,7 @@
 ﻿local addonName, addonTable = ...
 local thisrealmname = addonTable.realmname or (string.upper(string.sub(GetCVar("realmList"),1,2)..string.sub(UnitFactionGroup("player"),1,1)..GetRealmName()))
 if (not addonTable.skiploading) then
-	if not addonTable.updatetimestring then addonTable.updatetimestring = "2013-06-23T06:30:02+00:00" end
+	if not addonTable.updatetimestring then addonTable.updatetimestring = "2013-06-24T06:30:02+00:00" end
 	if not addonTable.marketdata then addonTable.marketdata = {} end
 
 if not addonTable.marketdata[25] then addonTable.marketdata[25] = {} end
