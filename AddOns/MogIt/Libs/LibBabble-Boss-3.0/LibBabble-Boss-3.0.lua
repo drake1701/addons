@@ -1,6 +1,6 @@
 --[[
 Name: LibBabble-Boss-3.0
-Revision: $Rev: 401 $
+Revision: $Rev: 405 $
 Maintainers: ckknight, nevcairiel, Ackis
 Website: http://www.wowace.com/projects/libbabble-boss-3-0/
 Dependencies: None
@@ -8,7 +8,7 @@ License: MIT
 ]]
 
 local MAJOR_VERSION = "LibBabble-Boss-3.0"
-local MINOR_VERSION = 90000 + tonumber(("$Rev: 401 $"):match("%d+"))
+local MINOR_VERSION = 90000 + tonumber(("$Rev: 405 $"):match("%d+"))
 
 if not LibStub then error(MAJOR_VERSION .. " requires LibStub.") end
 local lib = LibStub("LibBabble-3.0"):New(MAJOR_VERSION, MINOR_VERSION)
@@ -5816,7 +5816,7 @@ elseif GAME_LOCALE == "ptBR" then
 	-- ["Deathbound Ward"] = "",
 	["Deathbringer Saurfang"] = "Carrasco Saurfang",
 	["Death Knight Darkreaver"] = "Cavaleiro da Morte Ravassombra",
-	-- ["Death Knight Understudy"] = "",
+	["Death Knight Understudy"] = "Cavaleiro da Morte Aspirante", -- Needs review
 	-- ["Deathspeaker High Priest"] = "",
 	["Death Speaker Jargba"] = "Morta-voz Jargba",
 	-- ["Deathstalker Visceri"] = "",
@@ -6774,8 +6774,7 @@ elseif GAME_LOCALE == "itIT" then
 	["Drakkari Colossus"] = "Colosso Drakkari",
 	["Drakos the Interrogator"] = "Drakos l'Interrogatore",
 	Dreadscale = "Magmascaglia",
-	Dreamscythe = [=[Falciasogni
-]=],
+	Dreamscythe = "Falciasogni",
 	["Durumu the Forgotten"] = "Durumu il Dimenticato",
 	["Dust Covered Chest"] = "Scrigno Impolverato",
 	Dustwraith = "Dustwraith",
@@ -6833,8 +6832,7 @@ elseif GAME_LOCALE == "itIT" then
 	["Feral Defender"] = "Difensore Ferino",
 	Festergut = "Panzaguasta",
 	Feugen = "Feugen",
-	["Fineous Darkvire"] = [=[Fineous Forgiascura
-]=],
+	["Fineous Darkvire"] = "Fineous Forgiascura",
 	Firemaw = "Piragon",
 	["Fjola Lightbane"] = "Fjola Irabianca",
 	Flamegor = "Ardigon",
@@ -6853,8 +6851,7 @@ elseif GAME_LOCALE == "itIT" then
 	["Gal'darah"] = "Gal'darah",
 	["Galgann Firehammer"] = "Galgann Ardimartello",
 	Galleon = "Galeone",
-	["Gara'jal the Spiritbinder"] = [=[Gara'jal il Vincolaspiriti
-]=],
+	["Gara'jal the Spiritbinder"] = "Gara'jal il Vincolaspiriti",
 	Garalon = "Garalon",
 	Garr = "Garr",
 	["Garrosh Hellscream"] = "Garrosh Malogrido",
@@ -6905,8 +6902,7 @@ elseif GAME_LOCALE == "itIT" then
 	["Grethok the Controller"] = "Grethok il Controllore",
 	["Gri'lek"] = "Gri'lek",
 	Grimlok = "Tetrok",
-	Grizzle = [=[Grizzle
-]=],
+	Grizzle = "Grizzle",
 	Grobbulus = "Grobbulus",
 	Grubbis = "Grubbis",
 	["Gruul the Dragonkiller"] = "Gruul l'Ammazzadraghi",
@@ -9389,7 +9385,7 @@ elseif GAME_LOCALE == "zhTW" then
 	Acidmaw = "酸喉",
 	Adarogg = "阿達洛葛",
 	["Admiral Ripsnarl"] = "利普斯納爾上將",
-	Aeonus = "Aeonus", -- Needs review
+	Aeonus = "艾奧那斯",
 	["Aerial Command Unit"] = "空中指揮裝置",
 	["Agathelos the Raging"] = "暴怒的阿迦賽羅斯",
 	["Aggem Thorncurse"] = "阿葛金·棘咒",

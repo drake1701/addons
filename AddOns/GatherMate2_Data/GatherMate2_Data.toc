@@ -12,7 +12,7 @@
 ## LoadOnDemand: 1
 ## X-Generated-Version: $Revision: 271 $
 ## Dependencies: GatherMate2
-## X-Curse-Packaged-Version: v16.7
+## X-Curse-Packaged-Version: v17.0
 ## X-Curse-Project-Name: GatherMate2_Data
 ## X-Curse-Project-ID: gathermate2_data
 ## X-Curse-Repository-ID: wow/gathermate2_data/mainline

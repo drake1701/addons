@@ -230,7 +230,7 @@ blizzbugTitle:SetTextColor(1, 1, 1, 1)
 
 local OptBlizzBugChat = CreateCheckbox("Fix rarity for any chat links you make", 32, 32, "TOPLEFT", blizzbugTitle, "BOTTOMLEFT", 0, 0)
 local OptBlizzBugTooltip = CreateCheckbox("Fix rarity in Tooltips of others' chat links", 32, 32, "TOPLEFT", lastcheckbox, "BOTTOMLEFT", 0, 0)
-local OptBugBattleFontFix = CreateCheckbox("Use alternate rarity coloring method", 32, 32, "TOPLEFT", lastcheckbox, "BOTTOMLEFT", 0, 0)
+local OptBugBattleFontFix = CreateCheckbox("Test old Pet Battle rarity coloring", 32, 32, "TOPLEFT", lastcheckbox, "BOTTOMLEFT", 0, 0)
 
 -- to disable rarity checkbox since it is dependent
 local function BPBID_OptNamesHSFUpdate_OnClick(self, button, down)
@@ -515,6 +515,9 @@ function Options.okay()
 		BPBID.messagefiltercheck = false
 		BPBID.messagefilters = {}
 	end
+	
+	-- a manual change has occurred (added in v1.0.8 to help update values added in new versions)
+	BPBID_Options.ManualChange = GetAddOnMetadata(addonname, "Version")
 	
 	-- refresh the options page to display the new values
 	BPBID_Options_Refresh()

@@ -1,9 +1,16 @@
-## Interface: 50300
-## Author: Elv22
-## Version: 1.0.0
-## Title: |cff1784d1Tukui DB Converter|r
-## Notes: Converts TukuiDB to ElvDB. Only use if you have an addon that Requires Tukui to load.
-## RequiredDeps: ElvUI
-## OptionalDeps: ElvUI_Dps_Layout, ElvUI_Heal_Layout
+﻿## Interface: 50300
+## Author: Tukz
+## Version: 15.62
+## Title: |cffC495DDTukui|r
+## Notes: UI of awesomeness!
+## SavedVariables: TukuiData
+## SavedVariablesPerCharacter: TukuiDataPerChar
+## OptionalDeps: Tukui_ConfigUI, Clique
+## X-oUF: oUFTukui
+## Website: http://www.tukui.org
 
-core.lua
+Tukui.xml
+
+
+## X-Tukui-ProjectID: -1
+## X-Tukui-ProjectFolders: Tukui_ConfigUI, Tukui

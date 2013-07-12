@@ -125,7 +125,7 @@ L:SetOptionLocalization({
 	Never				= "Nie",
 	Northeast			= "Blau - Unten NO & Oben NO",
 	Southeast			= "Grün - Unten SO & Oben SO",
-	Southwest			= "Violett - Unten SW & Oben SW/Mitte (25er/10er)",
+	Southwest			= "Violett/Rot - Unten SW & Oben SW/Mitte (25er/10er)",
 	West				= "Rot - Unten W & Oben Mitte (nur 25er)",
 	Northwest			= "Gelb - Unten NW & Oben NW (nur 25er)",
 	Guardians			= "Nestwächter"
@@ -233,7 +233,7 @@ L:SetWarningLocalization({
 
 L:SetTimerLocalization({
 	timerDayCD		= "Nächste Tagphase",
-	timerDuskCD		= "Nächste Dämmerungsphase",
+	timerDuskCD		= "Nächste Dämmerungsphase"
 })
 
 L:SetMiscLocalization({
@@ -246,11 +246,18 @@ L:SetMiscLocalization({
 L= DBM:GetModLocalization(832)
 
 L:SetWarningLocalization({
-	specWarnIntermissionSoon	= "Unterbrechung bald"
+	specWarnIntermissionSoon	= "Unterbrechung bald",
+	warnDiffusionChainSpread	= "%s gesprungen auf >%s<"
+})
+
+L:SetTimerLocalization({
+	timerConduitCD				= "Erste Leitung CD"
 })
 
 L:SetOptionLocalization({
 	specWarnIntermissionSoon	= "Spezialvorwarnung für Unterbrechung",
+	warnDiffusionChainSpread	= "Verkünde Sprungziele von $spell:135991",
+	timerConduitCD				= "Abklingzeit der Fähigkeit der ersten Leitung anzeigen",
 	StaticShockArrow			= "Zeige DBM-Pfeil, wenn jemand von $spell:135695 betroffen ist",
 	OverchargeArrow				= "Zeige DBM-Pfeil, wenn jemand von $spell:136295 betroffen ist"
 })
@@ -264,12 +271,24 @@ L:SetMiscLocalization({
 ------------
 L= DBM:GetModLocalization(831)
 
+L:SetWarningLocalization({
+	specWarnVitaSoaker			= "Du bist als nächstes Vitaziel eingeteilt!",
+	warnVitaSoakerSoon			= "Du bist als übernächstes Vitaziel eingeteilt."
+})
+
 L:SetOptionLocalization({
-	SetIconsOnVita		= "Setze Zeichen auf den Spieler mit dem Debuff $spell:138297 und den am weitesten davon entfernten Spieler"
+	warnVitaSoakerSoon	= "Zeige Warnung, wenn du als übernächstes Ziel für $spell:138297 eingeteilt bist (benötigt aktiviertes Infofenster)",
+	specWarnVitaSoaker	= "Spezialwarnung, wenn du als nächstes Ziel für $spell:138297 eingeteilt bist, basierend auf deiner Position im Infofenster (benötigt aktiviertes Infofenster)",
+	SetIconsOnVita		= "Setze Zeichen auf den Spieler mit dem Debuff $spell:138297 und den am weitesten davon entfernten Spieler",
+	InfoFrame			= "Zeige Infofenster für eine automatische Einteilung der Reihenfolge der Spieler ohne $spell:138372 (ausgenommen Tanks) als Ziel für $spell:138297",
+	AnnounceVitaSoaker	= "Verkünde nächstes eingeteiltes Ziel für $spell:138297 als Schlachtzugwarnung (nur als Leiter)"
 })
 
 L:SetMiscLocalization({
-	Defeat		= "Wait! I am... I am not your enemy."--translate (trigger)
+	Defeat						= "Wartet!",--needs to be verified (video-captured translation)
+	NoSensitivity				= "Reihenfolge Vitaziele",
+	VitaSoakerOptionConflict	= "Achtung: Du hast die Warnungen für die Einteilung als nächstes bzw. übernächstes Ziel von Instabile Vita aktiviert, aber das Infofenster deaktiviert. Die Warnungen werden ohne das Infofenster nicht funktionieren!",
+	VitaChatMessage				= "Nächstes Vitaziel: %s"
 })
 
 -------------

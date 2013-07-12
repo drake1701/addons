@@ -141,7 +141,7 @@ L:SetOptionLocalization({
 	Never				= "Never",
 	Northeast			= "Blue - Lower & Upper NE",
 	Southeast			= "Green - Lower & Upper SE",
-	Southwest			= "Purple - Lower SW & Upper SW(25) or Upper Middle(10)",
+	Southwest			= "Purple/Red - Lower SW & Upper SW(25) or Upper Middle(10)",
 	West				= "Red - Lower W & Upper Middle (25 only)",
 	Northwest			= "Yellow - Lower & Upper NW (25 only)",
 	Guardians			= "Nest Guardians"
@@ -223,7 +223,8 @@ L:SetWarningLocalization({
 })
 
 L:SetOptionLocalization({
-	warnMatterSwapped	= "Announce targets swapped by $spell:138618"
+	warnMatterSwapped	= "Announce targets swapped by $spell:138618",
+	SetIconOnFont           = DBM_CORE_AUTO_ICONS_OPTION_TEXT:format(138707),
 })
 
 L:SetMiscLocalization({
@@ -259,7 +260,7 @@ L:SetWarningLocalization({
 
 L:SetTimerLocalization({
 	timerDayCD		= "Next day phase",
-	timerDuskCD		= "Next dusk phase",
+	timerDuskCD		= "Next dusk phase"
 })
 
 L:SetOptionLocalization({
@@ -281,11 +282,18 @@ L:SetMiscLocalization({
 L= DBM:GetModLocalization(832)
 
 L:SetWarningLocalization({
-	specWarnIntermissionSoon	= "Intermission soon"
+	specWarnIntermissionSoon	= "Intermission soon",
+	warnDiffusionChainSpread	= "%s spread on >%s<"
+})
+
+L:SetTimerLocalization({
+	timerConduitCD				= "First Conduit CD"
 })
 
 L:SetOptionLocalization({
 	specWarnIntermissionSoon	= "Show pre-special warning before Intermission",
+	warnDiffusionChainSpread	= "Announce $spell:135991 spread targets",
+	timerConduitCD				= "Show timer for first conduit ability cooldown",
 	RangeFrame					= DBM_CORE_AUTO_RANGE_OPTION_TEXT_SHORT:format("8/6"),--For two different spells
 	StaticShockArrow			= "Show DBM Arrow when someone is affected by $spell:135695",
 	OverchargeArrow				= "Show DBM Arrow when someone is affected by $spell:136295",
@@ -302,12 +310,26 @@ L:SetMiscLocalization({
 ------------
 L= DBM:GetModLocalization(831)
 
+L:SetWarningLocalization({
+	specWarnVitaSoaker			= "You're next Vita Soaker!",
+	warnVitaSoakerSoon			= "You're second up Vita Soaker",
+	specWarnUnstablVitaJump		= "Unstable Vita jumped to you!"
+})
+
 L:SetOptionLocalization({
-	SetIconsOnVita		= "Set icons on $spell:138297 debuffed player and furthest player from them"
+	warnVitaSoakerSoon		= "Announce when you are second up Vita Soaker (Requires InfoFrame enabled)",
+	specWarnUnstablVitaJump	= "Show special warning when $spell:138297 jumps to you",
+	specWarnVitaSoaker		= "Show special warning when you are next $spell:138297 soaker based on infoframe position (Requires InfoFrame enabled)",
+	SetIconsOnVita			= "Set icons on $spell:138297 debuffed player and furthest player from them",
+	InfoFrame				= "Show info frame for soak order of players without $spell:138372 (excluding tanks)",
+	AnnounceVitaSoaker		= "Announce next $spell:138297 soaker to chat in RAID warnings (Requires Raid leader)"
 })
 
 L:SetMiscLocalization({
-	Defeat		= "Wait! I am... I am not your enemy."
+	Defeat						= "Wait!",
+	NoSensitivity				= "Vita Soak Order",
+	VitaSoakerOptionConflict	= "Warning: You enabled the Vita Soaker warnings but disabled the Vita Soaker InfoFrame. The warnings will not work without the InfoFrame!",
+	VitaChatMessage				= "Next vita soaker: %s"
 })
 
 -------------

@@ -1,6 +1,6 @@
 --[[
 BattlePetBreedID: Pet Data Module
-Last Update: June 4th, 2013; Patch 5.3.0 Live
+Last Update: July 1st, 2013; Patch 5.4.0 PTR Build 17124
 
 If you would like a copy of this data in a different format for your own purposes or to be informed of future updates:
 Contact Simca@Malfurion - either through MMO-Champion, through Curse, or in-game
@@ -802,6 +802,9 @@ function BPBID.InitializeArrays()
 	BPBID.BasePetStats[1247] = {11, 16, 7}
 	BPBID.BasePetStats[1248] = {8.25, 8, 7.75}
 	BPBID.BasePetStats[1255] = {7.75, 8.375, 7.875}
+	BPBID.BasePetStats[1257] = {8, 8, 8}
+	BPBID.BasePetStats[1266] = {8, 8.25, 7.75}
+	BPBID.BasePetStats[1305] = {8.5, 8, 7.5}
 	
 	BPBID.BreedsPerSpecies[39] = {11}
 	BPBID.BreedsPerSpecies[40] = {8}
@@ -1146,7 +1149,7 @@ function BPBID.InitializeArrays()
 	BPBID.BreedsPerSpecies[509] = {6, 7, 9}
 	BPBID.BreedsPerSpecies[511] = {3, 5, 11}
 	BPBID.BreedsPerSpecies[512] = {4, 6, 9, 12}
-	BPBID.BreedsPerSpecies[513] = {4, 5, 7, 10}
+	BPBID.BreedsPerSpecies[513] = {3, 4, 5, 6, 7, 8, 9, 10, 11, 12}
 	BPBID.BreedsPerSpecies[514] = {3, 4, 5, 6, 7, 8, 9, 10, 11, 12}
 	BPBID.BreedsPerSpecies[515] = {3, 4, 5, 6, 7, 8, 9, 10, 11, 12}
 	BPBID.BreedsPerSpecies[517] = {3, 8}
@@ -1516,7 +1519,7 @@ function BPBID.InitializeArrays()
 	BPBID.BreedsPerSpecies[1200] = {8}
 	BPBID.BreedsPerSpecies[1201] = {10}
 	BPBID.BreedsPerSpecies[1202] = {3, 10}
-	BPBID.BreedsPerSpecies[1204] = {11} -- UNUSED: Pierre
+	BPBID.BreedsPerSpecies[1204] = {11}
 	BPBID.BreedsPerSpecies[1205] = {3, 6, 7, 9, 10}
 	BPBID.BreedsPerSpecies[1206] = {10}
 	BPBID.BreedsPerSpecies[1207] = {12}
@@ -1544,4 +1547,7 @@ function BPBID.InitializeArrays()
 	BPBID.BreedsPerSpecies[1247] = {8}
 	BPBID.BreedsPerSpecies[1248] = {3}
 	BPBID.BreedsPerSpecies[1255] = {8} -- UNUSED: Murkimus Tyrannicus
+	BPBID.BreedsPerSpecies[1257] = {3} -- HIDDEN: Crafty
+	BPBID.BreedsPerSpecies[1266] = {8} -- NEW: Xu-Fu, Cub of Xuen
+	BPBID.BreedsPerSpecies[1305] = {8} -- NEW: Zao, Calfling of Niuzao
 end

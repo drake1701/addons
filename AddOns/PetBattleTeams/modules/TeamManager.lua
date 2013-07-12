@@ -744,11 +744,15 @@ end
 function TeamManager:FixTeams()
 	--set theory functions
 	local function intersect(a, b)
-	  local ret = {}
-	  for _,b_ in pairs(b) do
-		if a[b_] then ret[b_]=b_ end
-	  end
-	  return ret
+	  
+	  
+		local ret = {}
+		if type(a) == "table" and type(b) == "table" then
+			for _,b_ in pairs(b) do
+				if a[b_] then ret[b_]=b_ end
+			end
+		end
+		return ret
 	end
 
 	--map ability IDs to species with that ability

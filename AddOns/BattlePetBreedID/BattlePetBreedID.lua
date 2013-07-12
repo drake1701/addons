@@ -584,9 +584,9 @@ local function BPBID_Events_OnEvent(self, event, name, ...)
 			BPBID_Options.Breedtip.AllStats25 = true -- All breeds' stats at level 25
 			BPBID_Options.Breedtip.AllStats25Rare = true -- Always assume pet will be Rare at level 25
 			
-			BPBID_Options.BlizzBugChat = true
+			BPBID_Options.BlizzBugChat = true -- Fix Blizzard Chat Link Rarity bug for all players
 			BPBID_Options.BlizzBugTooltip = true -- Fix Blizzard Chat Link Tooltip Rarity bug
-			BPBID_Options.BattleFontFix = false
+			BPBID_Options.BattleFontFix = false -- Test old Pet Battle rarity coloring
 		end
 		
 		-- set new defaults added in v1.0.1
@@ -606,13 +606,23 @@ local function BPBID_Events_OnEvent(self, event, name, ...)
 			BPBID_Options.BattleFontFix = false
 		end
 		
+		-- set up new system for detecting manual changes added in v1.0.8
+		if (BPBID_Options.ManualChange == nil) then
+			BPBID_Options.ManualChange = false
+		end
+		
+		-- disable option unless user has manually changed it
+		if (not BPBID_Options.ManualChange) or (BPBID_Options.ManualChange ~= GetAddOnMetadata(addonname, "Version")) then
+			BPBID_Options.BattleFontFix = false
+		end
+		
 		-- if this addon loads after the Pet Journal
 		if (PetJournalPetCardPetInfo) then
 			
 			-- hook into the OnEnter script for the frame that calls GameTooltip in the Pet Journal
 			PetJournalPetCardPetInfo:HookScript("OnEnter", BPBID.Hook_PJTEnter)
 			PetJournalPetCardPetInfo:HookScript("OnLeave", BPBID.Hook_PJTLeave)
-				
+			
 			-- set boolean
 			PJHooked = true
 		end

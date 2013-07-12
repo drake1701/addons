@@ -36,8 +36,8 @@ L.Mod_Enabled				= "Aktiviere Boss Mod"
 L.Mod_Reset					= "Lade Standardeinstellungen"
 L.Reset 					= "Zurücksetzen"
 
-L.Enable  					= "Aktiviere"
-L.Disable					= "Deaktiviere"
+L.Enable  					= "Aktiviert"
+L.Disable					= "Deaktiviert"
 
 L.NoSound					= "Kein Sound"
 
@@ -59,8 +59,6 @@ L.EnableDBM 				= "Aktiviere DBM"
 L.EnableMiniMapIcon			= "Aktiviere Minimap-Symbol"
 L.SetPlayerRole				= "Automatisch eigene Rolle (Schutz/Heilung/Schaden) setzen (empfohlen)"
 L.UseMasterVolume			= "Benutze Master-Audiokanal um Sounddateien abzuspielen"
-L.DisableCinematics			= "Deaktiviere Videosequenzen innerhalb von Instanzen"
-L.DisableCinematicsOutside	= "Deaktiviere Videosequenzen außerhalb von Instanzen"
 L.AutologBosses				= "Automatische Aufzeichnung von Bosskämpfen im spieleigenen Kampflog"
 L.AdvancedAutologBosses		= "Automatische Aufzeichnung von Bosskämpfen mit Addon \"Transcriptor\""
 L.LogOnlyRaidBosses			= "Nur Schlachtzugbosskämpfe aufzeichnen\n(ohne Schlachtzugsbrowser-/Dungeon-/Szenarien-/Weltbosskämpfe)"
@@ -158,14 +156,20 @@ L.ClickThrough				= "Mausereignisse deaktivieren (macht die Balken durchklickbar
 L.Panel_SpecWarnFrame		= "Spezialwarnungen"
 L.Area_SpecWarn				= "Einstellungen für Spezialwarnungen"
 L.SpecWarn_Enabled			= "Zeige Spezialwarnungen für Bossfähigkeiten"
-L.SpecWarn_LHFrame			= "Aktiviere aufblinkenden Bildschirm bei Spezialwarnungen"
+L.SpecWarn_FlashFrame		= "Aktiviere aufblinkenden Bildschirm bei Spezialwarnungen"
 L.SpecWarn_AdSound			= "Erweiterte Soundeinstellungen für Spezialwarnungen (benötigt /reload)"
+L.Area_SpecWarnFlash		= "Einstellungen für aufblinkenden Bildschirm bei Spezialwarnungen" --unused
+L.SpecWarn_FlashColor		= "Blinkfarbe"
+L.SpecWarn_FlashDur			= "Blinkdauer: %0.1f"
+L.SpecWarn_FlashAlpha		= "Blinkalpha: %0.1f"
+L.Area_SpecWarnFont			= "Schrifteinstellungen für Spezialwarnungen" --unused
 L.SpecWarn_Font				= "Schriftart für Spezialwarnungen" --unused
 L.SpecWarn_DemoButton		= "Zeige Beispiel"
 L.SpecWarn_MoveMe			= "Positionieren"
-L.SpecWarn_FontSize			= "Schriftgröße"
+L.SpecWarn_FontSize			= "Schriftgröße: %d"
 L.SpecWarn_FontColor		= "Schriftfarbe"
 L.SpecWarn_FontType			= "Schriftart für Spezialwarnungen"
+L.Area_SpecWarnSound		= "Soundeinstellungen für Spezialwarnungen" --unused
 L.SpecWarn_ResetMe			= "Zurücksetzen"
 
 -- Tab: HealthFrame
@@ -179,14 +183,11 @@ L.BarWidth					= "Balkenbreite: %d"
 -- Tab: Spam Filter
 L.Panel_SpamFilter				= "Filter / Spam-Filter"
 L.Area_SpamFilter				= "Spam-Filter"
-L.HideBossEmoteFrame			= "Verberge das Fenster \"RaidBossEmoteFrame\" während Bosskämpfen"
-L.HideWatchFrame				= "Verberge das Fenster für die Questverfolgung während Bosskämpfen"
 L.StripServerName				= "Entferne den Realmnamen der Spieler in Warnungen und Timern"
 L.SpamBlockBossWhispers			= "Aktiviere Filter für <DBM>-Flüstermitteilungen im Kampf"
 L.BlockVersionUpdateNotice		= "Zeige Update-Meldung im Chatfenster statt als Popup (nicht empfohlen)"
 L.ShowBigBrotherOnCombatStart	= "Führe bei Kampfbeginn eine \"BigBrother\"-Buffprüfung durch"
 L.BigBrotherAnnounceToRaid		= "Verkünde Ergebnis der \"BigBrother\"-Buffprüfung zum Schlachtzug"
-L.SpamBlockSayYell				= "Sprechblasen-Ansagen im Chatfenster ausblenden"
 
 L.Area_SpamFilter_Outgoing		= "globale Filtereinstellungen"
 L.SpamBlockNoShowAnnounce		= "Zeige keine Mitteilungen und spiele keine Warnungssounds"
@@ -200,6 +201,15 @@ L.DontShowPT					= "Zeige keinen Timerbalken für Pull-Timer"
 L.DontShowPTCountdownText		= "Zeige keinen optischen Countdown für Pull-Timer"
 L.DontPlayPTCountdown			= "Spiele keinen akustischen Countdown für Pull-Timer"
 L.DontShowPTText				= "Zeige keine Mitteilungen für Pull-Timer im Chatfenster"
+
+L.Panel_HideBlizzard			= "Verberge Spielelemente"
+L.Area_HideBlizzard				= "Einstellungen zum Verbergen von Spielelementen"
+L.HideBossEmoteFrame			= "Verberge das Fenster \"RaidBossEmoteFrame\" während Bosskämpfen"
+L.HideWatchFrame				= "Verberge das Fenster für die Questverfolgung während Bosskämpfen"
+L.SpamBlockSayYell				= "Sprechblasen-Ansagen im Chatfenster ausblenden"
+L.DisableCinematics				= "Verberge Videosequenzen"
+L.AfterFirst					= "Nach jeweils einmaligem Abspielen"
+L.Always						= "Immer"
 
 -- Misc
 L.FontHeight	= 16
