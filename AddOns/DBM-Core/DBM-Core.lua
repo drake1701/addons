@@ -43,7 +43,7 @@
 --  Globals/Default Options  --
 -------------------------------
 DBM = {
-	Revision = tonumber(("$Revision: 10033 $"):sub(12, -3)),
+	Revision = tonumber(("$Revision: 10041 $"):sub(12, -3)),
 	DisplayVersion = "5.3.5 alpha", -- the string that is shown as version
 	ReleaseRevision = 9947 -- the revision of the latest stable version that is available
 }
@@ -1982,25 +1982,22 @@ end
 --------------------------------
 --  Load Boss Mods on Demand  --
 --------------------------------
-do	
-	--Faster and more accurate loading for instances, but useless outside of them
-	function DBM:LOADING_SCREEN_DISABLED()
+do
+	local function FixForShittyComputers()
 		local _, instanceType, _, _, _, _, _, mapID = GetInstanceInfo()
-		if UnitName("player") == "Cellista" and GetRealmName() == "Khadgar" then
-			print("DBM Debug: ", mapID)
-		end
 		LastInstanceMapID = mapID
 		if instanceType == "none" and (mapID ~= 369) and (mapID ~= 1043) and (mapID ~= 974) then return end -- instance type of brawlers guild and DMF are none
-		self:LoadModsOnDemand("mapId", mapID)
-		if instanceType == "scenario" and (mapID ~= 1148) and self:GetModByName("d511") then--mod already loaded (Filter 1148, which is proving grounds)
+		DBM:LoadModsOnDemand("mapId", mapID)
+		if instanceType == "scenario" and (mapID ~= 1148) and DBM:GetModByName("d511") then--mod already loaded (Filter 1148, which is proving grounds)
 			DBM:InstanceCheck()
 		end
 	end
+	--Faster and more accurate loading for instances, but useless outside of them
+	function DBM:LOADING_SCREEN_DISABLED()
+		self:Schedule(1, FixForShittyComputers, DBM)
+	end
 
 	function DBM:LoadModsOnDemand(checkTable, checkValue)
-		if UnitName("player") == "Cellista" and GetRealmName() == "Khadgar" then
-			print("DBM Debug: Attempting to load mod for: ", checkValue)
-		end
 		for i, v in ipairs(DBM.AddOns) do
 			local modTable = v[checkTable]
 			if not IsAddOnLoaded(v.modId) and modTable and checkEntry(modTable, checkValue) then
@@ -2258,7 +2255,8 @@ do
 					end
 					if found then--Running alpha version that's out of date
 						showedUpdateReminder = true
-						print(("DBM Debug: Showing alpha update notification because %s and %s are running revision %d which is > than our reivision %d"):format(sender, other, revision, DBM.Revision))
+						--Bug happened again, but this print NEVER happened?? In fact, everyone in raid got the bug to happen, and suspiciously after several people in raid turned bigwigs on....
+						print(("DBM Debug: Showing alpha update notification because %s and %s are running revision %d which is > than our revision %d"):format(sender, other, revision, DBM.Revision))
 						DBM:AddMsg(DBM_CORE_UPDATEREMINDER_HEADER_ALPHA:format(revDifference))
 					end
 				end

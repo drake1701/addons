@@ -68,8 +68,6 @@ function PT:OnEnable()
 	_G.SlashCmdList["PT"] = function() _G.InterfaceOptionsFrame_OpenToCategory(AddonName); end
 	_G["SLASH_PT1"] = "/pt";
 	
-	--self:RegisterEvent("PET_BATTLE_CLOSE", "PetBattleStop");
-	
 	-- version check and reminder that the user may want to check the options
 	local msg;
 	local version = tostring(_G.GetAddOnMetadata(AddonName, "Version"));
@@ -95,11 +93,31 @@ end
 -- Event Callbacks
 -------------------------
 
+-- Both hooks only apply for the FrameCombatDisplay
+-- When hiding the UI, PT's frames are hidden as well
+_G.UIParent:HookScript("OnShow", function()
+	if( _G.C_PetBattles.IsInBattle() and PT.db.profile.activeBattleDisplay == 1 ) then
+		_G.PTPlayer:Show();
+		_G.PTEnemy:Show();
+	end
+end);
 
+_G.UIParent:HookScript("OnHide", function()
+	if( _G.C_PetBattles.IsInBattle() and PT.db.profile.activeBattleDisplay == 1 ) then
+		_G.PTPlayer:Hide();
+		_G.PTEnemy:Hide();
+	end
+end);
 
 ---------------------------
 -- Compare Functions
 ---------------------------
+
+-- RETURN
+-- Whether it is a PvP match or not
+function PT:IsPVPBattle()
+	return _G.C_PetBattles.IsInBattle() and not _G.C_PetBattles.IsWildBattle() and not _G.C_PetBattles.IsPlayerNPC(2);
+end
 
 -- RETURN
 -- float number which acts as a percentage
@@ -291,7 +309,7 @@ do
 		local activePet = _G.C_PetBattles.GetActivePet(side);
 		
 		local species, speciesName, petIcon, petType;
-		local petLevel, petName, petSpeed, petQuality, petHP, petMaxHP;
+		local petLevel, petName, petPower, petSpeed, petQuality, petHP, petMaxHP;
 		local numAbilities;
 		
 		t.side = side;
@@ -306,6 +324,7 @@ do
 			
 			petLevel = _G.C_PetBattles.GetLevel(side, pet);
 			petName = _G.C_PetBattles.GetName(side, pet);
+			petPower = _G.C_PetBattles.GetPower(side, pet);
 			petSpeed = _G.C_PetBattles.GetSpeed(side, pet);
 			petQuality = _G.C_PetBattles.GetBreedQuality(side, pet);
 			
@@ -327,6 +346,7 @@ do
 			t[pet].level = petLevel;
 			t[pet].species = species;
 			t[pet].type = petType;
+			t[pet].power = petPower;
 			t[pet].speed = petSpeed;
 			t[pet].icon = petIcon;
 			t[pet].quality = petQuality - 1; -- little hack, the API returns (actual_pet_quality + 1) -.-
@@ -335,8 +355,32 @@ do
 			t[pet].numAbilities = numAbilities;
 			t[pet].breed = LibBreed:GetBreedName( LibBreed:GetBreedByPetBattleSlot(side, pet) or 0 );
 			
+			if( side == PT.ENEMY ) then
+				local t1, t2 = {}, {};
+				_G.C_PetJournal.GetPetAbilityList(species, t1, t2);
+				
+				t[pet].tableAbilities = t1;
+				t[pet].tableAbilityLevels = t2;
+				
+				numAbilities = 0;
+				for i = 1, 3 do
+					if( petLevel >= t2[i] ) then
+						numAbilities = numAbilities + 1;
+					end
+					
+					t[pet]["ab"..i] = t1[i]; -- ability id
+				end
+				t[pet].numAbilities = numAbilities;
+				
+				for i = 4, 6 do
+					t[pet]["ab"..(i - 3).."ok"] = not t2[i] and true or petLevel < t2[i];
+				end
+			else
+			
 			for ab = 1, numAbilities do
 				t[pet]["ab"..ab] = _G.C_PetBattles.GetAbilityInfo(side, pet, ab); -- ability id
+			end
+			
 			end
 		end
 	end
@@ -370,6 +414,7 @@ do
 			t[pet].level = random(1, 25);
 			t[pet].species = species;
 			t[pet].type = random(1, 10);
+			t[pet].power = t[pet].level * random(2, 20);
 			t[pet].speed = t[pet].level * random(7, 15);
 			t[pet].icon = "INTERFACE\\ICONS\\INV_CRATE_02";
 			t[pet].quality = pet + ((side - 1) * 3) - 1;
