@@ -743,6 +743,19 @@ GTFO.SpellID["15577"] = {
 	sound = 1;
 };
 
+-- *******************
+-- * A Brewing Storm *
+-- *******************
+
+GTFO.SpellID["142561"] = {
+	--desc = "Venom Cloud (Huntmaster S'thoc)";
+	sound = 1;
+};
+
+GTFO.SpellID["142562"] = {
+	--desc = "Torch Toss (Viletongue Raider)";
+	sound = 1;
+};
 
 -- ********************************
 -- * Crypt of the Forgotten Kings *
@@ -756,6 +769,14 @@ GTFO.SpellID["120742"] = {
 GTFO.SpellID["128970"] = {
 	--desc = "Bladestorm (Crypt Guardian)";
 	sound = 2;
+	soundHeroic = 1;
+	trivialPercent = 0;
+};
+
+GTFO.SpellID["120223"] = {
+	--desc = "Breath of Hate (Seething Sha)";
+	sound = 2;
+	soundHeroic = 1;
 	trivialPercent = 0;
 };
 
@@ -1138,19 +1159,18 @@ GTFO.SpellID["138319"] = {
 };
 ]]--
 
+GTFO.SpellID["140502"] = {
+	--desc = "Eye Sore (Roaming Fog)";
+	sound = 1;
+	soundLFR = 2;
+};
+
 GTFO.SpellID["134755"] = {
 	--desc = "Eye Sore (Durumu the Forgotten)";
 	sound = 1;
 };
 
 -- TODO: Stern Gaze (Durumu the Forgotten) -- Alert based on damage amount?
-
-GTFO.SpellID["133798"] = {
-	--desc = "Life Drain (Durumu the Forgotten)";
-	sound = 1;
-	tankSound = 0;
-	test = true; -- Verify
-};
 
 GTFO.SpellID["134044"] = {
 	--desc = "Lingering Gaze (Pool) (Durumu the Forgotten)";
@@ -1167,9 +1187,17 @@ GTFO.SpellID["139313"] = {
 	sound = 1;
 };
 
+GTFO.SpellID["138707"] = {
+	--desc = "Anima Font (Dark Animus)";
+	sound = 4;
+	soundLFR = 0;
+	tankSound = 0;
+};
+
 GTFO.SpellID["134926"] = {
 	--desc = "Throw Spear (Iron Qon)";
 	sound = 1;
+	test = true; -- Needs to be turned off in Phase 4
 };
 
 GTFO.SpellID["137668"] = {
@@ -1188,6 +1216,11 @@ GTFO.SpellID["137664"] = {
 	--desc = "Frozen Blood (Iron Qon)";
 	sound = 1;
 	applicationOnly = true;
+};
+
+GTFO.SpellID["136261"] = {
+	--desc = "Burning Winds (Iron Qon)";
+	sound = 1;
 };
 
 GTFO.SpellID["137417"] = {

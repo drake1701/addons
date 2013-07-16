@@ -586,6 +586,11 @@ GTFO.SpellID["120783"] = {
 	sound = 3;
 };
 
+GTFO.SpellID["121029"] = {
+	--desc = "Air Vent (Air Trap)";
+	sound = 3;
+};
+
 -- ***********************
 -- * Assault on Zan'vess *
 -- ***********************
@@ -755,7 +760,11 @@ GTFO.SpellID["137167"] = {
 };
 
 -- TODO: Ionization (Jin'rokh the Breaker) -- Fail when standing near the explosion
--- TODO: Lightning Strike [Diffusion] (Jin'rokh the Breaker) -- Lightning residue?
+
+GTFO.SpellID["137905"] = {
+	--desc = "Lightning Strike [Diffusion] (Jin'rokh the Breaker)";
+	sound = 3;
+};
 
 GTFO.SpellID["136739"] = {
 	--desc = "Double Swipe - Front (Horridon)";
@@ -846,9 +855,7 @@ GTFO.SpellID["133778"] = {
 	sound = 3;
 };
 
-
 -- TODO: Force of Will (Durumu the Forgotten) -- No combat log entry for this one :(
--- TODO: Lingering Gaze (Impact) (Durumu the Forgotten) -- Impact damage only, avoidable?
 
 GTFO.SpellID["137663"] = {
 	--desc = "Acidic Splash (Durumu the Forgotten)";
@@ -906,21 +913,7 @@ GTFO.SpellID["138569"] = {
 	tankSound = 0;
 };
 
--- TODO: Anima Ring (Dark Animus) -- Tank fail (more than 1 stack)
--- TODO: Anima Bolt (Dark Animus) -- Avoidable?
--- TODO: FULL POWER (Dark Animus) -- Not avoidable?
-
-GTFO.SpellID["139803"] = {
-	--desc = "Triumphant Rush (Manchu)";
-	sound = 3;
-	soundLFR = 0;
-};
-
-GTFO.SpellID["139797"] = {
-	--desc = "Wild Smash (Manchu)";
-	sound = 3;
-	soundLFR = 0;
-};
+-- TODO: Anima Ring (Dark Animus) -- Tank fail (non-LFR only)
 
 -- TODO: Unleashed Flame (Iron Qon) -- Fail when "Scorched" debuff is up
 
@@ -949,7 +942,6 @@ GTFO.SpellID["136498"] = {
 -- TODO: Whirling Winds (Iron Qon)
 -- TODO: Frost Spike (Iron Qon) -- Avoidable?
 -- TODO: Freeze Spear (Iron Qon) -- Avoidable?
--- TODO: Ignite Cyclone (Iron Qon)
 
 GTFO.SpellID["136892"] = {
 	--desc = "Frozen Solid (Iron Qon)";
@@ -965,6 +957,7 @@ GTFO.SpellID["136722"] = {
 GTFO.SpellID["134916"] = {
 	--desc = "Decapitate (Lei Shen)";
 	sound = 3;
+	soundLFR = 0;
 };
 
 GTFO.SpellID["135096"] = {
@@ -995,7 +988,7 @@ GTFO.SpellID["136850"] = {
 GTFO.SpellID["136326"] = {
 	--desc = "Overcharged (Lei Shen)";
 	sound = 3;
-	test = true; -- Verify
+	tankSound = 0;
 };
 
 -- TODO: Fusion Slash (Lei Shen) -- Tank swap ability, fail on the 2nd stack
@@ -1475,3 +1468,17 @@ GTFO.SpellID["142146"] = {
 	--desc = "Rocket Swarm (Speegle Blasttorch)";
 	sound = 3;
 };
+
+GTFO.SpellID["136844"] = {
+	--desc = "Mighty Crash (God-Hulk Gulkan)";
+	sound = 3;
+	specificMobs = { 
+		70400, -- God-Hulk Gulkan
+	};	
+};
+
+GTFO.SpellID["138632"] = {
+	--desc = "Deadly Kick (Slavemaster Shiaxu)";
+	sound = 3;
+};
+

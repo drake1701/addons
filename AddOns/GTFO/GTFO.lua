@@ -3,7 +3,7 @@
 --------------------------------------------------------------------------
 --[[
 GTFO
-Author: Zensunim of Malygos
+Author: Zensunim of Dragonblight
 
 Usage: /GTFO or go to Interface->Add-ons->GTFO
 
@@ -692,7 +692,15 @@ Change Log:
 		- Added Pandaria spells for Throne of Thunder
 		- Added Pandaria spells for Dark Heart of Pandaria
 		- Added Pandaria spells for The Secrets of Ragefire
-
+	v4.23.4
+		- Added Pandaria spells for Pandaria (world)
+		- Added Pandaria spells for Crypt of the Forgotten Kings
+		- Added Pandaria spells for A Brewing Storm
+		- Added Pandaria spells for Trove of the Thunder King
+		- Added/Updated Pandaria spells for Throne of Thunder (thanks Oscarucb)
+	v4.23.5
+		- Added Pandaria spells for Pandaria (world)
+		- Removed Pandaria spells for Throne of Thunder
 
 ]]--
 GTFO = {
@@ -709,8 +717,8 @@ GTFO = {
 		IgnoreOptions = { };
 		TrivialDamagePercent = .5; -- Minimum % of HP lost required for an alert to be trivial
 	};
-	Version = "4.23.3"; -- Version number (text format)
-	VersionNumber = 42303; -- Numeric version number for checking out-of-date clients
+	Version = "4.23.5"; -- Version number (text format)
+	VersionNumber = 42305; -- Numeric version number for checking out-of-date clients
 	DataLogging = nil; -- Indicate whether or not the addon needs to run the datalogging function (for hooking)
 	DataCode = "4"; -- Saved Variable versioning, change this value to force a reset to default
 	CanTank = nil; -- The active character is capable of tanking

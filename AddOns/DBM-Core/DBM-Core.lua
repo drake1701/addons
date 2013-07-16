@@ -43,8 +43,8 @@
 --  Globals/Default Options  --
 -------------------------------
 DBM = {
-	Revision = tonumber(("$Revision: 10041 $"):sub(12, -3)),
-	DisplayVersion = "5.3.5 alpha", -- the string that is shown as version
+	Revision = tonumber(("$Revision: 9947 $"):sub(12, -3)),
+	DisplayVersion = "5.3.4", -- the string that is shown as version
 	ReleaseRevision = 9947 -- the revision of the latest stable version that is available
 }
 
@@ -102,7 +102,7 @@ DBM.DefaultOptions = {
 	ShowMinimapButton = false,
 	BlockVersionUpdateNotice = false,
 	ShowSpecialWarnings = true,
-	ShowFlashFrame = true,
+	ShowLHFrame = true,
 	ShowAdvSWSounds = false,
 	AlwaysShowHealthFrame = false,
 	ShowBigBrotherOnCombatStart = false,
@@ -138,15 +138,6 @@ DBM.DefaultOptions = {
 	SpecialWarningFont = STANDARD_TEXT_FONT,
 	SpecialWarningFontSize = 50,
 	SpecialWarningFontColor = {0.0, 0.0, 1.0},
-	SpecialWarningFlashCol1 = {1.0, 1.0, 0.0},--Yellow
-	SpecialWarningFlashCol2 = {1.0, 0.5, 0.0},--Orange
-	SpecialWarningFlashCol3 = {1.0, 0.0, 0.0},--Red
-	SpecialWarningFlashDura1 = 0.4,
-	SpecialWarningFlashDura2 = 0.4,
-	SpecialWarningFlashDura3 = 1,
-	SpecialWarningFlashAlph1 = 0.3,
-	SpecialWarningFlashAlph2 = 0.3,
-	SpecialWarningFlashAlph3 = 0.4,
 	HealthFrameGrowUp = false,
 	HealthFrameLocked = false,
 	HealthFrameWidth = 200,
@@ -776,7 +767,6 @@ do
 				"LOADING_SCREEN_DISABLED"
 			)
 			self:GROUP_ROSTER_UPDATE()
-			self:LOADING_SCREEN_DISABLED()
 			self:Schedule(1.5, function()
         		combatInitialized = true
 			end)
@@ -1982,19 +1972,16 @@ end
 --------------------------------
 --  Load Boss Mods on Demand  --
 --------------------------------
-do
-	local function FixForShittyComputers()
-		local _, instanceType, _, _, _, _, _, mapID = GetInstanceInfo()
-		LastInstanceMapID = mapID
-		if instanceType == "none" and (mapID ~= 369) and (mapID ~= 1043) and (mapID ~= 974) then return end -- instance type of brawlers guild and DMF are none
-		DBM:LoadModsOnDemand("mapId", mapID)
-		if instanceType == "scenario" and (mapID ~= 1148) and DBM:GetModByName("d511") then--mod already loaded (Filter 1148, which is proving grounds)
-			DBM:InstanceCheck()
-		end
-	end
+do	
 	--Faster and more accurate loading for instances, but useless outside of them
 	function DBM:LOADING_SCREEN_DISABLED()
-		self:Schedule(1, FixForShittyComputers, DBM)
+		local _, instanceType, _, _, _, _, _, mapID = GetInstanceInfo()
+		LastInstanceMapID = mapID
+		if instanceType == "none" and (mapID ~= 369) and (mapID ~= 1043) then return end -- instance type of brawlers guild is none ("Shlae'gararena none 0  5 0 false 1043")
+		self:LoadModsOnDemand("mapId", mapID)
+		if instanceType == "scenario" and self:GetModByName("d511") then--mod already loaded
+			DBM:InstanceCheck()
+		end
 	end
 
 	function DBM:LoadModsOnDemand(checkTable, checkValue)
@@ -2011,7 +1998,7 @@ end
 
 --Scenario mods
 function DBM:InstanceCheck()
-	if combatInfo[LastInstanceMapID] then
+	if combatInfo[LastInstanceMapID] then--Scenarios not yet moved over to LastInstanceMapID
 		for i, v in ipairs(combatInfo[LastInstanceMapID]) do
 			if (v.type == "scenario") and checkEntry(v.msgs, LastInstanceMapID) then
 				DBM:StartCombat(v.mod, 0)
@@ -2166,7 +2153,6 @@ do
 		if not DBM.Options.DontShowPTCountdownText then
 			TimerTracker_OnEvent(TimerTracker, "PLAYER_ENTERING_WORLD")--easiest way to nil out timers on TimerTracker frame. This frame just has no actual star/stop functions :\
 		end
-		dummyMod.text:Cancel()
 		if timer == 0 then return end--"/dbm pull 0" will strictly be used to cancel the pull timer (which is why we let above part of code run but not below)
 		if not DBM.Options.DontShowPT then
 			DBM.Bars:CreateBar(timer, DBM_CORE_TIMER_PULL, "Interface\\Icons\\Spell_Holy_BorrowedTime")
@@ -2245,18 +2231,14 @@ do
 				end
 				if not showedUpdateReminder and DBM.DisplayVersion:find("alpha") and (revDifference > 20) then
 					local found = false
-					local other = nil
 					for i, v in pairs(raid) do
 						if v.revision == revision and v ~= raid[sender] then
 							found = true
-							other = i
 							break
 						end
 					end
 					if found then--Running alpha version that's out of date
 						showedUpdateReminder = true
-						--Bug happened again, but this print NEVER happened?? In fact, everyone in raid got the bug to happen, and suspiciously after several people in raid turned bigwigs on....
-						print(("DBM Debug: Showing alpha update notification because %s and %s are running revision %d which is > than our revision %d"):format(sender, other, revision, DBM.Revision))
 						DBM:AddMsg(DBM_CORE_UPDATEREMINDER_HEADER_ALPHA:format(revDifference))
 					end
 				end
@@ -4129,7 +4111,7 @@ function bossModPrototype:GetBossTarget(cid)
 	cid = cid or self.creatureId
 	local name, uid, bossuid
 	for i, uId in ipairs(bossTargetuIds) do
-		if self:GetUnitCreatureId(uId) == cid or UnitGUID(uId) == cid then
+		if self:GetUnitCreatureId(uId) == cid then
 			bossuid = uId
 			name = DBM:GetUnitFullName(uId.."target")
 			uid = DBM:GetRaidUnitId(name) or uId.."target"--overrride target uid because uid+"target" is variable uid.
@@ -4140,7 +4122,7 @@ function bossModPrototype:GetBossTarget(cid)
 	-- failed to detect from default uIds, scan all group members's target.
 	if IsInRaid() then
 		for i = 1, GetNumGroupMembers() do
-			if self:GetUnitCreatureId("raid"..i.."target") == cid or UnitGUID("raid"..i.."target") == cid then
+			if self:GetUnitCreatureId("raid"..i.."target") == cid then
 				bossuid = "raid"..i.."target"
 				name = DBM:GetUnitFullName("raid"..i.."targettarget")
 				uid = DBM:GetRaidUnitId(name) or "raid"..i.."targettarget"--overrride target uid because uid+"target" is variable uid.
@@ -4149,7 +4131,7 @@ function bossModPrototype:GetBossTarget(cid)
 		end
 	elseif IsInGroup() then
 		for i = 1, GetNumSubgroupMembers() do
-			if self:GetUnitCreatureId("party"..i.."target") == cid or UnitGUID("party"..i.."target") == cid then
+			if self:GetUnitCreatureId("party"..i.."target") == cid then
 				bossuid = "party"..i.."target"
 				name = DBM:GetUnitFullName("party"..i.."targettarget")
 				uid = DBM:GetRaidUnitId(name) or "party"..i.."targettarget"--overrride target uid because uid+"target" is variable uid.
@@ -5020,14 +5002,12 @@ do
 			end
 			msg = msg:gsub(">.-<", stripName)
 			font:SetText(msg)
-			if not UnitIsDeadOrGhost("player") and DBM.Options.ShowFlashFrame then
-				if self.flash == 1 then
-					DBM.Flash:Show(DBM.Options.SpecialWarningFlashCol1[1],DBM.Options.SpecialWarningFlashCol1[2], DBM.Options.SpecialWarningFlashCol1[3], DBM.Options.SpecialWarningFlashDura1, DBM.Options.SpecialWarningFlashAlph1)
-				elseif self.flash == 2 then
-					DBM.Flash:Show(DBM.Options.SpecialWarningFlashCol2[1],DBM.Options.SpecialWarningFlashCol2[2], DBM.Options.SpecialWarningFlashCol2[3], DBM.Options.SpecialWarningFlashDura2, DBM.Options.SpecialWarningFlashAlph2)
-				elseif self.flash == 3 then
-					DBM.Flash:Show(DBM.Options.SpecialWarningFlashCol3[1],DBM.Options.SpecialWarningFlashCol3[2], DBM.Options.SpecialWarningFlashCol3[3], DBM.Options.SpecialWarningFlashDura3, DBM.Options.SpecialWarningFlashAlph3)
-				end
+			if DBM.Options.ShowLHFrame and not UnitIsDeadOrGhost("player") then
+				LowHealthFrame:Show()
+				LowHealthFrame:SetAlpha(1)
+				frame.healthFrameHidden = nil
+			else
+				frame.healthFrameHidden = true -- to prevent bugs in the case that this option is changed while the flash effect is active (which is not that unlikely as there is a test button in the gui...)
 			end
 			frame:Show()
 			frame:SetAlpha(1)
@@ -5057,13 +5037,11 @@ do
 		elseif not runSound then
 			runSound = 1
 		end
-		local flash
 		local obj = setmetatable(
 			{
 				text = self.localization.warnings[text],
 				mod = self,
 				sound = not noSound,
-				flash = runSound,--Set flash color to hard coded runsound (even if user sets custom sounds)
 			},
 			mt
 		)
@@ -5093,7 +5071,6 @@ do
 			spellName = GetSpellInfo(spellId) or DBM_CORE_UNKNOWN
 		end
 		local text
-		local flash
 		if announceType == "prewarn" then
 			if type(stacks) == "string" then
 				text = DBM_CORE_AUTO_SPEC_WARN_TEXTS[announceType]:format(spellName, stacks)
@@ -5109,7 +5086,6 @@ do
 				announceType = announceType,
 				mod = self,
 				sound = not noSound,
-				flash = runSound,--Set flash color to hard coded runsound (even if user sets custom sounds)
 			},
 			mt
 		)
@@ -5290,7 +5266,7 @@ do
 		frame:SetFrameStrata("HIGH")
 	end
 
-	function DBM:ShowTestSpecialWarning(text, number)
+	function DBM:ShowTestSpecialWarning(text)
 		if moving then
 			return
 		end
@@ -5301,16 +5277,6 @@ do
 		self:Unschedule(testWarningEnd)
 		self:Schedule(3, testWarningEnd)
 		frame.timer = 3
-		DBM:PlaySpecialWarningSound(number)
-		if DBM.Options.ShowFlashFrame then
-			if number == 1 then
-				DBM.Flash:Show(DBM.Options.SpecialWarningFlashCol1[1],DBM.Options.SpecialWarningFlashCol1[2], DBM.Options.SpecialWarningFlashCol1[3], DBM.Options.SpecialWarningFlashDura1, DBM.Options.SpecialWarningFlashAlph1)
-			elseif number == 2 then
-				DBM.Flash:Show(DBM.Options.SpecialWarningFlashCol2[1],DBM.Options.SpecialWarningFlashCol2[2], DBM.Options.SpecialWarningFlashCol2[3], DBM.Options.SpecialWarningFlashDura2, DBM.Options.SpecialWarningFlashAlph2)
-			elseif number == 3 then
-				DBM.Flash:Show(DBM.Options.SpecialWarningFlashCol3[1],DBM.Options.SpecialWarningFlashCol3[2], DBM.Options.SpecialWarningFlashCol3[3], DBM.Options.SpecialWarningFlashDura3, DBM.Options.SpecialWarningFlashAlph3)
-			end
-		end
 	end
 end
 

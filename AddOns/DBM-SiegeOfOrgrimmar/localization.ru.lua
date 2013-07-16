@@ -1,4 +1,4 @@
-﻿if GetLocale() ~= "ruRU" then return end
+if GetLocale() ~= "ruRU" then return end
 local L
 
 ---------------
@@ -6,18 +6,38 @@ local L
 ---------------
 L= DBM:GetModLocalization(852)
 
+L:SetWarningLocalization({
+})
+
+L:SetOptionLocalization({
+})
+
 ---------------------------
 -- The Fallen Protectors --
 ---------------------------
 L= DBM:GetModLocalization(849)
+
+L:SetWarningLocalization({
+})
+
+L:SetTimerLocalization({
+})
+
+L:SetOptionLocalization({
+})
+
+L:SetMiscLocalization({
+})
 
 ---------------------------
 -- Norushen --
 ---------------------------
 L= DBM:GetModLocalization(866)
 
+L:SetWarningLocalization({
+})
+
 L:SetOptionLocalization({
-	InfoFrame			= "Информационное окно для $journal:8252"
 })
 
 ------------------
@@ -25,8 +45,14 @@ L:SetOptionLocalization({
 ------------------
 L= DBM:GetModLocalization(867)
 
+L:SetWarningLocalization({
+})
+
 L:SetOptionLocalization({
 	InfoFrame			= "Информационное окно для $journal:8255"
+})
+
+L:SetMiscLocalization({
 })
 
 --------------
@@ -48,15 +74,42 @@ L:SetMiscLocalization({
 --------------------
 L= DBM:GetModLocalization(864)
 
+L:SetWarningLocalization({
+})
+
+L:SetTimerLocalization({
+})
+
+L:SetOptionLocalization({
+})
+
+L:SetMiscLocalization({
+})
+
 --------------------------
 -- Kor'kron Dark Shaman --
 --------------------------
 L= DBM:GetModLocalization(856)
 
+L:SetWarningLocalization({
+})
+
+L:SetOptionLocalization({
+})
+
+L:SetMiscLocalization({
+})
+
 ---------------------
 -- General Nazgrim --
 ---------------------
 L= DBM:GetModLocalization(850)
+
+L:SetWarningLocalization({
+})
+
+L:SetOptionLocalization({
+})
 
 L:SetMiscLocalization({
 	newForces1				= "Warriors, on the double!",
@@ -70,6 +123,15 @@ L:SetMiscLocalization({
 -- Malkorok -----
 -----------------
 L= DBM:GetModLocalization(846)
+
+L:SetWarningLocalization({
+})
+
+L:SetOptionLocalization({
+})
+
+L:SetMiscLocalization({
+})
 
 ------------------------
 -- Spoils of Pandaria --
@@ -104,9 +166,13 @@ L:SetMiscLocalization({
 ----------------------------
 L= DBM:GetModLocalization(865)
 
+L:SetWarningLocalization({
+})
+
+L:SetOptionLocalization({
+})
+
 L:SetMiscLocalization({
-	newWeapons	= "Unfinished weapons begin to roll out on the assembly line.",
-	newShredder	= "An Automated Shredder draws near!"
 })
 
 ----------------------------
@@ -115,44 +181,14 @@ L:SetMiscLocalization({
 L= DBM:GetModLocalization(853)
 
 L:SetWarningLocalization({
-	specWarnActivatedVulnerable		= "Вы уязвимы к %s - Избегайте!",
-	specWarnCriteriaLinked			= "Вы слинкованы с %s!"
+	specWarnActivatedVulnerable		= "Вы уязвимы к %s - Избегайте!"
 })
 
 L:SetOptionLocalization({
-	specWarnActivatedVulnerable		= "Спец-предупреждение когда вы уязвимы к активирующимся идеалам",
-	specWarnCriteriaLinked			= "Спец-предупреждение когда вы слинкованы с $spell:144095"
+	specWarnActivatedVulnerable		= "Спец-предупреждение когда активируется идеал, к которому вы уязвимы"
 })
 
 L:SetMiscLocalization({
-	calculatedTarget	= "calculating eye!",
-	--thanks to blizz, the only accurate way for this to work, is to translate 15 emotes in all languages
-	yellow				= "Yellow",
-	red					= "Red",
-	blue				= "Blue",
-	purple				= "Purple",
-	green				= "Green",
-	bomb				= "Bomb",
-	sword				= "Swords",
-	drums				= "Drums",
-	mantid				= "Mantid",--Assumed
-	staff 				= "Staff",--Assumed
-	one					= "One",
-	two					= "Pair",
-	three				= "Three",
-	four				= "Four",--Assumed
-	five				= "Five",--Assumed
-	hisekFlavor			= "Look who's quiet now",--http://ptr.wowhead.com/quest=31510
-	KilrukFlavor		= "Just another day, culling the swarm",--http://ptr.wowhead.com/quest=31109
-	XarilFlavor			= "I see only dark skies in your future",--http://ptr.wowhead.com/quest=31216
-	KaztikFlavor		= "Reduced to mere kunchong treats",--http://ptr.wowhead.com/quest=31024
-	KaztikFlavor2		= "1 Mantid down, only 199 to go",--http://ptr.wowhead.com/quest=31808
-	KorvenFlavor		= "The end of an ancient empire",--http://ptr.wowhead.com/quest=31232
-	KorvenFlavor2		= "Take your Gurthani Tablets and choke on them",--http://ptr.wowhead.com/quest=31232
-	IyyokukFlavor		= "See opportunities. Exploit them!",--Does not have quests, http://ptr.wowhead.com/npc=65305
-	KarozFlavor			= "You won't be leaping anymore!",---Does not have questst, http://ptr.wowhead.com/npc=65303
-	SkeerFlavor			= "A bloody delight!",--http://ptr.wowhead.com/quest=31178
-	RikkalFlavor		= "Specimen request fulfilled"--http://ptr.wowhead.com/quest=31508
 })
 
 ------------------------

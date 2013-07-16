@@ -7,7 +7,6 @@
 DBM.Arrow = {}
 
 -- locals
-local arrowFrame = DBM.Arrow
 local runAwayArrow
 local targetType
 local targetPlayer
@@ -215,16 +214,16 @@ local function show(runAway, x, y, distance, time)
 	end
 end
 
-function arrowFrame:ShowRunTo(...)
+function DBM.Arrow:ShowRunTo(...)
 	return show(false, ...)
 end
 
-function arrowFrame:ShowRunAway(...)
+function DBM.Arrow:ShowRunAway(...)
 	return show(true, ...)
 end
 
 -- shows a static arrow
-function arrowFrame:ShowStatic(angle, time)
+function DBM.Arrow:ShowStatic(angle, time)
 	runAwayArrow = false
 	hideDistance = 0
 	targetType = "static"
@@ -237,20 +236,20 @@ function arrowFrame:ShowStatic(angle, time)
 	frame:Show()
 end
 
-function arrowFrame:IsShown()
+function DBM.Arrow:IsShown()
 	return frame and frame:IsShown()
 end
 
-function arrowFrame:Hide(autoHide)
+function DBM.Arrow:Hide(autoHide)
 	frame:Hide()
 end
 
 local function endMove()
 	frame:EnableMouse(false)
-	arrowFrame:Hide()
+	DBM.Arrow:Hide()
 end
 
-function arrowFrame:Move()
+function DBM.Arrow:Move()
 	targetType = "rotate"
 	runAwayArrow = false
 	hideDistance = 5
@@ -261,6 +260,6 @@ function arrowFrame:Move()
 	DBM:Schedule(25, endMove)
 end
 
-function arrowFrame:LoadPosition()
+function DBM.Arrow:LoadPosition()
 	frame:SetPoint(DBM.Options.ArrowPoint, DBM.Options.ArrowPosX, DBM.Options.ArrowPosY)
 end

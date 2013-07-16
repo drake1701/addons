@@ -1,3 +1,4 @@
+-- ********************************************
 -- **             DBM Info Frame             **
 -- **     http://www.deadlybossmods.com      **
 -- ********************************************
@@ -235,8 +236,7 @@ local function updatePlayerPower()
 	table.wipe(lines)
 	if IsInGroup() then
 		for uId in DBM:GetGroupMembers() do
-			local maxPower = UnitPowerMax(uId, pIndex)
-			if maxPower ~= 0 and not UnitIsDeadOrGhost(uId) and UnitPower(uId, pIndex) / maxPower * 100 >= infoFrameThreshold then
+			if not UnitIsDeadOrGhost(uId) and UnitPower(uId, pIndex)/UnitPowerMax(uId, pIndex)*100 >= infoFrameThreshold then
 				lines[UnitName(uId)] = UnitPower(uId, pIndex)
 			end
 		end
@@ -299,7 +299,7 @@ local function updateBadPlayerDebuffs()
 		for uId, i in DBM:GetGroupMembers() do
 			if tankIgnored and (UnitGroupRolesAssigned(uId) == "TANK" or GetPartyAssignment("MAINTANK", uId, 1)) then break end
 			if UnitDebuff(uId, GetSpellInfo(infoFrameThreshold)) and not UnitIsDeadOrGhost(uId) then
-				lines[UnitName(uId)] = ""
+				lines[UnitName(uId)] = i
 			end
 		end
 	end
@@ -535,7 +535,7 @@ function infoFrame:Update(event)
 		updateGoodPlayerDebuffs()
 	elseif event == "playerbaddebuff" then
 		updateBadPlayerDebuffs()
-	elseif event == "reverseplayerbaddebuff" then
+	elseif currentEvent == "reverseplayerbaddebuff" then
 		updateReverseBadPlayerDebuffs()
 	elseif event == "playeraggro" then
 		updatePlayerAggro()

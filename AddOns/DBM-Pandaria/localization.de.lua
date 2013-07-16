@@ -7,8 +7,7 @@ local L
 L= DBM:GetModLocalization(691)
 
 L:SetOptionLocalization({
-	RangeFrame			= "Zeige dynamisches Abstandsfenster (5m) basierend auf Spieler-Debuffs für $spell:119622",
-	ReadyCheck			= "Spiele \"Bereitschaftscheck\"-Sound, wenn der Weltboss angegriffen wird (auch wenn er nicht als Ziel gesetzt ist)"
+	RangeFrame			= "Zeige dynamisches Abstandsfenster (5m) basierend auf Spieler-Debuffs für $spell:119622"
 })
 
 L:SetMiscLocalization({
@@ -20,10 +19,6 @@ L:SetMiscLocalization({
 -----------------------
 L= DBM:GetModLocalization(725)
 
-L:SetOptionLocalization({
-	ReadyCheck			= "Spiele \"Bereitschaftscheck\"-Sound, wenn der Weltboss angegriffen wird (auch wenn er nicht als Ziel gesetzt ist)"
-})
-
 L:SetMiscLocalization({
 	Pull				= "Bringt mir ihre Leichen!"
 })
@@ -33,9 +28,6 @@ L:SetMiscLocalization({
 --------------
 L= DBM:GetModLocalization(826)
 
-L:SetOptionLocalization({
-	ReadyCheck			= "Spiele \"Bereitschaftscheck\"-Sound, wenn der Weltboss angegriffen wird (auch wenn er nicht als Ziel gesetzt ist)"
-})
 
 L:SetMiscLocalization({
 	Pull				= "How dare you interrupt our preparations! The Zandalari will not be stopped, not this time!"--translate (trigger)
@@ -46,9 +38,6 @@ L:SetMiscLocalization({
 ---------------------------
 L= DBM:GetModLocalization(814)
 
-L:SetOptionLocalization({
-	ReadyCheck			= "Spiele \"Bereitschaftscheck\"-Sound, wenn der Weltboss angegriffen wird (auch wenn er nicht als Ziel gesetzt ist)"
-})
 
 ---------------------------
 -- Chi-ji, The Red Crane --

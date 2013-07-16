@@ -1,0 +1,47 @@
+------------------------------------------------------------------------
+r18 | zensunim | 2013-07-05 00:34:16 +0000 (Fri, 05 Jul 2013) | 4 lines
+Changed paths:
+   M /trunk/GTFO.lua
+   M /trunk/GTFO.toc
+   M /trunk/GTFO_Fail_MP.lua
+   M /trunk/GTFO_Spells_MP.lua
+
+Prepping for 4.23.5
+Added Pandaria spells for Pandaria (world)
+Removed Pandaria spells for Throne of Thunder
+
+------------------------------------------------------------------------
+r17 | zensunim | 2013-06-30 08:17:20 +0000 (Sun, 30 Jun 2013) | 6 lines
+Changed paths:
+   M /trunk/GTFO.lua
+   M /trunk/GTFO.toc
+   M /trunk/GTFO_Fail_MP.lua
+   M /trunk/GTFO_Spells_MP.lua
+
+v4.23.4
+- Added Pandaria spells for Pandaria (world)
+- Added Pandaria spells for Crypt of the Forgotten Kings
+- Added Pandaria spells for A Brewing Storm
+- Added Pandaria spells for Trove of the Thunder King
+- Added/Updated Pandaria spells for Throne of Thunder (thanks Oscarucb)
+------------------------------------------------------------------------
+r16 | zensunim | 2013-06-19 02:24:40 +0000 (Wed, 19 Jun 2013) | 1 line
+Changed paths:
+   M /trunk/GTFO.lua
+   M /trunk/GTFO.toc
+   M /trunk/GTFO_Fail_MP.lua
+   M /trunk/GTFO_Spells_MP.lua
+
+Added/Updated Pandaria spells for Throne of Thunder (thanks Oscarucb)
+------------------------------------------------------------------------
+r15 | zensunim | 2013-05-25 07:53:40 +0000 (Sat, 25 May 2013) | 4 lines
+Changed paths:
+   M /trunk/GTFO.lua
+   M /trunk/GTFO_Fail_MP.lua
+   M /trunk/GTFO_Spells_MP.lua
+
+Added Pandaria spells for Pandaria (world)
+Added Pandaria spells for Crypt of the Forgotten Kings
+Added Pandaria spells for A Brewing Storm
+Added Pandaria spells for Trove of the Thunder King
+------------------------------------------------------------------------

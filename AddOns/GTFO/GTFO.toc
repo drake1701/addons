@@ -1,11 +1,11 @@
 ## Interface: 50300
 ## Title: GTFO
 ## Notes: GTFO, you're dying!
-## Author: Zensunim of Malygos
-## Version: 4.23.3
+## Author: Zensunim of Dragonblight
+## Version: 4.23.5
 ## DefaultState: Enabled
 ## SavedVariables: GTFOData
-## X-Curse-Packaged-Version: 4.23.3
+## X-Curse-Packaged-Version: r18
 ## X-Curse-Project-Name: GTFO
 ## X-Curse-Project-ID: gtfo
 ## X-Curse-Repository-ID: wow/gtfo/mainline
