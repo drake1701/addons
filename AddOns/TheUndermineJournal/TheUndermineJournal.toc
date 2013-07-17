@@ -1,6 +1,6 @@
 ## Interface: 50300
 ## Title: The Undermine Journal
-## Notes: Tue, July 16|nUSA-Stormrage
+## Notes: Wed, July 17|nUSA-Stormrage
 ## Version: 2.3
 TheUndermineJournal.lua
 SpellToItem.lua
