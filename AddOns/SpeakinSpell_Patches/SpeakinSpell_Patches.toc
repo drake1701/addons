@@ -1,5 +1,5 @@
 ﻿###############################################################################
-## Interface: 50300
+## Interface: 60000
 ## Title: SpeakinSpell_Patches
 ## Title-deDE: SpeakinSpell_Patches
 ## Author: Stonarius of Antonidas

@@ -1,4 +1,4 @@
-## Interface: 50300
+## Interface: 60000
 ## Title: Livestock
 ## Notes: Enables easy random summoning of vanity pets and mounts, including the option of "smart mounting"
 ## Author: Kharthus - Deathwing(US)

@@ -1,5 +1,5 @@
 ## Author: |cFFF0770BDeldinor|r of |cFFB2E4FFElune|r
-## Interface: 50300
+## Interface: 60000
 ## Notes: Automated daily quest accepting and turn-in.
 ## SavedVariables: DailyGrindQuests, QuestHistory
 ## SavedVariablesPerCharacter: DailyGrindSettings, Settings

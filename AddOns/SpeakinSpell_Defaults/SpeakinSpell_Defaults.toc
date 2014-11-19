@@ -1,5 +1,5 @@
 ﻿###############################################################################
-## Interface: 50300
+## Interface: 60000
 ## Title: SpeakinSpell_Defaults
 ## Title-deDE: SpeakinSpell_Defaults
 ## Author: Stonarius of Antonidas

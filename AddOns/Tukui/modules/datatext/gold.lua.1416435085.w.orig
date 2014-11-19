@@ -21,7 +21,7 @@ if C["datatext"].gold and C["datatext"].gold > 0 then
 	local Profit	= 0
 	local Spent		= 0
 	local OldMoney	= 0
-	local myPlayerRealm = GetRealmName();
+	local myPlayerRealm = GetCVar("realmName");
 
 	local function formatMoney(money)
 		local gold = floor(math.abs(money) / 10000)
@@ -120,7 +120,7 @@ if C["datatext"].gold and C["datatext"].gold > 0 then
 	Stat:SetScript("OnLeave", function() GameTooltip:Hide() end)	
 	-- reset gold data
 	local function RESETGOLD()
-		local myPlayerRealm = GetRealmName();
+		local myPlayerRealm = GetCVar("realmName");
 		local myPlayerName  = UnitName("player");
 		
 		TukuiData.gold = {}

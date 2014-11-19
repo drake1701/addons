@@ -1,4 +1,4 @@
-## Interface: 50300
+## Interface: 60000
 ## Title: The Undermine Journal
 ## Notes: Sun, July 21|nUSA-Stormrage
 ## Version: 2.3

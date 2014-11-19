@@ -1,4 +1,4 @@
-﻿## Interface: 50300
+## Interface: 60000
 ## Title: DeathNote
 ## Notes: Death analysis tool
 ## Author: Slaren

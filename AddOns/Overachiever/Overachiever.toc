@@ -1,4 +1,4 @@
-﻿## Interface: 50300
+## Interface: 60000
 ## Title: Overachiever
 ## Version: 0.72
 ## Author: myrroddin

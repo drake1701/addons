@@ -4,7 +4,7 @@
 
 local T, C, L, G = unpack(select(2, ...))
 
-local myPlayerRealm = GetRealmName()
+local myPlayerRealm = GetCVar("realmName")
 local myPlayerName  = UnitName("player")
 
 if not IsAddOnLoaded("Tukui_ConfigUI") then return end

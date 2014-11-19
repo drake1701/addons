@@ -39,7 +39,7 @@
 ## Author: Ackis, Torhal, Pompy, Ressy
 ## X-Donate: http://www.wowace.com/addons/collectinator/
 
-## Interface: 50300
+## Interface: 60000
 ## X-Compatible-With: 50300
 ## Version: 2.0.2
 ## X-Revision: d1ccde1

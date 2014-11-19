@@ -1,4 +1,4 @@
-## Interface: 50300
+## Interface: 60000
 ## Title: FastQuest
 ## Notes: Auto Accept and Complete Quests
 ## Author: Miratu <EU-Hellfire>
