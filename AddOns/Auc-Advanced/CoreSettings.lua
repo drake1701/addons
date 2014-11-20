@@ -1,7 +1,7 @@
 ﻿--[[
 	Auctioneer
-	Version: 5.17.5413 (NeedyNoddy)
-	Revision: $Id: CoreSettings.lua 5378 2012-11-12 19:49:23Z brykrys $
+	Version: 5.21c.5521 (SanctimoniousSwamprat)
+	Revision: $Id: CoreSettings.lua 5518 2014-11-06 11:35:20Z brykrys $
 	URL: http://auctioneeraddon.com/
 
 	Settings GUI
@@ -83,9 +83,14 @@ local lib = AucAdvanced.Settings
 local private = {}
 local gui
 local Const = AucAdvanced.Const
+local Libraries = AucAdvanced.Libraries
 local UserSig = format("users.%s.%s", Const.PlayerRealm, Const.PlayerName)
 
 local aucPrint,decode,_,_,replicate,empty,_,_,_,debugPrint,fill, _TRANS = AucAdvanced.GetModuleLocals()
+
+local strsplit = strsplit
+local next = next
+local type = type
 
 function coremodule.OnLoad(addon)
 	if not AucAdvancedConfig then AucAdvancedConfig = {} end
@@ -93,6 +98,10 @@ function coremodule.OnLoad(addon)
 		private.CheckObsolete()
 	end
 end
+
+coremodule.Processors = {
+	gameactive = function() private.Activate() end,
+}
 
 local function getUserProfileName()
 	return AucAdvancedConfig[UserSig] or "Default"
@@ -126,10 +135,8 @@ local settingDefaults = {
 	['scandata.summaryonpartial'] = true,
 	['clickhook.enable'] = true,
 	['scancommit.targetFPS'] = 25,
---	['scancommit.speed'] = 50,
 	['scancommit.progressbar'] = true,
 	['scancommit.ttl'] = 5,
-	['core.general.alwaysHomeFaction'] = true,
 	['printwindow'] = 1,
 	["core.marketvalue.tolerance"] = .08,
 	["ShowPurchaseDebug"] = true,
@@ -137,11 +144,13 @@ local settingDefaults = {
 	["ModTTShow"] = "always",
 	["post.clearonclose"] = true,
 	["post.confirmonclose"] = true,
-	["core.scan.sellernamedelay"] = true,
+	["core.scan.sellernamedelay"] = false,
 	["core.scan.unresolvedtolerance"] = 0,
 	["core.scan.scanallqueries"] = true,
-	["core.scan.hybridscans"] = true,
-	["core.scan.pregetalldelay"] = 0,
+	["core.scan.hybridscans"] = false,
+	["core.scan.scannerthrottle"] = false,
+	["core.scan.stage3garbage"] = Const.ALEVEL_OFF,
+	["core.scan.stage5garbage"] = false,
 	["core.tooltip.altchatlink_leftclick"] = false,
 	["core.tooltip.enableincombat"] = false,
 	["core.tooltip.depositcost"] = true,
@@ -179,8 +188,6 @@ function lib.SetDefault(setting, default)
 end
 
 local function setter(setting, value)
-	if (not AucAdvancedConfig) then AucAdvancedConfig = {} end
-
 	-- turn value into a canonical true or false
 	if value == 'on' then
 		value = true
@@ -204,7 +211,7 @@ local function setter(setting, value)
 		value = nil
 	end
 
-	local a,b,c = strsplit(".", setting)
+	local a, b, c = strsplit(".", setting, 3)
 	if (a == "profile") then
 		if setting == "profile.save" or setting == "profile.duplicate" then
 			-- User clicked either the New Profile or Copy Profile button
@@ -317,17 +324,36 @@ local function setter(setting, value)
 	else
 		-- Set the value for this setting in the current profile
 		local db = getUserProfile()
-		--lets change the settings to be inside module branches not all in the same tree
-		local a, b, c = setting:match("(.-)%.(.-)%.(.*)")
-		if a and b and c then
-			if db[a] and db[a][b] and db[a][b][c] == value then return end
-			--create array
-			if not db[a] then db[a] = {} end
-			if not db[a][b] then db[a][b] = {} end
-			--store value
-			db[a][b][c] = value
-		else
-			--non valid format saved variables are stored here.  All modules should use  type.modulename.setting
+
+		if c then -- All modules should be using tripart-style "type.modulename.setting"
+			if value == nil then -- delete an entry: special handling to avoid empty tables
+				local dba = db[a]
+				if not dba then return end
+				local dbab = dba[b]
+				if not dbab then return end
+				if dbab[c] == value then return end -- value unchanged
+				dbab[c] = value
+				if not next(dbab) then
+					dba[b] = nil
+					if not next(dba) then
+						db[a] = nil
+					end
+				end
+			else -- create or replace an entry
+				local dba = db[a]
+				if not dba then
+					dba = {}
+					db[a] = dba
+				end
+				local dbab = dba[b]
+				if not dbab then
+					dbab = {}
+					dba[b] = dbab
+				end
+				if dbab[c] == value then return end -- value unchanged
+				dbab[c] = value
+			end
+		else --non valid format saved variables are stored in flat mode here.
 			if db[setting] == value then return end
 			db[setting] = value
 		end
@@ -336,7 +362,11 @@ local function setter(setting, value)
 		lib.SetSetting("SelectedLocale", value)
 	end
 
-	AucAdvanced.SendProcessorMessage("configchanged", setting, callbackValue)
+	if not c then
+		c = setting
+		b = "flat"
+	end
+	AucAdvanced.SendProcessorMessage("configchanged", setting, callbackValue, c, b)
 end
 
 function lib.SetSetting(...)
@@ -348,8 +378,6 @@ end
 
 
 local function getter(setting)
-	if (not AucAdvancedConfig) then AucAdvancedConfig = {} end
-	if not setting then return end
 
 	--Is the setting actually a function reference? If so, call it.
 	-- This was added to enable Protect Window to update its
@@ -359,9 +387,11 @@ local function getter(setting)
 		return setting("getsetting")
 	end
 
-	local a,b,c = strsplit(".", setting)
+	local a, b, c = strsplit(".", setting, 3)
 	if (a == 'profile') then
-		if (b == 'profiles') then
+		if not b then -- (setting == 'profile')
+			return getUserProfileName()
+		elseif (b == 'profiles') then
 			local pList = AucAdvancedConfig["profiles"]
 			if (not pList) then
 				pList = { "Default" }
@@ -375,21 +405,27 @@ local function getter(setting)
 		return internal.API.MatcherGetter(setting)
 	end
 
-	if (setting == 'profile') then
-		return getUserProfileName()
-	end
-
 	local db = getUserProfile()
-	--string.split does not always work depending on format of setting
-	local a, b, c = setting:match("(.-)%.(.-)%.(.*)")
-	if a and b and c and db[a] and db[a][b] and db[a][b][c] ~= nil then --the nil check just allows it to fall through to the getDefault check
-		return db[a][b][c] --return setting
-	end
-	--NON valid format saved variables are stored here.  All modules should use  type.modulename.setting
-	if ( db[setting] ~= nil ) then
+
+	-- All modules should now be using "type.modulename.setting" format
+	if c then
+		-- valid tripart setting - look for it in the nested tables of db
+		local dba = db[a]
+		if dba then
+			local dbab = dba[b]
+			if dbab then
+				local dbabc = dbab[c]
+				if dbabc ~= nil then
+					return dbabc
+				end
+			end
+		end
+	elseif ( db[setting] ~= nil ) then
+		-- invalid (flat) format saved variables are stored here
 		return db[setting]
 	end
-	--return default values if all else fails
+
+	-- return default values if all else fails
 	return getDefault(setting)
 end
 
@@ -403,7 +439,13 @@ function lib.GetSetting(setting, default)
 end
 
 function lib.Show()
-	lib.MakeGuiConfig()
+	if not gui then
+		lib.MakeGuiConfig()
+		-- check that MakeGuiConfig succeeded
+		if not gui then
+			return
+		end
+	end
 	gui:Show()
 end
 
@@ -412,18 +454,6 @@ function lib.Hide()
 		gui:Hide()
 	end
 end
-
---[[ disabled function: currently broken and must not be called
-function lib.UpdateGuiConfig()
-	if gui then
-		if gui:IsVisible() then
-			gui:Hide()
-		end
-		gui = nil -- note: the old gui cannot be garbage collected
-		lib.MakeGuiConfig()
-	end
-end
---]]
 
 function lib.Toggle()
 	if (gui and gui:IsShown()) then
@@ -434,10 +464,13 @@ function lib.Toggle()
 end
 
 function lib.MakeGuiConfig()
-	if gui then return end
+	if private.MakeGuiConfig then private.MakeGuiConfig() end
+end
+function private._MakeGuiConfig() -- Name mangled to block gui creation at first; will be corrected by private.Activate
+	private.MakeGuiConfig = nil -- only run once
 
 	local id, last, cont
-	local Configator = LibStub:GetLibrary("Configator")
+	local Configator = Libraries.Configator
 	gui = Configator:Create(setter, getter)
 	lib.Gui = gui
 	gui:AddCat("Core Options", nil, false)
@@ -499,8 +532,6 @@ function lib.MakeGuiConfig()
 	gui:AddTip(id, _TRANS('ADV_HelpTooltip_SearchClickHooks')) --"Enables the click-hooks for searching"
 
 	gui:AddControl(id, "Subhead",     0,    _TRANS('ADV_Interface_MktPriceOptions')) --"Market Price Options"
-	gui:AddControl(id, "Checkbox",		0, 1, 	"core.general.alwaysHomeFaction", _TRANS('ADV_Interface_AlwaysHomeFaction')) --"See home faction data everywhere unless at a neutral AH"
-	gui:AddTip(id, _TRANS('ADV_HelpTooltip_AlwaysHomeFaction')) --"This allows the ability to see home data everywhere, however it disables itself while a neutral AH window is open to allow you to see the neutral AH data."
 	gui:AddControl(id, "Slider", 0, 1, "core.marketvalue.tolerance", 0.001, 1, 0.001, _TRANS('ADV_Interface_MarketValueAccuracy')) --"Market Pricing Error: %5.3f%%"
 	gui:AddTip(id, _TRANS('ADV_HelpTooltip_MarketValueAccuracy')) --"Sets the accuracy of computations for market pricing. This indicates the maximum error that will be tolerated. Higher numbers reduce the amount of processing required by your computer (improving frame rate while calculating) at the cost of some accuracy."
 	gui:AddControl(id, "Subhead",     0,    _TRANS('ADV_Interface_MatchOrder')) --"Matcher Order"
@@ -550,21 +581,29 @@ function lib.MakeGuiConfig()
 	gui:AddTip(id, _TRANS('ADV_HelpTooltip_ScanDataSummaryMicro')) --"Display the summation of an Auction House scan"
 
 	gui:AddControl(id, "Subhead",     0,	_TRANS('ADV_Interface_DataRetrieval')) --"Data Retrieval"
---	gui:AddControl(id, "Slider",	0, 1, "scancommit.speed", 1, 100, 1, _TRANS('ADV_Interface_ProcessingPriority')) --"Processing priority: %d"
---	gui:AddTip(id, _TRANS('ADV_HelpTooltip_ProcessPriority')) --"Sets the processing priority of the scan data. Higher values take less time, but cause more lag"
 	gui:AddControl(id, "Slider",	0, 1, "scancommit.targetFPS", 5, 100, 5, _TRANS('ADV_Interface_ProcessingTargetFPS')) --"Desired FPS during scan: %d"
 	gui:AddTip(id, _TRANS('ADV_HelpTooltip_ProcessingTargetFPS')) --"Sets the target frame rate during the scan. Higher values will be smoother, but will take more time overall."
 	gui:AddControl(id, "Slider",	0, 1, "scancommit.ttl", 1, 70, 1, _TRANS('ADV_Interface_ScanRetrieveTTL').." %d ".._TRANS('ADV_Interface_seconds'))--Scan Retrieval Time-to-Live
 	gui:AddTip(id, _TRANS('ADV_HelpTooltip_ScanRetrieveTTL') )--The number of seconds Auctioneer will spend trying to get data that was missing from the scan initially.
+	gui:AddControl(id, "Slider",	0, 1, "core.scan.unresolvedtolerance", 0, 100, 1, _TRANS("ADV_Interface_UnresolvedAuctionsTolerance").." %d") --Unresolved Auctions Tolerance
+	gui:AddTip(id, _TRANS("ADV_HelpTooltip_UnresolvedAuctionsTolerance")) --Maximum number of unresolvable auctions allowed for a full scan to still be treated as Complete
 
-	gui:AddControl(id, "Checkbox",	0, 1, "core.scan.hybridscans", _TRANS("ADV_Interface_HybridScanning")) --Enable Hybrid scanning for very large Auction Houses
-	gui:AddTip(id, _TRANS("ADV_HelpTooltip_HybridScanning")) --For very large Auction Houses, a GetAll scan will not be able to retrieve all the auctions. A Hybrid scan will start Normal scanning to retrive the auctions missed by the GetAll
 	gui:AddControl(id, "Checkbox",	0, 1, "core.scan.sellernamedelay", _TRANS('ADV_Interface_ScanSellerNames'))--Additional scanning to retrieve more Seller names
 	gui:AddTip(id, _TRANS('ADV_HelpTooltip_ScanSellerNames')) --Perform additional scanning to retrieve more data about the names of Sellers. If this option is disabled scans will finish sooner but some filters and searchers will not work
 	gui:AddControl(id, "Checkbox",	0, 1, "core.scan.scanallqueries", _TRANS('ADV_Interface_ScanAllQueries')) --Scan manual searches and searches by other Addons
 	gui:AddTip(id, _TRANS('ADV_HelpTooltip_ScanAllQueries')) --Enable to perform scanning of every Auctionhouse search. Disable to only scan Auctioneer's own searches.\nYou may need to disable this option if you have compatibility problems with other AddOns
-	gui:AddControl(id, "Slider",	0, 1, "core.scan.unresolvedtolerance", 0, 100, 1, _TRANS("ADV_Interface_UnresolvedAuctionsTolerance").." %d") --Unresolved Auctions Tolerance
-	gui:AddTip(id, _TRANS("ADV_HelpTooltip_UnresolvedAuctionsTolerance")) --Maximum number of unresolvable auctions allowed for a full scan to still be treated as Complete
+
+	gui:AddControl(id, "Subhead", 0, "Experimental Settings (consult the forums before using these)")
+	gui:AddControl(id, "Checkbox",	0, 1, "core.scan.scannerthrottle", "Scanner stage: Throttle during fast scans")
+	gui:AddTip(id, "Slow down the Scanning stage during Getall scans. May help avoid disconnects during this stage. May result in missed auctions and incomplete scans")
+
+	gui:AddControl(id, "Selectbox",  0, 1, AucAdvanced.selectorActivityLevelA, "core.scan.stage3garbage", 80, "Processing Stage 3: Extra memory cleanup")
+	gui:AddTip(id, "Perform extra memory cleanup during Processing Stage 3. Will cause momentary freezes, and will cause Processing to take longer")
+	gui:AddControl(id, "Checkbox",	0, 1, "core.scan.stage5garbage", "Processing Finished: Extra memory cleanup")
+	gui:AddTip(id, "Perform extra memory cleanup when scan processing finishes. Will cause a momentary freeze at the end of every scan")
+
+	gui:AddControl(id, "Checkbox",	0, 1, "core.scan.hybridscans", _TRANS("ADV_Interface_HybridScanning")) --Enable Hybrid scanning for very large Auction Houses
+	gui:AddTip(id, _TRANS("ADV_HelpTooltip_HybridScanning")) --For very large Auction Houses, a GetAll scan will not be able to retrieve all the auctions. A Hybrid scan will start Normal scanning to retrive the auctions missed by the GetAll
 
 	gui:AddHelp(id, "why show summation",
 		_TRANS('ADV_Help_WhyShowSummation'), --"What is the post scan summary?",
@@ -636,7 +675,7 @@ function lib.MakeGuiConfig()
 	gui:AddControl(id, "Checkbox",   0, 2, "tooltip.marketprice.stacksize", _TRANS('ADV_Interface_MultiplyStack')) --"Multiply by Stack Size"
 	gui:AddTip(id, _TRANS('ADV_HelpTooltip_MultiplyStack')) --"Multiplies by current stack size if enabled"
 	gui:AddControl(id, "Checkbox",   0, 1, "core.tooltip.depositcost", _TRANS('ADV_Interface_ShowDepositInTooltip')) --Show deposit cost in tooltip
-	gui:AddControl(id, "Selectbox", 0, 1, AucAdvanced.selectorAuctionLength, "core.tooltip.depositduration", _TRANS("ADV_Interface_DepositDuration")) --Auction duration for deposit cost
+	gui:AddControl(id, "Selectbox", 0, 1, AucAdvanced.selectorAuctionLength, "core.tooltip.depositduration", 90, _TRANS("ADV_Interface_DepositDuration")) --Auction duration for deposit cost
 	gui:AddControl(id, "Note",       0, 1, nil, nil, " ")
 
 	gui:AddHelp(id, "what is scandata",
@@ -660,8 +699,13 @@ function lib.MakeGuiConfig()
 	AucAdvanced.SendProcessorMessage("config", gui)
 end
 
-if LibStub then
-	local LibDataBroker = LibStub:GetLibrary("LibDataBroker-1.1", true)
+function private.Activate()
+	private.Activate = nil
+
+	private.MakeGuiConfig = private._MakeGuiConfig
+	private._MakeGuiConfig = nil
+
+	local LibDataBroker = Libraries.LibDataBroker
 	if LibDataBroker then
 		private.LDBButton = LibDataBroker:NewDataObject("AucAdvanced", {
 					type = "launcher",
@@ -725,6 +769,13 @@ function private.CheckObsolete()
 	if getter("matcherdynamiclist") then
 		setter("matcherdynamiclist", nil)
 	end
+	if getter("alwaysHomeFaction") then
+		setter("alwaysHomeFaction", nil)
+	end
+	if getter("core.general.alwaysHomeFaction") then
+		setter("core.general.alwaysHomeFaction", nil)
+	end
+
 	local old
 	local old = getter("matcherlist")
 	if old then
@@ -740,13 +791,6 @@ function private.CheckObsolete()
 		end
 		setter("marketvalue.accuracy", nil)
 	end
-	old = getter("alwaysHomeFaction")
-	if old ~= nil then
-		if getter("core.general.alwaysHomeFaction") == getDefault("core.general.alwaysHomeFaction") then
-			setter("core.general.alwaysHomeFaction", old)
-		end
-		setter("alwaysHomeFaction", nil)
-	end
 end
 
-AucAdvanced.RegisterRevision("$URL: http://svn.norganna.org/auctioneer/branches/5.17/Auc-Advanced/CoreSettings.lua $", "$Rev: 5378 $")
+AucAdvanced.RegisterRevision("$URL: http://svn.norganna.org/auctioneer/branches/5.21c/Auc-Advanced/CoreSettings.lua $", "$Rev: 5518 $")

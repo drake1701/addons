@@ -95,20 +95,22 @@ for i, button in pairs{zb, szb} do
 	t:SetAllPoints()
 	button:SetScript("OnReceiveDrag", function(self)
 		local kind, index, which = GetCursorInfo()
-		if kind ~= "companion" and kind ~= "battlepet" then
+		if kind ~= "mount" and kind ~= "battlepet" then
 			print(LivestockLocalizations.LIVESTOCK_INTERFACE_DRAGERROR)
 		else
 			ClearCursor()
 			local name, texture, _
-			if kind == "companion" then
-				_, name, _, texture = GetCompanionInfo(which, index)
+			if kind == "mount" then
+--				name = C_MountJournal.GetMountInfo(index)
+				print(LivestockLocalizations.LIVESTOCK_INTERFACE_MOUNTERROR)
 			else
-				_, _, _, _, _, _, name, texture = C_PetJournal.GetPetInfoByPetID(index)
-
+				_, _, _, _, _, _, _, name, texture = C_PetJournal.GetPetInfoByPetID(index)
 			end
 			t:SetTexture(texture)
 --			which = which:lower()
-			Livestock.AddToZone(i == 1 and "zone" or "subzone", name, true)
+			if name then
+				Livestock.AddToZone(i == 1 and "zone" or "subzone", name, true)
+			end
 		end
 	end)
 	button:SetScript("OnClick", function(self, button)

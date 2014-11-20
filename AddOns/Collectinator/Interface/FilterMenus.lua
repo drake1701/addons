@@ -38,6 +38,7 @@ local EXPANSION_FRAMES = {
 	["expansion2"]	= true,
 	["expansion3"]	= true,
 	["expansion4"]	= true,
+	["expansion5"]	= true,
 }
 
 local CATEGORY_TOOLTIP = {
@@ -58,33 +59,29 @@ local FN = private.LOCALIZED_FACTION_STRINGS
 -------------------------------------------------------------------------------
 do
 	local function CheckButton_OnClick(self, button, down)
-		local script_val = self.script_val
-		local MainPanel = addon.Frame
+		local value = addon.Frame.filter_menu.value_map[self.script_val]
+		value.svroot[self.script_val] = value.cb:GetChecked() and true or false
 
-		MainPanel.filter_menu.value_map[script_val].svroot[script_val] = MainPanel.filter_menu.value_map[script_val].cb:GetChecked() and true or false
-		MainPanel:UpdateTitle()
-		MainPanel.list_frame:Update(nil, false)
+		addon.Frame:UpdateTitle()
+		addon.Frame.list_frame:Update(nil, false)
 	end
 
-	local function CreateCheckButton(parent, anchor_frame, ttText, scriptVal, row, col)
+	local function CreateCheckButton(parent, anchor_frame, tooltip_text, section, row, col)
 		-- set the position of the new checkbox
-		local xPos = 10 + ((col - 1) * 150)
-		local yPos = -10 - ((row - 1) * 17)
+		local x_pos = 10 + ((col - 1) * 150)
+		local y_pos = -10 - ((row - 1) * 17)
 
 		local check = _G.CreateFrame("CheckButton", nil, parent, "UICheckButtonTemplate")
-		check:SetPoint("TOPLEFT", anchor_frame or parent, "TOPLEFT", xPos, yPos)
+		check:SetPoint("TOPLEFT", anchor_frame or parent, "TOPLEFT", x_pos, y_pos)
 		check:SetHeight(20)
 		check:SetWidth(20)
+		check:SetScript("OnClick", CheckButton_OnClick)
 
+		check.script_val = section
 		check.text = check:CreateFontString(nil, "OVERLAY", "QuestFontNormalSmall")
 		check.text:SetPoint("LEFT", check, "RIGHT", 0, 0)
 
-		check.script_val = scriptVal
-
-		check:SetScript("OnClick", CheckButton_OnClick)
-
-		SetTooltipScripts(check, ttText, 1)
-
+		SetTooltipScripts(check, tooltip_text, 1)
 		return check
 	end
 
@@ -405,7 +402,12 @@ function private.InitializeFilterPanel()
 			for filter in pairs(filters) do
 				if not filter:match("expansion") then
 					filters[filter] = toggle
-					obtain_frame[filter]:SetChecked(toggle)
+
+					if obtain_frame[filter] then
+						obtain_frame[filter]:SetChecked(toggle)
+					else
+						addon:Debug("Non-existent filter: %s", _G.tostring(filter))
+					end
 				end
 			end
 			MainPanel:UpdateTitle()
@@ -434,7 +436,7 @@ function private.InitializeFilterPanel()
 			store		= { tt = AcquireDesc(_G.BATTLE_PET_SOURCE_10),	text = _G.BATTLE_PET_SOURCE_10,	row = 7, col = 1 },
 			tcg		= { tt = AcquireDesc(_G.BATTLE_PET_SOURCE_9),	text = _G.BATTLE_PET_SOURCE_9,	row = 7, col = 2 },
 			promo		= { tt = AcquireDesc(_G.BATTLE_PET_SOURCE_8),	text = _G.BATTLE_PET_SOURCE_8,	row = 8, col = 1 },
-			misc		= { tt = AcquireDesc(L["Miscellaneous"]),	text = L["Miscellaneous"],	row = 8, col = 2 },
+			misc		= { tt = AcquireDesc(_G.MISCELLANEOUS),		text = L["Miscellaneous"],	row = 8, col = 2 },
 		}
 
 		local acquire_panel = _G.CreateFrame("Frame", nil, obtain_frame)
@@ -484,6 +486,7 @@ function private.InitializeFilterPanel()
 			expansion2	= { tt = ExpansionDesc(_G.EXPANSION_NAME2),	text = _G.EXPANSION_NAME2,	row = 3, col = 1 },
 			expansion3	= { tt = ExpansionDesc(_G.EXPANSION_NAME3),	text = _G.EXPANSION_NAME3,	row = 4, col = 1 },
 			expansion4	= { tt = ExpansionDesc(_G.EXPANSION_NAME4),	text = _G.EXPANSION_NAME4,	row = 5, col = 1 },
+			expansion5 	= { tt = ExpansionDesc(_G.EXPANSION_NAME5),	text = _G.EXPANSION_NAME5,	row = 6, col = 1 },
 		}
 
 		local version_panel = _G.CreateFrame("Frame", nil, obtain_frame)
@@ -633,6 +636,7 @@ function private.InitializeFilterPanel()
 			expansion2	= L["EXPANSION_FILTER_FORMAT"]:format(_G.EXPANSION_NAME2),
 			expansion3	= L["EXPANSION_FILTER_FORMAT"]:format(_G.EXPANSION_NAME3),
 			expansion4	= L["EXPANSION_FILTER_FORMAT"]:format(_G.EXPANSION_NAME4),
+			expansion5  	= L["EXPANSION_FILTER_FORMAT"]:format(_G.EXPANSION_NAME5),
 		}
 		-------------------------------------------------------------------------------
 		-- This manages the WoW expansion reputation filter menu panel
@@ -721,11 +725,15 @@ function private.InitializeFilterPanel()
 		local expansion4 = rep_frame:CreateExpansionButton("Glues-WOW-MPLogo", "expansion4")
 		expansion4:SetPoint("TOP", expansion3, "BOTTOM", 0, 0)
 
+		local expansion5 = rep_frame:CreateExpansionButton("Glues-WOW-WoDLogo", "expansion5")
+		expansion5:SetPoint("TOP", expansion4, "BOTTOM", 0, 0)
+
 		rep_frame.toggle_expansion0 = expansion0
 		rep_frame.toggle_expansion1 = expansion1
 		rep_frame.toggle_expansion2 = expansion2
 		rep_frame.toggle_expansion3 = expansion3
 		rep_frame.toggle_expansion4 = expansion4
+		rep_frame.toggle_expansion5 = expansion5
 	end	-- do
 
 	-------------------------------------------------------------------------------
@@ -747,6 +755,10 @@ function private.InitializeFilterPanel()
 	local Jinyu_Hozen = isAlliance and FN.PEARLFIN_JINYU or FN.FOREST_HOZEN
 	local Brawlers_Guild = isAlliance and FN.BIZMOS_BRAWLPUB or FN.BRAWLGAR_ARENA
 	local Isle_of_Giants = isAlliance and FN.KIRIN_TOR_OFFENSIVE or FN.SUNREAVER_ONSLAUGHT
+	local Wryann_Voljin_Text = isAlliance and FN.WRYNNS_VANGUARD or FN.VOLJINS_SPEAR
+	local Exarchs_Frostwolf_Text = isAlliance and FN.COUNCIL_OF_EXARCHS or FN.FROSTWOLF_ORCS
+	local Shatari_Laughing_Text = isAlliance and FN.SHATARI_DEFENSE or FN.LAUGHING_SKULL_ORCS
+
 
 	-- Used for the tooltip of every reputation checkbox.
 	local function ReputationDesc(text)
@@ -1014,6 +1026,7 @@ function private.InitializeFilterPanel()
 			pandacommon2		= { tt = ReputationDesc(Jinyu_Hozen),			text = Jinyu_Hozen,			row = 14,	col = 1 },
 			brawlers		= { tt = ReputationDesc(Brawlers_Guild),		text = Brawlers_Guild,			row = 15,	col = 1 },
 			pandacommon3		= { tt = ReputationDesc(Isle_of_Giants),		text = Isle_of_Giants,			row = 16,	col = 1 },
+			shaohao			= { tt = ReputationDesc(FN.EMPEROR_SHAOHAO),		text = FN.EMPEROR_SHAOHAO,		row = 17,	col = 1 },
 		}
 		private.GenerateCheckBoxes(expansion4_frame, expansion4_buttons)
 
@@ -1034,6 +1047,54 @@ function private.InitializeFilterPanel()
 		expansion4_toggle:SetScript("OnClick", ToggleExpansionCheckBoxes)
 	end	-- do-block
 
+-------------------------------------------------------------------------------
+	-- Create FilterPanel.rep.expansion5, and set its scripts.
+	-------------------------------------------------------------------------------
+	do
+		local expansion5_frame = _G.CreateFrame("Frame", nil, FilterPanel.rep)
+		expansion5_frame:SetWidth(200)
+		expansion5_frame:SetHeight(FILTERMENU_HEIGHT)
+		expansion5_frame:EnableMouse(true)
+		expansion5_frame:EnableKeyboard(true)
+		expansion5_frame:SetMovable(false)
+		expansion5_frame:SetPoint("TOPRIGHT", FilterPanel, "TOPRIGHT", 0, 0)
+		expansion5_frame:Hide()
+
+		FilterPanel.rep.expansion5 = expansion5_frame
+
+		-------------------------------------------------------------------------------
+		-- Create the Reputation toggle and CheckButtons
+		-------------------------------------------------------------------------------
+		local function DisabledText(text)
+			return SetTextColor(private.BASIC_COLORS["grey"], text)
+		end
+
+		local expansion5_buttons = {
+			arakkoa			= { tt = ReputationDesc(FN.ARAKKOA_OUTCASTS),		text = FN.ARAKKOA_OUTCASTS,		row = 2,	col = 1 },
+			steamwheedle		= { tt = ReputationDesc(FN.STEAMWHEEDLE_PRESERVATION_SOCIETY),		text = FN.STEAMWHEEDLE_PRESERVATION_SOCIETY,	row = 3,	col = 1 },
+			draenorcommon1		= { tt = ReputationDesc(Wryann_Voljin_Text),		text = Wryann_Voljin_Text,		row = 4,	col = 1 },
+			draenorcommon2		= { tt = ReputationDesc(Exarchs_Frostwolf_Text),	text = Exarchs_Frostwolf_Text,		row = 5,	col = 1 },
+			draenorcommon3		= { tt = ReputationDesc(Shatari_Laughing_Text),		text = Shatari_Laughing_Text,		row = 6,	col = 1 },
+		}
+		private.GenerateCheckBoxes(expansion5_frame, expansion5_buttons)
+
+		local expansion5_toggle = _G.CreateFrame("Button", nil, expansion5_frame)
+		expansion5_toggle:SetWidth(105)
+		expansion5_toggle:SetHeight(20)
+		expansion5_toggle:SetNormalFontObject("QuestTitleFont")
+		expansion5_toggle:SetHighlightFontObject("QuestTitleFontBlackShadow")
+		expansion5_toggle:SetText(_G.REPUTATION .. ":")
+		expansion5_toggle:SetPoint("TOPLEFT", expansion5_frame, "TOPLEFT", -2, -7)
+		expansion5_toggle:RegisterForClicks("LeftButtonUp", "RightButtonUp")
+
+		private.SetTooltipScripts(expansion5_toggle, L["GROUP_TOGGLE_FORMAT"]:format(_G.REPUTATION))
+
+		expansion5_toggle.buttons = expansion5_buttons
+		expansion5_toggle.frame = expansion5_frame
+
+		expansion5_toggle:SetScript("OnClick", ToggleExpansionCheckBoxes)
+	end	-- do-block
+
 	-------------------------------------------------------------------------------
 	-- Miscellaneous Filter Menu
 	-------------------------------------------------------------------------------
@@ -1049,131 +1110,142 @@ function private.InitializeFilterPanel()
 	-------------------------------------------------------------------------------
 	-- Now that everything exists, populate the global filter table
 	-------------------------------------------------------------------------------
-	local filterdb = addon.db.profile.filters
+	local filters = addon.db.profile.filters
 
 	local expansion0 = FilterPanel.rep.expansion0
 	local expansion1 = FilterPanel.rep.expansion1
 	local expansion2 = FilterPanel.rep.expansion2
 	local expansion3 = FilterPanel.rep.expansion3
 	local expansion4 = FilterPanel.rep.expansion4
+	local expansion5 = FilterPanel.rep.expansion5
 
 	FilterPanel.value_map = {
 		------------------------------------------------------------------------------------------------
 		-- General Options
 		------------------------------------------------------------------------------------------------
-		["faction"]		= { cb = FilterPanel.general.faction,		svroot = filterdb.general },
-		["known"]		= { cb = FilterPanel.general.known,		svroot = filterdb.general },
-		["unknown"]		= { cb = FilterPanel.general.unknown,		svroot = filterdb.general },
-		["retired"]		= { cb = FilterPanel.general.retired,		svroot = filterdb.general },
+		faction			= { cb = FilterPanel.general.faction,		svroot = filters.general },
+		known			= { cb = FilterPanel.general.known,		svroot = filters.general },
+		unknown			= { cb = FilterPanel.general.unknown,		svroot = filters.general },
+		retired			= { cb = FilterPanel.general.retired,		svroot = filters.general },
 		------------------------------------------------------------------------------------------------
 		-- Obtain Options
 		------------------------------------------------------------------------------------------------
-		["achievement"]		= { cb = FilterPanel.obtain.achievement,	svroot = filterdb.obtain },
-		["profession"]		= { cb = FilterPanel.obtain.profession,		svroot = filterdb.obtain },
-		["expansion0"]		= { cb = FilterPanel.obtain.expansion0,		svroot = filterdb.obtain },
-		["expansion1"]		= { cb = FilterPanel.obtain.expansion1,		svroot = filterdb.obtain },
-		["expansion2"]		= { cb = FilterPanel.obtain.expansion2,		svroot = filterdb.obtain },
-		["expansion3"]		= { cb = FilterPanel.obtain.expansion3,		svroot = filterdb.obtain },
-		["expansion4"]		= { cb = FilterPanel.obtain.expansion4,		svroot = filterdb.obtain },
-		["mobdrop"]		= { cb = FilterPanel.obtain.mobdrop,		svroot = filterdb.obtain },
-		["pvp"]			= { cb = FilterPanel.obtain.pvp,		svroot = filterdb.obtain },
-		["quest"]		= { cb = FilterPanel.obtain.quest,		svroot = filterdb.obtain },
-		["raid"]		= { cb = FilterPanel.obtain.raid,		svroot = filterdb.obtain },
-		["reputation"]		= { cb = FilterPanel.obtain.reputation,		svroot = filterdb.obtain },
-		["world_events"]	= { cb = FilterPanel.obtain.world_events,	svroot = filterdb.obtain },
-		["trainer"]		= { cb = FilterPanel.obtain.trainer,		svroot = filterdb.obtain },
-		["vendor"]		= { cb = FilterPanel.obtain.vendor,		svroot = filterdb.obtain },
-		["worlddrop"]		= { cb = FilterPanel.obtain.worlddrop,		svroot = filterdb.obtain },
-		["store"]		= { cb = FilterPanel.obtain.store,		svroot = filterdb.obtain },
-		["tcg"]			= { cb = FilterPanel.obtain.tcg,		svroot = filterdb.obtain },
-		["coll_edition"]	= { cb = FilterPanel.obtain.coll_edition,	svroot = filterdb.obtain },
-		["promo"]		= { cb = FilterPanel.obtain.promo,		svroot = filterdb.obtain },
-		["misc"]		= { cb = FilterPanel.obtain.misc,		svroot = filterdb.obtain },
+		achievement		= { cb = FilterPanel.obtain.achievement,	svroot = filters.obtain },
+		profession		= { cb = FilterPanel.obtain.profession,		svroot = filters.obtain },
+		expansion0		= { cb = FilterPanel.obtain.expansion0,		svroot = filters.obtain },
+		expansion1		= { cb = FilterPanel.obtain.expansion1,		svroot = filters.obtain },
+		expansion2		= { cb = FilterPanel.obtain.expansion2,		svroot = filters.obtain },
+		expansion3		= { cb = FilterPanel.obtain.expansion3,		svroot = filters.obtain },
+		expansion4		= { cb = FilterPanel.obtain.expansion4,		svroot = filters.obtain },
+		expansion5		= { cb = FilterPanel.obtain.expansion5,		svroot = filters.obtain },
+		mobdrop			= { cb = FilterPanel.obtain.mobdrop,		svroot = filters.obtain },
+		pvp			= { cb = FilterPanel.obtain.pvp,		svroot = filters.obtain },
+		quest			= { cb = FilterPanel.obtain.quest,		svroot = filters.obtain },
+		raid			= { cb = FilterPanel.obtain.raid,		svroot = filters.obtain },
+		reputation		= { cb = FilterPanel.obtain.reputation,		svroot = filters.obtain },
+		world_events		= { cb = FilterPanel.obtain.world_events,	svroot = filters.obtain },
+		trainer			= { cb = FilterPanel.obtain.trainer,		svroot = filters.obtain },
+		vendor			= { cb = FilterPanel.obtain.vendor,		svroot = filters.obtain },
+		worlddrop		= { cb = FilterPanel.obtain.worlddrop,		svroot = filters.obtain },
+		store			= { cb = FilterPanel.obtain.store,		svroot = filters.obtain },
+		tcg			= { cb = FilterPanel.obtain.tcg,		svroot = filters.obtain },
+		coll_edition		= { cb = FilterPanel.obtain.coll_edition,	svroot = filters.obtain },
+		promo			= { cb = FilterPanel.obtain.promo,		svroot = filters.obtain },
+		misc			= { cb = FilterPanel.obtain.misc,		svroot = filters.obtain },
 		------------------------------------------------------------------------------------------------
 		-- Binding Options
 		------------------------------------------------------------------------------------------------
-		["itemboe"]		= { cb = FilterPanel.binding.itemboe,		svroot = filterdb.binding },
-		["itembop"]		= { cb = FilterPanel.binding.itembop,		svroot = filterdb.binding },
-		["itemboa"]		= { cb = FilterPanel.binding.itemboa,		svroot = filterdb.binding },
+		itemboe			= { cb = FilterPanel.binding.itemboe,		svroot = filters.binding },
+		itembop			= { cb = FilterPanel.binding.itembop,		svroot = filters.binding },
+		itemboa			= { cb = FilterPanel.binding.itemboa,		svroot = filters.binding },
 		------------------------------------------------------------------------------------------------
 		-- Quality Options
 		------------------------------------------------------------------------------------------------
-		["common"]		= { cb = FilterPanel.quality.common,		svroot = filterdb.quality },
-		["uncommon"]		= { cb = FilterPanel.quality.uncommon,		svroot = filterdb.quality },
-		["rare"]		= { cb = FilterPanel.quality.rare,		svroot = filterdb.quality },
-		["epic"]		= { cb = FilterPanel.quality.epic,		svroot = filterdb.quality },
-		["legendary"]		= { cb = FilterPanel.quality.legendary,		svroot = filterdb.quality },
+		common			= { cb = FilterPanel.quality.common,		svroot = filters.quality },
+		uncommon		= { cb = FilterPanel.quality.uncommon,		svroot = filters.quality },
+		rare			= { cb = FilterPanel.quality.rare,		svroot = filters.quality },
+		epic			= { cb = FilterPanel.quality.epic,		svroot = filters.quality },
+		legendary		= { cb = FilterPanel.quality.legendary,		svroot = filters.quality },
 		------------------------------------------------------------------------------------------------
 		-- Old World Rep Options
 		------------------------------------------------------------------------------------------------
-		["argentdawn"]		= { cb = expansion0.argentdawn,			svroot = filterdb.rep },
-		["cenarioncircle"]	= { cb = expansion0.cenarioncircle,		svroot = filterdb.rep },
-		["thoriumbrotherhood"]	= { cb = expansion0.thoriumbrotherhood,		svroot = filterdb.rep },
-		["timbermaw"]		= { cb = expansion0.timbermaw,			svroot = filterdb.rep },
-		["zandalar"]		= { cb = expansion0.zandalar,			svroot = filterdb.rep },
+		argentdawn		= { cb = expansion0.argentdawn,			svroot = filters.rep },
+		cenarioncircle		= { cb = expansion0.cenarioncircle,		svroot = filters.rep },
+		thoriumbrotherhood	= { cb = expansion0.thoriumbrotherhood,		svroot = filters.rep },
+		timbermaw		= { cb = expansion0.timbermaw,			svroot = filters.rep },
+		zandalar		= { cb = expansion0.zandalar,			svroot = filters.rep },
 		------------------------------------------------------------------------------------------------
 		-- The Burning Crusade Rep Options
 		------------------------------------------------------------------------------------------------
-		["aldor"]		= { cb = expansion1.aldor,			svroot = filterdb.rep },
-		["ashtonguedeathsworn"]	= { cb = expansion1.ashtonguedeathsworn,	svroot = filterdb.rep },
-		["cenarionexpedition"]	= { cb = expansion1.cenarionexpedition,		svroot = filterdb.rep },
-		["consortium"]		= { cb = expansion1.consortium,			svroot = filterdb.rep },
-		["hellfire"]		= { cb = expansion1.hellfire,			svroot = filterdb.rep },
-		["keepersoftime"]	= { cb = expansion1.keepersoftime,		svroot = filterdb.rep },
-		["nagrand"]		= { cb = expansion1.nagrand,			svroot = filterdb.rep },
-		["netherwing"]		= { cb = expansion1.netherwing,			svroot = filterdb.rep },
-		["lowercity"]		= { cb = expansion1.lowercity,			svroot = filterdb.rep },
-		["scaleofthesands"]	= { cb = expansion1.scaleofthesands,		svroot = filterdb.rep },
-		["scryer"]		= { cb = expansion1.scryer,			svroot = filterdb.rep },
-		["shatar"]		= { cb = expansion1.shatar,			svroot = filterdb.rep },
-		["shatteredsun"]	= { cb = expansion1.shatteredsun,		svroot = filterdb.rep },
-		["sporeggar"]		= { cb = expansion1.sporeggar,			svroot = filterdb.rep },
-		["violeteye"]		= { cb = expansion1.violeteye,			svroot = filterdb.rep },
+		aldor			= { cb = expansion1.aldor,			svroot = filters.rep },
+		ashtonguedeathsworn	= { cb = expansion1.ashtonguedeathsworn,	svroot = filters.rep },
+		cenarionexpedition	= { cb = expansion1.cenarionexpedition,		svroot = filters.rep },
+		consortium		= { cb = expansion1.consortium,			svroot = filters.rep },
+		hellfire		= { cb = expansion1.hellfire,			svroot = filters.rep },
+		keepersoftime		= { cb = expansion1.keepersoftime,		svroot = filters.rep },
+		nagrand			= { cb = expansion1.nagrand,			svroot = filters.rep },
+		netherwing		= { cb = expansion1.netherwing,			svroot = filters.rep },
+		lowercity		= { cb = expansion1.lowercity,			svroot = filters.rep },
+		scaleofthesands		= { cb = expansion1.scaleofthesands,		svroot = filters.rep },
+		scryer			= { cb = expansion1.scryer,			svroot = filters.rep },
+		shatar			= { cb = expansion1.shatar,			svroot = filters.rep },
+		shatteredsun		= { cb = expansion1.shatteredsun,		svroot = filters.rep },
+		sporeggar		= { cb = expansion1.sporeggar,			svroot = filters.rep },
+		violeteye		= { cb = expansion1.violeteye,			svroot = filters.rep },
 		------------------------------------------------------------------------------------------------
 		-- Wrath of The Lich King Rep Options
 		------------------------------------------------------------------------------------------------
-		["argentcrusade"]	= { cb = expansion2.argentcrusade,		svroot = filterdb.rep },
-		["frenzyheart"]		= { cb = expansion2.frenzyheart,		svroot = filterdb.rep },
-		["ebonblade"]		= { cb = expansion2.ebonblade,			svroot = filterdb.rep },
-		["kirintor"]		= { cb = expansion2.kirintor,			svroot = filterdb.rep },
-		["sonsofhodir"]		= { cb = expansion2.sonsofhodir,		svroot = filterdb.rep },
-		["kaluak"]		= { cb = expansion2.kaluak,			svroot = filterdb.rep },
-		["oracles"]		= { cb = expansion2.oracles,			svroot = filterdb.rep },
-		["wyrmrest"]		= { cb = expansion2.wyrmrest,			svroot = filterdb.rep },
-		["ashenverdict"]	= { cb = expansion2.ashenverdict,		svroot = filterdb.rep },
-		["wrathcommon1"]	= { cb = expansion2.wrathcommon1,		svroot = filterdb.rep },
-		["wrathcommon2"]	= { cb = expansion2.wrathcommon2,		svroot = filterdb.rep },
-		["wrathcommon3"]	= { cb = expansion2.wrathcommon3,		svroot = filterdb.rep },
-		["wrathcommon4"]	= { cb = expansion2.wrathcommon4,		svroot = filterdb.rep },
-		["wrathcommon5"]	= { cb = expansion2.wrathcommon5,		svroot = filterdb.rep },
+		argentcrusade		= { cb = expansion2.argentcrusade,		svroot = filters.rep },
+		frenzyheart		= { cb = expansion2.frenzyheart,		svroot = filters.rep },
+		ebonblade		= { cb = expansion2.ebonblade,			svroot = filters.rep },
+		kirintor		= { cb = expansion2.kirintor,			svroot = filters.rep },
+		sonsofhodir		= { cb = expansion2.sonsofhodir,		svroot = filters.rep },
+		kaluak			= { cb = expansion2.kaluak,			svroot = filters.rep },
+		oracles			= { cb = expansion2.oracles,			svroot = filters.rep },
+		wyrmrest		= { cb = expansion2.wyrmrest,			svroot = filters.rep },
+		ashenverdict		= { cb = expansion2.ashenverdict,		svroot = filters.rep },
+		wrathcommon1		= { cb = expansion2.wrathcommon1,		svroot = filters.rep },
+		wrathcommon2		= { cb = expansion2.wrathcommon2,		svroot = filters.rep },
+		wrathcommon3		= { cb = expansion2.wrathcommon3,		svroot = filters.rep },
+		wrathcommon4		= { cb = expansion2.wrathcommon4,		svroot = filters.rep },
+		wrathcommon5		= { cb = expansion2.wrathcommon5,		svroot = filters.rep },
 		------------------------------------------------------------------------------------------------
 		-- Cataclysm Rep Options
 		------------------------------------------------------------------------------------------------
-		["catacommon1"]		= { cb = expansion3.catacommon1,		svroot = filterdb.rep },
-		["catacommon2"]		= { cb = expansion3.catacommon2,		svroot = filterdb.rep },
-		["guardiansofhyjal"]	= { cb = expansion3.guardiansofhyjal,		svroot = filterdb.rep },
-		["ramkahen"]		= { cb = expansion3.ramkahen,			svroot = filterdb.rep },
-		["earthenring"]		= { cb = expansion3.earthenring,		svroot = filterdb.rep },
-		["therazane"]		= { cb = expansion3.therazane,			svroot = filterdb.rep },
-		["guild"]		= { cb = expansion3.guild,			svroot = filterdb.rep },
+		catacommon1		= { cb = expansion3.catacommon1,		svroot = filters.rep },
+		catacommon2		= { cb = expansion3.catacommon2,		svroot = filters.rep },
+		guardiansofhyjal	= { cb = expansion3.guardiansofhyjal,		svroot = filters.rep },
+		ramkahen		= { cb = expansion3.ramkahen,			svroot = filters.rep },
+		earthenring		= { cb = expansion3.earthenring,		svroot = filters.rep },
+		therazane		= { cb = expansion3.therazane,			svroot = filters.rep },
+		guild			= { cb = expansion3.guild,			svroot = filters.rep },
 		------------------------------------------------------------------------------------------------
 		-- Mists of Pandaria Rep Options
-		-----------------------------------------------------------------------------------------------
-		["goldenlotus"]		= { cb = expansion4.goldenlotus,		svroot = filterdb.rep },
-		["cloudserpent"]	= { cb = expansion4.cloudserpent,		svroot = filterdb.rep },
-		["shadopan"]		= { cb = expansion4.shadopan,			svroot = filterdb.rep },
-		["anglers"]		= { cb = expansion4.anglers,			svroot = filterdb.rep },
-		["augustcelestials"]	= { cb = expansion4.augustcelestials,		svroot = filterdb.rep },
-		["brewmasters"]		= { cb = expansion4.brewmasters,		svroot = filterdb.rep },
-		["klaxxi"]		= { cb = expansion4.klaxxi,			svroot = filterdb.rep },
-		["lorewalkers"]		= { cb = expansion4.lorewalkers,		svroot = filterdb.rep },
-		["tillers"]		= { cb = expansion4.tillers,			svroot = filterdb.rep },
-		["blackprince"]		= { cb = expansion4.blackprince,		svroot = filterdb.rep },
-		["shangxiacademy"]	= { cb = expansion4.shangxiacademy,		svroot = filterdb.rep },
-		["pandacommon1"]	= { cb = expansion4.pandacommon1,		svroot = filterdb.rep },
-		["pandacommon2"]	= { cb = expansion4.pandacommon2,		svroot = filterdb.rep },
-		["brawlers"]		= { cb = expansion4.brawlers,			svroot = filterdb.rep },
-		["pandacommon3"]	= { cb = expansion4.pandacommon3,		svroot = filterdb.rep },
-	}
+		------------------------------------------------------------------------------------------------
+		goldenlotus		= { cb = expansion4.goldenlotus,		svroot = filters.rep },
+		cloudserpent		= { cb = expansion4.cloudserpent,		svroot = filters.rep },
+		shadopan		= { cb = expansion4.shadopan,			svroot = filters.rep },
+		anglers			= { cb = expansion4.anglers,			svroot = filters.rep },
+		augustcelestials	= { cb = expansion4.augustcelestials,		svroot = filters.rep },
+		brewmasters		= { cb = expansion4.brewmasters,		svroot = filters.rep },
+		klaxxi			= { cb = expansion4.klaxxi,			svroot = filters.rep },
+		lorewalkers		= { cb = expansion4.lorewalkers,		svroot = filters.rep },
+		tillers			= { cb = expansion4.tillers,			svroot = filters.rep },
+		blackprince		= { cb = expansion4.blackprince,		svroot = filters.rep },
+		shangxiacademy		= { cb = expansion4.shangxiacademy,		svroot = filters.rep },
+		pandacommon1		= { cb = expansion4.pandacommon1,		svroot = filters.rep },
+		pandacommon2		= { cb = expansion4.pandacommon2,		svroot = filters.rep },
+		brawlers		= { cb = expansion4.brawlers,			svroot = filters.rep },
+		pandacommon3		= { cb = expansion4.pandacommon3,		svroot = filters.rep },
+		shaohao			= { cb = expansion4.shaohao,			svroot = filters.rep },
+		------------------------------------------------------------------------------------------------
+		-- Warlords of Draenor Rep Options
+		------------------------------------------------------------------------------------------------
+		draenorcommon1		= { cb = expansion5.draenorcommon1,		svroot = filters.rep },
+		draenorcommon2		= { cb = expansion5.draenorcommon2,		svroot = filters.rep },
+		draenorcommon3		= { cb = expansion5.draenorcommon3,		svroot = filters.rep },
+		steamwheedle		= { cb = expansion5.steamwheedle,		svroot = filters.rep },
+		arakkoa			= { cb = expansion5.arakkoa,			svroot = filters.rep },
+	}	
 	private.InitializeFilterPanel = nil
 end

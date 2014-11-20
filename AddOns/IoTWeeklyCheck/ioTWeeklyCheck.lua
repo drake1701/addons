@@ -1,285 +1,126 @@
-﻿-- Isle of Thunder Weekly Check
--- by Fluffies
--- EU-Well of Eternity
-local ldb = LibStub:GetLibrary("LibDataBroker-1.1")
-local ldbicon = ldb and LibStub("LibDBIcon-1.0", true)
-local IoTMainframe
+﻿-- Daily Global Check - Isle of Thunder plugin
+-- Jadya - EU-Well of Eternity
+local addonName, addonTable = ...
+local plugintitle = "Isle of Thunder"
+
+local foreach = table.foreach
 
 local iotwiicon = "Interface\\ICONS\\inv_qiraj_jewelglyphed"
-local tx_optionsframe = "Interface\\icons\\Icon_PetFamily_Mechanical"
-local tx_chkminimap   = "Interface\\icons\\INV_Misc_Map03"
-local chest_icon = " - "
-local rare_icon = " - "
-local nalak_name = EJ_GetEncounterInfo(814)
-local nalak_icon = "|TInterface\\EncounterJournal\\UI-EJ-BOSS-Nalak:20|t"
---local chest_icon = "|TInterface\\Icons\\Trade_Archaeology_ChestofTinyGlassAnimals:12|t "
---local rare_icon = "|TInterface\\Icons\\Achievement_Boss_Archaedas:12|t "
-local quest_icon = "|TInterface\\CURSOR\\QUEST:12|t "
+local nalak_icon = "|TInterface\\EncounterJournal\\UI-EJ-BOSS-Nalak:14|t"
+local s_retrieving = "No data..."
+DGC_IoTLocalizedStrings = {}
+-- table orders
+local CENTER, LEFT, RIGHT = 1,2,3
 
-local keylink -- Key to the Palace of Lei Shen - item
-local ritualstone_name
-local deng_itemname
-local haqin_itemname
-local vu_itemname
-local rare_name = EXAMPLE_TARGET_MONSTER.." ("..ITEM_QUALITY3_DESC..")"
-local s_optionsmain = "Toggle minimap button"
+local iot_popupdialog = {
+       text = addonName.." now requires |cff00FF00Daily Global Check|r to work, check it out on the link below and sorry for the inconvenience!",
+       hasEditBox = true,
+       button1 = "Ok",
+       OnShow = function (self, data)
+        self.editBox:SetText("http://www.curse.com/addons/wow/daily-global-check")
+        self.editBox:SetWidth(self:GetWidth() - 10)
+       end,
+       timeout = 0,
+       whileDead = true,
+       hideOnEscape = true,
+       preferredIndex = 3,
+     }
 
--- string colors
-local LIGHT_RED   = "|cffFF2020"
-local LIGHT_GREEN = "|cff20FF20"
-local LIGHT_BLUE  = "|cff00ddFF"
-local ZONE_BLUE   = "|cff00aacc"
-local GREY        = "|cff999999"
-local COORD_GREY  = "|cffBBBBBB"
-local GOLD        = "|cffffcc00"
-local WHITE       = "|cffffffff"
-local PINK        = "|cffFFaaaa"
-local function AddColor(str,color)
- return color..str.."|r"
+-- template = {[ZONE],[NAME],[PREF],[SUFF],{{x,y},{x,y}},defaultmapID,[QUESTTYPE],[MAPICON],showfunc
+local questsdata = {
+ [32626] = {GetMapNameByID(928),s_retrieving,"","",nil,nil,"W"},
+ [32610] = {GetMapNameByID(928),s_retrieving or "Ritual Stone (rare)","","",nil,nil,"W"},
+ [32609] = {GetMapNameByID(928),s_retrieving,"","",nil,nil,"W"},
+ [32708] = {GetMapNameByID(928),"Setting the Trap","","",{[928] = {51,46}},928,"Q",nil,function() return not IsQuestFlaggedCompleted(32708) end},
+ [32640] = {GetMapNameByID(928),"Champions of the Thunder King","","",{[928] = {51,46}},928,"W",nil,function() return IsQuestFlaggedCompleted(32708) and UnitFactionGroup("player") == "Horde" end},
+ [32641] = {GetMapNameByID(928),"Champions of the Thunder King","","",{[928] = {51,46}},928,"W",nil,function() return IsQuestFlaggedCompleted(32708) and UnitFactionGroup("player") == "Alliance" end},
+ [32505] = {GetMapNameByID(928),"The Crumbled Chamberlain","","",nil,nil,"W"},
+ [32611] = {GetMapNameByID(928),"Incantation","","",nil,nil,"W"},
+ [32518] = {GetMapNameByID(928),EJ_GetEncounterInfo(814),nalak_icon,"",{[928] = {61,36}, [862] = {22,10}, [-1] = {44,71}},928,"W"},
+}
+
+local plugin_data = {
+ ["Title"] = plugintitle,
+ ["Icon"]  = iotwiicon,
+ ["Data"]  = questsdata,
+ ["Order"] = {[CENTER] = {{"General",32626,32610,32609,32708,32640,32641,32505,32611,32518}}},
+ MultiCharsEnabled = true,
+ }
+
+local function Initialize()
+ DailyGlobalCheck:LoadPlugin(plugin_data)
 end
 
-local function completedstring(arg)
- if IsQuestFlaggedCompleted(arg) then
-  return AddColor(COMPLETE,LIGHT_GREEN)
- else
-  return AddColor(INCOMPLETE,LIGHT_RED)
- end
-end
-
-local function getitemname(arg)
- if arg ~= nil then 
-  return arg
- else
-  return ""
- end
-end
-
-local function DrawMainframe(frame, istooltip)
--- title
- frame:ClearLines()
- frame:AddDoubleLine("Isle of Thunder Weekly Check","|T"..iotwiicon..":32|t")
- frame:AddLine(" ")
- frame:AddLine(" ")
-
- frame:AddDoubleLine(getitemname(keylink), completedstring(32626))
- frame:AddLine(" ")
- frame:AddLine(getitemname(ritualstone_name)..":")
- frame:AddDoubleLine(rare_icon..AddColor(rare_name,WHITE), completedstring(32610))
- frame:AddDoubleLine(chest_icon..AddColor(select(8,GetAchievementInfo(8104)),WHITE), completedstring(32609))
- frame:AddLine(" ")
- -- check if the character has completed the first summoning quest
- if IsQuestFlaggedCompleted(32708) and IoTWeeklyItems_Options["ctk_quest_name"] ~= nil then
-  if IsQuestFlaggedCompleted(32640) or IsQuestFlaggedCompleted(32641) then
-   frame:AddDoubleLine(quest_icon..AddColor(IoTWeeklyItems_Options["ctk_quest_name"],WHITE), AddColor(COMPLETE,LIGHT_GREEN))
-  else
-   frame:AddDoubleLine(quest_icon..AddColor(IoTWeeklyItems_Options["ctk_quest_name"],WHITE), AddColor(INCOMPLETE,LIGHT_RED))
-  end
- end
- frame:AddDoubleLine(quest_icon..AddColor(GetAchievementCriteriaInfo(8105,1),WHITE), completedstring(32505))
- frame:AddLine(" ")
- frame:AddLine(AddColor(select(2,GetAchievementInfo(8110))..":", GOLD))
- frame:AddLine(" - "..getitemname(deng_itemname))
- frame:AddDoubleLine(" - "..getitemname(haqin_itemname), completedstring(32611))
- frame:AddLine(" - "..getitemname(vu_itemname))
- frame:AddLine(" ")
- frame:AddDoubleLine(nalak_icon..AddColor(nalak_name,WHITE), completedstring(32518))
- if not istooltip then
-  frame:AddLine(" ")
-  frame:AddLine(" ")
-  --frame:AddLine(" ")
- end
-end
-
-local iwcchatheader = AddColor("IoT Weekly Check: ",LIGHT_BLUE)
-local chatseparator = " - "
-
-local function CreateMainframe(arg)
-
- if arg == "print" then
-  print("--- "..iwcchatheader.."---")
-  print(getitemname(keylink)..chatseparator..completedstring(32626))
-  print(getitemname(ritualstone_name)..rare_icon..AddColor(rare_name,GREY)..chatseparator..completedstring(32610))
-  print(getitemname(ritualstone_name)..chest_icon..AddColor(select(8,GetAchievementInfo(8104)),GREY)..chatseparator..completedstring(32609))
- -- check if the character has completed the first summoning quest
-  if IsQuestFlaggedCompleted(32708) and IoTWeeklyItems_Options["ctk_quest_name"] ~= nil then
-   if IsQuestFlaggedCompleted(32640) or IsQuestFlaggedCompleted(32641) then
-    print(quest_icon..AddColor(IoTWeeklyItems_Options["ctk_quest_name"],GREY)..chatseparator..AddColor(COMPLETE,LIGHT_GREEN))
+-- server query
+GetItemInfo(94221)
+GetItemInfo(94222)
+local function setitemnames()
+ local result = true
+ 
+ local function checkiteminfo(questID,itemID,pref,suff)
+  if questsdata[questID][2] == s_retrieving or not questsdata[questID][2] then -- key
+   local tmp = GetItemInfo(itemID)
+   if tmp then
+    DailyGlobalCheck:SetPluginData(plugintitle,questID,2,pref..tmp..suff)
+    questsdata[questID][2] = pref..tmp..suff
    else
-    print(quest_icon..AddColor(IoTWeeklyItems_Options["ctk_quest_name"],GREY)..chatseparator..AddColor(INCOMPLETE,LIGHT_RED))
+    result = false
    end
   end
-  print(AddColor(quest_icon..GetAchievementCriteriaInfo(8105,1),GREY)..chatseparator..completedstring(32505)) 
-  print(AddColor(select(2,GetAchievementInfo(8110))..":", GREY)..chatseparator..completedstring(32611))
-  print(AddColor(nalak_icon..nalak_name,GREY)..chatseparator..completedstring(32518)) 
-  print("---------")
-  return
  end
 
- if IoTMainframe and IoTMainframe:IsVisible() then
-  IoTMainframe:Hide()
- else
-  if not IoTMainframe then
-   IoTMainframe = CreateFrame("GameTooltip", "IoTMainframe", nil, "GameTooltipTemplate")
-  end
-  
-  IoTMainframe:SetOwner(UIParent,"ANCHOR_NONE")
-  IoTMainframe:SetPoint("CENTER",UIParent,"CENTER")
-  IoTMainframe:SetFrameStrata("HIGH")
-  IoTMainframe:EnableMouse(true)
-  IoTMainframe:SetMovable()
-  IoTMainframe:SetScale(0.9)
-  IoTMainframe:RegisterForDrag("LeftButton")
-  IoTMainframe:SetScript("OnDragStart", function(self)  
-		self:StartMoving()
-  end)
-  IoTMainframe:SetScript("OnDragStop", function(self) 
-		self:StopMovingOrSizing()
-  end)
-  
-  DrawMainframe(IoTMainframe)
+ checkiteminfo(32626,94222,"","")
+ checkiteminfo(32610,94221,""," ("..EXAMPLE_TARGET_MONSTER..")")
+ checkiteminfo(32609,94221,""," (Chest)")
 
--- Hide minimap button
-   if not IoTMainframe.optionsframe then
-    IoTMainframe.optionsframe = CreateFrame("FRAME", nil, IoTMainframe)
-    IoTMainframe.optionsframe.texture = IoTMainframe.optionsframe:CreateTexture()
-    IoTMainframe.optionsframe:SetPoint("BOTTOMLEFT",IoTMainframe,"BOTTOMLEFT",10,10)
-    IoTMainframe.optionsframe:SetWidth(25)
-    IoTMainframe.optionsframe:SetHeight(25)
-    IoTMainframe.optionsframe.texture:SetPoint("CENTER",IoTMainframe.optionsframe,"CENTER")
-    IoTMainframe.optionsframe.texture:SetAllPoints()
-    IoTMainframe.optionsframe.texture:SetTexture(tx_chkminimap)
-    IoTMainframe.optionsframe:SetScript("OnLeave", function(self)
-     GameTooltip:Hide()
-    end)
-    IoTMainframe.optionsframe:SetScript("OnEnter", function(self)
-     GameTooltip:SetOwner(IoTMainframe.optionsframe,"ANCHOR_TOP",0,5)
-     GameTooltip:ClearLines()
-     GameTooltip:AddLine(s_optionsmain)
-     GameTooltip:Show()
-    end)
-
-    IoTMainframe.optionsframe:SetScript("OnMouseUp", function(self)
-     if not IoTMainframe.optionsframe.open then
-      IoTWeeklyItems_Options["minimap_icon"].hide = false
-      IoTMainframe.optionsframe.open = true
-      IoTMainframe.optionsframe.texture:SetVertexColor(1,1,1,1)
-     else
-      IoTWeeklyItems_Options["minimap_icon"].hide = true
-      IoTMainframe.optionsframe.open = false
-      IoTMainframe.optionsframe.texture:SetVertexColor(0.5,0.5,0.5,1)
-     end
-     ldbicon:Refresh("IoTWeeklyCheck", IoTWeeklyCheck, IoTWeeklyItems_Options["minimap_icon"])
-    end)
-   end
-   IoTMainframe.optionsframe.open = not IoTWeeklyItems_Options["minimap_icon"].hide
-   if IoTMainframe.optionsframe.open then
-    IoTMainframe.optionsframe.texture:SetVertexColor(1,1,1,1)
-   else
-    IoTMainframe.optionsframe.texture:SetVertexColor(0.5,0.5,0.5,1)    
-   end
---
--- About
-  if not IoTMainframe.Rabouttext then
-   IoTMainframe.Rabouttext = IoTMainframe:CreateFontString(nil, "OVERLAY", "GameTooltipText")
-   IoTMainframe.Rabouttext:SetFont("Fonts\\FRIZQT__.TTF",8)
-   IoTMainframe.Rabouttext:SetText(AddColor("                by",GREY)..
-                                   AddColor(" Fluffies\n",LIGHT_BLUE)..
-                                   AddColor(" EU-Well of Eternity",GREY))
-   IoTMainframe.Rabouttext:SetPoint("BOTTOMRIGHT",IoTMainframe,"BOTTOMRIGHT",-5,5)
-   IoTMainframe.Rabouttext:Show()
-  end
---
--- Close button
-  if not IoTMainframe.btnclose then
-   IoTMainframe.btnclose = CreateFrame("Button", "iotwiclosebtn", IoTMainframe, "UIPanelButtonTemplate")
-   IoTMainframe.btnclose:SetPoint("BOTTOM", IoTMainframe, "BOTTOM",0,10)
-   IoTMainframe.btnclose:SetWidth(100)
-   IoTMainframe.btnclose:SetText(CLOSE)
-   IoTMainframe.btnclose:SetScript("OnClick", function(self)
-    IoTMainframe:Hide()
-    collectgarbage()
-   end)
- end
---
- IoTMainframe:Show()
-end
+ return result
 end
 
-local ldbset = false
-local eventframe = CreateFrame("FRAME","IoTWIEventFrame")
-eventframe:RegisterEvent("VARIABLES_LOADED")
+local questslocalizationdata = { ["setting_the_trap"] = {32708},
+                                 ["champions_tk"] = {32640,32641},
+                                 ["chamberlain"] = {32505}}
+local initialized = false
+local eventframe = CreateFrame("FRAME")
+eventframe:RegisterEvent("ADDON_LOADED")
+eventframe:RegisterEvent("PLAYER_ENTERING_WORLD")
 eventframe:RegisterEvent("GET_ITEM_INFO_RECEIVED")
 eventframe:RegisterEvent("QUEST_LOG_UPDATE")
 local function eventhandler(self, event, ...)
-
- if event == "QUEST_LOG_UPDATE" then
-  local i, s
-  for i = 1, GetNumQuestLogEntries() do
-   s = GetQuestLink(i)
-   if s ~= nil then
-    s = string.match(s, "Hquest:(%d+)");
-    if (s == "32640" or s == "32641") then
-     IoTWeeklyItems_Options["ctk_quest_name"] = select(1,GetQuestLogTitle(i))
-     eventframe:UnregisterEvent("QUEST_LOG_UPDATE");
-    end
+ if event == "QUEST_LOG_UPDATE" then							   
+  if not DailyGlobalCheck then return end
+  local allset = DailyGlobalCheck:LocalizeQuestNames(plugintitle, DGC_IoTLocalizedStrings, questslocalizationdata)
+   if allset then
+    eventframe:UnregisterEvent("QUEST_LOG_UPDATE")
    end
-  end
  elseif event == "GET_ITEM_INFO_RECEIVED" then
-  if keylink == nil then
-   _, keylink = GetItemInfo(94222)
+  if not DailyGlobalCheck then return end
+  if setitemnames() then
+   eventframe:UnregisterEvent("GET_ITEM_INFO_RECEIVED") -- all item names set
   end
-  if ritualstone_name == nil then
-   _, ritualstone_name = GetItemInfo(94221)
+ elseif event == "ADDON_LOADED" and ... == addonName then
+  if not DailyGlobalCheck then return end
+  local function setquestsdata(ids, name)
+   table.foreach(ids, function(k,id) DailyGlobalCheck:SetPluginData(plugintitle,id,2,name) end)
   end
-  if deng_itemname == nil then
-    _, deng_itemname = GetItemInfo(94233)
-  end
-  if vu_itemname == nil then
-    _, vu_itemname = GetItemInfo(95350)
-  end
-  if haqin_itemname == nil then
-    _, haqin_itemname = GetItemInfo(94130)
-  end
- elseif event == "VARIABLES_LOADED" then
-  _, keylink = GetItemInfo(94222)
-  _, ritualstone_name = GetItemInfo(94221)
-  _, deng_itemname = GetItemInfo(94233)
-  _, haqin_itemname = GetItemInfo(94130)
-  _, vu_itemname = GetItemInfo(95350)
-  if IoTWeeklyItems_Options == nil then
-   IoTWeeklyItems_Options = {}
-  end
-  if IoTWeeklyItems_Options["minimap_icon"] == nil then
-    IoTWeeklyItems_Options["minimap_icon"] = {
-        hide = false,
-        minimapPos = 220,
-    }
-  end
-  if IoTWeeklyItems_Options["ctk_quest_name"] == nil then
-   IoTWeeklyItems_Options["ctk_quest_name"] = "<champions of the thunder king quest>"
-  end
-
-  if ldb and not ldbset then
-   local IoTWeeklyCheck = ldb:NewDataObject("IoTWeeklyCheck", {
-	type = "data source",
-	icon = iotwiicon,
-	label = "IoT Weekly Check",
-	OnClick = function(self,button)
-         CreateMainframe()
-	end,
-	OnTooltipShow = function(tooltip)
-		 DrawMainframe(tooltip,true)
-	end,
-   })
-   if ldbicon then
-    ldbicon:Register("IoTWeeklyCheck", IoTWeeklyCheck, IoTWeeklyItems_Options["minimap_icon"])
+  Initialize()
+  setitemnames()
+  foreach(questslocalizationdata, function(name, ids)
+   if DGC_IoTLocalizedStrings[name] then
+    setquestsdata(ids, DGC_IoTLocalizedStrings[name])
    end
-   ldbset = true
-  end -- variables_loaded
- end
+  end)
+  initialized = true
+  elseif event == "PLAYER_ENTERING_WORLD" then
+   if not DailyGlobalCheck then
+    if not DGC_IoTLocalizedStrings["dgcmessageshown"] then
+	 StaticPopupDialogs["IOTDGCDialog"] = iot_popupdialog
+	 StaticPopup_Show ("IOTDGCDialog")
+	 DGC_IoTLocalizedStrings["dgcmessageshown"] = true
+	end
+    return
+   end
+   if not initialized then Initialize() end
+   eventframe:UnregisterEvent("PLAYER_ENTERING_WORLD")
+  end
 end
-eventframe:SetScript("OnEvent", eventhandler);
-
--- slash command
-SLASH_IOTWEEKLYCHECK1 = "/iwc"
-SlashCmdList["IOTWEEKLYCHECK"] = CreateMainframe
+eventframe:SetScript("OnEvent", eventhandler)

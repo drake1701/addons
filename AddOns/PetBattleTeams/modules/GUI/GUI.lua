@@ -10,7 +10,7 @@ OPTIONS_UPDATE
 local PetBattleTeams = LibStub("AceAddon-3.0"):GetAddon("PetBattleTeams")
 local GUI = PetBattleTeams:NewModule("GUI")
 local _
-
+local LibPetJournal = LibStub("LibPetJournal-2.0")
 local eventFrame = CreateFrame("frame")
 
 local function OnEvent(self,event,...)
@@ -29,7 +29,6 @@ local function OnEvent(self,event,...)
 			self:UnregisterEvent("PLAYER_REGEN_ENABLED")
 			self:UnregisterEvent("PET_BATTLE_CLOSE")
 		end
-		
 	end
 end
 
@@ -62,13 +61,29 @@ function GUI:OnInitialize()
 	}
 	
 	self.db = db:RegisterNamespace(name, defaults)
-	
+	--LibPetJournal.RegisterCallback(self,"PostPetListUpdated", "PetJournalReady")
 	
 	if UnitAffectingCombat("player") then
 		self.delayedInit = true
 	end
+
+	if IsAddOnLoaded("Blizzard_PetJournal") then
+		eventFrame:UnregisterEvent("ADDON_LOADED")
+		if not GUI.delayedInit then
+			GUI:InitializeGUI()
+		end
+	end
 	--local pos = self.db.global
 	--self.mainFrame:SetPosition(pos.x,pos.y,pos.h)
+end
+
+function GUI:PetJournalReady()
+	if IsAddOnLoaded("Blizzard_PetJournal") then
+		eventFrame:UnregisterEvent("ADDON_LOADED")
+		--PetJournal_LoadUI();
+		
+		LibPetJournal.UnregisterCallback(self,"PostPetListUpdated", "PetJournalReady")
+	end
 end
 
 function GUI:InitializeGUI()
@@ -97,11 +112,11 @@ function GUI:InitializeGUI()
 end
 
 function GUI:SetAttached(enabled)
-	--[[if UnitAffectingCombat("player") then print("PetBattleTeams: Can't change attachment during combat") return end
+	if UnitAffectingCombat("player") then print("PetBattleTeams: Can't change attachment during combat") return end
 	self.db.global.attached = enabled
 	if self.mainFrame then 
 		self.mainFrame:SetAttached(enabled)
-	end]]
+	end
 end
 
 function GUI:SetHideInCombat(enabled )
@@ -125,7 +140,7 @@ function GUI:SetLocked(enabled)
 end
 
 function GUI:GetAttached()
-	return true--self.db.global.attached
+	return self.db.global.attached
 end
 
 function GUI:GetLocked()

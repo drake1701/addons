@@ -10,9 +10,9 @@
 ## X-Email: sal.scotto@gmail.com
 ## Version: 1.0
 ## LoadOnDemand: 1
-## X-Generated-Version: $Revision: 271 $
+## X-Generated-Version: $Revision: 375 $
 ## Dependencies: GatherMate2
-## X-Curse-Packaged-Version: v17.1
+## X-Curse-Packaged-Version: v23.7
 ## X-Curse-Project-Name: GatherMate2_Data
 ## X-Curse-Project-ID: gathermate2_data
 ## X-Curse-Repository-ID: wow/gathermate2_data/mainline

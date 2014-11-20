@@ -199,6 +199,141 @@ local function UpdateFilterGroup()
 				}
 			end
 		end
+	elseif selectedFilter == 'Whitelist (Strict)' then
+		if not selectedFilter or not E.global.unitframe['aurafilters'][selectedFilter] then
+			E.Options.args.filters.args.filterGroup = nil
+			E.Options.args.filters.args.spellGroup = nil
+			return
+		end
+
+		E.Options.args.filters.args.filterGroup = {
+			type = 'group',
+			name = selectedFilter,
+			guiInline = true,
+			order = 10,
+			childGroups = "select",
+			args = {
+				addSpellID = {
+					order = 1,
+					name = L['Add SpellID'],
+					desc = L['Add a spell to the filter.'],
+					type = 'input',
+					get = function(info) return "" end,
+					set = function(info, value) 
+						if not tonumber(value) then
+							E:Print(L["Value must be a number"])					
+						elseif not GetSpellInfo(value) then
+							E:Print(L["Not valid spell id"])
+						else
+							local name = GetSpellInfo(value)
+							if not E.global.unitframe['aurafilters'][selectedFilter]['spells'][name] then
+								E.global.unitframe['aurafilters'][selectedFilter]['spells'][name] = {
+									['enable'] = true,
+									['spellID'] = value,
+									['priority'] = 0,
+								}
+								UpdateFilterGroup();
+								UF:Update_AllFrames();
+							end
+						end
+					end,
+				},
+				removeSpellID = {
+					order = 2,
+					name = L['Remove SpellID'],
+					desc = L['Remove a spell from the filter.'],
+					type = 'input',
+					get = function(info) return "" end,
+					set = function(info, value) 
+						if not tonumber(value) then
+							E:Print(L["Value must be a number"])
+						elseif not GetSpellInfo(value) then
+							E:Print(L["Not valid spell id"])
+						else
+							local name = GetSpellInfo(value)
+							if G['unitframe']['aurafilters'][selectedFilter] then
+								if G.unitframe.aurafilters[selectedFilter]['spells'][name] then
+									E.global.unitframe.aurafilters[selectedFilter]['spells'][name].enable = false;
+									E:Print(L['You may not remove a spell from a default filter that is not customly added. Setting spell to false instead.'])
+								else
+									E.global.unitframe.aurafilters[selectedFilter]['spells'][name] = nil;
+								end
+							else
+								E.global.unitframe['aurafilters'][selectedFilter]['spells'][name] = nil;
+							end
+						end		
+
+						UpdateFilterGroup();
+						UF:Update_AllFrames();
+					end,				
+				},
+				selectSpell = {
+					name = L["Select Spell"],
+					type = 'select',
+					order = 3,
+					guiInline = true,
+					get = function(info) return selectedSpell end,
+					set = function(info, value) selectedSpell = value; UpdateFilterGroup() end,							
+					values = function()
+						local filters = {}
+						filters[''] = NONE
+						for filter, _ in pairs(E.global.unitframe['aurafilters'][selectedFilter]['spells']) do
+							filters[filter] = filter
+						end
+
+						return filters
+					end,
+				},
+				desc = {
+					order = 4,
+					type = 'description',
+					name = L['This filter is meant to be used when you only want to whitelist specific spellIDs which share names with unwanted spells.'],
+				},
+			},
+		}
+		
+		if not selectedSpell or not E.global.unitframe['aurafilters'][selectedFilter]['spells'][selectedSpell] then
+			E.Options.args.filters.args.spellGroup = nil
+			return
+		end
+		
+		if selectedSpell then
+			local id = E.global.unitframe['aurafilters'][selectedFilter]['spells'][selectedSpell]['spellID']
+			E.Options.args.filters.args.spellGroup = {
+				type = "group",
+				name = selectedSpell..' ('..id..')',
+				order = 15,
+				guiInline = true,
+				args = {
+					enable = {
+						name = L["Enable"],
+						type = "toggle",
+						get = function() 
+							if selectedFolder or not selectedSpell then
+								return false
+							else
+								return E.global.unitframe['aurafilters'][selectedFilter]['spells'][selectedSpell].enable
+							end
+						end,
+						set = function(info, value) E.global.unitframe['aurafilters'][selectedFilter]['spells'][selectedSpell].enable = value; UpdateFilterGroup(); UF:Update_AllFrames(); end
+					},
+					priority = {
+						name = L["Priority"],
+						type = "range",
+						get = function() 
+							if selectedFolder or not selectedSpell then
+								return 0
+							else
+								return E.global.unitframe['aurafilters'][selectedFilter]['spells'][selectedSpell].priority
+							end
+						end,
+						set = function(info, value) E.global.unitframe['aurafilters'][selectedFilter]['spells'][selectedSpell].priority = value; UpdateFilterGroup(); UF:Update_AllFrames(); end,
+						min = 0, max = 99, step = 1,
+						desc = L["Set the priority order of the spell, please note that prioritys are only used for the raid debuff module, not the standard buff/debuff module. If you want to disable set to zero."],
+					},			
+				},
+			}
+		end		
 	elseif selectedFilter == 'Buff Indicator (Pet)' then
 		local buffs = {};
 		for _, value in pairs(E.global.unitframe.buffwatch.PET) do
@@ -451,9 +586,8 @@ local function UpdateFilterGroup()
 							tinsert(E.global.unitframe.buffwatch[E.myclass], {["enabled"] = true, ["id"] = tonumber(value), ["point"] = "TOPRIGHT", ["color"] = {["r"] = 1, ["g"] = 0, ["b"] = 0}, ["anyUnit"] = false})
 							UpdateFilterGroup();
 							
-							for i=10, 40, 15 do
-								UF:UpdateAuraWatchFromHeader('raid'..i)
-							end
+							UF:UpdateAuraWatchFromHeader('raid')
+							UF:UpdateAuraWatchFromHeader('raid40')
 							UF:UpdateAuraWatchFromHeader('party')
 							UF:UpdateAuraWatchFromHeader('raidpet', true)
 							selectedSpell = nil;
@@ -493,9 +627,8 @@ local function UpdateFilterGroup()
 						
 						selectedSpell = nil;
 						UpdateFilterGroup();
-						for i=10, 40, 15 do
-							UF:UpdateAuraWatchFromHeader('raid'..i)
-						end
+						UF:UpdateAuraWatchFromHeader('raid')
+						UF:UpdateAuraWatchFromHeader('raid40')
 						UF:UpdateAuraWatchFromHeader('party')
 						UF:UpdateAuraWatchFromHeader('raidpet', true)
 					end,				
@@ -542,9 +675,9 @@ local function UpdateFilterGroup()
 				get = function(info) return E.global.unitframe.buffwatch[E.myclass][tableIndex][ info[#info] ] end,
 				set = function(info, value) 
 					E.global.unitframe.buffwatch[E.myclass][tableIndex][ info[#info] ] = value;
-					for i=10, 40, 15 do
-						UF:UpdateAuraWatchFromHeader('raid'..i)
-					end
+
+					UF:UpdateAuraWatchFromHeader('raid')
+					UF:UpdateAuraWatchFromHeader('raid40')
 					UF:UpdateAuraWatchFromHeader('party')
 					UF:UpdateAuraWatchFromHeader('raidpet', true)
 				end,
@@ -603,9 +736,8 @@ local function UpdateFilterGroup()
 						set = function(info, r, g, b)
 							local t = E.global.unitframe.buffwatch[E.myclass][tableIndex][ info[#info] ]
 							t.r, t.g, t.b = r, g, b
-							for i=10, 40, 15 do
-								UF:UpdateAuraWatchFromHeader('raid'..i)
-							end
+							UF:UpdateAuraWatchFromHeader('raid')
+							UF:UpdateAuraWatchFromHeader('raid40')
 							UF:UpdateAuraWatchFromHeader('party')
 							UF:UpdateAuraWatchFromHeader('raidpet', true)
 						end,						
@@ -631,9 +763,8 @@ local function UpdateFilterGroup()
 							E.global.unitframe.buffwatch[E.myclass][tableIndex][ info[#info] ] = E.global.unitframe.buffwatch[E.myclass][tableIndex][ info[#info] ] or {}
 							local t = E.global.unitframe.buffwatch[E.myclass][tableIndex][ info[#info] ]
 							t.r, t.g, t.b = r, g, b
-							for i=10, 40, 15 do
-								UF:UpdateAuraWatchFromHeader('raid'..i)
-							end
+							UF:UpdateAuraWatchFromHeader('raid')
+							UF:UpdateAuraWatchFromHeader('raid40')
 							UF:UpdateAuraWatchFromHeader('party')
 							UF:UpdateAuraWatchFromHeader('raidpet', true)
 						end,						

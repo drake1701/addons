@@ -1,0 +1,67 @@
+------------------------------------------------------------------------
+r138 | grdn | 2014-10-25 16:20:14 +0000 (Sat, 25 Oct 2014) | 1 line
+Changed paths:
+   A /tags/6.0.2.2 (from /trunk:137)
+
+See previous commits.
+------------------------------------------------------------------------
+r137 | grdn | 2014-10-25 16:13:33 +0000 (Sat, 25 Oct 2014) | 1 line
+Changed paths:
+   M /trunk/Modules/AuctionSearch.lua
+
+- Cut developer print off AuctionSearch.lua
+------------------------------------------------------------------------
+r136 | grdn | 2014-10-25 16:12:36 +0000 (Sat, 25 Oct 2014) | 4 lines
+Changed paths:
+   M /trunk/PokemonTrainer.toc
+
+- AuctionSearch should now recognize EVERY pet in the AuctionHouse
+- Regardless of the filter
+- It will display whether or not you collected a pet 
+- Added much data to Data.lua (item ID -> species ID)
+------------------------------------------------------------------------
+r135 | grdn | 2014-10-25 16:10:24 +0000 (Sat, 25 Oct 2014) | 1 line
+Changed paths:
+   M /trunk/Data.lua
+   M /trunk/Modules/AuctionSearch.lua
+   A /trunk/_scripts/ScanItemID_2_BattlePetID.html
+
+- Removed trash
+------------------------------------------------------------------------
+r134 | grdn | 2014-10-25 14:09:22 +0000 (Sat, 25 Oct 2014) | 1 line
+Changed paths:
+   D /trunk/5.4-r1
+
+Missclick
+------------------------------------------------------------------------
+r133 | grdn | 2014-10-25 14:07:48 +0000 (Sat, 25 Oct 2014) | 2 lines
+Changed paths:
+   M /trunk/Core.lua
+
+- Applied a fix for (thx to esiemiat):
+Error Message: ...e\AddOns\Blizzard_PetJournal\Blizzard_PetJournal.lua line 771: attempt to perform arithmetic on local 'rarity' (a nil value)
+------------------------------------------------------------------------
+r132 | grdn | 2014-10-25 13:58:25 +0000 (Sat, 25 Oct 2014) | 2 lines
+Changed paths:
+   M /trunk/Data.lua
+   M /trunk/_scripts/Developer.lua
+
+- Removed Ramping Ability Info from Data.lua, as the current ramping state of abilities cannot be parsed anymore.
+- Currently, Ramping Frames and functions are left in the code. Maybe there is another way to track the ramping state of abilities in the future.
+------------------------------------------------------------------------
+r130 | grdn | 2014-10-19 17:07:42 +0000 (Sun, 19 Oct 2014) | 3 lines
+Changed paths:
+   M /trunk/Core.lua
+   M /trunk/Data.lua
+   M /trunk/PokemonTrainer.toc
+
+- Updated TOC
+- Added Draenor pet data 
+- Workaround for wrong ability icon display
+------------------------------------------------------------------------
+r129 | grdn | 2013-09-14 07:54:17 +0000 (Sat, 14 Sep 2013) | 1 line
+Changed paths:
+   A /trunk/5.4-r1 (from /trunk:128)
+
+See r128
+------------------------------------------------------------------------

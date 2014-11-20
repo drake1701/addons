@@ -1,4 +1,4 @@
-﻿-- Author      : RisM
+-- Author      : RisM
 -- Create Date : 9/25/2009 6:27:48 AM
 
 
@@ -38,6 +38,12 @@ function SpeakinSpell:Advertise(Channel, msgtarget)
 	msg = self:FormatSubs(msg, DetectedEvent)
 	
 	-- speak in chat
-	SendChatMessage( SpeakinSpell.URL, Channel, nil, msgtarget)	
+   -- add a check for instance and change channel to INSTANCE_CHAT if true
+   
+   if self:CheckForInstance()==true then 
+      Channel="INSTANCE_CHAT"
+   end
+   
+	SendChatMessage( SpeakinSpell.URL.." for "..SpeakinSpell.WOWVERSION , Channel, nil, msgtarget)	
 	SendChatMessage( msg,              Channel, nil, msgtarget)
 end

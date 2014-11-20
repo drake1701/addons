@@ -6,7 +6,7 @@ esES localization strings for Collectinator
 File date: 2012-09-12T01:10:19Z 
 File revision: @file-revision@ 
 Project revision: @project-revision@
-Project version: 2.0.2
+Project version: 2.0.12
 ************************************************************************
 Currently maintained by:
 http://www.wowace.com/addons/collectinator/localization/translators/
@@ -158,8 +158,7 @@ L["NOT_YET_SCANNED"] = "Todavía no ha sido analizado!"
 L["Noxious Whelp"] = "Cría nociva"
 L["Obtained From"] = "Obtenido de"
 L["Ogunaro Wolfrunner"] = "Ogunaro Correlobo"
-L["\"Plucky\" Johnson"] = [=["Desplumado" Johnson
-]=] -- Needs review
+L["\"Plucky\" Johnson"] = "\"Desplumado\" Johnson"
 L["Pogg"] = true
 L["Pol Amberstill"] = "Pol Semperámbar"
 L["Poseidus"] = true

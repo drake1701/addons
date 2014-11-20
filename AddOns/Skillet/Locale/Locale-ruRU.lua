@@ -1,5 +1,5 @@
 --[[
-
+ 
 Skillet: A tradeskill window replacement.
 Copyright (c) 2007 Robert Clark <nogudnik@gmail.com>
 
@@ -59,6 +59,7 @@ L["DISPLAYSHOPPINGLISTATBANKDESC"] = "Показывать список заку
 L["DISPLAYSHOPPINGLISTATBANKNAME"] = "Показывать список закупок в банке"
 L["DISPLAYSHOPPINGLISTATGUILDBANKDESC"] = "Показывать список закупок предметов, которых у вас нет, нужных для создания рецептов."
 L["DISPLAYSHOPPINGLISTATGUILDBANKNAME"] = "Показать список закупок в банке гильдии"
+L["Draenor Engineering"] = "Дренорское инженерное дело" -- Needs review
 L["Enabled"] = "Включено"
 L["Enchant"] = "Зачаровать"
 L["ENHANCHEDRECIPEDISPLAYDESC"] = "Если включено, то к названию рецепта будет добавлен один или несколько символов '+', указывая на сложность рецепта."
@@ -67,6 +68,8 @@ L["Expand all groups"] = "Развернуть все группы"
 L["Features"] = "Cвойства"
 L["FEATURESDESC"] = "Необязательные свойства которые могут быть включены или выключены"
 L["Filter"] = "Фильтр"
+L["Flush All Data"] = "Сбросить все данные" -- Needs review
+L["FLUSHALLDATADESC"] = "Сбросить все данные Skillet" -- Needs review
 L["Glyph "] = "Символ "
 L["Gold earned"] = "Получено Золота"
 L["Grouping"] = "Группировка"
@@ -74,6 +77,7 @@ L["have"] = "есть"
 L["Hide trivial"] = "Скрыть низкоуровневые"
 L["Hide uncraftable"] = "Скрыть не создаваемые"
 L["Include alts"] = "Включать альтов"
+L["Include guild"] = "Включая гильдию" -- Needs review
 L["Inventory"] = "Инвентарь"
 L["INVENTORYDESC"] = "Информация инвентаря"
 L["is now disabled"] = " теперь отключен"
@@ -82,6 +86,7 @@ L["Library"] = "Библиотека"
 L["LINKCRAFTABLEREAGENTSDESC"] = "Если вы можете создать реагент, необходимый для текущего рецепта, кликнув по реагенту вы перейдёте на его рецепт."
 L["LINKCRAFTABLEREAGENTSNAME"] = "Сделать реагенты кликабельными"
 L["Load"] = "Загруз."
+L["Merge items"] = "Объединить предметы" -- Needs review
 L["Move Down"] = "Преместить на позицию ниже"
 L["Move to Bottom"] = "Переместить в конец очереди"
 L["Move to Top"] = "Переместить в начало очереди"
@@ -94,6 +99,7 @@ L["Notes"] = "Заметки"
 L["not yet cached"] = "еще не скеширавано"
 L["Number of items to queue/create"] = "Число вещей в очереди/создается"
 L["Options"] = "Опции"
+L["Order by item"] = "Сортировать по предметам" -- Needs review
 L["Pause"] = "Пауза"
 L["Process"] = "Продолжить"
 L["Purchased"] = "Покупаемые"
@@ -122,6 +128,8 @@ L["Scanning tradeskill"] = "Сканирование профессии"
 L["Selected Addon"] = "Выбранные модификации"
 L["Select skill difficulty threshold"] = "Выберите порог сложности навыка"
 L["Sells for "] = "Продается за "
+L["Shopping Clear"] = "Очистка покупок" -- Needs review
+L["SHOPPINGCLEARDESC"] = "Очистить лист покупок" -- Needs review
 L["Shopping List"] = "Список закупок"
 L["SHOPPINGLISTDESC"] = "Открыть список закупок"
 L["SHOWBANKALTCOUNTSDESC"] = "Когда подсчитывается и отображается число создаваемых предметов, в подсчет предметов включается содержимое банка и инвентаря других ваших персонажей."
@@ -157,6 +165,8 @@ L["Trained"] = "Изучено"
 L["TRANSPARAENCYDESC"] = "Прозрачность главного окна профессий"
 L["Transparency"] = "Прозрачность"
 L["Unknown"] = "Неизвестен"
+L["Using Bank for"] = "Using Bank for" -- Requires localization
+L["Using Reagent Bank for"] = "Using Reagent Bank for" -- Requires localization
 L["VENDORAUTOBUYDESC"] = "Если у вас в очереди есть рецепт/вещи то во время разговора с тогровцем который продаёт что нибудь нужное для вашего рецепта, оно будет куплено автоматически."
 L["VENDORAUTOBUYNAME"] = "Автоматически купить реагенты"
 L["VENDORBUYBUTTONDESC"] = "Отображать кнопку при разговоре с торговцем, это позволит вам осмотреть все нужные реагенты для всех ваших рецептах в очереди."

@@ -6,6 +6,7 @@ local UIErrorsFrame = UIErrorsFrame;
 local interruptMsg = INTERRUPTED.." %s's \124cff71d5ff\124Hspell:%d\124h[%s]\124h\124r!"
 local floor = math.floor
 local format = string.format
+local gsub = string.gsub
 
 function M:ErrorFrameToggle(event)
 	if not E.db.general.hideErrorFrame then return end
@@ -86,15 +87,6 @@ function M:DisbandRaidGroup()
 	LeaveParty()
 end
 
-function M:CheckMovement()
-	if E.db.general.mapAlpha == 100 or not WorldMapFrame:IsShown() then return end
-	
-	if GetUnitSpeed('player') ~= 0 then
-		WorldMapFrame:SetAlpha(E.db.general.mapAlpha)
-	else
-		WorldMapFrame:SetAlpha(1)
-	end
-end
 
 function M:PVPMessageEnhancement(_, msg)
 	local _, instanceType = IsInInstance()
@@ -118,7 +110,7 @@ function M:AutoInvite(event, leaderName)
 		local inGroup = false;
 		
 		for friendIndex = 1, GetNumFriends() do
-			local friendName = GetFriendInfo(friendIndex)
+			local friendName = gsub(GetFriendInfo(friendIndex),  "-.*", "")
 			if friendName == leaderName then
 				AcceptGroup()
 				inGroup = true
@@ -128,7 +120,7 @@ function M:AutoInvite(event, leaderName)
 		
 		if not inGroup then
 			for guildIndex = 1, GetNumGuildMembers(true) do
-				local guildMemberName = GetGuildRosterInfo(guildIndex)
+				local guildMemberName = gsub(GetGuildRosterInfo(guildIndex), "-.*", "")
 				if guildMemberName == leaderName then
 					AcceptGroup()
 					inGroup = true
@@ -139,7 +131,7 @@ function M:AutoInvite(event, leaderName)
 		
 		if not inGroup then
 			for bnIndex = 1, BNGetNumFriends() do
-				local _, _, _, name = BNGetFriendInfo(bnIndex)
+				local _, _, _, _, name = BNGetFriendInfo(bnIndex)
 				leaderName = leaderName:match("(.+)%-.+") or leaderName
 				if name == leaderName then
 					AcceptGroup()
@@ -167,9 +159,9 @@ function M:Initialize()
 	self:LoadRaidMarker()
 	self:LoadExpRepBar()
 	self:LoadMirrorBars()
-	self:LoadLoot()
 	self:LoadLootRoll()
 	self:LoadChatBubbles()
+	self:LoadLoot()
 	self:RegisterEvent('MERCHANT_SHOW')
 	self:RegisterEvent('PLAYER_REGEN_DISABLED', 'ErrorFrameToggle')
 	self:RegisterEvent('PLAYER_REGEN_ENABLED', 'ErrorFrameToggle')
@@ -181,8 +173,6 @@ function M:Initialize()
 	self:RegisterEvent('GROUP_ROSTER_UPDATE', 'AutoInvite')
 	self:RegisterEvent('CVAR_UPDATE', 'ForceCVars')
 	self:RegisterEvent('PLAYER_ENTERING_WORLD')
-	
-	self.MovingTimer = self:ScheduleRepeatingTimer("CheckMovement", 0.2)
 end
 
 E:RegisterModule(M:GetName())

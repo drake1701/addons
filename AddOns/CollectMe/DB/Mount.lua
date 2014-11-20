@@ -1,4 +1,5 @@
 -- todo rework array key usage for more performant access
+local CollectMe = LibStub("AceAddon-3.0"):GetAddon("CollectMe")
 
 CollectMe.MountDB = CollectMe:NewModule("MountDB")
 
@@ -29,7 +30,7 @@ function CollectMe.MountDB:Build()
     self:Add(63844, 22471, self.FLY):SetObtainZones(63844, {492}) -- Argent Hippogryph
     self:Add(67466, 28918):SetObtainZones(67466, {492}) -- Argent Warhorse
     self:Add(96491, 14341):SetObtainZones(96491, {793}) -- Armored Razzashi Raptor
-    self:Add(40192, 17890, self.FLY):SetObtainZones(40192, {789}) -- Ashes of Al'ar
+    self:Add(40192, 17890, self.FLY):SetObtainZones(40192, {782}) -- Ashes of Al'ar
     self:Add(41514, 21521, self.FLY):SetObtainZones(41514, {473}) -- Azure Netherwing Drake
     self:Add(59567, 27785, self.FLY):SetObtainZones(59567, {527}) -- Azure Drake
     self:Add(51412, 25335, self.GROUND, { tcg = 1 }) -- Big Battle Bear
@@ -199,7 +200,7 @@ function CollectMe.MountDB:Build()
     self:Add(127216, 43711):SetObtainZones(127216, {809}) -- Grey Riding Yak
     self:Add(127169, 43697, self.FLY, { umo = 1 }) -- Heavenly Azure Cloud Serpent
     self:Add(127161, 43692, self.FLY) -- Heavenly Crimson Cloud Serpent
-    self:Add(127164, 43693, self.FLY, { umo = 1 }) -- Heavenly Golden Cloud Serpent
+    self:Add(127164, 43693, self.FLY):SetObtainZones(127164, {951}) -- Heavenly Golden Cloud Serpent
     self:Add(127165, 43695, self.FLY, { umo = 1 }) -- Heavenly Jade Cloud Serpent
     self:Add(127158, 43689, self.FLY):SetObtainZones(127158, {809}) -- Heavenly Onyx Cloud Serpent
     self:Add(113199, 40590, self.FLY):SetObtainZones(113199, {806}) -- Jade Cloud Serpent
@@ -239,12 +240,29 @@ function CollectMe.MountDB:Build()
     self:Add(136400, 47256, self.FLY):SetObtainZones(136400, {930}) -- Armored Riding Pteradactyl
     self:Add(136505, 48014, self.FLY, { tcg = 1 }) -- Ghastly Charger's Skull
     self:Add(139442, 47981, self.FLY):SetObtainZones(139442, {928}) -- Thundering Cobalt Cloud Serpent
+    self:Add(139448, 47983, self.FLY) -- Clutch of Ji-Kun    
     --5.3
     self:Add(142641, 48858) -- Brawler's Burly Mushan Beast
-    self:Add(142073, nil, self.FLY, { ptm = 1 }) -- Hearthsteed
-    self:Add(142878, 48714, self.FLY, { umo = 1 }) -- Enchanted Fey Dragon
-    self:Add(139595, nil, self.FLY, { bsm = 1 }) -- Armored Bloodwing Mount
-        
+    self:Add(142073, 48931, self.FLY, { ptm = 1 }) -- Hearthsteed
+    self:Add(142878, 48714, self.FLY, { bsm = 1 }) -- Enchanted Fey Dragon
+    self:Add(139595, 48020, self.FLY, { bsm = 1 }) -- Armored Bloodwing Mount
+    --5.4
+    self:Add(148428, 51484):SetObtainZones(148428, {951}) -- Reins of the Ashhide Mushan Beast
+    self:Add(148392, 51479, self.FLY):SetObtainZones(148392, {953}) -- Reins of Galakras
+    self:Add(148396, 51481):SetObtainZones(148396, {953}) -- Reins of the Kor'kron War Wolf
+    self:Add(148417, 51485):SetObtainZones(148417, {953}) -- Kor'kron Juggernaut
+    self:Add(148476, 51488, self.FLY):SetObtainZones(148476, {951}) -- Reins of the Thundering Onyx Cloud Serpent
+    self:Add(148618, 51361, self.FLY, { are = 1 }) -- Tyrannical Gladiator's Cloud Serpent
+    self:Add(148619, 51360, self.FLY, { are = 1 }) -- Grievous Gladiator's Cloud Serpent
+    self:Add(148620, 51359, self.FLY, { are = 1 }) -- Prideful Gladiator's Cloud Serpent
+    self:Add(146615, 51037, self.FLY, { are = 1 }) -- Reins of the Vicious Warsaber
+    self:Add(146622, 51048, self.GROUND, { are = 1 }) -- Reins of the Vicious Skeletal Warhorse
+    self:Add(147595, 51323, self.FLY, { umo = 1 }) -- Stormcrow
+    self:Add(134359, 46686, self.FLY) -- Sky Golem
+    self:Add(149801, 51993, self.FLY, { rfm = 1 }) -- Emerald Hypogryph
+    self:Add(153489, 53038, self.FLY, { bsm = 1 }) -- Iron Skyreaver
+    self:Add(155741, 53774, self.FLY, { ptm = 1 }) -- Dread Raven
+    self:Add(163024, 55896, self.FLY, { bsm = 1 }) -- Warforged Nightmare
 
     -- Alliance Mounts
     if CollectMe.FACTION == "Alliance" then
@@ -332,6 +350,12 @@ function CollectMe.MountDB:Build()
         self:Add(130985, 45271, self.FLY) -- Pandaren Kite
         self:Add(142478, 48816, self.FLY) -- Armored Blue Dragonhawk
         self:Add(140249, 48100):SetObtainZones(140249, {928}) -- Golden Primal Direhorn
+        self:Add(16056, 9695, self.GROUND, { nlo = 1 }) -- Ancient Frostsaber
+        self:Add(16082, 2408, self.GROUND, { nlo = 1 }) -- Palomino
+		--self:Add(17459, nil) -- Icy Blue Mechanostrider Mod A
+		--self:Add(171625, nil) -- Dusty Rockhide
+		--self:Add(171626, nil) -- Armored Irontusk
+		--self:Add(171834, nil) -- Vicious War Ram
     end
 
     -- Horde Mounts
@@ -420,6 +444,10 @@ function CollectMe.MountDB:Build()
         self:Add(18992, 12242, self.GROUND, { nlo = 1 }) -- Teal Kodo
         self:Add(142266, 48815, self.FLY) -- Armored Red Dragonhawk
         self:Add(140250, 48101):SetObtainZones(140250, {928}) -- Crimson Primal Direhorn
+		--self:Add(171835, nil) -- Vicious War Raptor
+		--self:Add(171839, nil) -- Ironside Warwolf
+		--self:Add(171842, nil) -- Swift Frostwolf
+		self:Add(171845, nil, self.GROUND, { nlo = 1 }) -- Warlord's Deathwheel
     end
 
     -- Paladin Mounts for Humans and Dwarfs
@@ -544,17 +572,26 @@ function CollectMe.MountDB:GetInfo(spell_id)
 end
 
 function CollectMe.MountDB:RefreshKnown(no_message)
-    self.known_mount_count = GetNumCompanions("Mount")
+    self.known_mount_count = C_MountJournal.GetNumMounts()
     self.known_mounts = {}
 
     for i = 1, self.known_mount_count, 1 do
-        local _, name, spell_id = GetCompanionInfo("Mount", i)
-        table.insert(self.known_mounts, spell_id);
-        if CollectMe.db.profile.missing_message.mounts == false and no_message == nil then
-            if not CollectMe:IsInTable(self.mount_spells, spell_id) then
-                CollectMe:Print(CollectMe.L["Mount"] .. " " .. name .. "("..spell_id..") " .. CollectMe.L["is missing"] .. ". " .. CollectMe.L["Please inform the author"])
-            end
-        end
+        local name, spell_id, _, _, _, _, _, isFactionSpecific, faction, hideOnChar, isCollected = C_MountJournal.GetMountInfo(i)
+		if isCollected then
+			table.insert(self.known_mounts, spell_id);
+			if hideOnChar == false then
+				if not faction then
+					faction = -1
+				end
+				if not isFactionSpecific or CollectMe.FACTION == "Horde" and faction == 0 or CollectMe.FACTION == "Alliance" and faction == 1 then
+					if CollectMe.db.profile.missing_message.mounts == false and no_message == nil then
+						if not CollectMe:IsInTable(self.mount_spells, spell_id) then
+							--CollectMe:Print(CollectMe.L["Mount"] .. " " .. name .. "("..spell_id..") " .. CollectMe.L["is missing"] .. ". " .. CollectMe.L["Please inform the author"])
+						end
+					end
+				end
+			end
+		end
     end
 end
 

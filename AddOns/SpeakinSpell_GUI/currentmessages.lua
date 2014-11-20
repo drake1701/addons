@@ -1,4 +1,4 @@
-﻿-- Author      : RisM
+-- Author      : RisM
 -- Create Date : 9/21/2009 3:07:03 AM
 
 local SpeakinSpell = LibStub("AceAddon-3.0"):GetAddon("SpeakinSpell")
@@ -291,6 +291,21 @@ Note that for spells and events that only ever target you, you're name will neve
 --							name = L["Edit Chat Channel and Whisper Options"].."\n",
 --							type = "description",
 --						},
+-- =============================================================================
+--                add a toggle to select instance channel if available
+                  InstanceChannelToggle = {
+							order = 3,
+							type = "toggle",
+							width = "full",
+							name = L["Use Instance Channel if Available"],
+							desc = L[
+[[Enable use of the Instance Channel for this spell if the channel is available. (useful to automatically announce speeches that are already set for party or raid)]]
+							],
+							get = function() return  SpeakinSpell:CurrentMessagesGUI_OnInstanceChannel("GET",nil) end,
+							set = function(_, value) SpeakinSpell:CurrentMessagesGUI_OnInstanceChannel("SET",value) end,
+							hidden = function() return not SpeakinSpell.RuntimeData.OptionsGUIStates.MessageSettings.ShowChannelsGroup end,
+						},
+-- =============================================================================
 						WhisperTargetToggle = {
 							order = 3,
 							type = "toggle",
@@ -1184,8 +1199,23 @@ function SpeakinSpell:CurrentMessagesGUI_OnChannelSelect(getset, scenario, value
 	end
 end
 
-
-
+ -- ============================================================================
+ -- support for instance channel
+ function SpeakinSpell:CurrentMessagesGUI_OnInstanceChannel(getset, value)
+	-- make sure we have a valid spell selection
+	local EventTableEntry = self:CurrentMessagesGUI_GetSelectedEventObject()
+	if not EventTableEntry then
+		self:ErrorMsg( "CurrentMessagesGUI_OnInstanceChannel", "no event selected" )
+		return false
+	end
+	
+	if "GET" == getset then
+		return EventTableEntry.InstanceChannel
+	else
+	EventTableEntry.InstanceChannel = value
+	end
+end
+-- =============================================================================
 function SpeakinSpell:CurrentMessagesGUI_OnWhisperTarget(getset, value)
 	-- make sure we have a valid spell selection
 	local EventTableEntry = self:CurrentMessagesGUI_GetSelectedEventObject()

@@ -1,4 +1,4 @@
-﻿
+
 local SpeakinSpell = LibStub("AceAddon-3.0"):GetAddon("SpeakinSpell")
 local L = LibStub("AceLocale-3.0"):GetLocale("SpeakinSpell", false)
 
@@ -160,6 +160,11 @@ function SpeakinSpell:OnVariablesLoaded()
 	-- start watching for rez events from LibResComm 
 	-- this might immediately start wanting to use the speeches
 	self:Rez_Init()
+
+   -- setup custom links in spellbook and hook the OnClick Fuctions for
+   -- page navigation.
+   
+   self:Init_Spellbook_SSLinks()
 
 	-- Done
 	self:DebugMsg(funcname, "done")
@@ -400,6 +405,11 @@ function SpeakinSpell:ShowWelcomeMessages()
 	SpeakinSpell:EnableSetupGuides( SpeakinSpellSavedData.ShowSetupGuides, true )
 end
 
+function SpeakinSpell:dumpspellBook()
+
+   SpeakinSpell:dumpspellbookinfo();
+
+end
 
 function SpeakinSpell:ReportRecentEvents()
 	self:Print( L["Recent Events Detected..."] )

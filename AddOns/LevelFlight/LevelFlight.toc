@@ -1,7 +1,7 @@
 ## Interface: 60000
 
 ## Title: LevelFlight
-## Version: 50300.1
+## Version: 60000.1
 ## Notes: Lets you fly level.
 
 ## Author: Cidrei (Jazrei of Zangarmarsh-US)

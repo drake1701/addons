@@ -87,8 +87,9 @@ function UF:AuraBarFilter(unit, name, rank, icon, count, debuffType, duration, e
 	local returnValue = true
 	local passPlayerOnlyCheck = true
 	local anotherFilterExists = false
+	local playerOnlyFilter = false
 	local isPlayer = unitCaster == 'player' or unitCaster == 'vehicle'
-	local isFriend = UnitIsFriend('player', unit) == 1 and true or false
+	local isFriend = UnitIsFriend('player', unit)
 	local auraType = isFriend and db.friendlyAuraType or db.enemyAuraType
 	
 	if UF:CheckFilter(db.playerOnly, isFriend) then
@@ -99,7 +100,7 @@ function UF:AuraBarFilter(unit, name, rank, icon, count, debuffType, duration, e
 		end
 		
 		passPlayerOnlyCheck = returnValue
-		anotherFilterExists = true
+		playerOnlyFilter = true
 	end
 	
 	if UF:CheckFilter(db.onlyDispellable, isFriend) then
@@ -110,7 +111,7 @@ function UF:AuraBarFilter(unit, name, rank, icon, count, debuffType, duration, e
 	end
 	
 	if UF:CheckFilter(db.noConsolidated, isFriend) then
-		if shouldConsolidate == 1 then
+		if shouldConsolidate == true then
 			returnValue = false;
 		end
 		
@@ -122,6 +123,14 @@ function UF:AuraBarFilter(unit, name, rank, icon, count, debuffType, duration, e
 			returnValue = false;
 		end
 		
+		anotherFilterExists = true
+	end
+
+	if db.maxDuration > 0 then
+		if(duration and (duration > db.maxDuration)) then
+			returnValue = false;
+		end
+
 		anotherFilterExists = true
 	end
 
@@ -138,12 +147,25 @@ function UF:AuraBarFilter(unit, name, rank, icon, count, debuffType, duration, e
 		local whiteList = E.global['unitframe']['aurafilters']['Whitelist'].spells[name]
 		if whiteList and whiteList.enable then
 			returnValue = true;
-		elseif not anotherFilterExists then
+		elseif not anotherFilterExists and not playerOnlyFilter then
 			returnValue = false
 		end
 		
 		anotherFilterExists = true
 	end	
+
+	if UF:CheckFilter(db.useWhitelist, isFriend) then
+		local whiteList = E.global['unitframe']['aurafilters']['Whitelist (Strict)'].spells[name]
+		if whiteList and whiteList.enable then
+			if whiteList.spellID and whiteList.spellID == spellID then
+				returnValue = true;
+			else
+				returnValue = false
+			end
+		elseif not anotherFilterExists and not playerOnlyFilter then
+			returnValue = false
+		end
+	end
 
 	if db.useFilter and E.global['unitframe']['aurafilters'][db.useFilter] then
 		local type = E.global['unitframe']['aurafilters'][db.useFilter].type
@@ -152,6 +174,9 @@ function UF:AuraBarFilter(unit, name, rank, icon, count, debuffType, duration, e
 		if type == 'Whitelist' then
 			if spellList[name] and spellList[name].enable and passPlayerOnlyCheck then
 				returnValue = true
+				if db.useFilter == 'Whitelist (Strict)' and spellList[name].spellID and not spellList[name].spellID == spellID then
+						returnValue = false
+					end
 			elseif not anotherFilterExists then
 				returnValue = false
 			end
@@ -186,17 +211,20 @@ function UF:ColorizeAuraBars(event, unit)
 			frame.statusBar.bg:SetTexture(r * 0.25, g * 0.25, b * 0.25)			
 		end
 
-		if UF.db.colors.transparentAurabars then
-			UF:ToggleTransparentStatusBar(true, frame.statusBar, frame.statusBar.bg, nil, true)
+		if UF.db.colors.transparentAurabars and not frame.statusBar.isTransparent then
+			UF:ToggleTransparentStatusBar(true, frame.statusBar, frame.statusBar.bg, nil, true)	
+		elseif(frame.statusBar.isTransparent and not UF.db.colors.transparentAurabars) then
+			UF:ToggleTransparentStatusBar(false, frame.statusBar, frame.statusBar.bg, nil, true)
+		end	
+
+		if(UF.db.colors.transparentAurabars) then
 			local _, _, _, alpha = frame:GetBackdropColor()
 			if colors then
 				frame:SetBackdropColor(colors.r * 0.58, colors.g * 0.58, colors.b * 0.58, alpha)
 			else
 				local r, g, b = frame.statusBar:GetStatusBarColor()
 				frame:SetBackdropColor(r * 0.58, g * 0.58, b * 0.58, alpha)
-			end			
-		else
-			UF:ToggleTransparentStatusBar(false, frame.statusBar, frame.statusBar.bg, nil, true)
-		end	
+			end		
+		end
 	end
 end

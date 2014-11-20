@@ -1,6 +1,6 @@
 --[[
 Name: LibBabble-Race-3.0
-Revision: $Rev: 68 $
+Revision: $Rev: 74 $
 Maintainers: ckknight, nevcairiel, Ackis
 Website: http://www.wowace.com/projects/libbabble-race-3-0/
 Dependencies: None
@@ -8,7 +8,7 @@ License: MIT
 ]]
 
 local MAJOR_VERSION = "LibBabble-Race-3.0"
-local MINOR_VERSION = 90000 + tonumber(("$Rev: 68 $"):match("%d+"))
+local MINOR_VERSION = 90000 + tonumber(("$Rev: 74 $"):match("%d+"))
 
 if not LibStub then error(MAJOR_VERSION .. " requires LibStub.") end
 local lib = LibStub("LibBabble-3.0"):New(MAJOR_VERSION, MINOR_VERSION)
@@ -228,32 +228,32 @@ elseif GAME_LOCALE == "ptBR" then
 	["Blood Elf"] = "Elfo Sangrento",
 	["Blood elves"] = "Elfos Sangrentos",
 	Draenei = "Draenei",
-	Draenei_PL = "Draenei",
+	Draenei_PL = "Draeneis",
 	Dwarf = "Anão",
 	Dwarves = "Anões",
-	Felguard = "Guarda Vil", -- Needs review
-	Felhunter = "Caçador Vil", -- Needs review
+	Felguard = "Guarda Vil",
+	Felhunter = "Caçador Vil",
 	Gnome = "Gnomo",
 	Gnomes = "Gnomos",
 	Goblin = "Goblin",
 	Goblins = "Goblins",
 	Human = "Humano",
 	Humans = "Humanos",
-	Imp = "Diabrete", -- Needs review
+	Imp = "Diabrete",
 	["Night Elf"] = "Elfo Noturno",
 	["Night elves"] = "Elfos Noturnos",
 	Orc = "Orc",
 	Orcs = "Orcs",
-	-- Pandaren = "",
-	-- Pandaren_PL = "",
-	Succubus = "Sucubo", -- Needs review
+	Pandaren = "Pandaren",
+	Pandaren_PL = "Pandarens",
+	Succubus = "Súcubo",
 	Tauren = "Tauren",
 	Tauren_PL = "Taurens",
 	Troll = "Troll",
 	Trolls = "Trolls",
 	Undead = "Renegado",
 	Undead_PL = "Renegados",
-	Voidwalker = "Emissário do Caos", -- Needs review
+	Voidwalker = "Emissário do Caos",
 	Worgen = "Worgen",
 	Worgen_PL = "Worgens",
 }
@@ -303,8 +303,8 @@ elseif GAME_LOCALE == "ruRU" then
 	Felhunter = "Охотник Скверны",
 	Gnome = "Гном",
 	Gnomes = "Гномы",
-	Goblin = "Гоблин", -- Needs review
-	Goblins = "Гоблины", -- Needs review
+	Goblin = "Гоблин",
+	Goblins = "Гоблины",
 	Human = "Человек",
 	Humans = "Люди",
 	Imp = "Бес",
@@ -312,8 +312,8 @@ elseif GAME_LOCALE == "ruRU" then
 	["Night elves"] = "Ночные эльфы",
 	Orc = "Орк",
 	Orcs = "Орки",
-	-- Pandaren = "",
-	-- Pandaren_PL = "",
+	Pandaren = "Пандарен",
+	Pandaren_PL = "Пандарены",
 	Succubus = "Суккуб",
 	Tauren = "Таурен",
 	Tauren_PL = "Таурены",
@@ -322,8 +322,8 @@ elseif GAME_LOCALE == "ruRU" then
 	Undead = "Нежить",
 	Undead_PL = "Нежить",
 	Voidwalker = "Демон Бездны",
-	Worgen = "Ворген", -- Needs review
-	Worgen_PL = "Воргены", -- Needs review
+	Worgen = "Ворген",
+	Worgen_PL = "Воргены",
 }
 elseif GAME_LOCALE == "zhCN" then
 	lib:SetCurrentTranslations {

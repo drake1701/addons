@@ -1,3 +1,98 @@
+## 2.6.2
+* Fixed ground/flying mounts for Draenor zones
+* Fixed collected information in companion tooltips
+
+## 2.6.1
+* Fixed LDB display not updating when learning a new toy
+* Added Warlords of Draenor titles
+* Fixed sort and progress bar in title list
+* Fixed collected information in companion tooltips
+
+## 2.6
+* Added full support for toys
+* Added hide ignore option to companions
+* Minor performance improvements when switching zones
+* Added new Warlord of Draenor zones
+
+## 2.5.3
+* Added new group auto summon options
+* Added new type auto summon options
+* Tweaked pvp auto summon option
+* Fixed summon issue with old pet ids
+
+## 2.5.2
+* Added of the Black Harvest title
+* Fixed auto pet summoning
+* Fixed current zone filter
+
+## 2.5.1
+* Added of the Iron Vanguard title
+* Added Legend of Pandaria title
+* Fixed pet batch check in search mode
+* Fixed random mount macro issues
+
+## 2.5
+* Updated TOC for Patch 6.0
+* Updated libs to current version
+* Tweaked batch check in search mode
+* Added Warlord's Deathwheel
+* Fixed API to list mounts again
+* Fixed recognition of known titles
+
+## 2.4.13
+* Add multiple missing titles
+
+## 2.4.12
+* Add Warforged Nightmare
+* Fix Nostance option
+
+## 2.4.11
+* Update mount data
+
+## 2.4.10
+* Add Dread Raven
+* Updated No Data Text in LDB Display
+
+## 2.4.9
+* Fixed Data Broker Config for collected companions
+
+## 2.4.8
+* Added Iron Skyreaver (Mount)
+* Added Emerald Hippogryph (Mount)
+
+## 2.4.7
+* NEW: Levelchecks in Pet Battles
+* New options for Pet Battles
+* Possible fix for tooltip 'Missing Companion' problem
+* Added Palomino (Mount)
+* Fixed info to Hearthsteed (Mount)
+* Added info for Enchanted Fey Dragon (Mount)
+
+## 2.4.6
+ * Fix Typo in Config.lua, thx Cidrei
+ * Fix LDB Display when player isn't in any zone
+
+## 2.4.5
+* New: Macro Options
+* Improved Random Mount Macro to ignore Moonkin (thx Zenzara)
+* Fixed PetTracker Button Collision in PetJournal
+* Added info for Heavenly Golden Cloud Serpent (Mount)
+
+## 2.4.4
+ * Fixed keybindings
+ * Added 5.4 mounts, titles, and companions
+ * Added display id for Armored Bloodwing (Mount)
+ * Added Clutch of Ji-Kun (Mount)
+ * Added additional info for some 5.2 mounts
+
+## 2.4.3
+ * IMPORTANT: Updated Macros, if you use own macros please update them to slash commands instead of /script...
+ * Some minor performance improvements on loading zone list
+ * Updated addon loading to hopefully avoid some unreproducable nil errors
+ * Updated some obtainable zone info for mounts
+ * Added Ancient Frostsaber (Mount)
+ * Fixed info to Onyx Cloud Serpent (Mount)
+
 ## 2.4.2
  * Fixed LDB not considering companion ignore list
  * Added drop chances to info for all pre MoP mounts.

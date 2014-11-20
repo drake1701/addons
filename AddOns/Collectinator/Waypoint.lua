@@ -3,10 +3,10 @@
 Waypoint.lua
 Waypoing integration for Collectinator
 ************************************************************************
-File date: 2013-04-09T03:32:20Z
-File hash: db26644
-Project hash: d1ccde1
-Project version: 2.0.2
+File date: 2013-11-10T03:17:17Z
+File hash: 53560da
+Project hash: 7dcae1d
+Project version: 2.0.12
 ************************************************************************
 Please see http://www.wowace.com/addons/collectinator/ for more information.
 ************************************************************************
@@ -116,11 +116,29 @@ local INSTANCE_LOCATIONS = {
 		x = 61.36,
 		y = 31.78,
 	},
+	[Z.DRAGON_SOUL] = {
+		zone = KALIMDOR_IDNUMS[Z.TANARIS],
+		continent = 1,
+		x = 65.80,
+		y = 48.90,
+	},
 	[Z.DRAKTHARON_KEEP] = {
 		zone = NORTHREND_IDNUMS[Z.ZULDRAK],
 		continent = 4,
 		x = 0,
 		y = 0,
+	},
+	[Z.END_TIME] = {
+		zone = KALIMDOR_IDNUMS[Z.TANARIS],
+		continent = 1,
+		x = 65.80,
+		y = 48.90,
+	},
+	[Z.FIRELANDS] = {
+		zone = KALIMDOR_IDNUMS[Z.MOUNT_HYJAL],
+		continent = 1,
+		x = 47.70,
+		y = 77.80,
 	},
 	[Z.GNOMEREGAN] = {
 		zone = EASTERN_KINGDOMS_IDNUMS[Z.DUN_MOROGH],
@@ -140,11 +158,17 @@ local INSTANCE_LOCATIONS = {
 		x = 39.49,
 		y = 26.92,
 	},
+	[Z.HEART_OF_FEAR] = {
+		zone = PANDARIA_IDNUMS[Z.DREAD_WASTES],
+		continent = 6,
+		x = 40.00,
+		y = 40.00,
+	},
 	[Z.KARAZHAN] = {
-		zone = KALIMDOR_IDNUMS[Z.DEADWIND_PASS],
+		zone = EASTERN_KINGDOMS_IDNUMS[Z.DEADWIND_PASS],
 		continent = 2,
-		x = 0,
-		y = 0,
+		x = 46.90,
+		y = 74.80,
 	},
 	[Z.MAGISTERS_TERRACE] = {
 		zone = EASTERN_KINGDOMS_IDNUMS[Z.ISLE_OF_QUELDANAS],
@@ -158,6 +182,18 @@ local INSTANCE_LOCATIONS = {
 		x = 0,
 		y = 0,
 	},
+	[Z.MOGUSHAN_VAULTS] = {
+		zone = PANDARIA_IDNUMS[Z.KUN_LAI_SUMMIT],
+		continent = 6,
+		x = 60.00,
+		y = 40.00,
+	},
+	[Z.MOLTEN_CORE] = {
+		zone = EASTERN_KINGDOMS_IDNUMS[Z.BURNING_STEPPES],
+		continent = 2,
+		x = 20.50,
+		y = 32.80,
+	},
 	[Z.THE_OCULUS] = {
 		zone = NORTHREND_IDNUMS[Z.BOREAN_TUNDRA],
 		continent = 4,
@@ -166,7 +202,6 @@ local INSTANCE_LOCATIONS = {
 	},
 	[Z.OLD_HILLSBRAD_FOOTHILLS] = {
 		zone = KALIMDOR_IDNUMS[Z.TANARIS],
---		zone = Z.TANARIS,
 		continent = 1,
 		x = 0,
 		y = 0,
@@ -200,6 +235,12 @@ local INSTANCE_LOCATIONS = {
 		continent = 3,
 		x = 0,
 		y = 0,
+	},
+	[Z.SIEGE_OF_ORGRIMMAR] = {
+		zone = PANDARIA_IDNUMS[Z.VALE_OF_ETERNAL_BLOSSOMS],
+		continent = 6,
+		x = 74.00,
+		y = 44.00,
 	},
 	[Z.STRATHOLME] = {
 		zone = EASTERN_KINGDOMS_IDNUMS[Z.EASTERN_PLAGUELANDS],
@@ -290,6 +331,12 @@ local INSTANCE_LOCATIONS = {
 		continent = 4,
 		x = 57.26,
 		y = 46.67,
+	},
+	[Z.WELL_OF_ETERNITY] = {
+		zone = KALIMDOR_IDNUMS[Z.TANARIS],
+		continent = 1,
+		x = 65.80,
+		y = 48.90,
 	},
 }
 

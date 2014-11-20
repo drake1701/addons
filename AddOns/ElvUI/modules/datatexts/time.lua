@@ -23,7 +23,7 @@ local enteredFrame = false;
 
 local Update, lastPanel; -- UpValue
 local localizedName, isActive, canQueue, startTime, canEnter, _
-local name, reset, locked, extended, isRaid, maxPlayers, difficulty, numEncounters, encounterProgress
+local name, instanceID, reset, difficultyId, locked, extended, isRaid, maxPlayers, difficulty, numEncounters, encounterProgress
 
 local function ValueColorUpdate(hex, r, g, b)
 	europeDisplayFormat = join("", "%02d", hex, ":|r%02d")
@@ -60,31 +60,6 @@ local function CalculateTimeValues(tooltip)
 	end
 end
 
-local function CalculateTimeLeft(time)
-	local hour = floor(time / 3600)
-	local min = floor(time / 60 - (hour*60))
-	local sec = time - (hour * 3600) - (min * 60)
-	
-	return hour, min, sec
-end
-
-local function formatResetTime(sec)
-	local d,h,m,s = ChatFrame_TimeBreakDown(floor(sec))
-	if not type(d) == 'number' or not type(h)== 'number' or not type(m) == 'number' or not type(s) == 'number' then
-		return 'N/A'
-	end
-	
-	if d > 0 and lockoutFormatString[h>10 and 1 or 2] then 
-		return format(lockoutFormatString[h>10 and 1 or 2], d, h, m)
-	end
-	if h > 0 and lockoutFormatString[h>10 and 3 or 4] then
-		return format(lockoutFormatString[h>10 and 3 or 4], h, m)
-	end
-	if m > 0 and lockoutFormatString[m>10 and 5 or 6] then 
-		return format(lockoutFormatString[m>10 and 5 or 6], m) 
-	end
-end
-
 local function Click()
 	GameTimeFrame:Click();
 end
@@ -94,10 +69,20 @@ local function OnLeave(self)
 	enteredFrame = false;
 end
 
+local function OnEvent()
+	if event == "UPDATE_INSTANCE_INFO" and enteredFrame then
+		RequestRaidInfo()
+	end
+end
+
 local function OnEnter(self)
 	DT:SetupTooltip(self)
-	enteredFrame = true;
-	
+
+	if(not enteredFrame) then
+		enteredFrame = true;
+		RequestRaidInfo()
+	end
+
 	DT.tooltip:AddLine(VOICE_CHAT_BATTLEGROUND);
 	for i = 1, GetNumWorldPVPAreas() do
 		_, localizedName, isActive, canQueue, startTime, canEnter = GetWorldPVPAreaInfo(i)
@@ -107,12 +92,7 @@ local function OnEnter(self)
 			elseif startTime == nil then
 				startTime = QUEUE_TIME_UNAVAILABLE
 			else
-				local h, m, s = CalculateTimeLeft(startTime)
-				if h > 0 then 
-					startTime = format(timerLongFormat, h, m, s) 
-				else 
-					startTime = format(timerShortFormat, m, s)
-				end
+				startTime = SecondsToTime(startTime, false, nil, 3)
 			end
 			DT.tooltip:AddDoubleLine(format(formatBattleGroundInfo, localizedName), startTime, 1, 1, 1, lockoutColorNormal.r, lockoutColorNormal.g, lockoutColorNormal.b)	
 		end
@@ -120,36 +100,41 @@ local function OnEnter(self)
 
 	local oneraid, lockoutColor
 	for i = 1, GetNumSavedInstances() do
-		name, _, reset, _, locked, extended, _, isRaid, maxPlayers, difficulty, numEncounters, encounterProgress  = GetSavedInstanceInfo(i)
+		name, _, reset, difficultyId, locked, extended, _, isRaid, maxPlayers, difficulty, numEncounters, encounterProgress  = GetSavedInstanceInfo(i)
 		if isRaid and (locked or extended) and name then
-			local tr,tg,tb,diff
 			if not oneraid then
 				DT.tooltip:AddLine(" ")
 				DT.tooltip:AddLine(L["Saved Raid(s)"])
 				oneraid = true
 			end
-			if extended then lockoutColor = lockoutColorExtended else lockoutColor = lockoutColorNormal end
+			if extended then 
+				lockoutColor = lockoutColorExtended 
+			else 
+				lockoutColor = lockoutColorNormal 
+			end
 			
+			local _, _, isHeroic, _, displayHeroic, displayMythic = GetDifficultyInfo(difficultyId)
 			if (numEncounters and numEncounters > 0) and (encounterProgress and encounterProgress > 0) then
-				DT.tooltip:AddDoubleLine(format(lockoutInfoFormat, maxPlayers, (difficulty:match("Heroic") and "H" or "N"), name, encounterProgress, numEncounters), formatResetTime(reset), 1,1,1, lockoutColor.r,lockoutColor.g,lockoutColor.b)
+				DT.tooltip:AddDoubleLine(format(lockoutInfoFormat, maxPlayers, (displayMythic and "M" or (isHeroic or displayHeroic) and "H" or "N"), name, encounterProgress, numEncounters), SecondsToTime(reset, false, nil, 3), 1, 1, 1, lockoutColor.r, lockoutColor.g, lockoutColor.b)
 			else
-				DT.tooltip:AddDoubleLine(format(lockoutInfoFormatNoEnc, maxPlayers, (difficulty:match("Heroic") and "H" or "N"), name), formatResetTime(reset), 1,1,1, lockoutColor.r,lockoutColor.g,lockoutColor.b)
+				DT.tooltip:AddDoubleLine(format(lockoutInfoFormatNoEnc, maxPlayers, (displayMythic and "M" or (isHeroic or displayHeroic) and "H" or "N"), name), SecondsToTime(reset, false, nil, 3), 1, 1, 1, lockoutColor.r, lockoutColor.g, lockoutColor.b)
 			end			
 		end
 	end	
 	
-	local Sha = IsQuestFlaggedCompleted(32099)
-	local Galleon = IsQuestFlaggedCompleted(32098)
-	local Oondasta = IsQuestFlaggedCompleted(32519)
-	local Nalak = IsQuestFlaggedCompleted(32518)
-
-	DT.tooltip:AddLine(" ")
-	DT.tooltip:AddLine(L["World Boss(s)"])	
-	DT.tooltip:AddDoubleLine(L['Sha of Anger']..':', Sha and L['Defeated'] or L['Undefeated'], 1, 1, 1, 0.8, 0.8, 0.8)
-	DT.tooltip:AddDoubleLine(L['Galleon']..':', Galleon and L['Defeated'] or L['Undefeated'], 1, 1, 1, 0.8, 0.8, 0.8)
-	DT.tooltip:AddDoubleLine(L['Oondasta']..':', Oondasta and L['Defeated'] or L['Undefeated'], 1, 1, 1, 0.8, 0.8, 0.8)
-	DT.tooltip:AddDoubleLine(L['Nalak']..':', Nalak and L['Defeated'] or L['Undefeated'], 1, 1, 1, 0.8, 0.8, 0.8)
-
+	local addedLine = false
+	for i = 1, GetNumSavedWorldBosses() do
+		name, instanceID, reset = GetSavedWorldBossInfo(i)
+		if(reset) then
+			if(not addedLine) then
+				DT.tooltip:AddLine(' ')
+				DT.tooltip:AddLine(RAID_INFO_WORLD_BOSS.."(s)")
+				addedLine = true
+			end
+			DT.tooltip:AddDoubleLine(name, SecondsToTime(reset, true, nil, 3), 1, 1, 1, 0.8, 0.8, 0.8)		
+		end
+	end
+	
 	local timeText
 	local Hr, Min, AmPm = CalculateTimeValues(true)
 
@@ -168,19 +153,19 @@ end
 local int = 3
 function Update(self, t)
 	int = int - t
-	
-	if enteredFrame then
-		OnEnter(self)
-	end
+		
+	if int > 0 then return end
 	
 	if GameTimeFrame.flashInvite then
 		E:Flash(self, 0.53)
 	else
 		E:StopFlash(self)
+	end	
+
+	if enteredFrame then
+		OnEnter(self)
 	end
-	
-	if int > 0 then return end
-	
+
 	local Hr, Min, AmPm = CalculateTimeValues(false)
 
 	-- no update quick exit
@@ -213,4 +198,4 @@ end
 	onEnterFunc - function to fire OnEnter
 	onLeaveFunc - function to fire OnLeave, if not provided one will be set for you that hides the tooltip.
 ]]
-DT:RegisterDatatext('Time', nil, nil, Update, Click, OnEnter, OnLeave)
+DT:RegisterDatatext('Time', {"UPDATE_INSTANCE_INFO"}, OnEvent, Update, Click, OnEnter, OnLeave)

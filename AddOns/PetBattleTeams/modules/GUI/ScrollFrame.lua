@@ -27,17 +27,19 @@ local function OnShow(self)
 end
 
 local function OnVerticalScroll(self,offset)
+	local offset = offset or 0
 	local teamFrames = self.scrollChild.teamFrames
 	local rowHeight = teamFrames[1]:GetHeight()
 	
 	local currOffset =  FauxScrollFrame_GetOffset(self)  * rowHeight;
-	local direction = (offset-currOffset)
 	
-	if direction > 0 then
+	local direction = (offset-currOffset)
+	--print(offset)
+	--[[if direction > 0 then
 		offset = currOffset + rowHeight
 	else
 		offset = currOffset - rowHeight
-	end
+	end]]
 	
 	FauxScrollFrame_OnVerticalScroll(self, offset, rowHeight, Update);
 end

@@ -1,12 +1,17 @@
-CollectMe = LibStub("AceAddon-3.0"):NewAddon("CollectMe", "AceConsole-3.0", "AceHook-3.0", "AceEvent-3.0")
+local CollectMe = LibStub("AceAddon-3.0"):NewAddon("CollectMe", "AceConsole-3.0", "AceHook-3.0", "AceEvent-3.0")
 local addon_name = "CollectMe"
+
+CollectMe.ADDON_NAME = addon_name
+CollectMe.VERSION = GetAddOnMetadata("CollectMe", "Version")
+CollectMe.L = LibStub("AceLocale-3.0"):GetLocale("CollectMe", true)
 
 local defaults = {
     profile = {
         ignored = {
             mounts = {},
             titles = {},
-            companions = {}
+            companions = {},
+            toys = {}
         },
         filters = {
             mounts = {
@@ -29,6 +34,10 @@ local defaults = {
             companions = {
                 czo = false,
                 zones = {}
+            },
+            toys = {
+                czo = false,
+                zones = {}
             }
         },
         missing_message = {
@@ -37,7 +46,9 @@ local defaults = {
         },
         hide_ignore = {
             mounts = false,
-            titles = false
+            companions = false,
+            titles = false,
+            toys = false
         },
         random = {
             companions = {},
@@ -46,7 +57,15 @@ local defaults = {
         summon = {
             companions = {
                 auto = false,
-                disable_pvp = false
+                disable_pvp = false,
+                disable_pvp_arena = true,
+                disable_pvp_bg = true,
+                disable_pvp_world = true,
+                disable_party_grp = false,
+                disable_party_raid_grp = false,
+                disable_raid_instance = false,
+                disable_dungeon = false,
+                disable_scenario = false
             },
             mounts = {
                 flying_in_water = false,
@@ -59,9 +78,13 @@ local defaults = {
         },
         tooltip = {
             companions = {
-                hide = false,
-                quality_check = true
+                hide = false
             }
+        },
+        battles ={
+            quality_check = true,
+            missing_check = true,
+            level_check = true
         },
         ldb = {
             tooltip = {
@@ -71,6 +94,10 @@ local defaults = {
                     quality = true
                 },
                 mounts = {
+                    collected = true,
+                    missing = true
+                },
+                toys = {
                     collected = true,
                     missing = true
                 }
@@ -84,17 +111,22 @@ local defaults = {
                 mounts = {
                     collected = true,
                     missing = true
+                },
+                toys = {
+                    collected = true,
+                    missing = true
                 }
             }
+        },
+        macro = {
+            mount = true,
+            nostance = true,
+            companion = true
         }
     }
 }
 
 function CollectMe:OnInitialize()
-    self.ADDON_NAME = addon_name
-    self.VERSION = GetAddOnMetadata("CollectMe", "Version")
-    self.L = LibStub("AceLocale-3.0"):GetLocale("CollectMe", true)
-
     --bindings
     BINDING_HEADER_COLLECTME = addon_name
     BINDING_NAME_MISSING_MOUNTS = self.L["Mounts"]
@@ -108,17 +140,18 @@ function CollectMe:OnInitialize()
     BINDING_NAME_CM_DISMOUNT = self.L["Dismount"]
     BINDING_NAME_CM_GROUND_MOUNT = self.L["Ground Mount / Dismount"]
 
+    self.db = LibStub("AceDB-3.0"):New("CollectMeDB", defaults)
+
     self.MOUNT = 1
     self.TITLE = 2
     self.RANDOM_COMPANION = 3
     self.RANDOM_MOUNT = 4
     self.COMPANION = 5
+    self.TOYS = 6
 
     self.FACTION = UnitFactionGroup("player")
     LocalizedPlayerRace, self.RACE = UnitRace("player")
     LocalizedPlayerClass, self.CLASS = UnitClass("player")
-
-    self.db = LibStub("AceDB-3.0"):New("CollectMeDB", defaults)
 
     self.filter_db = self.db.profile.filters.mounts
     self.ignored_db = self.db.profile.ignored.mounts
@@ -137,20 +170,18 @@ function CollectMe:BuildData(no_filters)
         self.ignored_db = self.db.profile.ignored.mounts
         self.item_list = self.MountDB:Get()
         self.filter_list = self.MountDB.filters
-        self:BuildList()
+        self:BuildMissingMountList()
         if not no_filters then
             self:BuildFilters()
         end
     elseif self.UI.active_group == self.TITLE then
         self.filter_db = self.db.profile.filters.titles
         self.ignored_db = self.db.profile.ignored.titles
-        self.item_list = self.TitleDB:Get()
         self.filter_list = self.TitleDB.filters
-        self:BuildList()
+        self:BuildMissingTitleList()
         if not no_filters then
             self:BuildFilters()
         end
-
     elseif self.UI.active_group == self.COMPANION then
         self.ignored_db = self.db.profile.ignored.companions
         self:BuildMissingCompanionList()
@@ -163,6 +194,12 @@ function CollectMe:BuildData(no_filters)
     elseif self.UI.active_group == self.RANDOM_MOUNT then
         self:BuildRandomList()
         self.UI:ShowCheckButtons()
+    elseif self.UI.active_group == self.TOYS then
+        self.ignored_db = self.db.profile.ignored.toys
+        self:BuildMissingToyList()
+        if not no_filters then
+            self:BuildMissingToyFilters()
+        end
     end
 
     if not no_filters then
@@ -193,26 +230,35 @@ end
 
 
 function CollectMe:BuildRandomList()
-    local type, random_db, title = "MOUNT", self.db.profile.random.mounts, self.L["Available mounts"]
-    local count = GetNumCompanions(type)
+    local random_db = self.db.profile.random.mounts
+    local count = 0
     local search = self.UI:GetSearchText():lower()
+	local mounts_to_add = {}
 
-    self.UI:AddToScroll(self.UI:CreateHeading(title ..  " - " .. count))
-    for i = 1, count, 1 do
-        local _, name, spell_id = GetCompanionInfo(type, i)
-        if name:lower():find(search) ~= nil then
-            local value = ((random_db[spell_id] ~= nil and random_db[spell_id] ~= false) and true or false)
-            self.UI:CreateScrollCheckbox(name, value, { OnValueChanged = function (container, event, val) random_db[spell_id] = val end})
-        end
+    for i = 1, C_MountJournal.GetNumMounts(), 1 do
+        local name, spell_id, _, _, _, _, _, isFactionSpecific, faction, _, isCollected = C_MountJournal.GetMountInfo(i)
+		if isCollected then
+			if not faction then
+				faction = -1
+			end
+			if not isFactionSpecific or CollectMe.FACTION == "Horde" and faction == 0 or CollectMe.FACTION == "Alliance" and faction == 1 then
+				if name:lower():find(search) ~= nil then
+					table.insert(mounts_to_add, spell_id);
+					count = count + 1;
+				end
+			end
+		end
     end
+	self.UI:AddToScroll(self.UI:CreateHeading(self.L["Available mounts"] ..  " - " .. count))
+	
+	for i,spell_id in pairs(mounts_to_add) do
+		local value = ((random_db[spell_id] ~= nil and random_db[spell_id] ~= false) and true or false)
+		self.UI:CreateScrollCheckbox(GetSpellInfo(spell_id), value, { OnValueChanged = function (container, event, val) random_db[spell_id] = val end})
+	end
 end
 
-function CollectMe:BuildList()
-    if self.UI.active_group == self.MOUNT then
-        self.MountDB:RefreshKnown()
-    elseif self.UI.active_group == self.TITLE and self.db.profile.missing_message.titles == false then
-        self.TitleDB:PrintUnkown()
-    end
+function CollectMe:BuildMissingMountList()
+    self.MountDB:RefreshKnown()
 
     local active, ignored = {}, {}
     local all_count, known_count, filter_count = #self.item_list, 0, 0
@@ -221,8 +267,8 @@ function CollectMe:BuildList()
         table.insert(zones, self.ZoneDB:Current())
     end
 
-    for i,v in ipairs(self.item_list) do
-        if (self.UI.active_group == self.MOUNT and not self.MountDB:IsKnown(v.id) and (#zones == 0 or self.MountDB:ObtainableInZone(v.id, zones))) or (self.UI.active_group == self.TITLE and IsTitleKnown(v.id) ~= 1) then
+    for i,v in pairs(self.item_list) do
+        if (self.UI.active_group == self.MOUNT and not self.MountDB:IsKnown(v.id) and (#zones == 0 or self.MountDB:ObtainableInZone(v.id, zones))) then
             if self:IsInTable(self.ignored_db, v.id) then
                 table.insert(ignored, v)
             else
@@ -240,11 +286,40 @@ function CollectMe:BuildList()
     self:AddMissingRows(active, ignored, all_count, known_count, filter_count)
 end
 
+function CollectMe:BuildMissingTitleList()
+    self.TitleDB:PrintUnkown()
+
+    local titles, sort = self.TitleDB:Get()
+    local active, ignored = {}, {}
+    local all_count, known_count, filter_count = #sort, 0, 0
+
+    for i,v in pairs(sort) do
+        if (self.UI.active_group == self.TITLE and IsTitleKnown(v) == false and titles[v] ~= nil) then
+            if self:IsInTable(self.ignored_db, v) then
+                table.insert(ignored, titles[v])
+            else
+                if not self:IsFiltered(titles[v].filters) then
+                    table.insert(active, titles[v])
+                else
+                    filter_count = filter_count + 1
+                end
+            end
+        else
+            known_count = known_count +1
+        end
+    end
+
+    self:AddMissingRows(active, ignored, all_count, known_count, filter_count)
+end
+
 function CollectMe:AddMissingRows(active, ignored, all_count, known_count, filter_count)
     self.UI:AddToScroll(self.UI:CreateHeading(self.L["Missing"] .. " - " .. #active))
     self:BuildItemRow(active)
 
-    local hide_ignore = (self.UI.active_group == self.MOUNT and self.db.profile.hide_ignore.mounts or self.db.profile.hide_ignore.titles )
+    local hide_ignore = (self.UI.active_group == self.MOUNT and self.db.profile.hide_ignore.mounts) or
+                        (self.UI.active_group == self.COMPANION and self.db.profile.hide_ignore.companions) or
+                        (self.UI.active_group == self.TITLE and self.db.profile.hide_ignore.titles) or
+                        (self.UI.active_group == self.TOYS and self.db.profile.hide_ignore.toys)
     if hide_ignore == false then
         self.UI:AddToScroll(self.UI:CreateHeading(self.L["Ignored"] .. " - " .. #ignored))
         self:BuildItemRow(ignored)
@@ -315,10 +390,33 @@ function CollectMe:BuildMissingCompanionList()
     self:AddMissingRows(active, ignored, #active + #ignored + #owned_db, #owned_db, 0)
 end
 
+
+function CollectMe:BuildMissingToyList()
+    local ToyDB = self:GetModule('ToyDB')
+    local collected, missing = ToyDB:Get()
+    local active, ignored = {}, {}
+    local zones = self:CloneTable(self.db.profile.filters.toys.zones)
+    if self.db.profile.filters.toys.czo == true then
+        table.insert(zones, self.ZoneDB:Current())
+    end
+
+    for i,v in ipairs(missing) do
+        if next(zones) == nil or ToyDB:IsInZone(v.id, zones) then
+            if self:IsInTable(self.ignored_db, v.id) then
+                table.insert(ignored, v)
+            else
+                table.insert(active, v)
+            end
+        end
+    end
+
+    self:AddMissingRows(active, ignored, #active + #ignored + #collected, #collected, 0)
+end
+
 function CollectMe:IsFiltered(filters)
     if filters ~= nil then
         for k,v in pairs(filters) do
-            if v == 1 then
+            if v == 1 or v == true then
                 for i = 1, #self.filter_list, 1 do
                     if self.filter_list[i] == k and self.filter_db[self.filter_list[i]] == true then
                         return true
@@ -364,6 +462,24 @@ function CollectMe:BuildMissingCompanionFilters()
     end
 end
 
+function CollectMe:BuildMissingToyFilters()
+    self.UI:AddToFilter(self.UI:CreateHeading(self.L["Zone Filter"]))
+    self.UI:CreateFilterCheckbox(self.L["Current Zone"], self.db.profile.filters.toys.czo, { OnValueChanged = function (container, event, value) self.db.profile.filters.toys.czo = value; self.UI:ReloadScroll() end })
+    local list, order = CollectMe.ZoneDB:GetList()
+    self.UI:CreateFilterDropdown(self.L["Select Zones"], list, self.db.profile.filters.toys.zones, { OnValueChanged = function (container, event, value) local pos = self:IsInTable(self.db.profile.filters.toys.zones, value); if not pos then table.insert(self.db.profile.filters.toys.zones, value) else table.remove(self.db.profile.filters.toys.zones, pos) end; self.UI:ReloadScroll() end }, true, order)
+
+    self.UI:AddToFilter(self.UI:CreateHeading(self.L["Source Filter"]))
+    local ToyDB = self:GetModule("ToyDB")
+    for _,i in pairs {1,2,3,4,7,8} do
+        self.UI:CreateFilterCheckbox(_G["BATTLE_PET_SOURCE_"..i], C_ToyBox.IsSourceTypeFiltered(i), { OnValueChanged = function (container, event, value)
+            value = not value;
+            C_ToyBox.SetFilterSourceType(i, value)
+            ToyDB:Update()
+            self.UI:ReloadScroll()
+        end })
+    end
+end
+
 function CollectMe:BuildOptions()
     self.UI:AddToFilter(self.UI:CreateHeading(self.L["Options"]))
 
@@ -375,41 +491,61 @@ function CollectMe:BuildOptions()
         self.UI:CreateFilterCheckbox(self.L["Hide ignored list"], self.db.profile.hide_ignore.titles, { OnValueChanged = function (container, event, value) self.db.profile.hide_ignore.titles = value; self.UI:ReloadScroll() end })
     elseif self.UI.active_group == self.COMPANION then
         self.UI:CreateFilterCheckbox(self.L["Disable tooltip notice for missing companions"], self.db.profile.tooltip.companions.hide, { OnValueChanged = function (container, event, value) self.db.profile.tooltip.companions.hide = value end }, 2)
-        self.UI:CreateFilterCheckbox(self.L["Perform quality check in pet battles"], self.db.profile.tooltip.companions.quality_check, { OnValueChanged = function (container, event, value) self.db.profile.tooltip.companions.quality_check = value end }, 2)
+        self.UI:CreateFilterCheckbox(self.L["Hide ignored list"], self.db.profile.hide_ignore.companions, { OnValueChanged = function (container, event, value) self.db.profile.hide_ignore.companions = value; self.UI:ReloadScroll() end })
     elseif self.UI.active_group == self.RANDOM_COMPANION then
-        self.UI:CreateFilterCheckbox(self.L["Auto summon on moving forward"], self.db.profile.summon.companions.auto, { OnValueChanged = function (container, event, value) self.db.profile.summon.companions.auto = value end }, 2)
-        self.UI:CreateFilterCheckbox(self.L["Disable auto summon in pvp"], self.db.profile.summon.companions.disable_pvp, { OnValueChanged = function (container, event, value) self.db.profile.summon.companions.disable_pvp = value end }, 2)
+        self.UI.filter:ReleaseChildren()
+        self.UI:AddToFilter(self.UI:CreateHeading(self.L["Options"]))
+        self.UI:CreateFilterCheckbox(self.L["Auto summon companion on moving forward"], self.db.profile.summon.companions.auto, { OnValueChanged = function (container, event, value) self.db.profile.summon.companions.auto = value self:BuildOptions() end }, 2)
+        self.UI:AddToFilter(self.UI:CreateHeading(self.L["PvP Options"]))
+        self.UI:CreateFilterCheckbox(self.L["Disable auto summon in pvp"], self.db.profile.summon.companions.disable_pvp, { OnValueChanged = function (container, event, value) self.db.profile.summon.companions.disable_pvp = value self:BuildOptions() end }, 2, nil, self.db.profile.summon.companions.auto)
+        self.UI:CreateFilterCheckbox(self.L["- Disable in pvp arena"], self.db.profile.summon.companions.disable_pvp_arena, { OnValueChanged = function (container, event, value) self.db.profile.summon.companions.disable_pvp_arena = value end }, nil, nil, self.db.profile.summon.companions.disable_pvp and self.db.profile.summon.companions.auto)
+        self.UI:CreateFilterCheckbox(self.L["- Disable in battleground"], self.db.profile.summon.companions.disable_pvp_bg, { OnValueChanged = function (container, event, value) self.db.profile.summon.companions.disable_pvp_bg = value end }, nil, nil, self.db.profile.summon.companions.disable_pvp and self.db.profile.summon.companions.auto)
+        self.UI:CreateFilterCheckbox(self.L["- Disable for world pvp"], self.db.profile.summon.companions.disable_pvp_world, { OnValueChanged = function (container, event, value) self.db.profile.summon.companions.disable_pvp_world = value end }, nil, nil, self.db.profile.summon.companions.disable_pvp and self.db.profile.summon.companions.auto)
+        self.UI:AddToFilter(self.UI:CreateHeading(self.L["Group Options"]))
+        self.UI:CreateFilterCheckbox(self.L["Disable in raid group"], self.db.profile.summon.companions.disable_party_raid_grp, { OnValueChanged = function (container, event, value) self.db.profile.summon.companions.disable_party_raid_grp = value end }, 2, nil, self.db.profile.summon.companions.auto)
+        self.UI:CreateFilterCheckbox(self.L["Disable in normal group"], self.db.profile.summon.companions.disable_party_grp, { OnValueChanged = function (container, event, value) self.db.profile.summon.companions.disable_party_grp = value end }, 2, nil, self.db.profile.summon.companions.auto)
+		self.UI:AddToFilter(self.UI:CreateHeading(self.L["Type Options"]))
+        self.UI:CreateFilterCheckbox(self.L["Disable in raid instance"], self.db.profile.summon.companions.disable_raid_instance, { OnValueChanged = function (container, event, value) self.db.profile.summon.companions.disable_raid_instance = value end }, nil, nil, self.db.profile.summon.companions.auto)
+        self.UI:CreateFilterCheckbox(self.L["Disable in dungeon"], self.db.profile.summon.companions.disable_dungeon, { OnValueChanged = function (container, event, value) self.db.profile.summon.companions.disable_dungeon = value end }, nil, nil, self.db.profile.summon.companions.auto)
+        self.UI:CreateFilterCheckbox(self.L["Disable in scenario"], self.db.profile.summon.companions.disable_scenario, { OnValueChanged = function (container, event, value) self.db.profile.summon.companions.disable_scenario = value end }, nil, nil, self.db.profile.summon.companions.auto)
     elseif self.UI.active_group == self.RANDOM_MOUNT then
         self.UI:CreateFilterCheckbox(self.L["Don't dismount when left-clicking on macro"], self.db.profile.summon.mounts.no_dismount, { OnValueChanged = function (container, event, value) self.db.profile.summon.mounts.no_dismount = value end }, 2)
         self.UI:CreateFilterCheckbox(self.L["Use flying mounts in water"], self.db.profile.summon.mounts.flying_in_water, { OnValueChanged = function (container, event, value) self.db.profile.summon.mounts.flying_in_water = value end }, 2)
         self.UI:CreateFilterCheckbox(self.L["Use flying mounts for ground"], self.db.profile.summon.mounts.flying_on_ground, { OnValueChanged = function (container, event, value) self.db.profile.summon.mounts.flying_on_ground = value end }, 2)
-
-        self.UI:AddToFilter(self.UI:CreateHeading(self.L["Macro"]))
-        local list = {}
-        list[1] = self.L["Mount / Dismount"]
-        list[2] = self.L["Dismount"]
-        list[3] = self.L["Ground Mount / Dismount"]
-        self.UI:CreateFilterDropdown(self.L["Left Click"], list, self.db.profile.summon.mounts.macro_left, { OnValueChanged = function (container, event, value) self.db.profile.summon.mounts.macro_left = value end })
-        self.UI:CreateFilterDropdown(self.L["Right Click"], list, self.db.profile.summon.mounts.macro_right, { OnValueChanged = function (container, event, value) self.db.profile.summon.mounts.macro_right = value end })
-        self.UI:CreateFilterDropdown(self.L["Shift + Left Click"], list, self.db.profile.summon.mounts.macro_shift_left, { OnValueChanged = function (container, event, value) self.db.profile.summon.mounts.macro_shift_left = value end })
+    elseif self.UI.active_group == self.TOYS then
+        self.UI:CreateFilterCheckbox(self.L["Hide ignored list"], self.db.profile.hide_ignore.toys, { OnValueChanged = function (container, event, value) self.db.profile.hide_ignore.toys = value; self.UI:ReloadScroll() end })
     end
 end
 
 function CollectMe:BatchCheck(value)
+	local search = self.UI:GetSearchText():lower()
     if self.UI.active_group == self.RANDOM_MOUNT then
         local random_db = self.db.profile.random.mounts
-        local count = GetNumCompanions("MOUNT")
-        for i = 1, count, 1 do
-            local _, name, spell_id = GetCompanionInfo("MOUNT", i)
-            random_db[spell_id] = value
-        end
+        local count = C_MountJournal.GetNumMounts()
+		
+		for i = 1, count, 1 do
+			local name, spell_id, _, _, _, _, _, isFactionSpecific, faction, _, isCollected = C_MountJournal.GetMountInfo(i)
+			if isCollected then
+				if not faction then
+					faction = -1
+				end
+				if not isFactionSpecific or CollectMe.FACTION == "Horde" and faction == 0 or CollectMe.FACTION == "Alliance" and faction == 1 then
+					if name:lower():find(search) ~= nil then
+						random_db[spell_id] = value
+					end
+				end
+			end
+		end
         self.UI:ReloadScroll()
     elseif self.UI.active_group == self.RANDOM_COMPANION then
         local random_db =  self.db.profile.random.companions
 
         for i,v in pairs(self.CompanionDB:Get()) do
+			
             if v.pet_id ~= nil and C_PetJournal.PetIsSummonable(v.pet_id) then
-                random_db[v.pet_id] = value
+				if v.name:lower():find(search) ~= nil then
+					random_db[v.pet_id] = value
+				end
             end
         end
         self.UI:ReloadScroll()
@@ -436,18 +572,21 @@ function CollectMe:ItemRowClick(group, spell_id)
             self.ModelPreview:PreviewCreature(spell_id)
         end
     elseif group == "RightButton" and IsControlKeyDown() then
-        local ignored_table = self.ignored_db
-
-        local position = self:IsInTable(ignored_table, spell_id)
-        if position ~= false then
-            table.remove(ignored_table, position)
-        else
-            table.insert(ignored_table, spell_id)
-        end
-
-        self.LdbDisplay:ZoneChangeListener()
-        self.UI:ReloadScroll()
+        self:ToggleIgnore(spell_id)
     end
+end
+
+function CollectMe:ToggleIgnore(id)
+    local ignored_table = self.ignored_db
+    local position = self:IsInTable(ignored_table, id)
+    if position ~= false then
+        table.remove(ignored_table, position)
+    else
+        table.insert(ignored_table, id)
+    end
+
+    self.LdbDisplay:ZoneChangeListener()
+    self.UI:ReloadScroll()
 end
 
 function CollectMe:ItemRowEnter(v)
@@ -475,7 +614,9 @@ function CollectMe:ItemRowEnter(v)
     if v.filters ~= nil then
         tooltip:AddLine(" ")
         for k,value in pairs(v.filters) do
-            tooltip:AddLine(self.L["filters_" .. k], 0, 0.5, 1, 1)
+            if value == true or value == 1 then
+                tooltip:AddLine(self.L["filters_" .. k], 0, 0.5, 1, 1)
+            end
         end
     end
 
@@ -515,15 +656,16 @@ function CollectMe:round(num, idp)
 end
 
 function CollectMe:SortTable(tbl)
-    table.sort(tbl, function(a, b) return (string.lower(a.name) < string.lower(b.name)) end)
+    print ('sorting')
+    table.sort(tbl, function(a, b) return a ~= nil and b ~= nil and (string.lower(a.name) < string.lower(b.name)) end)
 end
 
  -- CONSOLE COMMAND HANDLER
 function CollectMe:SlashProcessor(input)
     if input == "rc" or input == "randomcompanion" then
-        self.RandomCompanion:Summon()
+        self.Macro:Companion()
     elseif input == "rm" or input == "randommount" then
-        self.RandomMount:Summon()
+        self.Macro:Mount()
     elseif input == "options" then
         InterfaceOptionsFrame_OpenToCategory(addon_name)
     elseif input == "companion zone" then
@@ -554,7 +696,9 @@ function CollectMe:CompanionsInZone()
 end
 
 function CollectMe:ZoneChangeListener()
-    if (self.db.profile.filters.companions.czo == true and self.UI.active_group == self.COMPANION) or (self.db.profile.filters.mounts.czo == true and self.UI.active_group == self.MOUNT) then
+    if (self.db.profile.filters.companions.czo == true and self.UI.active_group == self.COMPANION) or
+       (self.db.profile.filters.mounts.czo == true and self.UI.active_group == self.MOUNT) or
+       (self.db.profile.filters.toys.czo == true and self.UI.active_group == self.TOYS) then
         self.UI:ReloadScroll()
     end
 end

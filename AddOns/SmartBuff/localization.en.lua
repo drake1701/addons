@@ -4,9 +4,20 @@
 
 -- Whats new info
 SMARTBUFF_WHATSNEW = "|cffffffffWhats new:|r\n\n"
-  .."- Fixed action button position issue\n\n"
-  .."- Please let me know if anything is missing (buffs/consumables/etc.), thanks!\n\n"
-  .."- Thanks for donation: Isabela, Ronald G. :)\n\n"
+  .."- Updated code for Warlords of Draenor\n\n"
+  .."- Updated buff lists\n\n"
+  .."- Updated item lists\n\n"
+  .."- Added toybox support\n\n"
+  --.."- This release will restore basic functionality, but unfortunately it does not contain all the new aura changes, sorry.\n\n"
+  .."- Please report any missing auras, thanks!\n\n"
+  .."- Thanks for donation:\n"
+  .."  Maik M.\n"
+  .."  Chris S.\n"
+  .."  Glenn J.\n"
+  .."  Jennyfer H.\n"
+  .."  Jon B.\n"
+  .."  Michael Z.\n"
+  .."  :)"
   ;
 
 

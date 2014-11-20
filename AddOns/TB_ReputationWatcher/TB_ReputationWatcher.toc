@@ -1,4 +1,4 @@
-## Interface: 60000
+﻿## Interface: 50300
 ## Title: TB |cff00ff00Reputation Watcher|r
 ## Notes: Automatically watches the faction with which you are gaining or losing favor.
 ## Notes-frFR: Suit automatiquement la faction auprès de laquelle votre réputation s'améliore ou se détériore.

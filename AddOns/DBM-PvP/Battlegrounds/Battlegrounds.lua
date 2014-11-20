@@ -6,6 +6,7 @@
 local mod	= DBM:NewMod("Battlegrounds", "DBM-PvP", 2)
 local L		= mod:GetLocalizedStrings()
 
+mod:SetRevision(("$Revision: 30 $"):sub(12, -3))
 mod:SetZone(DBM_DISABLE_ZONE_DETECTION)
 
 mod:AddBoolOption("ColorByClass", true)
@@ -47,6 +48,7 @@ function mod:ZONE_CHANGED_NEW_AREA()
 	for i, v in ipairs(DBM:GetModByName("z727").timers) do v:Stop() end
 	for i, v in ipairs(DBM:GetModByName("z761").timers) do v:Stop() end
 	for i, v in ipairs(DBM:GetModByName("z998").timers) do v:Stop() end
+	for i, v in ipairs(DBM:GetModByName("z1105").timers) do v:Stop() end
 	DBM:GetModByName("z30"):Unschedule()
 	DBM:GetModByName("z489"):Unschedule()
 	DBM:GetModByName("z529"):Unschedule()
@@ -56,6 +58,7 @@ function mod:ZONE_CHANGED_NEW_AREA()
 	DBM:GetModByName("z727"):Unschedule()
 	DBM:GetModByName("z761"):Unschedule()
 	DBM:GetModByName("z998"):Unschedule()
+	DBM:GetModByName("z1105"):Unschedule()
 end
 mod.PLAYER_ENTERING_WORLD = mod.ZONE_CHANGED_NEW_AREA
 mod.OnInitialize = mod.ZONE_CHANGED_NEW_AREA

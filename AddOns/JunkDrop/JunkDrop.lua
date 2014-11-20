@@ -1,7 +1,7 @@
 ﻿-- JunkDrop.lua
 -- by: desertdwarf
--- Version: v0.8
--- Released: 2012-09-11T03:27:01Z
+-- Version: v1.1
+-- Released: 2014-10-16T04:19:44Z
 
 function JunkDrop(SlashArg)
   local EmergencyBreak = 9999 -- Prevent run-away train situation.
@@ -100,18 +100,16 @@ function JunkDrop(SlashArg)
   end -- for bags loop
   
   if ItemLinkLowest and not DropAll then
-    if DebugOn then
-      ChatFrame1:AddMessage("JunkDrop: Dropping " .. ItemLinkLowest .. " x " .. ItemCountLowest .. " @ " .. select(11, GetItemInfo(ItemLinkLowest)) * ItemCountLowest .. ".", .69, .49, 1.0)
-    end
+    ChatFrame1:AddMessage("JunkDrop: Dropping " .. ItemLinkLowest .. " x " .. ItemCountLowest .. " @ " .. select(11, GetItemInfo(ItemLinkLowest)) * ItemCountLowest .. ".", .69, .49, 1.0)
     PickupContainerItem(ItemLinkLowestBag, ItemLinkLowestSlot)
     DeleteCursorItem()
   else
     if DebugOn then
       if DropAll then
         ChatFrame1:AddMessage("JunkDrop: Done!", .69, .49, 1.0)
-      else
-        ChatFrame1:AddMessage("JunkDrop: We didn't find any junk.", .69, .49, 1.0)
       end
+    else
+        ChatFrame1:AddMessage("JunkDrop: We didn't find any junk.", .69, .49, 1.0)
     end
   end
 end

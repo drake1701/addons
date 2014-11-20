@@ -29,7 +29,17 @@ local A = private.ACQUIRE_TYPES
 private.collectable_list = {}
 private.num_category_collectables = {}
 
-private.acquire_list = {}
+do
+	local acquire_list = {}
+
+	for acquire_type = 1, #private.ACQUIRE_STRINGS do
+		local entry = {}
+		entry.name = private.ACQUIRE_NAMES[acquire_type]
+		entry.collectables = {}
+		acquire_list[acquire_type] = entry
+	end
+	private.acquire_list = acquire_list
+end
 private.location_list = {}
 
 -----------------------------------------------------------------------
@@ -54,9 +64,17 @@ local mount_meta = {
 	end,
 }
 
+local toy_prototype = {}
+local toy_meta = {
+	__index = function(t, k)
+		return toy_prototype[k] or collectable_prototype[k]
+	end,
+}
+
 local CATEGORY_METATABLES = {
 	CRITTER = pet_meta,
 	MOUNT = mount_meta,
+	TOY = toy_meta,
 }
 
 function addon:AddCollectable(collectable_id, collectable_type, genesis, quality)
@@ -82,6 +100,7 @@ function addon:AddCollectable(collectable_id, collectable_type, genesis, quality
 		genesis = private.GAME_VERSION_NAMES[genesis],
 		quality = quality,
 		description = "",
+        name = _G.UNKNOWN,
 		flags = {},
 		acquire_data = {},
 	}, CATEGORY_METATABLES[collectable_type] or collectable_meta)
@@ -131,17 +150,28 @@ function pet_prototype:Weather()
 end
 
 -- ... == coords x:y
-function pet_prototype:AddZoneLocations(zone_name, pet_levels, ...)
-	self:AddAcquireData(A.WORLD_DROP, "pet_battle", nil, zone_name)
+function pet_prototype:AddZoneLocations(zone_name, pet_levels, is_secondary, ...)
+    self:AddAcquireData(A.WORLD_DROP, "pet_battle", nil, zone_name)
 
-	self.zone_list = self.zone_list or {}
-	self.zone_list[zone_name] = self.zone_list[zone_name] or {}
-	self.zone_list[zone_name][pet_levels] = self.zone_list[zone_name][pet_levels] or {}
+    self.zone_list = self.zone_list or {}
+    self.zone_list[zone_name] = self.zone_list[zone_name] or {}
+    self.zone_list[zone_name][pet_levels] = self.zone_list[zone_name][pet_levels] or {}
 
-	local num_coords = select('#', ...)
+    local zone_level_coords = self.zone_list[zone_name][pet_levels]
 
-	for index = 1, num_coords do
-		table.insert(self.zone_list[zone_name][pet_levels], (select(index, ...)))
+	if is_secondary then
+        zone_level_coords[#zone_level_coords + 1] = "secondary"
+	else
+		local num_coords = select('#', ...)
+
+        if num_coords == 0 then
+            zone_level_coords[#zone_level_coords + 1] = "unknown"
+            return
+        end
+
+		for index = 1, num_coords do
+            zone_level_coords[#zone_level_coords + 1] = (select(index, ...))
+		end
 	end
 end
 
@@ -171,7 +201,7 @@ function collectable_prototype:Icon()
 end
 
 function collectable_prototype:SetName(name)
-	if not name or self.name then
+	if not name then
 		return
 	end
 	self.name = name
@@ -248,6 +278,11 @@ end
 
 function collectable_prototype:RequiredRaces()
 	return self.required_races
+end
+
+function collectable_prototype:Retire()
+	self:AddAcquireData(private.ACQUIRE_TYPES.RETIRED)
+	self:AddFilters(private.FILTER_IDS.RETIRED)
 end
 
 -------------------------------------------------------------------------------
@@ -403,6 +438,9 @@ function collectable_prototype:AddAcquireData(acquire_type, type_string, unit_li
 		self.acquire_data[acquire_type] = {}
 		acquire = self.acquire_data[acquire_type]
 	end
+	acquire_list[acquire_type].collectables[self.type] = acquire_list[acquire_type].collectables[self.type] or {}
+	acquire_list[acquire_type].collectables[self.type][self.id] = true
+
 	local limited_vendor = type_string == "Limited Vendor"
 	local num_vars = select('#', ...)
 	local cur_var = 1
@@ -436,12 +474,11 @@ function collectable_prototype:AddAcquireData(acquire_type, type_string, unit_li
 		elseif type(identifier) == "string" and private.ZONE_LABELS_FROM_NAME[identifier] then
 			location_name = identifier
 			affiliation = type_string
+
+			if affiliation then
+				acquire_list[acquire_type].collectables[self.type][self.id] = affiliation
+			end
 		end
-		acquire_list[acquire_type] = acquire_list[acquire_type] or {}
-		acquire_list[acquire_type].name = private.ACQUIRE_NAMES[acquire_type]
-		acquire_list[acquire_type].collectables = acquire_list[acquire_type].collectables or {}
-		acquire_list[acquire_type].collectables[self.type] = acquire_list[acquire_type].collectables[self.type] or {}
-		acquire_list[acquire_type].collectables[self.type][self.id] = affiliation or true
 
 		if location_name then
 			location_list[location_name] = location_list[location_name] or {}
@@ -572,6 +609,11 @@ local DUMP_FUNCTION_FORMATS = {
 	[A.WORLD_DROP] = "%s:AddWorldDrop(%s)",
 	[A.QUEST] = "%s:AddQuest(%s)",
 	[A.PROFESSION] = "%s:AddProfession(%s)",
+	[A.RETIRED] = "%s:Retire()",
+}
+
+local IGNORED_FLAGS = {
+	RETIRED = true,
 }
 
 local sorted_data = {}
@@ -637,10 +679,14 @@ function collectable_prototype:Dump()
 			local bitfield = self.flags[private.FLAG_MEMBERS[table_index]]
 
 			if bitfield and bit.band(bitfield, flag) == flag then
-				if flag_string then
-					flag_string = ("%s, F.%s"):format(flag_string, private.FILTER_STRINGS[private.FILTER_IDS[reverse_map[flag]]])
-				else
-					flag_string = ("F.%s"):format(private.FILTER_STRINGS[private.FILTER_IDS[reverse_map[flag]]])
+				local flag_name = private.FILTER_STRINGS[private.FILTER_IDS[reverse_map[flag]]]
+
+				if not IGNORED_FLAGS[flag_name] then
+					if flag_string then
+						flag_string = ("%s, F.%s"):format(flag_string, flag_name)
+					else
+						flag_string = ("F.%s"):format(flag_name)
+					end
 				end
 			end
 		end
@@ -790,7 +836,7 @@ function collectable_prototype:Dump()
 	if flag_string then
 		output:AddLine(("%s:AddAcquireData(%s)"):format(label, flag_string))
 	end
-	output:AddLine("")
+	output:AddLine(" ")
 end
 
 function collectable_prototype:DumpTrainers(registry)

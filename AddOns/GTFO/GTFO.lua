@@ -12,7 +12,7 @@ Note: Place your own custom spells and setups in GTFO_Custom.lua
 Special thanks: 
 		Smacker (Power Auras)
 		Freydis88, GusBackus, and Zaephyr81 (German Translations)
-		pcki11 and D_Angel (Russian Translations)
+		pcki11 D_Angel, and user_kh (Russian Translations)
 		lsjyzjl, Wowuicn, and xazhaoyang (Simplified and Traditional Chinese Translations)
 		Blubibulga and TrAsHeR (French Translations)
 		Sunyruru and Maknae (Korean Translations)
@@ -283,7 +283,7 @@ Change Log:
 		- Updated Cataclysm spells for Bastion of Twilight
 		- Updated Cataclysm spells for Baradin Hold
 		- Updated Traditional Chinese localization - Thanks Wowuicn
-		- Updated Traditional Russian localization - Thanks D_Angel
+		- Updated Russian localization - Thanks D_Angel
 	v3.3.1
 		- Added Cataclysm spells for Blackwing Descent
 		- Updated Cataclysm spells for Shadowfang Keep (Heroic)
@@ -701,7 +701,117 @@ Change Log:
 	v4.23.5
 		- Added Pandaria spells for Pandaria (world)
 		- Removed Pandaria spells for Throne of Thunder
-
+	v4.23.6
+		- Added Pandaria spells for Throne of Thunder
+		- Added Pandaria spells for Pandaria (world)
+	v4.23.7
+		- Updated for patch 5.4
+		- Added Pandaria spells for Proving Grounds
+		- Added Pandaria spells for Throne of Thunder
+		- Added Pandaria spells for Siege of Orgrimmar
+	v4.23.8
+		- Added Pandaria spells for Siege of Orgrimmar
+		- Added Pandaria spells for Pandaria (world)
+	v4.24
+		- Added additional detection to prevent false friendly-fire alerts
+		- Added Pandaria spells for Siege of Orgrimmar
+		- Added Pandaria spells for Pandaria (world)
+		- Added Pandaria spells for Temple of the Jade Serpent
+		- Added Pandaria spells for Gate of the Setting Sun
+	v4.24.1
+		- Added Pandaria spells for Siege of Orgrimmar
+	v4.24.2
+		- Added Pandaria spells for Siege of Orgrimmar
+		- Added Pandaria spells for Pandaria (world)
+		- Fixed Pandaria spells for The Secrets of Ragefire
+	v4.24.3
+		- Fixed Pandaria spells for Siege of Orgrimmar
+	v4.25
+		- Added support for maximum stacks for alerts
+		- Added Pandaria spells for Siege of Orgrimmar
+		- Added Pandaria spells for Pandaria (world)
+	v4.26
+		- Updated PowerAuras integration
+		- Added Pandaria spells for Siege of Orgrimmar
+		- Added Pandaria spells for Pandaria (world)
+		- Added Pandaria spells for Darkmoon Faire
+	v4.26.1
+		- Added Pandaria spells for Siege of Orgrimmar
+		- Added Pandaria spells for Brawler's Guild
+	v4.27
+		- Updated PowerAuras integration
+		- Added Pandaria spells for Siege of Orgrimmar
+	v4.27.1
+		- Added Pandaria spells for Siege of Orgrimmar (Heroic)
+		- Added Pandaria spells for Feast of Winter Veil
+	v4.27.2
+		- Added Pandaria spells for Siege of Orgrimmar (Heroic)
+	v4.28
+		- Fixed a bug with GTFO options causing Trivial damage filters to stop working
+		- Added Pandaria spells for Siege of Orgrimmar (Heroic)
+		- Updated spells for Love is in the Air
+	v4.29
+		- Updated for patch 5.4.7, resolved communication issues
+		- Raised default trivial % from .5% HP (200+ ticks to death) to 2% of HP (50+ ticks to death)
+		- Trivial slider increments in .5% intervals with .5% as the minimum
+		- /gtfo options now opens directly to the options frame
+		- Added Pandaria spells for Pandaria (world)
+	v4.30
+		- Disabled tank alerts when soloing
+		- Added Pandaria spells for Pandaria (world)
+		- Added Pandaria spells for Siege of Orgrimmar (Heroic)
+	v4.30.1
+		- Added Pandaria spells for Siege of Orgrimmar (Heroic)
+	v4.31
+		- Added support for Warlords of Draenor
+		- Added and fixed Pandaria spells for Siege of Orgrimmar (Heroic)
+		- Added Pandaria spells for Gate of the Setting Sun
+	v4.32
+		- Added an option to specify the sound channel GTFO sounds play on (default is Master)
+		- Added dialog sound channel support in Warlords of Draenor
+		- Updated Russian localization - Thanks user_kh
+		- Added Pandaria spells for Pandaria (world)
+		- Added WoD spells for Draenor (world)
+		- Added WoD spells for Auchindoun
+		- Added WoD spells for Bloodmaul Slag Mines
+		- Added WoD spells for Grimrail Depot
+		- Added WoD spells for Shadowmoon Burial Grounds
+		- Added WoD spells for Skyreach
+		- Added WoD spells for Upper Blackrock Spire
+	v4.33
+		- Disabled sound channel support UI dropdown due to possible taint issues
+		- Added Pandaria spells for Siege of Orgrimmar (Heroic) - Thanks freddy436
+	v4.34
+		- Fixed realm communication bug in Warlords of Draenor beta
+		- Added support for non-caster and caster-only alerts
+		- Added Pandaria spells for Brawler's Guild
+		- Added WoD spells for Draenor (world)
+		- Added WoD spells for Highmaul
+		- Added WoD spells for Shadowmoon Burial Grounds
+		- Added WoD spells for the Everbloom
+		- Added WoD spells for Upper Blackrock Spire
+	v4.34.1
+		- Added Traditional Chinese localization - Thanks BNSSNB
+		- Added Pandaria spells for Siege of Orgrimmar (Heroic)
+		- Added WoD spells for Highmaul
+		- Added WoD spells for Blackrock Foundry
+		- Added WoD spells for Iron Docks
+	v4.35
+		- Updated for patch 6.0
+	v4.35.1
+		- Added WoD spells for Upper Blackrock Spire
+		- Added WoD spells for Blasted Lands Event
+		- Added Pandaria spells for Brewmoon Festival
+	v4.35.2
+		- Updated mob identification for 6.0
+		- Added Wrath spells for Ulduar
+	v4.35.3
+		- Added Pandaria spells for Siege of Orgrimmar (Heroic)
+		- Added WoD spells for Draenor (world)
+		- Added WoD spells for Bloodmaul Slag Mines
+		- Added WoD spells for Iron Docks
+		- Added WoD spells for Auchindoun
+		
 ]]--
 GTFO = {
 	DefaultSettings = {
@@ -714,15 +824,18 @@ GTFO = {
 		TrivialMode = nil;
 		NoVersionReminder = nil;
 		Volume = 3; -- Volume setting, 3 = default
+		SoundChannel = "Master"; -- Sound channel to play on
 		IgnoreOptions = { };
-		TrivialDamagePercent = .5; -- Minimum % of HP lost required for an alert to be trivial
+		TrivialDamagePercent = 2; -- Minimum % of HP lost required for an alert to be trivial
 	};
-	Version = "4.23.5"; -- Version number (text format)
-	VersionNumber = 42305; -- Numeric version number for checking out-of-date clients
+	Version = "4.35.3"; -- Version number (text format)
+	VersionNumber = 43503; -- Numeric version number for checking out-of-date clients
 	DataLogging = nil; -- Indicate whether or not the addon needs to run the datalogging function (for hooking)
 	DataCode = "4"; -- Saved Variable versioning, change this value to force a reset to default
 	CanTank = nil; -- The active character is capable of tanking
+	CanCast = nil; -- The active character is capable of casting
 	TankMode = nil; -- The active character is a tank
+	CasterMode = nil; -- The active character is a caster
 	SpellName = { }; -- List of spells (legacy placeholder, not supported)
 	SpellID = { }; -- List of spell IDs
 	FFSpellID = { }; -- List of friendly fire spell IDs
@@ -755,13 +868,20 @@ GTFO = {
 		StackCounter = 0;
 		DisableGTFO = nil;
 	};
-	BetaMode = nil; -- WoW Beta client detection
+	BetaMode = nil; -- WoW Beta/PTR client detection
+	SoundChannels = { 
+		{ Code = "Master", Name = _G.MASTER },
+		{ Code = "SFX", Name = _G.SOUND_VOLUME, CVar = "Sound_EnableSFX" },
+		{ Code = "Ambience", Name = _G.AMBIENCE_VOLUME, CVar = "Sound_EnableAmbience" },
+		{ Code = "Music", Name = _G.MUSIC_VOLUME, CVar = "Sound_EnableMusic" },
+		{ Code = "Dialog", Name = _G.DIALOG_VOLUME },
+	};
 };
 
 GTFOData = {};
 
 --[[
-if (select(4, GetBuildInfo()) >= 50200) then
+if (select(4, GetBuildInfo()) >= 60000) then
 	GTFO.BetaMode = true;
 end
 ]]--
@@ -802,9 +922,12 @@ function GTFO_ScanPrint(str)
 	end
 end
 
-function GTFO_GetMobId(GUID)
-    if not GUID then return 0 end
-    return tonumber(GUID:sub(6, 10), 16) or 0
+function GTFO_GetMobId(sGUID)
+	local mobType, _, _, _, _, mobId = strsplit("-", sGUID or "")
+	if mobType and (mobType == "Creature" or mobType == "Vehicle" or mobType == "Pet") then
+		return tonumber(mobId)
+	end
+	return 0;
 end
 
 function GTFO_OnEvent(self, event, ...)
@@ -826,6 +949,7 @@ function GTFO_OnEvent(self, event, ...)
 			NoVersionReminder = GTFOData.NoVersionReminder;
 			Volume = GTFOData.Volume;
 			TrivialDamagePercent = GTFOData.TrivialDamagePercent or GTFO.DefaultSettings.TrivialDamagePercent;
+			SoundChannel = GTFOData.SoundChannel or GTFO.DefaultSettings.SoundChannel;
 			IgnoreOptions = { };
 		};
 		if (GTFOData.IgnoreOptions) then
@@ -840,7 +964,18 @@ function GTFO_OnEvent(self, event, ...)
 
 		-- Power Auras Integration
 		if (IsAddOnLoaded("PowerAuras")) then
-			if (PowaAuras and PowaAuras.AurasByType) then
+			local PowaAurasEnabled
+			if (PowaAuras_GlobalTrigger) then
+				PowaAurasEnabled = PowaAuras_GlobalTrigger()
+			end
+			-- Power Auras 5.x
+			if (PowaAuras and PowaAuras.MarkAuras) then
+				GTFO.PowerAuras = true;
+			-- Power Auras 4.24.2+
+			elseif (PowaAurasEnabled) then
+				GTFO.PowerAuras = true;
+			-- Power Auras 4.x
+			elseif (PowaAuras and PowaAuras.AurasByType) then
 				if (PowaAuras.AurasByType.GTFOHigh) then
 					GTFO.PowerAuras = true;
 				else
@@ -882,10 +1017,15 @@ function GTFO_OnEvent(self, event, ...)
 		GTFO.Users[UnitName("player")] = GTFO.VersionNumber;
 		GTFO_GetSounds();
 		GTFO.CanTank = GTFO_CanTankCheck("player");
+		GTFO.CanCast = GTFO_CanCastCheck("player");
+		if (GTFO.CanCast) then
+			GTFO_RegisterCasterEvents();
+		end
 		if (GTFO.CanTank) then
 			GTFO_RegisterTankEvents();
 		end
-		GTFO.TankMode = GTFO_CheckTankMode()
+		GTFO.TankMode = GTFO_CheckTankMode();
+		GTFO.CasterMode = GTFO_CheckCasterMode();
 		GTFO_SendUpdateRequest();
 		return;
 	end
@@ -942,10 +1082,15 @@ function GTFO_OnEvent(self, event, ...)
 								-- Trivial mode is off, ignore trivial spell
 								return;
 							end
+							if (GTFO.FFSpellID[SpellID].ignoreSelfInflicted and destGUID == UnitGUID("player")) then
+								--GTFO_DebugPrint("Won't alert "..SpellName.." ("..SpellID..") - Ignore self inflicted");
+								-- Self-inflicted wound and "Ignore Self Inflicated" is set
+								return;
+							end
 							local damage = tonumber(misc4) or 0
 							if ((GTFO.FFSpellID[SpellID].trivialPercent or 0) >= 0 and not GTFO.FFSpellID[SpellID].alwaysAlert and not GTFO.Settings.TrivialMode) then
-								local damagePercent = (damage * 100) / UnitHealthMax("player");
-							 	if (((GTFO.FFSpellID[SpellID].trivialPercent or 0) == 0 and damagePercent < GTFO.Settings.TrivialDamagePercent) or (GTFO.FFSpellID[SpellID].trivialPercent and GTFO.FFSpellID[SpellID].trivialPercent > 0 and damagePercent < GTFO.FFSpellID[SpellID].trivialPercent)) then
+								local damagePercent = tonumber((damage * 100) / UnitHealthMax("player"));
+							 	if (((GTFO.FFSpellID[SpellID].trivialPercent or 0) == 0 and damagePercent < tonumber(GTFO.Settings.TrivialDamagePercent)) or (GTFO.FFSpellID[SpellID].trivialPercent and GTFO.FFSpellID[SpellID].trivialPercent > 0 and damagePercent < GTFO.FFSpellID[SpellID].trivialPercent)) then
 									--GTFO_DebugPrint("Won't alert "..SpellName.." ("..SpellID..") on "..tostring(destName).." - Trivial spell - Damage %");
 									-- Trivial mode is off, ignore trivial spell based on damage %
 									return;
@@ -967,7 +1112,7 @@ function GTFO_OnEvent(self, event, ...)
 		if (SpellType == "ENVIRONMENTAL_DAMAGE") then
 			local environment = string.upper(tostring(misc1))
 			local damage = tonumber(misc2) or 0
-			local damagePercent = (damage * 100) / UnitHealthMax("player")
+			local damagePercent = tonumber((damage * 100) / UnitHealthMax("player"))
 			-- Environmental detection
 			GTFO_ScanPrint(SpellType.." - "..environment);
 			local alertID;
@@ -987,14 +1132,14 @@ function GTFO_OnEvent(self, event, ...)
 					--GTFO_DebugPrint("Won't alert LAVA - Magma debuff found");
 					return;
 				end
-				if (not GTFO.Settings.TrivialMode and damagePercent < GTFO.Settings.TrivialDamagePercent) then
+				if (not GTFO.Settings.TrivialMode and damagePercent < tonumber(GTFO.Settings.TrivialDamagePercent)) then
 					-- Trivial
 					--GTFO_DebugPrint("Won't alert LAVA - Trivial");
 					return;
 				end
 			elseif (environment ~= "FALLING") then
 				alertID = 2;
-				if (not GTFO.Settings.TrivialMode and damagePercent < GTFO.Settings.TrivialDamagePercent) then
+				if (not GTFO.Settings.TrivialMode and damagePercent < tonumber(GTFO.Settings.TrivialDamagePercent)) then
 					-- Trivial
 					--GTFO_DebugPrint("Won't alert "..tostring(environment).." - Trivial");
 					return;
@@ -1037,8 +1182,8 @@ function GTFO_OnEvent(self, event, ...)
 				end
 
 				if (vehicle and not GTFO.SpellID[SpellID].vehicle) then
-					-- Vehicle damage and vehicle mode is not set
 					--GTFO_DebugPrint("Won't alert "..SpellName.." ("..SpellID..") - Vehicle not enabled");
+					-- Vehicle damage and vehicle mode is not set
 					return;
 				end
 				if (GTFO.SpellID[SpellID].test and not GTFO.Settings.TestMode) then
@@ -1046,6 +1191,13 @@ function GTFO_OnEvent(self, event, ...)
 					-- Experiemental/Beta option is off, ignore
 					return;
 				end
+
+				if (GTFO.SpellID[SpellID].casterOnly and not GTFO.CasterMode) then
+					--GTFO_DebugPrint("Won't alert "..SpellName.." ("..SpellID..") - Caster alert only");
+					-- Alert is for casters only
+					return;
+				end
+
 				if (GTFO.SpellID[SpellID].ignoreEvent and GTFO_FindEvent(GTFO.SpellID[SpellID].ignoreEvent)) then
 					--GTFO_DebugPrint("Won't alert "..SpellName.." ("..SpellID..") - Ignore Event ("..GTFO.SpellID[SpellID].ignoreEvent..") is active");
 					-- Ignore event code found
@@ -1084,8 +1236,8 @@ function GTFO_OnEvent(self, event, ...)
 						return;
 					end
 					if ((GTFO.SpellID[SpellID].trivialPercent or 0) >= 0 and not GTFO.SpellID[SpellID].alwaysAlert and (SpellType=="SPELL_PERIODIC_DAMAGE" or SpellType=="SPELL_DAMAGE")) then
-						local damagePercent = (damage * 100) / UnitHealthMax("player");
-					 	if (((GTFO.SpellID[SpellID].trivialPercent or 0) == 0 and damagePercent < GTFO.Settings.TrivialDamagePercent) or (GTFO.SpellID[SpellID].trivialPercent and GTFO.SpellID[SpellID].trivialPercent > 0 and damagePercent < GTFO.SpellID[SpellID].trivialPercent)) then
+						local damagePercent = tonumber((damage * 100) / UnitHealthMax("player"));
+					 	if (((GTFO.SpellID[SpellID].trivialPercent or 0) == 0 and damagePercent < tonumber(GTFO.Settings.TrivialDamagePercent)) or (GTFO.SpellID[SpellID].trivialPercent and GTFO.SpellID[SpellID].trivialPercent > 0 and damagePercent < GTFO.SpellID[SpellID].trivialPercent)) then
 							--GTFO_DebugPrint("Won't alert "..SpellName.." ("..SpellID..") - Trivial spell - Damage %");
 							-- Trivial mode is off, ignore trivial spell based on damage %
 							return;
@@ -1103,14 +1255,20 @@ function GTFO_OnEvent(self, event, ...)
 					return;
 				end
 				if (GTFO.SpellID[SpellID].applicationOnly) then
-					if (GTFO.SpellID[SpellID].minimumStacks) then
+					if (GTFO.SpellID[SpellID].minimumStacks or GTFO.SpellID[SpellID].maximumStacks) then
 						if (SpellType ~= "SPELL_AURA_APPLIED_DOSE" or not misc5) then
 							--GTFO_DebugPrint("Won't alert "..SpellName.." ("..SpellID..") - Application only w/ minimum stacks & not a dosage event");
 							-- Not a dose application event
 							return;
-						elseif (tonumber(misc5) <= tonumber(GTFO.SpellID[SpellID].minimumStacks)) then
+						end
+						local stacks = tonumber(misc5);
+						if (GTFO.SpellID[SpellID].minimumStacks and stacks <= tonumber(GTFO.SpellID[SpellID].minimumStacks)) then
 							--GTFO_DebugPrint("Won't alert "..SpellName.." ("..SpellID..") - Application only w/ minimum stacks & not enough stacks");
-							-- Not a dose application event or not enough stacks
+							-- Not enough stacks
+							return;
+						elseif (GTFO.SpellID[SpellID].maximumStacks and stacks >= tonumber(GTFO.SpellID[SpellID].maximumStacks)) then
+							--GTFO_DebugPrint("Won't alert "..SpellName.." ("..SpellID..") - Application only w/ maximum stacks & too many stacks");
+							-- Too many stacks
 							return;
 						end
 					elseif (not (SpellType == "SPELL_AURA_APPLIED" or SpellType == "SPELL_AURA_APPLIED_DOSE" or SpellType == "SPELL_AURA_REFRESH")) then
@@ -1264,6 +1422,11 @@ function GTFO_OnEvent(self, event, ...)
 		if (msgBoss == GTFOLocal.Boss_Nefarian_Phase2) then
 			GTFO_AddEvent("NefarianIgnoreMagma", 17); -- 17 seconds from Nefarian's warning to getting on the pillar
 		end
+		return;
+	end
+	if (event == "ACTIVE_TALENT_GROUP_CHANGED" or event == "PLAYER_TALENT_UPDATE") then
+		--GTFO_DebugPrint("Spec changed, check caster mode -- "..event);
+		GTFO.CasterMode = GTFO_CheckCasterMode();
 		return;
 	end
 end
@@ -1451,23 +1614,28 @@ function GTFO_PlaySound(iSound, bOverride)
 	GTFO.IgnoreTime = currentTime + GTFO.IgnoreTimeAmount;
 
 	if (bOverride or GTFO.Settings.Sounds[iSound]) then
-		if (bOverride and getglobal("GTFO_UnmuteButton"):GetChecked()) then
-			GTFO_UnmuteSound(GTFO.SoundTimes[iSound]);
-		elseif (GTFO.Settings.UnmuteMode and GTFO.SoundTimes[iSound] and not bOverride) then
-			GTFO_UnmuteSound(GTFO.SoundTimes[iSound]);
+		local soundChannel = GTFO.Settings.SoundChannel;
+		if (bOverride) then
+			--soundChannel = UIDropDownMenu_GetSelectedValue(GTFO_SoundChannelDropdown) or soundChannel;
 		end
-		PlaySoundFile(GTFO.Sounds[iSound], "Master");
+		if (bOverride and getglobal("GTFO_UnmuteButton"):GetChecked()) then
+			GTFO_UnmuteSound(GTFO.SoundTimes[iSound], soundChannel);
+		elseif (GTFO.Settings.UnmuteMode and GTFO.SoundTimes[iSound] and not bOverride) then
+			GTFO_UnmuteSound(GTFO.SoundTimes[iSound], soundChannel);
+		end
+		PlaySoundFile(GTFO.Sounds[iSound], soundChannel);
 		if (GTFO.Settings.Volume >= 4) then
-			PlaySoundFile(GTFO.Sounds[iSound], "Master");
+			PlaySoundFile(GTFO.Sounds[iSound], soundChannel);
 		end
 		if (GTFO.Settings.Volume >= 5) then
-			PlaySoundFile(GTFO.Sounds[iSound], "Master");
+			PlaySoundFile(GTFO.Sounds[iSound], soundChannel);
 		end
 	end
 	GTFO_DisplayAura(iSound);
 end
 
 -- Create Addon Menu options and interface
+--local GTFO_SoundChannelDropdown;
 function GTFO_RenderOptions()
 	GTFO.UIRendered = true;
 
@@ -1565,8 +1733,8 @@ function GTFO_RenderOptions()
 	getglobal(GTFO_TrivialDamageSlider:GetName().."Text"):SetText(GTFOLocal.UI_TrivialSlider);
 	getglobal(GTFO_TrivialDamageSlider:GetName().."High"):SetText(" ");
 	getglobal(GTFO_TrivialDamageSlider:GetName().."Low"):SetText(" ");
-	TrivialDamageSlider:SetMinMaxValues(.1,10);
-	TrivialDamageSlider:SetValueStep(.1);
+	TrivialDamageSlider:SetMinMaxValues(.5,10);
+	TrivialDamageSlider:SetValueStep(.5);
 	TrivialDamageSlider:SetValue(GTFO.Settings.TrivialDamagePercent);
 	GTFO_Option_SetTrivialDamageText(GTFO.Settings.TrivialDamagePercent);
 
@@ -1574,6 +1742,21 @@ function GTFO_RenderOptions()
 	TestModeButton:SetPoint("TOPLEFT", 10, -300)
 	TestModeButton.tooltip = GTFOLocal.UI_TestModeDescription.."\n\n"..string.format(GTFOLocal.UI_TestModeDescription2,"zensunim","gmail","com");
 	getglobal(TestModeButton:GetName().."Text"):SetText(GTFOLocal.UI_TestMode);
+
+	--[[
+	local SoundChannelText = ConfigurationPanel:CreateFontString("GTFO_SoundChannelText","ARTWORK","GameFontNormal");
+	SoundChannelText:SetPoint("TOPLEFT", 10, -330);
+	SoundChannelText:SetText(GTFOLocal.UI_SoundChannel);
+	SoundChannelText.tooltip = UI_SoundChannelDescription;
+	
+	GTFO_SoundChannelDropdown = CreateFrame("Button", "GTFO_SoundChannelDropdown", ConfigurationPanel, "UIDropDownMenuTemplate");
+	GTFO_SoundChannelDropdown:SetPoint("TOPLEFT", 10, -350)
+	UIDropDownMenu_Initialize(GTFO_SoundChannelDropdown, GTFO_SoundChannelDropdownInitialize);
+  UIDropDownMenu_SetWidth(GTFO_SoundChannelDropdown, 150);
+  UIDropDownMenu_SetButtonWidth(GTFO_SoundChannelDropdown, 124);
+  UIDropDownMenu_SetSelectedValue(GTFO_SoundChannelDropdown, GTFO.Settings.SoundChannel);
+  UIDropDownMenu_JustifyText(GTFO_SoundChannelDropdown, "LEFT");
+  ]]--
 
 	-- Special Alerts frame
 
@@ -1613,6 +1796,7 @@ function GTFO_RenderOptions()
 			GTFO.Settings.Sounds[4] = FriendlyFireSoundButton:GetChecked();
 			GTFO.Settings.Volume = VolumeSlider:GetValue();
 			GTFO.Settings.TrivialDamagePercent = TrivialDamageSlider:GetValue();
+			--GTFO.Settings.SoundChannel = SoundChannelDropdown:GetValue();
 			GTFO.Settings.TestMode = TestModeButton:GetChecked();
 			GTFO.Settings.UnmuteMode = UnmuteButton:GetChecked();
 			GTFO.Settings.TrivialMode = TrivialButton:GetChecked();
@@ -1624,6 +1808,7 @@ function GTFO_RenderOptions()
 					GTFO.Settings.IgnoreOptions[key] = true;
 				end
 			end
+			--GTFO.Settings.SoundChannel = UIDropDownMenu_GetSelectedValue(GTFO_SoundChannelDropdown);
 
 			GTFO_SaveSettings();
 		end
@@ -1631,12 +1816,30 @@ function GTFO_RenderOptions()
 		function (self)
 			VolumeSlider:SetValue(GTFO.Settings.Volume);
 			TrivialDamageSlider:SetValue(GTFO.Settings.TrivialDamagePercent);
+			--UIDropDownMenu_Initialize(GTFO_SoundChannelDropdown, GTFO_SoundChannelDropdownInitialize);
+			--UIDropDownMenu_SetSelectedValue(GTFO_SoundChannelDropdown, GTFO.Settings.SoundChannel);
 			GTFO_SaveSettings();
 		end
 	ConfigurationPanel.default = 
 		function (self)
 			GTFO_SetDefaults();
 		end
+end
+
+function GTFO_SoundChannelDropdownInitialize(self, level)
+  --[[
+  for id, soundChannel in pairs(GTFO.SoundChannels) do
+    local info;
+    info = UIDropDownMenu_CreateInfo();
+    info.text = soundChannel.Name;
+    info.value = soundChannel.Code;
+    info.arg1 = id;
+    info.func = function(self, arg1, arg2, checked)
+    	UIDropDownMenu_SetSelectedValue(GTFO_SoundChannelDropdown, self.value);
+    end
+    UIDropDownMenu_AddButton(info, level);
+  end
+  ]]--
 end
 
 function GTFO_RefreshOptions()
@@ -1704,9 +1907,14 @@ function GTFO_OnUpdate()
 	end	
 end
 
-function GTFO_UnmuteSound(delayTime)
+function GTFO_UnmuteSound(delayTime, soundChannel)
 	if (not GTFO_FindEvent("Mute")) then
-		GTFO.SoundSettings.EnableAllSound = GetCVarBool("Sound_EnableAllSound");
+		GTFO.SoundSettings.EnableAllSound = GetCVar("Sound_EnableAllSound");
+		GTFO.SoundSettings.SecondaryCVar = GTFO_GetSoundChannelCVar(soundChannel);
+		if (GTFO.SoundSettings.SecondaryCVar) then
+			GTFO.SoundSettings.EnableSecondary = GetCVar(GTFO.SoundSettings.SecondaryCVar);
+			SetCVar(GTFO.SoundSettings.SecondaryCVar, 1);
+		end
 		SetCVar("Sound_EnableAllSound", 1);
 		--GTFO_DebugPrint("Temporarily unmuting volume for "..delayTime.. " seconds.");
 	end
@@ -1715,6 +1923,9 @@ end
 
 function GTFO_MuteSound()
 	SetCVar("Sound_EnableAllSound", GTFO.SoundSettings.EnableAllSound);
+	if (GTFO.SoundSettings.SecondaryCVar) then
+		SetCVar(GTFO.SoundSettings.SecondaryCVar, GTFO.SoundSettings.EnableSecondary);
+	end
 	--GTFO_DebugPrint("Muting sound again.");
 end
 
@@ -1764,17 +1975,21 @@ function GTFO_Command_Version()
 	if (raidmembers > 0 or partymembers > 0) then
 		if (raidmembers > 0) then
 			for i = 1, raidmembers, 1 do
+				local displayName;
 				local name, server = UnitName("raid"..i);
 				local fullname = name;
 				if (server and server ~= "") then
-					fullname = name.."-"..server
+					fullname = name.."-"..server;
+					displayName = fullname;
+				else
+					fullname = name.."-"..GTFO_GetRealmName()
+					displayName = name;
 				end
-				
 				if (GTFO.Users[fullname]) then
-					GTFO_ChatPrint(fullname..": "..GTFO_ParseVersionColor(GTFO.Users[fullname]));
+					GTFO_ChatPrint(displayName..": "..GTFO_ParseVersionColor(GTFO.Users[fullname]));
 					users = users + 1;
 				else
-					GTFO_ChatPrint(fullname..": |cFF999999"..GTFOLocal.Group_None.."|r");
+					GTFO_ChatPrint(displayName..": |cFF999999"..GTFOLocal.Group_None.."|r");
 				end
 			end
 			GTFO_ChatPrint(string.format(GTFOLocal.Group_RaidMembers, users, raidmembers));
@@ -1782,16 +1997,21 @@ function GTFO_Command_Version()
 			GTFO_ChatPrint(UnitName("player")..": "..GTFO_ParseVersionColor(GTFO.VersionNumber));
 			users = 1;
 			for i = 1, partymembers, 1 do
+				local displayName;
 				local name, server = UnitName("party"..i);
 				local fullname = name;
 				if (server and server ~= "") then
 					fullname = name.."-"..server
+					displayName = fullname;
+				else
+					fullname = name.."-"..GTFO_GetRealmName()
+					displayName = name;
 				end
 				if (GTFO.Users[fullname]) then
-					GTFO_ChatPrint(fullname..": "..GTFO_ParseVersionColor(GTFO.Users[fullname]));
+					GTFO_ChatPrint(displayName..": "..GTFO_ParseVersionColor(GTFO.Users[fullname]));
 					users = users + 1;
 				else
-					GTFO_ChatPrint(fullname..": |cFF999999"..GTFOLocal.Group_None.."|r");
+					GTFO_ChatPrint(displayName..": |cFF999999"..GTFOLocal.Group_None.."|r");
 				end
 			end
 			GTFO_ChatPrint(string.format(GTFOLocal.Group_PartyMembers, users, (partymembers + 1)));
@@ -1867,7 +2087,9 @@ function GTFO_SendUpdateRequest()
 end
 
 function GTFO_Command_Options()
-	InterfaceOptionsFrame_OpenToCategory("GTFO")
+	InterfaceOptionsFrame_OpenToCategory("GTFO");
+	InterfaceOptionsFrame_OpenToCategory("GTFO");
+	InterfaceOptionsFrame_OpenToCategory("GTFO");
 end
 
 function GTFO_Option_SetVolume()
@@ -1903,6 +2125,14 @@ function GTFO_Option_SetTrivialDamage()
 	getglobal("GTFO_TrivialDamageSlider"):SetValue(GTFO.Settings.TrivialDamagePercent);
 	GTFO_GetSounds();
 	GTFO_Option_SetTrivialDamageText(GTFO.Settings.TrivialDamagePercent)
+end
+
+function GTFO_Option_SetSoundChannel()
+	if (not GTFO.UIRendered) then
+		return;
+	end
+	GTFO.Settings.SoundChannel = "Master";
+	--getglobal("GTFO_SoundChannelDropdown"):SetValue(GTFO.Settings.SoundChannel);
 end
 
 function GTFO_Option_SetTrivialDamageText(iTrivialDamagePercent)
@@ -1969,6 +2199,39 @@ function GTFO_CheckTankMode()
 	return nil;
 end
 
+function GTFO_CheckCasterMode()
+	if (GTFO.CanCast) then
+		local x, class = UnitClass("player");
+
+		if (class == "PRIEST" or class == "MAGE" or class == "WARLOCK") then
+			return true;
+		end
+
+		local spec = GetSpecialization();
+		if (spec) then
+			local role = GetSpecializationRole(spec);
+			if (role == "TANK") then
+				return nil;
+			end
+			if (role == "HEALER") then
+				return true;
+			end
+		
+			local id, _ = GetSpecializationInfo(spec);
+			if (id == 102) then
+				-- Balance Druid
+				return true;
+			end
+			if (id == 262) then
+				-- Elemental Shaman
+				return true;
+			end
+		end
+	end
+	--GTFO_DebugPrint("Caster mode off");
+	return nil;
+end
+
 function GTFO_IsTank(target)
 	if (GTFO_CanTankCheck(target)) then
 		local _, class = UnitClass(target);
@@ -2008,6 +2271,17 @@ function GTFO_CanTankCheck(target)
 	return;
 end
 
+function GTFO_CanCastCheck(target)
+	local _, class = UnitClass(target);
+	if (class == "WARRIOR" or class == "HUNTER" or class == "ROGUE" or class == "DEATHKNIGHT") then
+		----GTFO_DebugPrint("This class isn't a caster");
+		return;
+	else
+		----GTFO_DebugPrint("Possible caster detected for "..target);
+		return true;
+	end
+end
+
 function GTFO_RegisterTankEvents()
 	local _, class = UnitClass("player");
 	if (class == "PALADIN") then
@@ -2015,6 +2289,11 @@ function GTFO_RegisterTankEvents()
 	else
 		GTFOFrame:RegisterEvent("UPDATE_SHAPESHIFT_FORM");
 	end
+end
+
+function GTFO_RegisterCasterEvents()
+	GTFOFrame:RegisterEvent("ACTIVE_TALENT_GROUP_CHANGED");
+	GTFOFrame:RegisterEvent("PLAYER_TALENT_UPDATE");	
 end
 
 -- Cache sound file locations 
@@ -2061,8 +2340,9 @@ function GTFO_SaveSettings()
 	GTFOData.TestMode = GTFO.Settings.TestMode;
 	GTFOData.UnmuteMode = GTFO.Settings.UnmuteMode;
 	GTFOData.TrivialMode = GTFO.Settings.TrivialMode;
-	GTFOData.TrivialDamagePercent = GTFO.Settings.TrivialDamagePercent
+	GTFOData.TrivialDamagePercent = GTFO.Settings.TrivialDamagePercent;
 	GTFOData.NoVersionReminder = GTFO.Settings.NoVersionReminder;
+	GTFOData.SoundChannel = GTFO.Settings.SoundChannel;
 	GTFOData.IgnoreOptions = { };
 	if (GTFO.Settings.IgnoreOptions) then
 		for key, option in pairs(GTFO.Settings.IgnoreOptions) do
@@ -2105,9 +2385,12 @@ function GTFO_SetDefaults()
 	GTFO.Settings.TrivialMode = GTFO.DefaultSettings.TrivialMode;
 	GTFO.Settings.NoVersionReminder = GTFO.DefaultSettings.NoVersionReminder;
 	GTFO.Settings.TrivialDamagePercent = GTFO.DefaultSettings.TrivialDamagePercent;
+	GTFO.Settings.SoundChannel = GTFO.DefaultSettings.SoundChannel;
 	if (GTFO.UIRendered) then
 		getglobal("GTFO_VolumeSlider"):SetValue(GTFO.DefaultSettings.Volume);
 		getglobal("GTFO_TrivialDamageSlider"):SetValue(GTFO.DefaultSettings.TrivialDamagePercent);
+		--UIDropDownMenu_Initialize(GTFO_SoundChannelDropdown, GTFO_SoundChannelDropdownInitialize);
+		--UIDropDownMenu_SetSelectedValue(GTFO_SoundChannelDropdown, GTFO.Settings.SoundChannel);
 	end
 	GTFO.Settings.IgnoreOptions = GTFO.DefaultSettings.IgnoreOptions;
 	GTFO_SaveSettings();
@@ -2155,12 +2438,13 @@ function GTFO_GetAlertID(alert, target)
 	local alertLevel;
 	local tankAlert = false;
 
-	if (UnitIsUnit("player", target)) then
-		if (alert.tankSound and GTFO.TankMode) then
-			tankAlert = true;
-		end
-	else
-		if (alert.tankSound and GTFO_IsTank(target)) then
+	if (alert.tankSound) then
+		if (UnitIsUnit("player", target)) then
+			if (GTFO.TankMode or (GTFO.RaidMembers == 0 and GTFO.PartyMembers == 0)) then
+				-- Tank or soloing
+				tankAlert = true;
+			end
+		elseif (GTFO_IsTank(target)) then
 			tankAlert = true;
 		end
 	end
@@ -2314,3 +2598,15 @@ function GTFO_IsInLFR()
 	return IsInGroup(LE_PARTY_CATEGORY_INSTANCE);
 end
 
+function GTFO_GetSoundChannelCVar(soundChannel)
+	for _, item in pairs(GTFO.SoundChannels) do
+	  if (item.Code and item.Code == soundChannel) then
+	    return item.CVar;
+	  end
+	end
+	return;	
+end
+
+function GTFO_GetRealmName()
+	return gsub(GetRealmName(), "%s", "");
+end

@@ -5,26 +5,6 @@
 GTFO Mob List
 Author: Zensunim of Malygos
 
-Change Log:
-	v2.2
-		- Added Mob List
-		- Added Deathbringer Saurfang's Blood Beast
-		- Added Lady Deathwhisper's Vengeful Shades
-	v2.2.3
-		- Reduced memory footprint
-	v3.2
-		- Added Sethekk Spirit
-	v3.2.1
-		- Added Zombie Chow
-	v3.2.3
-		- Added Walking Bomb
-	v3.5.6
-		- Added Blood of the Old God
-	v4.2.3
-		- Added Voodoo Spirit
-	v4.6
-		- Added Al'akir's Stormling
-		
 Sample:
 
 GTFO.MobID["12345"] = {
@@ -85,3 +65,14 @@ GTFO.MobID["47175"] = {
 		return 0;
 	end
 };
+
+GTFO.MobID["71827"] = {
+	--desc = "Ash Elemental - SoO";
+	sound = 1;
+};
+
+GTFO.MobID["67664"] = {
+	--desc = "Tormented Ghost - Brawler's Guild";
+	sound = 3;		
+}
+

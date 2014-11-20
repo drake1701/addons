@@ -27,7 +27,7 @@ local function fromBase(str)
 	return num;
 end
 
-function mog:SetToLink(set,race,gender)
+function mog:SetToLink(set,race,gender,enchant)
 	local link = "[MogIt:";
 	for k,v in pairs(set) do
 		link = link..("%0"..maxlen.."s"):format(toBase(v));
@@ -35,6 +35,8 @@ function mog:SetToLink(set,race,gender)
 	link = link..":";
 	link = link..(race and toBase(race) or toBase(mog.playerRace));
 	link = link..(gender or mog.playerGender);
+	link = link..":";
+	link = link..(enchant and toBase(enchant) or 0);
 	link = link.."]";
 	return link;
 end
@@ -42,7 +44,7 @@ end
 function mog:LinkToSet(link)
 	local set = {};
 	--local items = link:match("MogIt:([^%]:]+)");
-	local items,race,gender = link:match("MogIt:(%w*):?(%w?)(%w?)");
+	local items,race,gender,enchant = link:match("MogIt:(%w*):?(%w?)(%w?):?(%w*)");
 	if items then
 		for i=1,#items/maxlen do
 			table.insert(set,fromBase(items:sub((i-1)*maxlen+1,i*maxlen)));
@@ -50,7 +52,8 @@ function mog:LinkToSet(link)
 	end
 	race = race and fromBase(race);
 	gender = tonumber(gender);
-	return set,race,gender;
+	enchant = enchant ~= "" and fromBase(enchant) or nil;
+	return set,race,gender,enchant;
 end
 
 local function filter(self,event,msg,...)
@@ -58,44 +61,51 @@ local function filter(self,event,msg,...)
 	return false, msg, ...;
 end
 
-ChatFrame_AddMessageEventFilter("CHAT_MSG_SAY",filter);
-ChatFrame_AddMessageEventFilter("CHAT_MSG_YELL",filter);
-ChatFrame_AddMessageEventFilter("CHAT_MSG_EMOTE",filter);
-ChatFrame_AddMessageEventFilter("CHAT_MSG_GUILD",filter);
-ChatFrame_AddMessageEventFilter("CHAT_MSG_OFFICER",filter);
-ChatFrame_AddMessageEventFilter("CHAT_MSG_PARTY",filter);
-ChatFrame_AddMessageEventFilter("CHAT_MSG_PARTY_LEADER",filter);
-ChatFrame_AddMessageEventFilter("CHAT_MSG_RAID",filter);
-ChatFrame_AddMessageEventFilter("CHAT_MSG_RAID_LEADER",filter);
-ChatFrame_AddMessageEventFilter("CHAT_MSG_RAID_WARNING",filter);
-ChatFrame_AddMessageEventFilter("CHAT_MSG_BATTLEGROUND",filter);
-ChatFrame_AddMessageEventFilter("CHAT_MSG_BATTLEGROUND_LEADER",filter);
-ChatFrame_AddMessageEventFilter("CHAT_MSG_WHISPER",filter);
-ChatFrame_AddMessageEventFilter("CHAT_MSG_WHISPER_INFORM",filter);
-ChatFrame_AddMessageEventFilter("CHAT_MSG_BN_WHISPER",filter);
-ChatFrame_AddMessageEventFilter("CHAT_MSG_BN_WHISPER_INFORM",filter);
-ChatFrame_AddMessageEventFilter("CHAT_MSG_BN_CONVERSATION",filter);
-ChatFrame_AddMessageEventFilter("CHAT_MSG_BN_INLINE_TOAST_BROADCAST",filter);
-ChatFrame_AddMessageEventFilter("CHAT_MSG_BN_INLINE_TOAST_BROADCAST_INFORM",filter);
-ChatFrame_AddMessageEventFilter("CHAT_MSG_CHANNEL",filter);
+local events = {
+	"CHAT_MSG_SAY",
+	"CHAT_MSG_YELL",
+	"CHAT_MSG_EMOTE",
+	"CHAT_MSG_GUILD",
+	"CHAT_MSG_OFFICER",
+	"CHAT_MSG_PARTY",
+	"CHAT_MSG_PARTY_LEADER",
+	"CHAT_MSG_RAID",
+	"CHAT_MSG_RAID_LEADER",
+	"CHAT_MSG_RAID_WARNING",
+	"CHAT_MSG_BATTLEGROUND",
+	"CHAT_MSG_BATTLEGROUND_LEADER",
+	"CHAT_MSG_WHISPER",
+	"CHAT_MSG_WHISPER_INFORM",
+	"CHAT_MSG_BN_WHISPER",
+	"CHAT_MSG_BN_WHISPER_INFORM",
+	"CHAT_MSG_BN_CONVERSATION",
+	"CHAT_MSG_BN_INLINE_TOAST_BROADCAST",
+	"CHAT_MSG_BN_INLINE_TOAST_BROADCAST_INFORM",
+	"CHAT_MSG_CHANNEL",
+};
 
-local old_SetItemRef = SetItemRef;
-function SetItemRef(link, ...)
+for i, event in ipairs(events) do
+	ChatFrame_AddMessageEventFilter(event,filter);
+end
+
+local SetHyperlink = ItemRefTooltip.SetHyperlink;
+function ItemRefTooltip:SetHyperlink(link)
 	if link:find("^MogIt") then
 		if IsModifiedClick("CHATLINK") then
 			ChatEdit_InsertLink("["..link.."]")
 		else
 			local preview = mog:GetPreview();
-			local set,race,gender = mog:LinkToSet(link);
+			local set,race,gender,enchant = mog:LinkToSet(link);
 			if race and gender then
 				preview.data.displayRace = race;
 				preview.data.displayGender = gender;
+				preview.data.weaponEnchant = enchant;
 				preview.model:ResetModel();
 				preview.model:Undress();
 			end
 			mog:AddToPreview(set,preview);
 		end
 	else
-		return old_SetItemRef(link, ...);
+		SetHyperlink(self, link);
 	end
 end

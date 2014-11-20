@@ -316,9 +316,12 @@ local ACHID_ZONE_MISC = {
 		6546, -- The Golden Lotus
 		7317, -- One Many Army
 		7318, -- A Taste of History
-		7315, -- Eternally in the Vale
+		--7315 "Eternally in the Vale" is now a Feat of Strength
 	},
 	["Isle of Thunder"] = 8121, -- "Stormbreaker"
+	["Timeless Isle"] = {
+		8715, 8726, 8725, 8728, 8712, 8723, 8533, 8724, 8730, 8717
+	},
 }
 if (IsAlliance) then
   tinsert(ACHID_ZONE_MISC["Grizzly Hills"], 2016) -- "Grizzled Veteran"
@@ -465,8 +468,13 @@ local ACHID_INSTANCES = {
 	["Mogu'shan Vaults"] = { 6458, 6844, 6674, 6687, 6823, 6455, 7056, 6686 }, -- "Guardians of Mogu'shan", "The Vault of Mysteries", "Anything You Can Do, I Can Do Better...", "Getting Hot in Here", "Must Love Dogs", "Show Me Your Moves!", "Sorry, Were You Looking for This?", "Straight Six"
 	["Terrace of Endless Spring"] = { 6689, 6824, 6717, 6825, 6933 }, -- "Terrace of Endless Spring", "Face Clutchers", "Power Overwhelming", "The Mind-Killer", "Who's Got Two Green Thumbs?"
 	["Throne of Thunder"] = {
-		8070, 8071, 8069, 8072, 8089, -- "Forgotten Depths", "Halls of Flesh-Shaping", "Last Stand of the Zandalari", "Pinnacle of Storms", "I Thought He Was Supposed to Be Hard?"
+		8070, 8071, 8069, 8072, -- "Forgotten Depths", "Halls of Flesh-Shaping", "Last Stand of the Zandalari", "Pinnacle of Storms"
 		8037, 8087, 8090, 8094, 8073, 8082, 8098, 8081, 8086 -- "Genetically Unmodified Organism", "Can't Touch This", "A Complete Circuit", "Lightning Overload", "Cage Match", "Head Case", "You Said Crossing the Streams Was Bad", "Ritualist Who?", "From Dusk 'til Dawn"
+		-- 8089 "I Thought He Was Supposed to Be Hard?" is now a Feat of Strength
+	},
+	["Siege of Orgrimmar"] = {
+		8454, 8458, 8459, 8461, 8462, -- "Glory of the Orgrimmar Raider", "Vale of Eternal Sorrows", "Gates of Retribution", "The Underhold", "Downfall"
+		IsAlliance and 8679 or 8680 -- "Conqueror of Orgrimmar" or "Liberator of Orgrimmar"
 	},
 }
 -- Battlegrounds
@@ -477,7 +485,8 @@ ACHID_INSTANCES["Strand of the Ancients"] = 2194
 ACHID_INSTANCES["Twin Peaks"] = 5223  -- "Master of Twin Peaks"
 ACHID_INSTANCES["Wildhammer Stronghold"] = 5223  -- Also part of Twin Peaks
 ACHID_INSTANCES["Dragonmaw Stronghold"] = 5223  -- Also part of Twin Peaks
-ACHID_INSTANCES["Temple of Kotmogu"] = 6981
+ACHID_INSTANCES["Temple of Kotmogu"] = 6981 -- "Master of Temple of Kotmogu"
+ACHID_INSTANCES["Deepwind Gorge"] = 8360 -- "Master of Deepwind Gorge"
 if (IsAlliance) then
 	ACHID_INSTANCES["Alterac Valley"] = { 1167, 907, 226 }
 	ACHID_INSTANCES["Arathi Basin"] = { 1169, 907 }
@@ -577,6 +586,10 @@ local ACHID_INSTANCES_HEROIC = {
 	["Mogu'shan Vaults"] = { 6723, 6720, 6722, 6721, 6719, 6724 },
 	["Terrace of Endless Spring"] = { 6733, 6731, 6734, 6732 },
 	["Throne of Thunder"] = { 8124, 8067 }, -- "Glory of the Thundering Raider", "Heroic: Lei Shen"
+	["Siege of Orgrimmar"] = {
+		8463, 8465, 8466, 8467, 8468, 8469, 8470, -- "Heroic: Immerseus", "Heroic: Fallen Protectors", "Heroic: Norushen", "Heroic: Sha of Pride", "Heroic: Galakras", "Heroic: Iron Juggernaut", "Heroic: Kor'kron Dark Shaman",
+		8471, 8472, 8478, 8479, 8480, 8481, 8482, -- "Heroic: General Nazgrim", "Heroic: Malkorok", "Heroic: Spoils of Pandaria", "Heroic: Thok the Bloodthirsty", "Heroic: Siegecrafter Blackfuse", "Heroic: Paragons of the Klaxxi", "Heroic: Garrosh Hellscream"
+	},
 }
 
 -- INSTANCES - 10-MAN ONLY (normal or heroic):
@@ -1096,7 +1109,7 @@ do
   -- CREATE LIST OF VALID LOCATIONS:
   -- Add all zones to the list:
   local zonetab = {}
-  for i=1,select("#",GetMapContinents()) do  zonetab[i] = { GetMapZones(i) };  end
+  for i=1,select("#",Overachiever.GetMapContinents_names()) do  zonetab[i] = { Overachiever.GetMapZones_names(i) };  end
   for i,tab in ipairs(zonetab) do
     for n,z in ipairs(tab) do  suggested[z] = true;  end  -- Already localized so no need for LBZ here.
   end
@@ -1106,7 +1119,11 @@ do
     local tab
     for i=1,select("#", ...) do
       tab = select(i, ...)
-      for k,v in pairs(tab) do  list[ LBZ[k] or k ] = true;  end  -- Add localized version of instance names.
+      for k,v in pairs(tab) do
+	    list[ LBZ[k] or k ] = true  -- Add localized version of instance names.
+		--print("adding: k = "..(LBZ[k] or k)..(LBZ[k] and "" or "no LBZ[k]"))
+		if (Overachiever_Debug and not LBZ[k]) then  print("POSSIBLE ERROR - no LBZ lookup found for "..k);  end
+	  end
     end
   end
   addtolist(suggested, ACHID_INSTANCES, ACHID_INSTANCES_NORMAL, ACHID_INSTANCES_HEROIC,
@@ -1119,8 +1136,10 @@ do
   for k in pairs(suggested) do
     count = count + 1
     LocationsList[count] = k
+	--print("adding "..k)
   end
   wipe(suggested)
+  WHATWHAT = LocationsList
   sort(LocationsList)
   -- Cross-reference by lowercase key to place in the array:
   for i,v in ipairs(LocationsList) do  LocationsList[strlower(v)] = i;  end

@@ -40,8 +40,8 @@ GameTooltip:SetUnitDebuff("unit", [index] or ["name", "rank"][, "filter"]);
 * The untilCanceled return value is true if the buff doesn't have its own duration (e.g. stealth)
 ]]--
 
-SMARTBUFF_VERSION       = "v5.3b";
-SMARTBUFF_VERSIONNR     = 50001;
+SMARTBUFF_VERSION       = "v6.0b";
+SMARTBUFF_VERSIONNR     = 60000;
 SMARTBUFF_TITLE         = "SmartBuff";
 SMARTBUFF_SUBTITLE      = "Supports you in cast buffs";
 SMARTBUFF_DESC          = "Cast the most important buffs on you or party/raid members/pets";
@@ -239,6 +239,19 @@ local function ChkS(text)
   return text;
 end
 
+local function IsVisibleToPlayer(self)
+  if (not self) then return false; end
+  
+  local w, h = UIParent:GetWidth(), UIParent:GetHeight();
+  local x, y = self:GetLeft(), UIParent:GetHeight() - self:GetTop();
+  
+  --print(format("w = %.0f, h = %.0f, x = %.0f, y = %.0f", w, h, x, y));  
+  if (x >= 0 and x < (w - self:GetWidth()) and y >= 0 and y < (h - self:GetHeight())) then
+    return true;
+  end
+  return false;
+end
+
 
 local function CS()
   if (currentSpec == nil) then
@@ -349,18 +362,28 @@ local function InitBuffOrder(reset)
   end
 end
 
+local function IsMinLevel(minLevel)
+  if (not minLevel) then 
+    return true;
+  end
+  if (minLevel > UnitLevel("player")) then
+    return false;
+  end
+  return true;
+end
 
+-- TODO: Redesign if reactivated!
 local function IsTalentSkilled(t, i, name)
-  local tName, _, _, _, tPoints = GetTalentInfo(t, i);
+  local _, tName, _, _, tAvailable = GetTalentInfo(t, i);
   if (tName) then
     isTTreeLoaded = true;
-    SMARTDEBUFF_AddMsgD("Talent: "..tName..", Points = "..tPoints);    
-    if (name and name == tName and tPoints > 0) then
-      SMARTDEBUFF_AddMsgD("Debuff talent found: "..name..", Points = "..tPoints);
-      return true, tPoints;
+    SMARTBUFF_AddMsgD("Talent: "..tName..", Points = "..tAvailable);    
+    if (name and name == tName and tAvailable > 0) then
+      SMARTBUFF_AddMsgD("Debuff talent found: "..name..", Points = "..tAvailable);
+      return true, tAvailable;
     end
   else
-    SMARTDEBUFF_AddMsgD("Talent tree not available!");
+    SMARTBUFF_AddMsgD("Talent tree not available!");
     isTTreeLoaded = false;
   end
   return false, 0;
@@ -404,8 +427,8 @@ function SMARTBUFF_OnLoad(self)
   SlashCmdList["SMARTBUFFMENU"] = SMARTBUFF_OptionsFrame_Toggle;
   SLASH_SMARTBUFFMENU1 = "/sbm";
   
-  SlashCmdList["SMARTBUFFRELOAD"] = function(msg) ReloadUI(); end;
-  SLASH_SMARTBUFFRELOAD1 = "/rui";
+  SlashCmdList["SmartReloadUI"] = function(msg) ReloadUI(); end;
+  SLASH_SmartReloadUI1 = "/rui";
   
   SMARTBUFF_InitSpellIDs();
   --DEFAULT_CHAT_FRAME:AddMessage("SB OnLoad");
@@ -607,7 +630,7 @@ function SMARTBUFF_OnUpdate(self, elapsed)
   if (not isInit) then
     if (isLoaded and GetTime() > tAutoBuff + 0.5) then
       tAutoBuff = GetTime();
-      tName = GetTalentInfo(1);
+      _, tName = GetTalentInfo(1, 1, 1);
       if (tName) then
         SMARTBUFF_OnEvent(self, "SMARTBUFF_UPDATE");
       end
@@ -899,12 +922,12 @@ function SMARTBUFF_GetSpellID(spellname)
   local i = 0;
   local nSpells = 0;
   local id = nil;
-  local spellN, isPassive, isNAY, spellId;
+  local spellN, spellId, skillType;
   
   -- Get number of spells
   --for i = 1, GetNumSpellTabs() do
   -- Common and specialization
-  for i = 1, 2 do
+  for i = 1, GetNumSpellTabs() do
     local _, _, _, n = GetSpellTabInfo(i);
     nSpells = nSpells + n;
   end  
@@ -914,7 +937,8 @@ function SMARTBUFF_GetSpellID(spellname)
     i = i + 1;
     spellN = GetSpellBookItemName(i, BOOKTYPE_SPELL);
     skillType, spellId = GetSpellBookItemInfo(i, BOOKTYPE_SPELL);
-      
+    --print(spellN.." "..spellId);
+
     if (skillType == "FLYOUT") then
       for j = 1, GetNumFlyouts() do
         local fid = GetFlyoutID(j);
@@ -938,10 +962,7 @@ function SMARTBUFF_GetSpellID(spellname)
   end
   
   if (id) then
-    isPassive = IsPassiveSpell(id) ~= nil;
-    --if (spellN) then SMARTBUFF_AddMsgD(spellN.." found, "..tostring(isPassive)..", "..skillType); end
-    if (isPassive or skillType == "FUTURESPELL") then
-    --if (isPassive or isNAY or spellId == nil or not IsSpellKnown(id, BOOKTYPE_SPELL)) then
+    if (IsPassiveSpell(id) or skillType == "FUTURESPELL" or not IsSpellKnown(id)) then
       id = nil;
       i = nil;
     end    
@@ -950,7 +971,6 @@ function SMARTBUFF_GetSpellID(spellname)
   return id, i;
 end
 -- END SMARTBUFF_GetSpellID
-
 
 -- Set the buff array
 function SMARTBUFF_SetBuffs()
@@ -1023,6 +1043,7 @@ function SMARTBUFF_SetBuff(buff, i, ia)
   cBuffs[i].Type = buff[3];
   cBuffs[i].CanCharge = false;
   if (SMARTBUFF_IsSpell(cBuffs[i].Type)) then
+    --print(cBuffs[i].BuffS);
     cBuffs[i].IDS, cBuffs[i].BookID = SMARTBUFF_GetSpellID(cBuffs[i].BuffS);
   end
   if (cBuffs[i].IDS == nil and not(SMARTBUFF_IsItem(cBuffs[i].Type) or cBuffs[i].Type == SMARTBUFF_CONST_TRACK)) then
@@ -1030,6 +1051,8 @@ function SMARTBUFF_SetBuff(buff, i, ia)
     return i;
   end
   
+  --print(cBuffs[i].IDS);
+
   if (buff[4] ~= nil) then cBuffs[i].LevelsS = buff[4] else cBuffs[i].LevelsS = nil end
   if (buff[5] ~= nil) then cBuffs[i].Params = buff[5] else cBuffs[i].Params = SG.NIL end
   cBuffs[i].Links = buff[6];
@@ -1040,7 +1063,7 @@ function SMARTBUFF_SetBuff(buff, i, ia)
   --  cBuffs[i].BuffS = SMARTBUFF_NETHERWARD;
   --end
   
-  if (cBuffs[i].IDS) then
+  if (cBuffs[i].IDS ~= nil) then
     cBuffs[i].IconS = GetSpellTexture(cBuffs[i].BuffS);
   else
     if (cBuffs[i].Type == SMARTBUFF_CONST_TRACK) then
@@ -1062,10 +1085,22 @@ function SMARTBUFF_SetBuff(buff, i, ia)
         return i;      
       end
     elseif (ia or cBuffs[i].Type == SMARTBUFF_CONST_ITEMGROUP) then
-      _, _, _, _, _, _, _, _, _, cBuffs[i].IconS = GetItemInfo(cBuffs[i].BuffS);
+      -- itemName, itemLink, itemRarity, itemLevel, itemMinLevel, itemType, itemSubType, itemStackCount, itemEquipLoc, itemTexture, itemSellPrice
+      local _, _, _, _, minLevel, _, _, _, _, texture = GetItemInfo(cBuffs[i].BuffS);
+      if (not IsMinLevel(minLevel)) then
+        cBuffs[i] = nil;
+        return i;      
+      end
+      cBuffs[i].IconS = texture;
     else
-      local bag, slot, count, texture = SMARTBUFF_FindReagent(cBuffs[i].BuffS, cBuffs[i].Chain);
-      if (count == 0) then
+      local _, _, _, _, minLevel = GetItemInfo(cBuffs[i].BuffS);
+      if (not IsMinLevel(minLevel)) then
+        cBuffs[i] = nil;
+        return i;      
+      end
+      
+      local _, _, count, texture = SMARTBUFF_FindItem(cBuffs[i].BuffS, cBuffs[i].Chain);
+      if (count <= 0) then
         cBuffs[i] = nil;
         return i;
       end    
@@ -1502,7 +1537,7 @@ function SMARTBUFF_IsShapeshifted()
     local i;
     for i = 1, GetNumShapeshiftForms(), 1 do
       local icon, name, active, castable = GetShapeshiftFormInfo(i);
-      if (active and castable and name ~= SMARTBUFF_DRUID_TREE) then
+      if (active and castable and name ~= SMARTBUFF_DRUID_TREANT) then
         return true, name;
       end
     end  
@@ -1592,9 +1627,10 @@ function SMARTBUFF_Check(mode, force)
       if (units) then
         for _, unit in pairs(units) do
           if (isSetBuffs) then break; end
-          --SMARTBUFF_AddMsgD("Checking single units " .. unit);
+          SMARTBUFF_AddMsgD("Checking single unit = "..unit);
           local spellName, actionType, slot, buffType;
           i, actionType, spellName, slot, _, buffType = SMARTBUFF_BuffUnit(unit, subgroup, mode);
+
           if (i <= 1) then
             if (i == 0 and mode ~= 1) then
               --tLastCheck = GetTime() - O.AutoTimer + GlobalCd;
@@ -1661,9 +1697,11 @@ function SMARTBUFF_BuffUnit(unit, subgroup, mode, spell)
   
   if (UnitExists(unit) and UnitIsFriend("player", unit) and not UnitIsDeadOrGhost(unit) and not UnitIsCorpse(unit)
     and UnitIsConnected(unit) and UnitIsVisible(unit) and not UnitOnTaxi(unit) and not cBlacklist[unit]
-    and ((UnitIsPVP(unit) == nil and (not isPvP or O.BuffPvP)) or (UnitIsPVP(unit) and (isPvP or O.BuffPvP)))) then
+    and ((not UnitIsPVP(unit) and (not isPvP or O.BuffPvP)) or (UnitIsPVP(unit) and (isPvP or O.BuffPvP)))) then
     --and not SmartBuff_UnitIsIgnored(unit)
     
+    --print("Prep Check");
+
     _, uc = UnitClass(unit);
     un = UnitName(unit);
     ur = UnitGroupRolesAssigned(unit);
@@ -1795,7 +1833,7 @@ function SMARTBUFF_BuffUnit(unit, subgroup, mode, spell)
                 local count = GetNumTrackingTypes();
                 for n = 1, GetNumTrackingTypes() do 
 	                local trackN, trackT, trackA, trackC = GetTrackingInfo(n);
-	                if (trackN ~= nil and trackA == nil) then
+	                if (trackN ~= nil and not trackA) then
 	                  --SMARTBUFF_AddMsgD(n..". "..trackN.." ("..trackC..")");
 	                  if (trackN == buffnS) then
 	                    if (sPlayerClass == "DRUID" and buffnS == SMARTBUFF_DRUID_TRACK) then
@@ -1887,7 +1925,7 @@ function SMARTBUFF_BuffUnit(unit, subgroup, mode, spell)
               -- Weapon buff ------------------------------------------------------------------------
               elseif (cBuff.Type == SMARTBUFF_CONST_WEAPON or cBuff.Type == SMARTBUFF_CONST_INV) then                                
                 --SMARTBUFF_AddMsgD("Check weapon Buff");
-                local bMh, tMh, cMh, bOh, tOh, cOh, bRh, tRh, cRh = GetWeaponEnchantInfo();                
+                local bMh, tMh, cMh, bOh, tOh, cOh = GetWeaponEnchantInfo();                
                 
                 if (bs.MH) then
                   iSlot = 16;
@@ -1942,34 +1980,7 @@ function SMARTBUFF_BuffUnit(unit, subgroup, mode, spell)
                     --SMARTBUFF_AddMsgD("Weapon Buff cannot be cast, no offhand weapon equipped or wrong weapon/stone type");
                   end
                 end
-                
-                if (bs.RH and not bExpire and handtype == "") then
-                  iSlot = 18;
-                  iId = GetInventoryItemID("player", iSlot);
-                  if (iId and SMARTBUFF_CanApplyWeaponBuff(buffnS, iSlot)) then
-                    if (bRh) then
-                      if (rbTime > 0 and cBuff.DurationS >= 1) then
-                        --if (tRh == nil) then tRh = 0; end
-                        tRh = floor(tRh/1000);
-                        charges = cOh;
-                        if (charges == nil) then charges = -1; end
-                        if (charges > 1) then cBuff.CanCharge = true; end
-                        --SMARTBUFF_AddMsgD(un .. " (WOH): " .. buffnS .. string.format(" %.0f sec left", tOh) .. ", " .. charges .. " charges left");
-                        if (tRh <= rbTime or (O.CheckCharges and cBuff.CanCharge and charges > 0 and charges <= O.MinCharges)) then
-                          buff = buffnS;
-                          bt = tRh;
-                          bExpire = true;                          
-                        end                      
-                      end
-                    else
-                      handtype = "ranged";
-                      buff = buffnS;
-                    end
-                  else
-                    --SMARTBUFF_AddMsgD("Weapon Buff cannot be cast, no ranged weapon equipped or wrong weapon/stone type");
-                  end
-                end                
-                
+
                 if (buff and cBuff.Type == SMARTBUFF_CONST_INV) then
                   local cr = SMARTBUFF_CountReagent(buffnS, cBuff.Chain);
                   if (cr > 0) then
@@ -2050,7 +2061,7 @@ function SMARTBUFF_BuffUnit(unit, subgroup, mode, spell)
                     if(cBuff.Params == SMARTBUFF_DRUID_CAT) then
                       buff = nil;
                     end                  
-                    if (buff and mode ~= 1 and not O.InShapeshift and (sShapename ~= SMARTBUFF_DRUID_MOONKIN and sShapename ~= SMARTBUFF_DRUID_TREE)) then
+                    if (buff and mode ~= 1 and not O.InShapeshift and (sShapename ~= SMARTBUFF_DRUID_MOONKIN and sShapename ~= SMARTBUFF_DRUID_TREANT)) then
                       --sMsgWarning = SMARTBUFF_MSG_SHAPESHIFT .. ": " .. sShapename;
                       buff = nil;
                     end
@@ -2072,10 +2083,10 @@ function SMARTBUFF_BuffUnit(unit, subgroup, mode, spell)
                   currentUnit = nil;
                   currentSpell = nil;
                   
-                  --try to apply weapon buffs on main/off/ranged hand
+                  --try to apply weapon buffs on main/off hand
                   if (cBuff.Type == SMARTBUFF_CONST_INV) then                    
                     if (iSlot and (handtype ~= "" or bExpire)) then
-                      local bag, slot, count, _ = SMARTBUFF_FindReagent(buffnS, cBuff.Chain);
+                      local bag, slot, count = SMARTBUFF_FindItem(buffnS, cBuff.Chain);
                       if (count > 0) then
                         sMsgWarning = "";
                         return 0, SMARTBUFF_ACTION_ITEM, buffnS, iSlot, "player", cBuff.Type;
@@ -2092,7 +2103,7 @@ function SMARTBUFF_BuffUnit(unit, subgroup, mode, spell)
                     
                   -- eat food or use scroll or potion
                   elseif (cBuff.Type == SMARTBUFF_CONST_FOOD or cBuff.Type == SMARTBUFF_CONST_SCROLL or cBuff.Type == SMARTBUFF_CONST_POTION) then
-                    local bag, slot, count, _ = SMARTBUFF_FindReagent(buffnS, cBuff.Chain);
+                    local bag, slot, count = SMARTBUFF_FindItem(buffnS, cBuff.Chain);
                     if (count > 0 or bExpire) then
                       sMsgWarning = "";
                       return 0, SMARTBUFF_ACTION_ITEM, buffnS, 0, "player", cBuff.Type;
@@ -2101,7 +2112,7 @@ function SMARTBUFF_BuffUnit(unit, subgroup, mode, spell)
                     
                   -- use item on a unit
                   elseif (cBuff.Type == SMARTBUFF_CONST_ITEMGROUP) then
-                    local bag, slot, count, _ = SMARTBUFF_FindReagent(buffnS, cBuff.Chain);
+                    local bag, slot, count = SMARTBUFF_FindItem(buffnS, cBuff.Chain);
                     if (count > 0) then
                       sMsgWarning = "";
                       return 0, SMARTBUFF_ACTION_ITEM, buffnS, 0, unit, cBuff.Type;
@@ -2111,7 +2122,7 @@ function SMARTBUFF_BuffUnit(unit, subgroup, mode, spell)
                   -- create item
                   elseif (cBuff.Type == SMARTBUFF_CONST_ITEM) then
                     r = 20;
-                    local bag, slot, count, _ = SMARTBUFF_FindReagent(buff, cBuff.Chain);                    
+                    local bag, slot, count = SMARTBUFF_FindItem(buff, cBuff.Chain);                    
                     if (count == 0) then
                       r = SMARTBUFF_doCast(unit, cBuff.IDS, buffnS, cBuff.LevelsS, cBuff.Type);
                       if (r == 0) then
@@ -2446,7 +2457,7 @@ function SMARTBUFF_CheckUnitBuffs(unit, buffN, buffT, buffL, buffC)
               for n = 1, GetNumShapeshiftForms(), 1 do
                 local _, name, active, castable = GetShapeshiftFormInfo(n);
                 --print(t[i]..", "..name..", active = "..(active or "nil"));
-                if (name and active == nil and castable and name == t[i]) then
+                if (name and not active and castable and name == t[i]) then
                   return defBuff, nil, nil, nil, nil;
                 elseif (name and active and castable and name == t[i]) then
                   --print("Chained stance found: "..t[i]);
@@ -2506,7 +2517,9 @@ function SMARTBUFF_CheckUnitBuffs(unit, buffN, buffT, buffL, buffC)
             local b, tl, im = SMARTBUFF_CheckBuff(unit, t[i]);
             if (b and im) then
               --SMARTBUFF_AddMsgD("Chained buff found: "..t[i]..", "..tl);
-              return nil, i, defBuff, tl, -1;
+              if (SMARTBUFF_CheckBuffLink(unit, t[i], v.Type, v.Links)) then
+                return nil, i, defBuff, tl, -1;
+              end
             elseif (not b and t[i] == defBuff) then
               return defBuff, nil, nil, nil, nil;
             end
@@ -2529,11 +2542,35 @@ function SMARTBUFF_CheckUnitBuffs(unit, buffN, buffT, buffL, buffC)
       return nil, 0, defBuff, timeleft, count;
     end
   end  
-  
+
   -- Buff not found, return default buff
   return defBuff, nil, nil, nil, nil;
 end
 
+
+function SMARTBUFF_CheckBuffLink(unit, defBuff, buffT, buffL)
+  -- Check linked buffs
+  if (buffL) then
+    if (not O.LinkSelfBuffCheck and buffT == SMARTBUFF_CONST_SELF) then
+      -- Do not check linked self buffs
+    elseif (not O.LinkGrpBuffCheck and buffT == SMARTBUFF_CONST_GROUP) then
+      -- Do not check linked group buffs
+    else
+      for n, v in pairs(buffL) do
+        if (v and v ~= defBuff) then
+          SMARTBUFF_AddMsgD("Check linked buff ("..uname.."): "..v);
+          buff, _, icon, count, _, duration, timeleft, caster = UnitBuff(unit, v);
+          if (buff) then
+            timeleft = timeleft - time;
+            SMARTBUFF_AddMsgD("Linked buff found: "..buff..", "..timeleft..", "..icon);
+            return nil, n, defBuff, timeleft, count;
+          end
+        end
+      end
+    end
+  end
+  return defBuff;
+end
 
 function SMARTBUFF_CheckBuffChain(unit, buff, chain)
   local i;
@@ -2543,8 +2580,8 @@ function SMARTBUFF_CheckBuffChain(unit, buff, chain)
       SMARTBUFF_AddMsgD("Check chained buff: "..buff);
       for i = 1, #t, 1 do
         if (t[i] and t[i] ~= buff and tfind(chain, t[i])) then
-          local b, tl = SMARTBUFF_CheckBuff(unit, t[i], true);
-          if (b) then
+          local b, tl, im = SMARTBUFF_CheckBuff(unit, t[i], true);
+          if (b and im) then
             SMARTBUFF_AddMsgD("Chained buff found: "..t[i]);
             return nil, i, buff, tl, -1;
           end
@@ -2688,7 +2725,15 @@ end
 
 -- Returns the number of a reagent currently in player's bag
 function SMARTBUFF_CountReagent(reagent, chain)
-  if (reagent == nil) then return 99; end
+  if (reagent == nil) then
+    return -1, nil;
+  end
+  
+  local toy = SG.Toybox[reagent];
+  if (toy) then
+    return 1, toy[1];
+  end
+
   local n = 0;
   local id = nil;
   local bag = 0;
@@ -2714,8 +2759,16 @@ function SMARTBUFF_CountReagent(reagent, chain)
   return n, id;
 end
 
-function SMARTBUFF_FindReagent(reagent, chain)
-  if (reagent == nil) then return 99; end
+function SMARTBUFF_FindItem(reagent, chain)
+  if (reagent == nil) then
+    return nil, nil, -1, nil;
+  end
+  
+  local toy = SG.Toybox[reagent];
+  if (toy) then
+    return 999, toy[1], 1, toy[2];
+  end
+  
   local n = 0;
   local bag = 0;
   local slot = 0;
@@ -2862,7 +2915,7 @@ function SMARTBUFF_Options_Init(self)
   --DebugChatFrame:AddMessage("Starting init SB");
   
   _, sPlayerClass = UnitClass("player");
-  sRealmName = GetCVar("RealmName");
+  sRealmName = GetRealmName();
   sPlayerName = UnitName("player");
   sID = sRealmName .. ":" .. sPlayerName;
   --AutoSelfCast = GetCVar("autoSelfCast");
@@ -2993,7 +3046,7 @@ function SMARTBUFF_Options_Init(self)
     isParrot = true;    
   end
     
-  SMARTBUFF_FindReagent("ScanBagsForSBInit");  
+  SMARTBUFF_FindItem("ScanBagsForSBInit");  
     
   SMARTBUFF_AddMsg(SMARTBUFF_VERS_TITLE .. " " .. SMARTBUFF_MSG_LOADED, true);
   SMARTBUFF_AddMsg("/sbm - " .. SMARTBUFF_OFT_MENU, true);
@@ -3053,15 +3106,15 @@ function SMARTBUFF_Options_Init(self)
       SMARTBUFF_ToggleTutorial();
     end
     
-    if (SMARTBUFF_VERSION == "v5.3b") then
-      SmartBuff_KeyButton:ClearAllPoints();
-      SmartBuff_KeyButton:SetPoint("CENTER", UIParent, "CENTER", 0, 100);
-    end
-    
     SmartBuffWNF_lblText:SetText(SMARTBUFF_WHATSNEW);
     SmartBuffWNF:Show();    
   else
     SMARTBUFF_SetBuffs();
+  end
+
+  if (not IsVisibleToPlayer(SmartBuff_KeyButton)) then
+    SmartBuff_KeyButton:ClearAllPoints();
+    SmartBuff_KeyButton:SetPoint("CENTER", UIParent, "CENTER", 0, 100);
   end
   
   SMARTBUFF_SetUnits();
@@ -3083,13 +3136,11 @@ function SMARTBUFF_InitActionButtonPos()
   --print(format("x = %.0f, y = %.0f", O.ActionBtnX, O.ActionBtnY));
 end
 
-
 function SMARTBUFF_ResetAll()  
   wipe(SMARTBUFF_Buffs);
   wipe(SMARTBUFF_Options);
   ReloadUI();
 end
-
 
 function SMARTBUFF_SetButtonPos(self)
   local x, y = self:GetLeft(), self:GetTop() - UIParent:GetHeight();
@@ -3485,11 +3536,7 @@ function SmartBuff_BuffSetup_Show(i)
     if (cBuffs[i].Type == SMARTBUFF_CONST_INV or cBuffs[i].Type == SMARTBUFF_CONST_WEAPON) then
       SmartBuff_BuffSetup_cbMH:Show();
       SmartBuff_BuffSetup_cbOH:Show();
-      if (sPlayerClass == "ROGUE") then
-        SmartBuff_BuffSetup_cbRH:Show();
-      else
-        SmartBuff_BuffSetup_cbRH:Hide();
-      end
+      SmartBuff_BuffSetup_cbRH:Hide();
     else
       SmartBuff_BuffSetup_cbMH:Hide();
       SmartBuff_BuffSetup_cbOH:Hide();
@@ -3594,9 +3641,13 @@ function SmartBuff_BuffSetup_ToolTip(mode)
   
   GameTooltip:ClearLines();
   if (SMARTBUFF_IsItem(btype)) then
-    local bag, slot, count, texture = SMARTBUFF_FindReagent(cBuffs[i].BuffS, cBuffs[i].Chain);
+    local bag, slot, count, texture = SMARTBUFF_FindItem(cBuffs[i].BuffS, cBuffs[i].Chain);
     if (bag and slot) then
-      GameTooltip:SetBagItem(bag, slot);
+      if (bag == 999) then -- Toy
+        GameTooltip:SetToyByItemID(slot);
+      else
+        GameTooltip:SetBagItem(bag, slot);
+      end
     end
   else
     if (mode == 1 and ids) then
@@ -3732,6 +3783,22 @@ function SmartBuffOptionsFrameSlider_OnLoad(self, low, high, step, labels)
   end
   self:SetMinMaxValues(low, high);
   self:SetValueStep(step);
+  self:SetStepsPerPage(step);
+  
+  if (step < 1) then return; end
+  
+  self.GetValueBase = self.GetValue;
+  self.GetValue = function()
+    local n = self:GetValueBase();
+    if (n) then
+      local r = Round(n);
+      if (r ~= n) then
+        self:SetValue(n);
+      end
+      return r;
+    end
+    return low;
+  end;  
 end
 
 function SmartBuff_SetSliderText(self, text, value, valformat, setval)

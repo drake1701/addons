@@ -1,14 +1,22 @@
--------==------------
+local _, ns = ...
+local t = ns.ThreatPlates
+
+-------------------
 -- Threat Widget --
 -------------------
 local path = "Interface\\AddOns\\TidyPlates_ThreatPlates\\Widgets\\ThreatWidget\\"
 
+local function enabled()
+	local db = TidyPlatesThreat.db.profile.threat.art
+	return db.ON
+end
+
 -- Threat Widget
 local function UpdateThreatWidget(frame, unit)
-	local db = TidyPlatesThreat.db.profile
+	if not InCombatLockdown() then frame:Hide() end;
+	local Char = TidyPlatesThreat.db.char.spec
 	local threatLevel 
-	local style = SetStyleThreatPlates(unit)
-	if TidyPlatesThreat.db.char.threat.tanking then
+	if Char[t.Active()] then -- Tanking uses regular textures / swapped for dps / healing
 		threatLevel = unit.threatSituation
 	else
 		if unit.threatSituation == "HIGH" then
@@ -19,22 +27,28 @@ local function UpdateThreatWidget(frame, unit)
 			threatLevel = "MEDIUM"
 		end
 	end
-	if ((style == "dps") or (style == "tank") or (style == "unique")) and InCombatLockdown() and unit.class == "UNKNOWN" and db.threat.art.ON then
-		if unit.isMarked and db.threat.marked.art then
+	if enabled() then
+		local prof = TidyPlatesThreat.db.profile.threat
+		if unit.isMarked and prof.marked.art then
 			frame:Hide()
 		else
-			frame.Texture:SetTexture(path..db.threat.art.theme.."\\"..threatLevel)
-			frame:Show()
+			local style = TidyPlatesThreat.SetStyle(unit)
+			if ((style == "dps") or (style == "tank") or (style == "unique")) and InCombatLockdown() and unit.class == "UNKNOWN" then
+				frame.Texture:SetTexture(path..prof.art.theme.."\\"..threatLevel)
+				frame:Show()
+			end
 		end
 	else
 		frame:Hide()
 	end
 end
+
 local function CreateThreatArtWidget(parent)
 	local frame = CreateFrame("Frame", nil, parent)
 	frame:SetFrameLevel(parent.bars.healthbar:GetFrameLevel()+2)
 	frame:SetWidth(256)
-	frame:SetHeight(64)	
+	frame:SetHeight(64)
+	frame:SetPoint("CENTER",parent,"CENTER")
 	frame.Texture = frame:CreateTexture(nil, "OVERLAY")
 	frame.Texture:SetAllPoints(frame)
 	frame:Hide()
@@ -42,4 +56,4 @@ local function CreateThreatArtWidget(parent)
 	return frame
 end
 
-ThreatPlatesWidgets.CreateThreatArtWidget = CreateThreatArtWidget
+ThreatPlatesWidgets.RegisterWidget("ThreatArtWidget",CreateThreatArtWidget,false,enabled)

@@ -9,6 +9,7 @@ L:SetGeneralLocalization({
 	name = "General Options"
 })
 
+
 L:SetTimerLocalization({
 	TimerInvite = "%s"
 })
@@ -78,10 +79,28 @@ L:SetOptionLocalization({
 })
 
 L:SetMiscLocalization({
-	ScoreExpr	= "(%d+)/1600",
+	ScoreExpr	= "(%d+)/1500",
 	WinBarText	= "%s wins",
-	BasesToWin	= "Bases to win: %d",
-	Flag		= "Flag"
+	BasesToWin	= "Bases to win: %d"
+})
+
+---------------------
+--  Deepwind Gorge --
+---------------------
+L = DBM:GetModLocalization("z1105")
+
+L:SetTimerLocalization({
+       TimerCap        = "%s"
+})
+
+L:SetOptionLocalization({
+       TimerCap        = "Show capture timer",
+       TimerWin        = "Show win timer"
+})
+
+L:SetMiscLocalization({
+       ScoreExpr       = "(%d+)/1500",
+       WinBarText      = "%s wins"
 })
 
 ------------------------
@@ -100,8 +119,9 @@ L:SetOptionLocalization({
 })
 
 L:SetMiscLocalization({
-	ScoreExpr		= "(%d+)/1600",
+	ScoreExpr		= "(%d+)/1500",
 	WinBarText 		= "%s wins",
+	Flag			= "Flag",
 	FlagReset 		= "The flag has been reset!",
 	FlagTaken 		= "(.+) has taken the flag!",
 	FlagCaptured	= "The .+ ha%w+ captured the flag!",
@@ -130,11 +150,13 @@ L:SetMiscLocalization({
 	BgStart30 			= "The battle begins in 30 seconds.  Prepare yourselves!",
 	InfoErrorText		= "The flag carrier targeting function will be restored when you are out of combat.",
 	ExprFlagPickUp		= "The (%w+) .lag was picked up by (.+)!",
-	ExprFlagCaptured	= "(.+) captured the (%w+) flag!",
+	ExprFlagCaptured	= "(.+) captured the (%w+) .lag!",
 	ExprFlagReturn		= "The (%w+) .lag was returned to its base by (.+)!",
 	FlagAlliance		= "Alliance Flag: ",
 	FlagHorde			= "Horde Flag: ",
-	FlagBase			= "Base"
+	FlagBase			= "Base",
+	Vulnerable1			= "The flag carriers have become vulnerable to attack!",
+	Vulnerable2			= "The flag carriers have become increasingly vulnerable to attack!"
 })
 
 ------------------------
@@ -200,8 +222,8 @@ L:SetMiscLocalization({
 	FlagAlliance		= "Alliance Flag: ",
 	FlagHorde			= "Horde Flag: ",
 	FlagBase			= "Base",
-	Vulnerable1		= "The flag carriers have become vulnerable to attack!",
-	Vulnerable2		= "The flag carriers have become increasingly vulnerable to attack!"
+	Vulnerable1			= "The flag carriers have become vulnerable to attack!",
+	Vulnerable2			= "The flag carriers have become increasingly vulnerable to attack!"
 })
 
 ------------------------------
@@ -221,10 +243,9 @@ L:SetOptionLocalization({
 })
 
 L:SetMiscLocalization({
-	ScoreExpr	= "(%d+)/2000",
+	ScoreExpr	= "(%d+)/1500",
 	WinBarText	= "%s wins",
-	BasesToWin	= "Bases to win: %d",
-	Flag		= "Flag"
+	BasesToWin	= "Bases to win: %d"
 })
 
 -------------------------
@@ -258,7 +279,7 @@ L:SetOptionLocalization({
 L:SetMiscLocalization({
 	OrbTaken 	= "(%S+) has taken the (%S+) orb!",
 	OrbReturn 	= "The (%S+) orb has been returned!",
-	ScoreExpr	= "(%d+)/1600",
+	ScoreExpr	= "(%d+)/1500",
 	WinBarText	= "Estimate %s wins",
 	OrbsToWin	= "Orbs to win: %d"
 })

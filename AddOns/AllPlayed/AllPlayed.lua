@@ -1,7 +1,7 @@
 local AP_display_name, AP = ...
 
 -- AllPlayed.lua
--- $Id: AllPlayed.lua 278 2013-03-03 20:20:04Z LaoTseu $
+-- $Id: AllPlayed.lua 295 2014-08-02 22:03:32Z LaoTseu $
 
 
 --[[ ================================================================= ]]--
@@ -34,7 +34,7 @@ local LibStub = _G.LibStub
 -- Revision
 if not _G.AllPlayed_revision then _G.AllPlayed_revision = {} end
 local AllPlayed_revision = _G.AllPlayed_revision
-AllPlayed_revision.main	= ("$Revision: 278 $"):match("(%d+)")
+AllPlayed_revision.main	= ("$Revision: 295 $"):match("(%d+)")
 AllPlayed_revision.toc  = _G.GetAddOnMetadata("AllPlayed", "Version"):match("%$Revision:%s(%d+)")
 
 -- Backward and forward compatilility when playing Cataclysm
@@ -196,6 +196,7 @@ local default_options = {
 						class_loc                  = "",   -- Localized class name
 						race								= "",   -- English race name
 						race_loc							= "",   -- Localized race name
+						guild								= "",   -- Guild name
 						level                      = 0,
 						coin                       = 0,
 						rested_xp                  = 0,
@@ -244,6 +245,7 @@ local default_options = {
 			use_pre_210_shaman_colour	= false,
 			show_ilevel						= false,
 			show_location              = "none",
+			show_guild						= false,
 			show_xp_total              = true,
 			show_valor_points				= false,
 			show_valor_total				= false,
@@ -362,10 +364,10 @@ function AllPlayed:OnEnable()
     self:RegisterEvent("ZONE_CHANGED_NEW_AREA", 		"EventHandler")
     self:RegisterEvent("ZONE_CHANGED",          		"EventHandler")
     self:RegisterEvent("MINIMAP_ZONE_CHANGED",  		"EventHandler")
-    --if(self:GetOption('show_coins')) then
-    	self:RegisterEvent("PLAYER_MONEY",      "EventHandler")
-    --end
-  	 self:RegisterEvent("CURRENCY_DISPLAY_UPDATE",     "EventHandler")
+    self:RegisterEvent("PLAYER_MONEY",      				"EventHandler")
+    self:RegisterEvent("CURRENCY_DISPLAY_UPDATE",     "EventHandler")
+  	 self:RegisterEvent("PLAYER_GUILD_UPDATE",			"EventHandler")
+  	 self:RegisterEvent("PLAYER_UPDATE_RESTING",			"EventHandler")
     self:RegisterEvent("CHAT_MSG_COMBAT_HONOR_GAIN",  "EventHandlerHonorGain")
 	 self:RegisterEvent("BAG_UPDATE",     					"EventHandlerOnlySort")
 
@@ -764,6 +766,12 @@ function AllPlayed:DrawTooltip(anchor)
 	if self:GetOption('show_location') ~= "none" then
 		nb_columns = nb_columns + 1
 	end
+	
+	-- Is the Guild column needed?
+	if self:GetOption('show_guild') then
+		nb_columns = nb_columns + 1
+	end
+	
 
 	-- Do we have PvP columns?
 	local need_pvp = false
@@ -773,13 +781,6 @@ function AllPlayed:DrawTooltip(anchor)
 			nb_columns = nb_columns + 1
 		end
 	end
-	--[[
-	local need_pvp =	self:GetOption('show_arena_points') or
-							self:GetOption('show_honor_points') or
-							self:GetOption('show_honor_kills') or
-							self:GetOption('show_conquest_points')
-	if need_pvp then nb_columns = nb_columns + 1 end
-	]]--
 
 	-- Do we need to display the item level
 	local need_ilevel = self:GetOption('show_ilevel')
@@ -792,7 +793,6 @@ function AllPlayed:DrawTooltip(anchor)
 	-- De we need to display the Justice Points
 	local need_jp =	self:GetOption('show_justice_points')
 	if need_jp then nb_columns = nb_columns + 1 end
-
 
 	-- Is the gold/rested XP column needed?
 	if self:GetOption('show_coins')
@@ -901,7 +901,7 @@ function AllPlayed:DrawTooltip(anchor)
 					tooltip:SetCell(line, 1, text_realm, "LEFT", nb_columns)
 
 
-					for _, pc in ipairs(self.sort_realm_pc[self:GetOption('display_sort_type')][faction][realm]) do
+					for i, pc in ipairs(self.sort_realm_pc[self:GetOption('display_sort_type')][faction][realm]) do
 						if not self:GetOption('is_ignored', realm, pc) then
 							local pc_data = self.db.global.data[faction][realm][pc]
 
@@ -956,6 +956,13 @@ function AllPlayed:DrawTooltip(anchor)
 													)
 								end
 
+								col_align[col_no] = 'CENTER'
+								col_no = col_no + 1
+								col_text[col_no] = ''
+							end
+							
+							if self:GetOption('show_guild') then
+								col_text[col_no] = FactionColour(faction, pc_data.guild)
 								col_align[col_no] = 'CENTER'
 								col_no = col_no + 1
 								col_text[col_no] = ''
@@ -1108,6 +1115,8 @@ function AllPlayed:DrawTooltip(anchor)
 							end
 
 							line, column = tooltip:AddLine()
+							local color = (i % 2) == 1 and .4 or nil
+							if color then tooltip:SetLineColor(line, color, color, color, self:GetOption('opacity')) end
 							for i=1,nb_columns do
 								tooltip:SetCell(line, i, "  "..col_text[i], col_align[i])
 							end
@@ -1287,11 +1296,12 @@ function AllPlayed:SaveVar()
     -- Fill some of the SaveVariables
     local pc = self.db.global.data[self.faction][self.realm][self.pc]
     -- Make sure that rested_xp is not nil
-    pc.rested_xp = _G.GetXPExhaustion() or 0
+    pc.rested_xp 				= _G.GetXPExhaustion() or 0
     pc.class_loc, pc.class	= _G.UnitClass("player")
     pc.race_loc, pc.race	= _G.UnitRace("player")
     pc.level           		= _G.UnitLevel("player")
     pc.xp              		= _G.UnitXP("player")
+    pc.guild					= _G.GetGuildInfo("player")
     -- Inner Peace, the Padaren racial passive, allow for twice the normal amount of rested XP
     pc.max_rested_xp   		= unit_xp_max * 1.5 * (1 + (_G.IsSpellKnown(107074) and 1 or 0))
     pc.last_update     		= time()
@@ -1305,7 +1315,10 @@ function AllPlayed:SaveVar()
 	 pc.period_valor_points, pc.max_period_valor_points
 	 								= select(7, _G.GetLFGDungeonRewardCapBarInfo(301))
 
-	 -- Statistical stuff
+	 -- To fix a bug in 5.4.7 where the rested XP is bigger then the remaining XP needed to level to 90
+	 if pc.level == self.max_pc_level - 1 then
+	 	pc.rested_xp = min(pc.rested_xp, unit_xp_max - pc.xp)
+	 end
 
 
     -- Verify that the XPToNextLevel return the proper value and store the value if it is not the case
@@ -1378,15 +1391,6 @@ function AllPlayed:GetOption( option, ... )
 	elseif option == 'show_minimap_icon' then
 		return not self.db.profile.options.ldbicon.hide
 	end
-
-	--if option == 'show_conquest_points' or
-	--	option == 'show_valor_points' or
-	--	option == 'show_valor_total' or
-	--	option == 'show_justice_points' or
-	--	option == 'show_justice_total'
-	--then
-	--	return false
-	--end
 
 	return self.db.profile.options[option]
 end
@@ -2272,7 +2276,7 @@ function InitXPToLevelCache( game_version, build_version )
 		date, toc_number = select(3, _G.GetBuildInfo())
 	end
 
-	-- Values for the 4.0.3 patches
+	-- Values for the 5.4.7 patches
 	XPToNextLevelCache[10]    = 6700
 	XPToNextLevelCache[11]    = 7000
 	XPToNextLevelCache[12]    = 7700
@@ -2348,11 +2352,11 @@ function InitXPToLevelCache( game_version, build_version )
 	XPToNextLevelCache[82] 	  = 2669000
 	XPToNextLevelCache[83] 	  = 3469000
 	XPToNextLevelCache[84] 	  = 4583000
-	XPToNextLevelCache[85] 	  = 13000000
-	XPToNextLevelCache[86] 	  = 15080000
-	XPToNextLevelCache[87] 	  = 18980000
-	XPToNextLevelCache[88] 	  = 22880000
-	XPToNextLevelCache[89] 	  = 27560000
+	XPToNextLevelCache[85] 	  = 8670000
+	XPToNextLevelCache[86] 	  = 10050000
+	XPToNextLevelCache[87] 	  = 12650000
+	XPToNextLevelCache[88] 	  = 15250000
+	XPToNextLevelCache[89] 	  = 18370000
 
 	-- Initialize the exceptions that were found by AllPlayed
 	--	XPToNextLevelCache = self.db.global.cache.XPToNextLevel[build_version]
@@ -2500,7 +2504,8 @@ end
 AllPlayedLDB = ldb:NewDataObject("AllPlayed", {
 	type = "data source",
 	text = "***AllPlayed***",
-	icon = "Interface\\Icons\\INV_Misc_PocketWatch_02.blp",
+	-- icon = "Interface\\Icons\\INV_Misc_PocketWatch_02.blp",
+	icon = "Interface\\Icons\\INV_Misc_PocketWatch_02",
 })
 
 local ldb_options = { type = 'group' }

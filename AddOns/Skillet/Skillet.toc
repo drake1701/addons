@@ -1,14 +1,14 @@
-## Interface: 60000
+﻿## Interface: 60000
 ## Title: Skillet |cff7fff7f -Ace3-|r
 ## Notes: A replacement tradeskill window
 ## Notes-esES: Una sustitucion de la ventana de Habilidades de Comercio
 ## Notes-ruRU: Заменяет окно профессий на более функциональное.
-## Author: yossa, lilsparky
-## Version 2.44
+## Author: yossa, bsmorgan
+## Version 2.641 
 ## X-Category: Tradeskill
 ## X-eMail: yossa.addons@googlemail.com
 ## X-License GPL v3 or later
-## X-Credits nogudnik (creator of Skillet), Slartie (for ASTW)
+## X-Credits lilsparky, nogudnik (creator of Skillet), Slartie (for ASTW)
 ## X-RelSite-WoWI: 7571
 #### X-AceForum: 9179
 ## X-WoWIPortal: yossa
@@ -16,24 +16,22 @@
 ## X-RelSite-Curse: http://wow.curse.com/downloads/wow-addons/details/skillet.aspx
 #### X-RelSite-UI.WoW:
 ## SavedVariables: SkilletDB
-## SavedVariablesPerCharacter: SkilletDBPC
-## OptionalDeps: Ace3, LibAbacus-3.0, LibDialog-1.0, LibWindow-1.1, LibPeriodicTable-3.1, Fizzwidget Reagent Cost, TradeSkillInfo
+## SavedVariablesPerCharacter: SkilletDBPC, SkilletMemory
+## OptionalDeps: Ace3, LibAbacus-3.0, LibDialog-1.0, LibWindow-1.1, LibPeriodicTable-3.1, GFW_ReagentCost, TradeSkillInfo, TradeSkillMaster
 ## X-Embeds: Ace3, LibStub, CallbackHandler-1.0, LibAbacus-3.0, LibDialog-1.0, LibWindow-1.1, LibPeriodicTable-3.1
-## X-Revision: $Rev: 314 $
-## X-Curse-Packaged-Version: 2.44
+## X-Curse-Packaged-Version: 2.65
 ## X-Curse-Project-Name: Skillet
 ## X-Curse-Project-ID: skillet
 ## X-Curse-Repository-ID: wow/skillet/mainline
 
+
 ## LoadManagers: AddonLoader
 ## X-LoadOn-Always: delayed
-
 
 #### List of embedded libraries
 #@no-lib-strip@
 Libs\LibStub\LibStub.lua
 Libs\CallbackHandler-1.0\CallbackHandler-1.0.xml
-
 Libs\AceAddon-3.0\AceAddon-3.0.xml
 Libs\AceEvent-3.0\AceEvent-3.0.xml
 Libs\AceHook-3.0\AceHook-3.0.xml
@@ -44,7 +42,6 @@ Libs\AceConsole-3.0\AceConsole-3.0.xml
 Libs\AceGUI-3.0\AceGUI-3.0.xml
 Libs\AceConfig-3.0\AceConfig-3.0.xml
 Libs\AceTimer-3.0\AceTimer-3.0.xml
-
 Libs\LibAbacus-3.0\lib.xml
 Libs\LibDialog-1.0\lib.xml
 Libs\LibWindow-1.1\LibWindow-1.1.lua
@@ -54,19 +51,18 @@ Libs\LibPeriodicTable-3.1\LibPeriodicTable-3.1-TradeskillResultMats\LibPeriodicT
 Libs\LibPeriodicTable-3.1\LibPeriodicTable-3.1-TradeskillLevels\LibPeriodicTable-3.1-TradeskillLevels.lua
 #@end-no-lib-strip@
 
-
 #### Localization files
-Locale\Locale-ptBR.lua
 Locale\Locale-enUS.lua
-Locale\Locale-frFR.lua
+
 Locale\Locale-deDE.lua
+Locale\Locale-esES.lua
+Locale\Locale-frFR.lua
 Locale\Locale-itIT.lua
 Locale\Locale-koKR.lua
+Locale\Locale-ptBR.lua
 Locale\Locale-ruRU.lua
-Locale\Locale-zhTW.lua
 Locale\Locale-zhCN.lua
-Locale\Locale-esES.lua
-
+Locale\Locale-zhTW.lua
 
 #### Main files
 Skillet.lua
@@ -79,12 +75,15 @@ SkillLevelData.lua
 RecipeGroups.lua
 Inventory.lua
 SkilletPlugin.lua
+DebugAids.lua
+## Only needed for serious debugging.
+## DeepCopy.lua 
 
 #### Plugins
 Plugins\AckisRecipeList.lua
 Plugins\TradeSkillInfo.lua
 Plugins\BeanCounter.lua
-
+Plugins\TradeSkillMaster.lua
 
 #### UI files
 UI\Utils.lua
@@ -98,4 +97,3 @@ UI\MerchantWindow.lua
 UI\MerchantWindow.xml
 UI\ShoppingList.lua
 UI\ShoppingList.xml
-

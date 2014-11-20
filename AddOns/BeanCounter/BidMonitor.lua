@@ -1,7 +1,7 @@
 --[[
 	Auctioneer Addon for World of Warcraft(tm).
-	Version: 5.17.5413 (NeedyNoddy)
-	Revision: $Id: BidMonitor.lua 5235 2011-11-30 11:12:11Z brykrys $
+	Version: 5.21c.5521 (SanctimoniousSwamprat)
+	Revision: $Id: BidMonitor.lua 5457 2014-06-11 11:20:23Z brykrys $
 	URL: http://auctioneeraddon.com/
 
 	BidMonitor - Records bids posted in the Auctionhouse
@@ -28,7 +28,7 @@
 		since that is it's designated purpose as per:
 		http://www.fsf.org/licensing/licenses/gpl-faq.html#InterpreterIncompat
 ]]
-LibStub("LibRevision"):Set("$URL: http://svn.norganna.org/auctioneer/branches/5.17/BeanCounter/BidMonitor.lua $","$Rev: 5235 $","5.1.DEV.", 'auctioneer', 'libs')
+LibStub("LibRevision"):Set("$URL: http://svn.norganna.org/auctioneer/branches/5.21c/BeanCounter/BidMonitor.lua $","$Rev: 5457 $","5.1.DEV.", 'auctioneer', 'libs')
 
 local libName = "BeanCounter"
 local libType = "Util"
@@ -45,7 +45,7 @@ end
 -- Called after PlaceAuctionBid()
 -------------------------------------------------------------------------------
 function private.postPlaceAuctionBidHook(_, _, listType, index, bid)
-	local name, texture, count, quality, canUse, level, _, minBid, minIncrement, buyoutPrice, bidAmount, highBidder, owner = GetAuctionItemInfo(listType, index)
+	local name, texture, count, quality, canUse, level, _, minBid, minIncrement, buyoutPrice, bidAmount, highBidder, bidderFullName, owner = GetAuctionItemInfo(listType, index)
 	local itemLink = GetAuctionItemLink(listType, index)
 	local timeLeft = GetAuctionItemTimeLeft(listType, index)
 	if (name and count and bid) then

@@ -1,5 +1,5 @@
 ﻿--[[
-
+ 
 Skillet: A tradeskill window replacement.
 Copyright (c) 2007 Robert Clark <nogudnik@gmail.com>
 
@@ -64,6 +64,7 @@ L["DISPLAYSHOPPINGLISTATBANKDESC"] = "顯示排程配方需要且不在背包中
 L["DISPLAYSHOPPINGLISTATBANKNAME"] = "在銀行顯示購物清單"
 L["DISPLAYSHOPPINGLISTATGUILDBANKDESC"] = "顯示排程配方需要且不在背包中的材料清單"
 L["DISPLAYSHOPPINGLISTATGUILDBANKNAME"] = "在公會銀行顯示購物清單"
+L["Draenor Engineering"] = "Draenor Engineering" -- Requires localization
 L["Enabled"] = "啟用"
 L["Enchant"] = "附魔"
 L["ENHANCHEDRECIPEDISPLAYDESC"] = "啟用時,配方名稱後將顯示一個或數個'+'來表示其難度"
@@ -72,6 +73,8 @@ L["Expand all groups"] = "展開所有群組"
 L["Features"] = "功能"
 L["FEATURESDESC"] = "可選擇是否啟用的額外功能"
 L["Filter"] = "篩選"
+L["Flush All Data"] = "Flush All Data" -- Requires localization
+L["FLUSHALLDATADESC"] = "Flush all Skillet data" -- Requires localization
 L["Glyph "] = "銘文學"
 L["Gold earned"] = "金額獲得"
 L["Grouping"] = "群組"
@@ -79,6 +82,7 @@ L["have"] = "有"
 L["Hide trivial"] = "隱藏灰色"
 L["Hide uncraftable"] = "顯示可製造"
 L["Include alts"] = "包括分身"
+L["Include guild"] = "Include guild" -- Requires localization
 L["Inventory"] = "背包"
 L["INVENTORYDESC"] = "背包訊息"
 L["is now disabled"] = "停用"
@@ -87,6 +91,7 @@ L["Library"] = "函式庫"
 L["LINKCRAFTABLEREAGENTSDESC"] = "點擊顯示可製造配方的材料"
 L["LINKCRAFTABLEREAGENTSNAME"] = "開啟點擊追蹤材料"
 L["Load"] = "載入"
+L["Merge items"] = "Merge items" -- Requires localization
 L["Move Down"] = "下移"
 L["Move to Bottom"] = "下移至底"
 L["Move to Top"] = "上移至頂"
@@ -99,6 +104,7 @@ L["Notes"] = "註釋"
 L["not yet cached"] = "尚未暫存"
 L["Number of items to queue/create"] = "預計製造/排程的物品數量"
 L["Options"] = "選項"
+L["Order by item"] = "Order by item" -- Requires localization
 L["Pause"] = "暫停"
 L["Process"] = "處理"
 L["Purchased"] = "已購買"
@@ -127,6 +133,8 @@ L["Scanning tradeskill"] = "掃描專業技能"
 L["Selected Addon"] = "已選擇插件"
 L["Select skill difficulty threshold"] = "選擇製造難度等級"
 L["Sells for "] = "售得"
+L["Shopping Clear"] = "Shopping Clear" -- Requires localization
+L["SHOPPINGCLEARDESC"] = "Clear the shopping list" -- Requires localization
 L["Shopping List"] = "購物清單"
 L["SHOPPINGLISTDESC"] = "顯示購物清單"
 L["SHOWBANKALTCOUNTSDESC"] = "計算可製造數量時包括銀行及分身"
@@ -162,6 +170,8 @@ L["Trained"] = "訓練師"
 L["TRANSPARAENCYDESC"] = "商業技能視窗透明度"
 L["Transparency"] = "透明度"
 L["Unknown"] = "未知"
+L["Using Bank for"] = "Using Bank for" -- Requires localization
+L["Using Reagent Bank for"] = "Using Reagent Bank for" -- Requires localization
 L["VENDORAUTOBUYDESC"] = "與商人對話時自動購買排程中所需材料"
 L["VENDORAUTOBUYNAME"] = "自動購買材料"
 L["VENDORBUYBUTTONDESC"] = "與商人對話時，顯示購買按鈕以便採購排程所需材料."

@@ -1,13 +1,9 @@
 ## Interface: 60000
-## Title: IoT Weekly Check
-## Author: Fluffies  EU-Well of Eternity
-## Notes: Tracks your character's weekly business in the Isle of Thunder.
+## Title: DGC - Isle of Thunder
+## Author: Jadya  EU-Well of Eternity
+## Notes: A |cff00FF00Daily Global Check|r plugin that tracks the daily/weekly Isle of Thunder business for your characters
 ## eMail: n_rhygar@yahoo.it
 ## DefaultState: Enabled
 ## LoadOnDemand: 0
-## SavedVariables: IoTWeeklyItems_Options
-lib\LibStub.lua
-lib\CallbackHandler-1.0.lua
-lib\LibDataBroker-1.1.lua
-lib\LibDBIcon-1.0.lua
-ioTWeeklyCheck.lua
+## SavedVariables: DGC_IoTLocalizedStrings
+IoTWeeklyCheck.lua

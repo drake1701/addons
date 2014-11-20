@@ -1,7 +1,7 @@
 --[[
 	Auctioneer Advanced
-	Version: 5.17.5413 (NeedyNoddy)
-	Revision: $Id: CoreAPI.lua 5398 2013-03-27 19:22:01Z brykrys $
+	Version: 5.21c.5521 (SanctimoniousSwamprat)
+	Revision: $Id: CoreAPI.lua 5517 2014-11-06 11:11:42Z brykrys $
 	URL: http://auctioneeraddon.com/
 
 	This is an addon for World of Warcraft that adds statistical history to the auction data that is collected
@@ -106,15 +106,35 @@ do
         using the algorithms in each of the STAT modules as specified
         by the GetItemPDF() function.
 
-        AucAdvanced.API.GetMarketValue(itemLink, serverKey)
+        AucAdvanced.API.GetMarketValue(itemLink, serverKey, confidence)
+
+	The confidence parameter is the probability that the actual price is less than the returned value.
+	In most cases you will want this to be 50% (and that is the default), representing a 50% chance the
+	value is higher than the returned price, and a 50% chance the value is lower. However, sometimes you
+	may be curious of a different limit (for example, filter modules). In these cases, pass in a different
+	value for confidence. 0.5 = 50%, 0.75 = 75%, etc.
     ]]
-    function lib.GetMarketValue(itemLink, serverKey)
-        local _;
-        if type(itemLink) == 'number' then _, itemLink = GetItemInfo(itemLink) end
+	function lib.GetMarketValue(itemLink, serverKey, confidence)
+		local _;
+		if type(itemLink) == 'number' then _, itemLink = GetItemInfo(itemLink) end
 		if not itemLink then return end
 
 		local cacheSig = lib.GetSigFromLink(itemLink)
 		if not cacheSig then return end -- not a valid item link
+
+		if type(confidence) ~= "number" then
+			if confidence then
+				-- invalid parameter - not a number and not nil
+				-- technically an error, but for the time being we will just log it and use default value
+				debugPrint(format("Invalid 'confidence' parameter for GetMarketValue:%s(%s)\nUsing default value.", tostring(confidence), type(confidence)),
+					"CoreAPI", "GetMarketValue invalid parameter", "Error")
+			end
+			confidence = 0.5
+		end
+		-- need to append confidence level to cacheSig so we don't mix them up later
+		-- Rounded to a level that is effectively irrelevant to avoid FP errors
+		cacheSig = cacheSig .. (confidence == 0.5 and "" or ("-" .. floor(confidence * 10000)));
+
 		serverKey = serverKey or GetFaction() -- call GetFaction once here, instead of in every Stat module
 
         local cacheEntry = cache[serverKey][cacheSig]
@@ -201,7 +221,7 @@ do
             return;                 -- No PDFs available for this item
         end
 
-        local limit = total/2;
+        local limit = total * confidence;
         local midpoint, lastMidpoint = 0, 0;
 
         -- Now find the 50% point
@@ -1066,42 +1086,78 @@ function lib.GetStoreKeyFromSig(sig, petBand)
 	end
 end
 
+-- Store key style 'B'
+-- returns id, property, linktype (all strings)
+-- items:
+--    id will be a string containing a plain number
+--    property will be a string containing a number, which may be either "0" or a negative number
+--    *Note* positive suffixes are considered invalid; if one is detected the function will return nil
+-- battlepets:
+--    id will be a string of format "P"..number
+--    property will be a string of format number.."p"..number
+--    if petBand is a number it will be used to compress the petLevel such that pets of a similar level get the same key
+--    if petBand is nil, function will return nil for all battlepets
+function lib.GetStoreKeyFromLinkB(link, petBand)
+	local header,s1,s2,s3,s4,s5,s6,s7 = strsplit(":", link)
+	local lType = header:sub(-4)
+	if lType == "item" then
+		if s7 and s7 ~= "0" then -- s7 = suffix
+			if s7:byte(1) == 45 then -- look for '-' to see if it is a negative number
+				return s1, s7, "item" -- "itemId", "suffix", linktype
+			end
+		elseif s1 then
+			return s1, "0", "item" -- "itemId", "suffix", linktype
+		end
+	elseif lType == "epet" then -- last 4 characters of "battlepet"
+		-- check that caller wants pet keys
+		-- also check valid quality (-1 represents 'unknown' and so is not valid for store key)
+		if petBand and s3 and s3 ~= "-1" then
+			local level = tonumber(s2) -- level
+			if not level or level < 1 then return end
+			if petBand > 1 then
+				level = ceil(level / petBand)
+			end
+			return "P"..s1, format("%d", level).."p"..s3, "battlepet" -- "P..speciesID", "compressedLevel..p..quality", linktype
+		end
+	end
+end
+
 -------------------------------------------------------------------------------
 -- Statistical devices created by Matthew 'Shirik' Del Buono
 -- For Auctioneer
 -------------------------------------------------------------------------------
-local sqrtpi = math.sqrt(math.pi);
-local sqrtpiinv = 1/sqrtpi;
-local sq2pi = math.sqrt(2*math.pi);
-local pi = math.pi;
-local exp = math.exp;
+local pi = math.pi
+local sqrtpi = math.sqrt(pi)
+local sqrtpiinv = 1 / sqrtpi
+local sqrt2pi = math.sqrt(2 * pi)
+local exp = math.exp
 local bellCurveMeta = {
-    __index = {
-        SetParameters = function(self, mean, stddev)
-            if (stddev == 0) then
-                error("Standard deviation cannot be zero");
-            elseif (stddev ~= stddev) then
-                error("Standard deviation must be a real number");
-            end
-			if stddev < .1 then --need to prevent obsurdly small stddevs like 1e-11, as they cause freeze-ups
-				stddev = .1
+	__index = {
+		SetParameters = function(self, mean, stddev, area)
+			if stddev == 0 then
+				error("Standard deviation cannot be zero")
+			elseif stddev ~= stddev then
+				error("Standard deviation must be a real number")
 			end
-            self.mean = mean;
-            self.stddev = stddev;
-            self.param1 = 1/(stddev*sq2pi);     -- Make __call a little faster where we can
-            self.param2 = 2*stddev^2;
-        end
-    },
-    -- Simple bell curve call
-    __call = function(self, x)
-        local n = self.param1*exp(-(x-self.mean)^2/self.param2);
-        -- if n ~= n then
-            -- DEFAULT_CHAT_FRAME:AddMessage("-----------------");
-            -- DevTools_Dump{param1 = self.param1, param2 = self.param2, x = x, mean = self.mean, stddev = self.stddev, exp = exp(-(x-self.mean)^2/self.param2)};
-            -- error(x.." produced NAN ("..tostring(n)..")");
-        -- end
-        return n;
-    end
+
+			--need to prevent obsurdly small stddevs like 1e-11, as they cause freeze-ups
+			if stddev < 0.1 then
+				stddev = 0.1
+			end
+
+			area = area or 1 -- area is an optional parameter, defaulting to 1
+			self.area = area
+			self.mean = mean
+			self.stddev = stddev
+			self.param1 = area / (stddev * sqrt2pi)
+			self.param2 = 2 * stddev^2
+		end
+	},
+
+	-- Simple bell curve call
+	__call = function(self, x)
+		return self.param1 * exp(-(x - self.mean)^2 / self.param2)
+	end
 }
 -------------------------------------------------------------------------------
 -- Creates a bell curve object that can then be manipulated to pass
@@ -1111,25 +1167,25 @@ local bellCurveMeta = {
 --
 -- Note: This creates a bell curve with a standard deviation of 1 and
 -- mean of 0. You will probably want to update it to your own desired
--- values by calling return:SetParameters(mean, stddev)
+-- values by calling return:SetParameters(mean, stddev, area)
 -------------------------------------------------------------------------------
 function lib.GenerateBellCurve()
-    return setmetatable({mean=0, stddev=1, param1=sqrtpiinv, param2=2}, bellCurveMeta);
+    return setmetatable({mean=0, stddev=1, param1=sqrtpiinv, param2=2, area=1}, bellCurveMeta)
 end
 
 -- Dumps out market pricing information for debugging. Only handles bell curves for now.
 function lib.DumpMarketPrice(itemLink, serverKey)
-	local modules = AucAdvanced.GetAllModules(nil, "Stat");
+	local modules = AucAdvanced.GetAllModules(nil, "Stat")
 	for pos, engineLib in ipairs(modules) do
-		local success, result = pcall(engineLib.GetItemPDF, itemLink, serverKey);
+		local success, result = pcall(engineLib.GetItemPDF, itemLink, serverKey)
 		if success then
 			if getmetatable(result) == bellCurveMeta then
-				print(engineLib.GetName() .. ": Mean = " .. result.mean .. ", Standard Deviation = " .. result.stddev);
+				print(engineLib.GetName()..": Mean = "..result.mean..", Standard Deviation = "..result.stddev..", Area = "..result.area)
 			else
-				print(engineLib.GetName() .. ": Non-Standard PDF: " .. tostring(result));
+				print(engineLib.GetName() .. ": Non-BellCurve PDF: " .. tostring(result))
 			end
 		else
-			print(engineLib.GetName() .. ": Reported error: " .. tostring(result));
+			print(engineLib.GetName() .. ": Reported error: " .. tostring(result))
 		end
 	end
 end
@@ -1183,4 +1239,5 @@ do
 
 end
 
-AucAdvanced.RegisterRevision("$URL: http://svn.norganna.org/auctioneer/branches/5.17/Auc-Advanced/CoreAPI.lua $", "$Rev: 5398 $")
+
+AucAdvanced.RegisterRevision("$URL: http://svn.norganna.org/auctioneer/branches/5.21c/Auc-Advanced/CoreAPI.lua $", "$Rev: 5517 $")

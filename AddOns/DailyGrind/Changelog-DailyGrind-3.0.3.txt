@@ -1,0 +1,40 @@
+------------------------------------------------------------------------
+r170 | deldinor | 2014-11-02 00:06:14 +0000 (Sun, 02 Nov 2014) | 1 line
+Changed paths:
+   A /tags/3.0.3 (from /trunk:169)
+
+Tagging as 3.0.3
+------------------------------------------------------------------------
+r169 | deldinor | 2014-11-02 00:05:45 +0000 (Sun, 02 Nov 2014) | 2 lines
+Changed paths:
+   M /trunk/DailyGrind.lua
+   M /trunk/DailyGrind.wowproj
+
+Fix for new users.
+
+------------------------------------------------------------------------
+r167 | deldinor | 2014-10-19 03:50:25 +0000 (Sun, 19 Oct 2014) | 2 lines
+Changed paths:
+   M /trunk/DailyGrind.lua
+   M /trunk/SupportFunctions.lua
+
+Updated API calls to match 6.0.2 changes.
+
+------------------------------------------------------------------------
+r165 | deldinor | 2014-10-19 00:43:47 +0000 (Sun, 19 Oct 2014) | 2 lines
+Changed paths:
+   M /trunk/DailyGrind.toc
+   M /trunk/DailyGrind.wowproj
+
+WoD compatibility update.
+
+------------------------------------------------------------------------
+r163 | deldinor | 2013-10-19 18:57:38 +0000 (Sat, 19 Oct 2013) | 2 lines
+Changed paths:
+   M /trunk/DailyGrind.toc
+   M /trunk/DailyGrind.wowproj
+   M /trunk/DailyGrind.wowsln
+
+Updated for AddonStudio 3.0
+
+------------------------------------------------------------------------

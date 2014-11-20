@@ -1,11 +1,11 @@
 ## Interface: 60000
 ## Title: Tiller Tracker
-## Version: 1.13.1
+## Version: 1.13.2
 ## Notes: Helps with the daily Tiller food quests ("A Dish for...") by keeping track of what quests have been completed that day, how many dishes need to be cooked, and what materials are required.
 ## Author: Amanoa
 ## SavedVariables: TillerTrackerDB
 ## OptionalDeps: Ace3, AceEvent-3.0, LibQTip-1.0, LibStub, AceTimer-3.0, AceConsole-3.0
-## X-Curse-Packaged-Version: v1.13.1
+## X-Curse-Packaged-Version: v1.13.2
 ## X-Curse-Project-Name: Tiller Tracker
 ## X-Curse-Project-ID: tiller-tracker
 ## X-Curse-Repository-ID: wow/tiller-tracker/mainline

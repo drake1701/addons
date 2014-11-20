@@ -31,40 +31,26 @@ local function LoadSkin()
 	}
 	for _, slot in pairs(slots) do
 		local icon = _G["Character"..slot.."IconTexture"]
-		local slot = _G["Character"..slot]
+		local cooldown = _G["Character"..slot.."Cooldown"]
+		slot = _G["Character"..slot]
 		slot:StripTextures()
 		slot:StyleButton(false)
 		slot.ignoreTexture:SetTexture([[Interface\PaperDollInfoFrame\UI-GearManager-LeaveItem-Transparent]])
 		slot:SetTemplate("Default", true)
 		icon:SetTexCoord(unpack(E.TexCoords))
 		icon:SetInside()
-	end	
-	-- a request by diftraku to color item by rarity on character frame.
-	local function ColorItemBorder()
-		for _, slot in pairs(slots) do
-			-- Colour the equipment slots by rarity
-			local target = _G["Character"..slot]
-			local slotId, _, _ = GetInventorySlotInfo(slot)
-			local itemId = GetInventoryItemID("player", slotId)
-
-			if itemId then
-				local _, _, rarity, _, _, _, _, _, _, _, _ = GetItemInfo(itemId)
-				if rarity and rarity > 1 then
-					target:SetBackdropBorderColor(GetItemQualityColor(rarity))
-				else
-					target:SetBackdropBorderColor(unpack(E.media.bordercolor))
-				end
-			else
-				target:SetBackdropBorderColor(unpack(E.media.bordercolor))
-			end
+		
+		if(cooldown) then
+			E:RegisterCooldown(cooldown)
 		end
+		
+		hooksecurefunc(slot.IconBorder, 'SetVertexColor', function(self, r, g, b)
+			self:GetParent():SetBackdropBorderColor(r, g, b)
+		end)
+		hooksecurefunc(slot.IconBorder, 'Hide', function(self)
+			self:GetParent():SetBackdropBorderColor(unpack(E.media.bordercolor))
+		end)
 	end
-
-	local CheckItemBorderColor = CreateFrame("Frame")
-	CheckItemBorderColor:RegisterEvent("PLAYER_EQUIPMENT_CHANGED")
-	CheckItemBorderColor:SetScript("OnEvent", ColorItemBorder)	
-	CharacterFrame:HookScript("OnShow", ColorItemBorder)
-	ColorItemBorder()
 	
 	--Strip Textures
 	local charframe = {
@@ -107,6 +93,7 @@ local function LoadSkin()
 	S:HandleCheckBox(ReputationDetailAtWarCheckBox)
 	S:HandleCheckBox(ReputationDetailMainScreenCheckBox)
 	S:HandleCheckBox(ReputationDetailInactiveCheckBox)
+	S:HandleCheckBox(ReputationDetailLFGBonusReputationCheckBox)
 	S:HandleCheckBox(TokenFramePopupInactiveCheckBox)
 	S:HandleCheckBox(TokenFramePopupBackpackCheckBox)
 
@@ -165,7 +152,7 @@ local function LoadSkin()
 			object.BgBottom:SetTexture(nil)
 			object.BgMiddle:SetTexture(nil)
 
-			object.Check:SetTexture(nil)
+			--object.Check:SetTexture(nil)
 			object.text:FontTemplate()
 			hooksecurefunc(object.text, "SetFont", function(self, font, fontSize, fontStyle)
 				if font ~= E["media"].normFont then
@@ -189,7 +176,7 @@ local function LoadSkin()
 			object.BgBottom:SetTexture(nil)
 			object.BgMiddle:SetTexture(nil)
 			object.icon:Size(36, 36)
-			object.Check:SetTexture(nil)
+			--object.Check:SetTexture(nil)
 			object.icon:SetTexCoord(unpack(E.TexCoords))
 
 			--Making all icons the same size and position because otherwise BlizzardUI tries to attach itself to itself when it refreshes
@@ -208,7 +195,7 @@ local function LoadSkin()
 			end)
 			
 			if not object.icon.bordertop then
-				E:GetModule("NamePlates"):CreateVirtualFrame(object, object.icon)
+				E:GetModule("NamePlates"):CreateBackdrop(object, object.icon)
 			end			
 		end
 		GearManagerDialogPopup:StripTextures()
@@ -250,7 +237,7 @@ local function LoadSkin()
 	local function FixSidebarTabCoords()
 		for i=1, #PAPERDOLL_SIDEBARS do
 			local tab = _G["PaperDollSidebarTab"..i]
-			if tab then
+			if tab and not tab.backdrop then
 				tab.Highlight:SetTexture(1, 1, 1, 0.3)
 				tab.Highlight:Point("TOPLEFT", 3, -4)
 				tab.Highlight:Point("BOTTOMRIGHT", -1, 0)

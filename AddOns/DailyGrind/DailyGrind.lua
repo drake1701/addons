@@ -42,19 +42,59 @@ end
 function DailyGrind:InitializeSettings()
 	if not Settings then
 		Settings = self.defaultSettings;
+	end	
 		
-		-- Upgrade from 1.x settings
-		if DailyGrindSettings then
-			Settings.Enabled = DailyGrindSettings.Enabled;
-			Settings.Blacklist = DailyGrindSettings.Blacklist;
-			Settings.NpcBlacklist = DailyGrindSettings.NpcBlacklist;
-			Settings.RewardList = DailyGrindSettings.Rewards;
-			Settings.AutoAcceptAllEnabled = DailyGrindSettings.AutoAcceptAllEnabled;
-			Settings.RepeatableQuestsEnabled = DailyGrindSettings.RepeatableQuestsEnabled;
-			Settings.SuspendKeys = {};
-			Settings.SuspendKeys[DailyGrindSettings.SuspendKey] = true;
-			DailyGrindSettings = nil;
+	-- Upgrade from 1.x settings
+	if DailyGrindSettings then
+		Settings.Enabled = DailyGrindSettings.Enabled;
+		Settings.AutoAcceptAllEnabled = DailyGrindSettings.AutoAcceptAllEnabled;
+		Settings.RepeatableQuestsEnabled = DailyGrindSettings.RepeatableQuestsEnabled;
+		Settings.SuspendKeys = {};
+		local oldSuspendKey = DailyGrindSettings.SuspendKey;
+		if (oldSuspendKey) then
+			Settings.SuspendKeys[oldSuspendKey] = true;
 		end
+	end
+	
+	if not Settings.Blacklist then
+		if DailyGrindSettings then
+			Settings.Blacklist = DailyGrindSettings.Blacklist;
+		else
+			Settings.Blacklist = {};
+		end
+	end
+	
+	if not Settings.NpcBlacklist then
+		if DailyGrindSettings then
+			Settings.NpcBlacklist = DailyGrindSettings.NpcBlacklist
+		else
+			Settings.NpcBlacklist = {};
+		end
+	end
+	
+	if not Settings.RewardList then
+		if DailyGrindSettings then
+			Settings.RewardList = DailyGrindSettings.Rewards;
+		else
+			Settings.RewardList = {};
+		end
+	end
+	
+	if not Settings.SuspendKeys then
+		if Settings.SuspendKey then
+			-- Fix incorrect beta setting
+			Settings.SuspendKeys = {};
+			Settings.SuspendKeys[Settings.SuspendKey] = true;
+			Settings.SuspendKey = nil;
+		else
+			Settings.SuspendKeys = {
+				CTRL = true
+			};
+		end		
+	end
+	
+	if DailyGrindSettings then
+		DailyGrindSettings = nil;
 	end
 	
 	if not QuestHistory then
@@ -128,6 +168,7 @@ function DailyGrind:GOSSIP_SHOW()
 	local numAvailableQuests = GetNumGossipAvailableQuests();
 	local numActiveQuests = GetNumGossipActiveQuests();
 
+	self:Debug(tostring(numAvailableQuests).." available quest(s) detected.");
 	self:Debug(tostring(numActiveQuests).." active quest(s) detected.");
 	
 	local npcName, realm = UnitName("npc");
@@ -165,6 +206,8 @@ function DailyGrind:GOSSIP_SHOW()
 			local isRepeatable = self:IsRepeatableAvailableQuest(availableQuests, i);
 			local isInHistory = AccountQuestHistory:Contains(questTitle);
 			
+			self:Debug(questTitle.." detected;  isDaily: "..tostring(isDaily).."  isRepeatable: "..tostring(isRepeatable).."  isInHistory: "..tostring(isInHistory));
+
 			if ((isInHistory or self:GetAutoAcceptAllEnabled()) and isDaily) or (isRepeatable and self:GetRepeatableQuestsEnabled()) then
 				if isRepeatable then
 					self:PrintRepeatable(": Attempting to turn in \""..questTitle.."\"");
@@ -263,7 +306,10 @@ function DailyGrind:QUEST_DETAIL()
 		return;
 	end
 	
-	local isDailyOrWeekly = QuestIsDaily() == 1 or QuestIsWeekly() == 1 or self:IsSpecialCaseQuest(questTitle);
+	self:Debug("  Daily: "..tostring(QuestIsDaily()));
+	self:Debug("  Weekly: "..tostring(QuestIsWeekly()));
+
+	local isDailyOrWeekly = QuestIsDaily() or QuestIsWeekly() or self:IsSpecialCaseQuest(questTitle);
 	local isRepeatable = self:IsRepeatableQuest({GetGossipAvailableQuests()}, questTitle);
 	local isInHistory = AccountQuestHistory:Contains(questTitle);
 	self:DebugQuest(isDailyOrWeekly or isRepeatable, isInHistory);
@@ -288,8 +334,8 @@ function DailyGrind:QUEST_PROGRESS()
 		return;
 	end
 	
-	local isCompletable = IsQuestCompletable() == 1;
-	local isDailyOrWeekly = QuestIsDaily() == 1 or QuestIsWeekly() == 1 or self:IsSpecialCaseQuest(questTitle);
+	local isCompletable = IsQuestCompletable();
+	local isDailyOrWeekly = QuestIsDaily() or QuestIsWeekly() or self:IsSpecialCaseQuest(questTitle);
 	local isRepeatable = self:IsRepeatableQuest({GetGossipAvailableQuests()}, questTitle);
 	local isInHistory = AccountQuestHistory:Contains(questTitle);
 	self:DebugQuest(isDailyOrWeekly or isRepeatable, isInHistory);
@@ -307,7 +353,7 @@ end
 function DailyGrind:CompleteQuest()
 	local questTitle = self:SanitizeQuestTitle(GetTitleText());
 	local npcName, realm = UnitName("npc");
-	local isDailyOrWeekly = QuestIsDaily() == 1 or QuestIsWeekly() == 1 or self:IsSpecialCaseQuest(questTitle);
+	local isDailyOrWeekly = QuestIsDaily() or QuestIsWeekly() or self:IsSpecialCaseQuest(questTitle);
 	local isRepeatable = self:IsRepeatableQuest({GetGossipAvailableQuests()}, questTitle);
 	local isInHistory = AccountQuestHistory:Contains(questTitle);
 	
@@ -325,9 +371,7 @@ function DailyGrind:CompleteQuest()
 				end
 			else
 				self:Debug(questTitle.." reward: Multiple items available.");
-				if not disableTurnIn then
-					self:SelectReward(questTitle);
-				end
+				self:SelectReward(questTitle);
 			end
 		end
 	end
@@ -347,7 +391,9 @@ function DailyGrind:SelectReward(questTitle)
 			itemName = value;
 		end
 		CharacterRewardList:Print(": \""..questTitle.."\" => \""..itemName.."\" automatically selected.");
-		GetQuestReward(choiceIndex);
+		if not disableTurnIn then
+			GetQuestReward(choiceIndex);
+		end
 	elseif numMyChoices > 1 then	-- 2+ matching items. Not so happy.
 		CharacterRewardList:PrintImportant(": \""..questTitle.."\" => Multiple matches found:\n");
 		for index, value in pairs(myChoices) do	-- Build a string that displays all the conflicting rewards.
@@ -357,4 +403,17 @@ function DailyGrind:SelectReward(questTitle)
 	else	-- No matching items. Sad.
 		CharacterRewardList:PrintImportant(": \""..questTitle.."\" => No matching rewards found; please choose manually.");
 	end
+end
+
+function DailyGrind:GetMatchingQuestRewards()
+	local choices = {};
+	for i = 1, GetNumQuestChoices(), 1 do
+		local name, texture, numItems, quality, isUsable = GetQuestItemInfo("choice", i);
+		for index, value in pairs(CharacterRewardList:GetTable()) do
+			if name:trim():lower() == index:trim():lower() then
+				choices[i] = name;
+			end
+		end
+	end
+	return choices;
 end

@@ -1,7 +1,7 @@
 --[[
 	Auctioneer - Search UI
-	Version: 5.17.5413 (NeedyNoddy)
-	Revision: $Id: SearchMain.lua 5373 2012-10-06 06:23:34Z brykrys $
+	Version: 5.21c.5521 (SanctimoniousSwamprat)
+	Revision: $Id: SearchMain.lua 5498 2014-10-18 13:24:18Z brykrys $
 	URL: http://auctioneeraddon.com/
 
 	This Addon provides a Search tab on the AH interface, which allows
@@ -192,8 +192,14 @@ end
 if Enchantrix and Enchantrix.Storage and Enchantrix.Util then
 	resources.isEnchantrixLoaded = true
 else
-	local _, _, _, enabled, loadable = GetAddOnInfo("Enchantrix") -- check it's actually possible to load
-	if enabled and loadable then
+	local _, _, _, loadable, reason = GetAddOnInfo("Enchantrix") -- check it's actually possible to load
+	if AucAdvanced.HYBRID5 then
+		-- Hybrid mode for WoW5.4; remove once WoW6.0 goes live
+		loadable = loadable and reason
+	else
+		loadable = reason == "DEMAND_LOADED"
+	end
+	if loadable then
 		Stubby.RegisterAddOnHook("Enchantrix", "Auc-Util-SearchUI", function()
 			if Enchantrix and Enchantrix.Storage and Enchantrix.Util then
 				Stubby.UnregisterAddOnHook("Enchantrix", "Auc-Util-SearchUI")
@@ -1353,7 +1359,10 @@ function private.MakeGuiConfig()
 			local itemName
 			local header, id = strsplit(":", link)
 			if header:sub(-9) == "battlepet" then
-				itemName = C_PetJournal.GetPetInfoBySpeciesID(tonumber(id) or 0)
+				id = tonumber(id)
+				if id then
+					itemName = C_PetJournal.GetPetInfoBySpeciesID(id)
+				end
 			else
 				itemName = GetItemInfo(link)
 			end
@@ -1501,10 +1510,10 @@ function private.MakeGuiConfig()
 	gui:AddControl(id, "WideSlider",       0, 1, "processpriority", 10, 100, 10, "Search process priority: %s")
 	gui:AddControl(id, "Subhead",          0,    "Purchase Settings")
 	gui:AddControl(id, "Checkbox",         0, 1, "reserve.enable", "Enable reserve amount:")
-	gui:AddControl(id, "MoneyFramePinned", 0, 2, "reserve", 0, 999999999, "Reserve Amount")
+	gui:AddControl(id, "MoneyFramePinned", 0, 2, "reserve", 0, Const.MAXBIDPRICE, "Reserve Amount")
 	gui:AddTip(id, "Sets the amount that you don't want your cash-on-hand to fall below")
 	gui:AddControl(id, "Checkbox",         0, 1, "maxprice.enable", "Enable maximum price:")
-	gui:AddControl(id, "MoneyFramePinned", 0, 2, "maxprice", 1, 999999999, "Maximum Price")
+	gui:AddControl(id, "MoneyFramePinned", 0, 2, "maxprice", 1, Const.MAXBIDPRICE, "Maximum Price")
 	gui:AddTip(id, "Sets the amount that you don't want to spend more than")
 
 	id = gui:AddTab("Global Settings", "Options")
@@ -2182,4 +2191,4 @@ end
 private.updater = CreateFrame("Frame", nil, UIParent)
 private.updater:SetScript("OnUpdate", private.OnUpdate)
 
-AucAdvanced.RegisterRevision("$URL: http://svn.norganna.org/auctioneer/branches/5.17/Auc-Util-SearchUI/SearchMain.lua $", "$Rev: 5373 $")
+AucAdvanced.RegisterRevision("$URL: http://svn.norganna.org/auctioneer/branches/5.21c/Auc-Util-SearchUI/SearchMain.lua $", "$Rev: 5498 $")

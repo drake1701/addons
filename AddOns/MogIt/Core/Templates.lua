@@ -8,12 +8,18 @@ local function getTexture(hasItem, embedded)
 	return embedded and format("|T%s:0|t ", texture) or texture
 end
 
-local function itemLabel(itemID, callback)
-	local name, _, quality = mog:GetItemInfo(itemID, callback)
-	if name then
-		return format("|c%s%s|r", select(4, GetItemQualityColor(quality)), name)
+function mog:GetItemLabel(itemID, callback, includeIcon, iconSize)
+	local item = mog:GetItemInfo(itemID, callback)
+	local name
+	if item then
+		name = format("|c%s%s|r", select(4, GetItemQualityColor(item.quality)), item.name)
 	else
-		return RED_FONT_COLOR_CODE..RETRIEVING_ITEM_INFO..FONT_COLOR_CODE_CLOSE
+		name = RED_FONT_COLOR_CODE..RETRIEVING_ITEM_INFO..FONT_COLOR_CODE_CLOSE
+	end
+	if includeIcon then
+		return format("|T%s:%d|t %s", GetItemIcon(itemID), iconSize, name)
+	else
+		return name
 	end
 end
 
@@ -22,7 +28,7 @@ local function addTooltipDoubleLine(textLeft, textRight)
 end
 
 local function addItemTooltipLine(itemID)
-	addTooltipDoubleLine(getTexture(mog:HasItem(itemID), true)..itemLabel(itemID, "ModelOnEnter"), mog.GetItemSourceShort(itemID))
+	addTooltipDoubleLine(getTexture(mog:HasItem(itemID), true)..mog:GetItemLabel(itemID, "ModelOnEnter"), mog.GetItemSourceShort(itemID))
 end
 
 function mog.GetItemSourceInfo(itemID)
@@ -83,40 +89,41 @@ local function newSetOnClick(self)
 	CloseDropDownMenus()
 end
 
+local previewItem = {
+	text = L["Preview"],
+	-- hasArrow = true,
+	menuList = function(level)
+		local info = UIDropDownMenu_CreateInfo()
+		info.text = L["Active preview"]
+		info.value = UIDROPDOWNMENU_MENU_VALUE
+		info.func = previewOnClick
+		info.disabled = not mog.activePreview
+		info.notCheckable = true
+		info.arg1 = mog.activePreview
+		UIDropDownMenu_AddButton(info, level)
+		
+		for i, preview in ipairs(mog.previews) do
+			local info = UIDropDownMenu_CreateInfo()
+			info.text = format("%s %d", L["Preview"], preview:GetID())
+			info.value = UIDROPDOWNMENU_MENU_VALUE
+			info.func = previewOnClick
+			info.notCheckable = true
+			info.arg1 = preview
+			UIDropDownMenu_AddButton(info, level)
+		end
+		
+		local info = UIDropDownMenu_CreateInfo()
+		info.text = L["New preview"]
+		info.value = UIDROPDOWNMENU_MENU_VALUE
+		info.func = previewOnClick
+		info.notCheckable = true
+		UIDropDownMenu_AddButton(info, level)
+	end,
+}
+
 local itemOptionsMenu = {
+	previewItem,
 	{
-		text = L["Preview"],
-		hasArrow = true,
-		menuList = function(level)
-			local info = UIDropDownMenu_CreateInfo()
-			info.text = L["Active preview"]
-			info.value = UIDROPDOWNMENU_MENU_VALUE
-			info.func = previewOnClick
-			info.disabled = not mog.activePreview
-			info.notCheckable = true
-			info.arg1 = mog.activePreview
-			UIDropDownMenu_AddButton(info, level)
-			
-			for i, preview in ipairs(mog.previews) do
-				local info = UIDropDownMenu_CreateInfo()
-				info.text = format("%s %d", L["Preview"], preview.id)
-				info.value = UIDROPDOWNMENU_MENU_VALUE
-				info.func = previewOnClick
-				info.notCheckable = true
-				info.arg1 = preview
-				UIDropDownMenu_AddButton(info, level)
-			end
-			
-			local info = UIDropDownMenu_CreateInfo()
-			info.text = L["New preview"]
-			info.value = UIDROPDOWNMENU_MENU_VALUE
-			info.func = previewOnClick
-			info.notCheckable = true
-			UIDropDownMenu_AddButton(info, level)
-		end,
-	},
-	{
-		set = true,
 		text = L["Add to wishlist"],
 		func = function(self)
 			mog.wishlist:AddItem(self.value)
@@ -128,15 +135,15 @@ local itemOptionsMenu = {
 		text = L["Add to set"],
 		hasArrow = true,
 		menuList = function(level)
-			mog.wishlist:AddSetMenuItems(level, "addItem", UIDROPDOWNMENU_MENU_VALUE)
-			
 			local info = UIDropDownMenu_CreateInfo()
-			info.text = L["New set"]
+			info.text = L["New set..."]
 			info.value = UIDROPDOWNMENU_MENU_VALUE
 			info.func = newSetOnClick
 			info.colorCode = GREEN_FONT_COLOR_CODE
 			info.notCheckable = true
 			UIDropDownMenu_AddButton(info, level)
+			
+			mog.wishlist:AddSetMenuItems(level, "addItem", UIDROPDOWNMENU_MENU_VALUE)
 		end,
 	},
 	{
@@ -157,11 +164,21 @@ local itemOptionsMenu = {
 	},
 }
 
+function mog:SetPreviewMenu(isSinglePreview)
+	if isSinglePreview then
+		previewItem.func = previewOnClick
+		previewItem.hasArrow = nil
+	else
+		previewItem.func = nil
+		previewItem.hasArrow = true
+	end
+end
+
 function mog:AddItemOption(info)
 	tinsert(itemOptionsMenu, info)
 end
 
-local function createItemMenu(data, func)
+local function createItemMenu(dropdown, data, func)
 	local items = data.items
 	-- not listing the items if it's only 1 and it's not a set
 	if not items or (data.item and #items == 1) then
@@ -173,7 +190,7 @@ local function createItemMenu(data, func)
 		v = isArray and v or items[v]
 		if v then
 			local info = UIDropDownMenu_CreateInfo()
-			info.text = itemLabel(v, func and "ItemMenu" or "SetMenu")
+			info.text = mog:GetItemLabel(v, func and "ItemMenu" or "SetMenu")
 			info.value = v
 			info.func = func
 			info.checked = (i == data.cycle)
@@ -182,7 +199,7 @@ local function createItemMenu(data, func)
 			info.arg1 = data
 			info.arg2 = i
 			info.menuList = itemOptionsMenu
-			UIDropDownMenu_AddButton(info)
+			dropdown:AddButton(info)
 		end
 	end
 	return true
@@ -198,7 +215,7 @@ local function createMenu(self, level, menuList)
 				info.value = UIDROPDOWNMENU_MENU_VALUE
 				info.notCheckable = true
 				info.arg1 = data
-				UIDropDownMenu_AddButton(info, level)
+				self:AddButton(info, level)
 			end
 		end
 	end
@@ -212,7 +229,7 @@ local slots = {
 
 function mog.Item_FrameUpdate(self, data)
 	self:ApplyDress()
-	self:TryOn(data.item, slots[mog:GetData("item", data.item, "slot")])
+	self:TryOn(format("item:%d:%d", data.item, mog.weaponEnchant), slots[mog:GetData("item", data.item, "slot")])
 end
 
 local sourceLabels = {
@@ -242,8 +259,9 @@ function mog.ShowItemTooltip(self, item, items, cycle)
 		return
 	end
 	
-	local itemName, _, _, itemLevel = mog:GetItemInfo(item, "ModelOnEnter")
-	local itemLabel = itemLabel(item, "ModelOnEnter")
+	local itemInfo = mog:GetItemInfo(item, "ModelOnEnter")
+	local itemLevel = itemInfo and itemInfo.itemLevel
+	local itemLabel = mog:GetItemLabel(item, "ModelOnEnter")
 	if cycle and #items > 1 then
 		GameTooltip:AddDoubleLine(itemLabel, L["Item %d/%d"]:format(cycle, #items), nil, nil, nil, 1, 0, 0)
 	else
@@ -265,6 +283,10 @@ function mog.ShowItemTooltip(self, item, items, cycle)
 	end
 	
 	GameTooltip:AddLine(" ")
+	local bindType = mog:GetData("item", item, "bind")
+	if bindType then
+		addTooltipDoubleLine(L["Bind"]..":", L.bind[bindType])
+	end
 	local requiredLevel = mog:GetData("item", item, "level")
 	if requiredLevel then
 		addTooltipDoubleLine(LEVEL..":", requiredLevel)
@@ -328,13 +350,13 @@ function mog.ShowItemTooltip(self, item, items, cycle)
 end
 
 local function showMenu(menu, data, isSaved)
-	if mog.IsDropdownShown(menu) and menu.data ~= data then
+	if menu:IsShown() and menu.data ~= data then
 		HideDropDownMenu(1)
 	end
 	-- needs to be either true or false
 	data.isSaved = isSaved ~= nil
 	menu.data = data
-	ToggleDropDownMenu(nil, data.item, menu, "cursor", 0, 0)
+	menu:Toggle(data.item, "cursor")
 end
 
 function mog.Item_OnClick(self, btn, data, isSaved)
@@ -364,13 +386,12 @@ do
 		data.item = data.items[index]
 	end
 	
-	mog.Item_Menu = CreateFrame("Frame")
-	mog.Item_Menu.displayMode = "MENU"
+	mog.Item_Menu = mog:CreateDropdown("Menu")
 	mog.Item_Menu.initialize = function(self, level, menuList)
 		local data = self.data
 		
 		if not menuList then
-			if not createItemMenu(data, itemOnClick) then
+			if not createItemMenu(self, data, itemOnClick) then
 				-- this is a single item, so skip directly to the item options menu
 				createMenu(self, level, itemOptionsMenu)
 			end
@@ -386,7 +407,7 @@ function mog.Set_FrameUpdate(self, data)
 	self:SetText(data.name)
 	self:Undress()
 	for k, v in pairs(data.items) do
-		self:TryOn(v, k)
+		self:TryOn(v, k == "SecondaryHandSlot" and k)
 	end
 end
 
@@ -409,19 +430,23 @@ function mog.Set_OnClick(self, btn, data, isSaved)
 		if IsShiftKeyDown() then
 			ChatEdit_InsertLink(mog:SetToLink(data.items))
 		elseif IsControlKeyDown() then
-			if not DressUpFrame:IsShown() or DressUpFrame.mode ~= "player" then
-				DressUpFrame.mode = "player"
-				DressUpFrame.ResetButton:Show()
+			if mog.db.profile.dressupPreview then
+				mog:AddToPreview(data.items, mog:GetPreview(), data.name)
+			else
+				if not DressUpFrame:IsShown() or DressUpFrame.mode ~= "player" then
+					DressUpFrame.mode = "player"
+					DressUpFrame.ResetButton:Show()
 
-				local race, fileName = UnitRace("player")
-				SetDressUpBackground(DressUpFrame, fileName)
+					local race, fileName = UnitRace("player")
+					SetDressUpBackground(DressUpFrame, fileName)
 
-				ShowUIPanel(DressUpFrame)
-				DressUpModel:SetUnit("player")
-			end
-			DressUpModel:Undress()
-			for k, v in pairs(data.items) do
-				DressUpItemLink(v)
+					ShowUIPanel(DressUpFrame)
+					DressUpModel:SetUnit("player")
+				end
+				DressUpModel:Undress()
+				for k, v in pairs(data.items) do
+					DressUpItemLink(v)
+				end
 			end
 		end
 	elseif btn == "RightButton" then
@@ -432,7 +457,7 @@ function mog.Set_OnClick(self, btn, data, isSaved)
 				mog:ShowURL(data.items, "compare")
 			end
 		elseif IsControlKeyDown() then
-			mog:AddToPreview(data.items, mog:GetPreview())
+			mog:AddToPreview(data.items, mog:GetPreview(), data.name)
 		else
 			showMenu(mog.Set_Menu, data, isSaved)
 		end
@@ -444,11 +469,11 @@ do
 		{
 			wishlist = false,
 			text = L["Add set to wishlist"],
-			func = function(self, items)
-				local create = mog.wishlist:CreateSet(self.value)
+			func = function(self, set, items)
+				local create = mog.wishlist:CreateSet(set)
 				if create then
 					for i, itemID in pairs(items) do
-						mog.wishlist:AddItem(itemID, self.value)
+						mog.wishlist:AddItem(itemID, set)
 					end
 				end
 			end,
@@ -456,15 +481,15 @@ do
 		{
 			wishlist = true,
 			text = L["Rename set"],
-			func = function(self)
-				mog.wishlist:RenameSet(self.value)
+			func = function(self, set)
+				mog.wishlist:RenameSet(set)
 			end,
 		},
 		{
 			wishlist = true,
 			text = L["Delete set"],
-			func = function(self)
-				mog.wishlist:DeleteSet(self.value)
+			func = function(self, set)
+				mog.wishlist:DeleteSet(set)
 			end,
 		},
 	}
@@ -473,21 +498,20 @@ do
 		tinsert(setMenu, info)
 	end
 	
-	mog.Set_Menu = CreateFrame("Frame")
-	mog.Set_Menu.displayMode = "MENU"
+	mog.Set_Menu = mog:CreateDropdown("Menu")
 	mog.Set_Menu.initialize = function(self, level, menuList)
 		local data = self.data
 		
 		if not menuList then
-			createItemMenu(data)
+			createItemMenu(self, data)
 			
 			for i, info in ipairs(setMenu) do
 				if info.wishlist == nil or info.wishlist == data.isSaved then
 					info.value = data.name
 					info.notCheckable = true
-					info.arg1 = data.items
-					info.arg2 = data.index
-					UIDropDownMenu_AddButton(info, level)
+					info.arg1 = data.name
+					info.arg2 = data.items
+					self:AddButton(info, level)
 				end
 			end
 			return

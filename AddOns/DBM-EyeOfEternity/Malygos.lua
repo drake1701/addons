@@ -1,17 +1,22 @@
 local mod	= DBM:NewMod("Malygos", "DBM-EyeOfEternity")
 local L		= mod:GetLocalizedStrings()
 
-mod:SetRevision(("$Revision: 51 $"):sub(12, -3))
+mod:SetRevision(("$Revision: 163 $"):sub(12, -3))
 mod:SetCreatureID(28859)
+mod:SetEncounterID(1094)
 mod:SetModelID(26752)
 
 mod:RegisterCombat("combat")
+mod:SetWipeTime(45)
 
 mod:RegisterEvents(
+	"CHAT_MSG_MONSTER_YELL"
+)
+
+mod:RegisterEventsInCombat(
 	"SPELL_AURA_APPLIED",
 	"SPELL_CAST_START",
 	"SPELL_CAST_SUCCESS",
-	"CHAT_MSG_MONSTER_YELL",
 	"RAID_BOSS_EMOTE",
 	"UNIT_SPELLCAST_SUCCEEDED target focus"
 )
@@ -69,12 +74,7 @@ function mod:StaticFieldTarget()
 	else
 		local uId2 = DBM:GetRaidUnitId(announcetarget)
 		if uId2 then
-			local x, y = GetPlayerMapPosition(uId2)
-			if x == 0 and y == 0 then
-				SetMapToCurrentZone()
-				x, y = GetPlayerMapPosition(uId2)
-			end
-			local inRange = DBM.RangeCheck:GetDistance("player", x, y)
+			local inRange = DBM.RangeCheck:GetDistance("player", uId2)
 			if inRange and inRange < 13 then
 				specWarnStaticFieldNear:Show(announcetarget)
 			end
@@ -148,8 +148,6 @@ end
 function mod:RAID_BOSS_EMOTE(msg)
 	if msg == L.EmoteSpark or msg:find(L.EmoteSpark) then
 		self:SendSync("Spark")
-	elseif msg == L.EmoteBreath or msg:find(L.EmoteBreath) then
-		self:SendSync("Breath")
 	end
 end
 

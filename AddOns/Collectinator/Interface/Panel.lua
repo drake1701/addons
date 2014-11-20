@@ -2,10 +2,10 @@
 ************************************************************************
 Panel.lua
 ************************************************************************
-File date: 2013-03-06T03:33:43Z
-File hash: 421d12d
-Project hash: d1ccde1
-Project version: 2.0.2
+File date: 2014-10-18T17:08:34Z
+File hash: ec961ec
+Project hash: 7dcae1d
+Project version: 2.0.12
 ************************************************************************
 Please see http://www.wowace.com/addons/col/ for more information.
 ************************************************************************
@@ -165,14 +165,17 @@ function private.InitializeFrame()
 		if self.current_collectable_type ~= prev_collectable_type then
 			self.prev_collectable_type = self.current_collectable_type
 		end
-		self.collectable_type_button:SetTexture()
+		self.collectable_type_button:SetTexture(self.current_collectable_type)
 
 		local editbox = self.search_editbox
 
 		if self.current_collectable_type ~= self.prev_collectable_type then
 			editbox.prev_search = nil
 		end
-		editbox:SetText(editbox.prev_search or _G.SEARCH)
+
+		if editbox.prev_search then
+			editbox:SetText(editbox.prev_search)
+		end
 
 		-- The first time this function is called, everything in the expanded section of the MainPanel must be created.
 		if private.InitializeFilterPanel then
@@ -230,11 +233,9 @@ function private.InitializeFrame()
 			MainPanel.list_frame:Update(nil, false)
 		else
 			local current_tab = self.tabs[addon.db.profile.current_tab]
-			local on_click = current_tab:GetScript("OnClick")
+			current_tab:GetScript("OnClick")(current_tab)
 
-			on_click(current_tab)
-
-			self.current_tab = addon.db.profile.current_tab
+			self.current_tab = current_tab
 		end
 		self.sort_button:SetTextures()
 		self.filter_toggle:SetTextures()
@@ -439,20 +440,11 @@ function private.InitializeFrame()
 		end
 	end)
 
-	local function CurrentCollectableTypeTexture()
-		local collectable_type = private.ORDERED_COLLECTIONS[MainPanel.current_collectable_type]
-		local texture_name
-
-		if collectable_type == "CRITTER" then
-			texture_name = "minipets_up"
-		elseif collectable_type == "MOUNT" then
-			texture_name = "mounts_up"
-		end
-		return [[Interface\AddOns\Collectinator\Images\]] ..texture_name
-	end
-
-	function collection_cycler:SetTexture()
-		_G.SetPortraitToTexture("Collectinator_CollectionButtonPortrait", CurrentCollectableTypeTexture())
+	function collection_cycler:SetTexture(collectable_type)
+		_G.SetPortraitToTexture(
+            "Collectinator_CollectionButtonPortrait",
+            private.COLLECTABLE_TEXTURES[private.ORDERED_COLLECTIONS[collectable_type]] or [[Interface\ICONS\INV_Mushroom_11]]
+        )
 	end
 
 	-------------------------------------------------------------------------------
@@ -539,9 +531,9 @@ function private.InitializeFrame()
 			for acquire_type, acquire_data in pairs(collectable.acquire_data) do
 				if acquire_type == A.REPUTATION then
 					for id_num, info in pairs(acquire_data) do
-						local str = reputation_list[id_num].name:lower()
+						local name = reputation_list[id_num].name
 
-						if str and str:find(search_pattern) then
+						if name and name:lower():find(search_pattern) then
 							return true
 						end
 					end
@@ -583,7 +575,7 @@ function private.InitializeFrame()
 	-------------------------------------------------------------------------------
 	-- Search EditBox
 	-------------------------------------------------------------------------------
-	local SearchBox = _G.CreateFrame("EditBox", nil, MainPanel, "SearchBoxTemplate")
+	local SearchBox = _G.CreateFrame("EditBox", "Collectinator_SearchBox", MainPanel, "SearchBoxTemplate")
 
 	SearchBox:EnableMouse(true)
 	SearchBox:SetAutoFocus(false)
@@ -595,7 +587,6 @@ function private.InitializeFrame()
 
 	MainPanel.search_editbox = SearchBox
 
-	SearchBox:SetText(_G.SEARCH)
 	SearchBox:SetHistoryLines(10)
 
 	-- Allow removal of focus from the SearchBox by clicking on the WorldFrame.
@@ -636,9 +627,7 @@ function private.InitializeFrame()
 		end
 		self.prev_search = nil
 
-		self:SetText(_G.SEARCH)
-
-		if self:HasFocus() then
+        if self:HasFocus() then
 			self:HighlightText()
 		end
 		MainPanel.list_frame:Update(nil, false)
@@ -654,7 +643,7 @@ function private.InitializeFrame()
 		return true
 	end
 
-	SearchBox:SetScript("OnEnterPressed", function(self)
+	SearchBox:HookScript("OnEnterPressed", function(self)
 		local searchtext = self:GetText()
 		searchtext = searchtext:trim()
 
@@ -674,9 +663,7 @@ function private.InitializeFrame()
 		MainPanel.list_frame:Update(nil, false)
 	end)
 
-
-
-	SearchBox:SetScript("OnEditFocusLost", function(self)
+	SearchBox:HookScript("OnEditFocusLost", function(self)
 		_G.SearchBoxTemplate_OnEditFocusLost(self)
 
 		local text = self:GetText()
@@ -688,7 +675,7 @@ function private.InitializeFrame()
 		self:AddHistoryLine(text)
 	end)
 
-	SearchBox:SetScript("OnTextSet", function(self)
+	SearchBox:HookScript("OnTextSet", function(self)
 		local text = self:GetText()
 
 		if text ~= "" and text ~= _G.SEARCH and text ~= self.prev_search then
@@ -722,7 +709,7 @@ function private.InitializeFrame()
 			self:Hide()
 		end)
 
-		SearchBox:SetScript("OnTextChanged", function(self, is_typed)
+		SearchBox:HookScript("OnTextChanged", function(self, is_typed)
 			if not is_typed then
 				return
 			end
@@ -784,7 +771,7 @@ function private.InitializeFrame()
 	expand_button:SetPoint("LEFT", expand_button_frame.left, "RIGHT", -3, -3)
 
 	expand_button:SetScript("OnClick", function(self, mouse_button, down)
-		local current_tab = MainPanel.tabs[MainPanel.current_tab]
+		local current_tab = MainPanel.current_tab
 		local is_expanded = current_tab["expand_button_" .. MainPanel.current_collectable_type]
 		local expand_mode
 

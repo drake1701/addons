@@ -1,5 +1,5 @@
 --[[
-
+ 
 Skillet: A tradeskill window replacement.
 Copyright (c) 2007 Robert Clark <nogudnik@gmail.com>
 
@@ -59,6 +59,7 @@ L["DISPLAYSHOPPINGLISTATBANKDESC"] = "Mostrar una Lista de la Compra de los elem
 L["DISPLAYSHOPPINGLISTATBANKNAME"] = "Mostrar Lista de la Compra en los Bancos"
 L["DISPLAYSHOPPINGLISTATGUILDBANKDESC"] = "Muestra una lista de compra de Objetos que son necesarios para manufacturar las recetas encoladaspe ro no estan en bolsas"
 L["DISPLAYSHOPPINGLISTATGUILDBANKNAME"] = "Muestra lista de compra en Banco de Hermandad"
+L["Draenor Engineering"] = "Draenor Engineering" -- Requires localization
 L["Enabled"] = "Habilitado"
 L["Enchant"] = "Encantar"
 L["ENHANCHEDRECIPEDISPLAYDESC"] = "Cuando activo, nombres de las recetas tendrán uno o más caracteres '+' añadido a su nombre para indicar la dificultad de la receta."
@@ -67,6 +68,8 @@ L["Expand all groups"] = "Expandir todos los grupos"
 L["Features"] = "Características"
 L["FEATURESDESC"] = "Comportamiento opcional que puede activarse y desactivarse"
 L["Filter"] = "Filtro"
+L["Flush All Data"] = "Flush All Data" -- Requires localization
+L["FLUSHALLDATADESC"] = "Flush all Skillet data" -- Requires localization
 L["Glyph "] = "Glifo "
 L["Gold earned"] = "Oro ganado"
 L["Grouping"] = "Agrupando"
@@ -74,6 +77,7 @@ L["have"] = "Tiene"
 L["Hide trivial"] = "Ocultar Triviales"
 L["Hide uncraftable"] = "Ocultar Imposibles de Crear"
 L["Include alts"] = "Incluir Alts"
+L["Include guild"] = "Include guild" -- Requires localization
 L["Inventory"] = "Inventario"
 L["INVENTORYDESC"] = "Información del Inventario"
 L["is now disabled"] = "ahora esta deshabilitado"
@@ -82,6 +86,7 @@ L["Library"] = "Librería"
 L["LINKCRAFTABLEREAGENTSDESC"] = "Si puedes crear un reactivo necesario para la receta actual, clickenado el reactivo le llevará a su receta."
 L["LINKCRAFTABLEREAGENTSNAME"] = "Hacer reactivos clickeables"
 L["Load"] = "Cargar"
+L["Merge items"] = "Merge items" -- Requires localization
 L["Move Down"] = "Mover abajo"
 L["Move to Bottom"] = "Mover al Final"
 L["Move to Top"] = "Mover al Inicio"
@@ -94,6 +99,7 @@ L["Notes"] = "Notas"
 L["not yet cached"] = "aún no en caché"
 L["Number of items to queue/create"] = "Número de elementos a encolar/crear"
 L["Options"] = "Opciones"
+L["Order by item"] = "Order by item" -- Requires localization
 L["Pause"] = "Pausar"
 L["Process"] = "Procesando"
 L["Purchased"] = "Comprado"
@@ -122,6 +128,8 @@ L["Scanning tradeskill"] = "Escaneando Habilidades de Comercio"
 L["Selected Addon"] = "Addon Seleccionado"
 L["Select skill difficulty threshold"] = "Selecciona el umbral de nivel de habilidad"
 L["Sells for "] = "Se vende por"
+L["Shopping Clear"] = "Shopping Clear" -- Requires localization
+L["SHOPPINGCLEARDESC"] = "Clear the shopping list" -- Requires localization
 L["Shopping List"] = "Lista Compra"
 L["SHOPPINGLISTDESC"] = "Mostrar la Lista de la Compra"
 L["SHOWBANKALTCOUNTSDESC"] = "Cuando se calcula y se muestra contador de elementos fabricables, incluir elementos de tu banco y de tus otros caracteres."
@@ -157,6 +165,8 @@ L["Trained"] = "Aprendido"
 L["TRANSPARAENCYDESC"] = "Transparencia de la ventana principal de las Habilidades de Comercio"
 L["Transparency"] = "Transparencia"
 L["Unknown"] = "Desconocido"
+L["Using Bank for"] = "Using Bank for" -- Requires localization
+L["Using Reagent Bank for"] = "Using Reagent Bank for" -- Requires localization
 L["VENDORAUTOBUYDESC"] = "Si tiene recetas en cola y habla con un vendedor que vende algo necesario para las recetas, se adquiere automáticamente."
 L["VENDORAUTOBUYNAME"] = "Automáticamente comprar los reactivos"
 L["VENDORBUYBUTTONDESC"] = "Muestra un botón cuando hable con los vendedores que le permitirá ver los reactivos necesarios para todas las recetas en cola."

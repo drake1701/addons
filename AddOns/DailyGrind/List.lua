@@ -107,7 +107,10 @@ function List:Clear()
 end
 
 function List:FindIndex(indexToFind)
-   	for index, value in pairs(self:GetTable()) do
+	if not indexToFind then
+		return;
+	end
+	for index, value in pairs(self:GetTable()) do
 		indexLowered = index:gsub("%*", "%.%*"):lower();
 		indexToFindLowered = indexToFind:lower();
    		if indexLowered == indexToFindLowered or indexToFindLowered:find("^"..indexLowered.."$") then

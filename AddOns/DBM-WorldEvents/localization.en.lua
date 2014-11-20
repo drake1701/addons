@@ -40,16 +40,14 @@ L:SetWarningLocalization({
 
 L:SetTimerLocalization{
 	SubmergTimer	= "Submerge",
-	EmergeTimer		= "Emerge",
-	TimerCombat		= "Combat starts"
+	EmergeTimer		= "Emerge"
 }
 
 L:SetOptionLocalization({
 	Emerged			= "Show warning when Ahune emerges",
 	specWarnAttack	= "Show special warning when Ahune becomes vulnerable",
 	SubmergTimer	= "Show timer for submerge",
-	EmergeTimer		= "Show timer for emerge",
-	TimerCombat		= "Show timer for start of combat",
+	EmergeTimer		= "Show timer for emerge"
 })
 
 L:SetMiscLocalization({
@@ -87,13 +85,8 @@ L:SetWarningLocalization({
 	warnHorsemanHead		= "Head of the Horseman Active"
 })
 
-L:SetTimerLocalization{
-	TimerCombatStart		= "Combat starts"
-}
-
 L:SetOptionLocalization({
 	WarnPhase				= "Show a warning for each phase change",
-	TimerCombatStart		= "Show timer for start of combat",
 	warnHorsemanSoldiers	= "Show warning for Pulsing Pumpkin spawn",
 	warnHorsemanHead		= "Show warning for Head of the Horseman spawning"
 })
@@ -110,70 +103,6 @@ L = DBM:GetModLocalization("Greench")
 
 L:SetGeneralLocalization({
 	name = "The Abominable Greench"
-})
-
---------------------------
---  Blastenheimer 5000  --
---------------------------
-L = DBM:GetModLocalization("Cannon")
-
-L:SetGeneralLocalization({
-	name = "Blastenheimer 5000"
-})
-
--------------
---  Gnoll  --
--------------
-L = DBM:GetModLocalization("Gnoll")
-
-L:SetGeneralLocalization({
-	name = "Whack-a-Gnoll"
-})
-
-L:SetWarningLocalization({
-	warnGameOverQuest	= "Earned %d out of %d possible points spawned",
-	warnGameOverNoQuest	= "Game ended with a total of %d possible points spawned",
-	warnGnoll			= "Gnoll spawned",
-	warnHogger			= "Hogger spawned",
-	specWarnHogger		= "Hogger spawned!"
-})
-
-L:SetOptionLocalization({
-	warnGameOver	= "Announce total possible points when game ends",
-	warnGnoll		= "Announce when a Gnoll spawns",
-	warnHogger		= "Announce when a Hogger spawns",
-	specWarnHogger	= "Show special warning when a Hogger spawns"
-})
-
-------------------------
---  Shooting Gallery  --
-------------------------
-L = DBM:GetModLocalization("Shot")
-
-L:SetGeneralLocalization({
-	name = "Shooting Gallery"
-})
-
-L:SetOptionLocalization({
-	SetBubbles			= "Automatically disable chat bubbles during $spell:101871\n(restores them when game ends)"
-})
-
-----------------------
---  Tonk Challenge  --
-----------------------
-L = DBM:GetModLocalization("Tonks")
-
-L:SetGeneralLocalization({
-	name = "Tonk Challenge"
-})
-
------------------------
---  Darkmoon Rabbit  --
------------------------
-L = DBM:GetModLocalization("Rabbit")
-
-L:SetGeneralLocalization({
-	name = "Darkmoon Rabbit"
 })
 
 --------------------------

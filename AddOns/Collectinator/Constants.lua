@@ -3,10 +3,10 @@
 Constants.lua
 Constants used within Collectinator
 ************************************************************************
-File date: 2013-05-21T04:22:09Z
-File hash: 7cd49ad
-Project hash: d1ccde1
-Project version: 2.0.2
+File date: 2014-11-13T05:26:33Z
+File hash: 591eca9
+Project hash: 7dcae1d
+Project version: 2.0.12
 ************************************************************************
 Please see http://www.wowace.com/addons/collectinator/ for more information.
 ************************************************************************
@@ -36,6 +36,12 @@ local L		= LibStub("AceLocale-3.0"):GetLocale(private.addon_name)
 private.PLAYER_NAME = _G.UnitName("player")
 private.REALM_NAME = _G.GetRealmName()
 
+private.COLLECTABLE_TEXTURES = {
+    CRITTER = [[Interface\AddOns\Collectinator\Images\CritterPortrait]],
+    MOUNT = [[Interface\AddOns\Collectinator\Images\MountPortrait]],
+    TOY  = [[Interface\ICONS\TRADE_ARCHAEOLOGY_CHESTOFTINYGLASSANIMALS]],
+}
+
 -------------------------------------------------------------------------------
 -- Helper functions.
 -------------------------------------------------------------------------------
@@ -56,6 +62,7 @@ end
 private.ORDERED_COLLECTIONS = {
 	"MOUNT", -- 1
 	"CRITTER", -- 2
+	"TOY", -- 3
 }
 
 private.COLLECTION_TYPE_IDS = GenerateLookup_ID(private.ORDERED_COLLECTIONS)
@@ -98,6 +105,7 @@ private.PROFESSION_SPELL_IDS = {
 	SMELTING	= 2656,
 	TAILORING	= 3908,
 	ARCHAEOLOGY	= 78670,
+	HERBALISM	= 13617, -- Using the enchanting spell for Herbalism to gloves
 }
 
 private.LOCALIZED_PROFESSION_NAMES = {}
@@ -134,6 +142,7 @@ private.GAME_VERSION_NAMES = {
 	"WOTLK",
 	"CATA",
 	"MOP",
+	"WOD",
 }
 
 private.GAME_VERSIONS = GenerateLookup_ID(private.GAME_VERSION_NAMES)
@@ -224,24 +233,30 @@ private.REP_FLAGS_WORD2 = {
 	RAMKAHEN			= 0x00000010,	-- 5
 	THE_EARTHEN_RING		= 0x00000020,	-- 6
 	THERAZANE			= 0x00000040,	-- 7
-	__UNUSED_8__			= 0X00000080,	-- 8
-	GOLDEN_LOTUS			= 0X00000100,	-- 9
-	ORDER_OF_THE_CLOUD_SERPENT	= 0X00000200,	-- 10
-	PANDACOMMON2			= 0X00000400,	-- 11 -- Forest Hozen / Pearlfin Jinu
-	SHADO_PAN			= 0X00000800,	-- 12
-	THE_ANGLERS			= 0X00001000,	-- 13
-	THE_AUGUST_CELESTIALS		= 0X00002000,	-- 14
-	THE_BREWMASTERS			= 0X00004000,	-- 15
-	THE_KLAXXI			= 0X00008000,	-- 16
-	THE_LOREWALKERS			= 0X00010000,	-- 17
-	THE_TILLERS			= 0X00020000,	-- 18
-	THE_BLACK_PRINCE		= 0X00040000,	-- 19
-	SHANG_XIS_ACADEMY		= 0X00080000,	-- 20
-	PANDACOMMON1			= 0X00100000,	-- 21 -- Huojin Pandaren / Tushui Pandaren
-	GUILD				= 0X00200000,	-- 22
-	NETHERWING			= 0x00400000,	-- 23
-	BRAWLERS			= 0x00800000,	-- 24 -- Bizmo's Brawlpub / Brawl'gar Arena
-	PANDACOMMON3			= 0x01000000,	-- 25 -- Kirin Tor Offensive / Sunreaver Onslaught
+	GOLDEN_LOTUS			= 0x00000080,	-- 8
+	ORDER_OF_THE_CLOUD_SERPENT	= 0x00000100,	-- 9
+	PANDACOMMON2			= 0x00000200,	-- 10 -- Forest Hozen / Pearlfin Jinu
+	SHADO_PAN			= 0x00000400,	-- 11
+	THE_ANGLERS			= 0x00000800,	-- 12
+	THE_AUGUST_CELESTIALS		= 0x00001000,	-- 13
+	THE_BREWMASTERS			= 0x00002000,	-- 14
+	THE_KLAXXI			= 0x00004000,	-- 15
+	THE_LOREWALKERS			= 0x00008000,	-- 16
+	THE_TILLERS			= 0x00010000,	-- 17
+	THE_BLACK_PRINCE		= 0x00020000,	-- 18
+	SHANG_XIS_ACADEMY		= 0x00040000,	-- 19
+	PANDACOMMON1			= 0x00080000,	-- 20 -- Huojin Pandaren / Tushui Pandaren
+	GUILD				= 0x00100000,	-- 21
+	NETHERWING			= 0x00200000,	-- 22
+	BRAWLERS			= 0x00400000,	-- 23
+	PANDACOMMON3			= 0x00800000,	-- 24 -- Bizmo's Brawlpub / Brawl'gar Arena
+	EMPEROR_SHAOHAO			= 0x01000000,	-- 25 -- Kirin Tor Offensive / Sunreaver Onslaught
+	STEAMWHEEDLE_PRESERVATION_SOCIETY	= 0x02000000,	-- 27
+	DRAENORCOMMON1			= 0x04000000,	-- 28 -- Wrynn's Vanguard /  Vol'jin's Spear
+	DRAENORCOMMON2			= 0x08000000,	-- 29 -- Council of Exarchs / Frostwolf Orcs
+	DRAENORCOMMON3			= 0x10000000,	-- 30 -- Shatari Defense / Laughing Skull Orcs
+	ARAKKOA_OUTCASTS		= 0x20000000,	-- 31
+
 }
 
 -------------------------------------------------------------------------------
@@ -297,21 +312,22 @@ private.COLLECTION_FILTER_TYPES = {
 -- Acquire types.
 -------------------------------------------------------------------------------
 private.ACQUIRE_NAMES = {
-	[1]	= L["Trainer"],
-	[2]	= _G.BATTLE_PET_SOURCE_3, -- Vendor
-	[3]	= L["Mob Drop"],
-	[4]	= _G.BATTLE_PET_SOURCE_2, -- Quest
-	[5]	= _G.GetCategoryInfo(155), -- World Events
-	[6]	= _G.REPUTATION,
-	[7]	= L["World Drop"],
-	[8]	= _G.ACHIEVEMENTS,
-	[9]	= _G.MISCELLANEOUS,
-	[10]	= _G.BATTLE_PET_SOURCE_4, -- Profession
-	[11]	= _G.BATTLE_PET_SOURCE_10, -- Store
-	[12]	= _G.BATTLE_PET_SOURCE_9, -- TCG
-	[13]	= L["Collectors Edition"],
-	[14]	= _G.BATTLE_PET_SOURCE_8, -- Promotion
-	[15]	= _G.MISCELLANEOUS,
+	L["Trainer"],
+	_G.BATTLE_PET_SOURCE_3, -- Vendor
+	L["Mob Drop"],
+	_G.BATTLE_PET_SOURCE_2, -- Quest
+	_G.GetCategoryInfo(155), -- World Events
+	_G.REPUTATION,
+	L["World Drop"],
+	_G.ACHIEVEMENTS,
+	_G.MISCELLANEOUS,
+	_G.BATTLE_PET_SOURCE_4, -- Profession
+	_G.BATTLE_PET_SOURCE_10, -- Store
+	_G.BATTLE_PET_SOURCE_9, -- TCG
+	L["Collectors Edition"],
+	_G.BATTLE_PET_SOURCE_8, -- Promotion
+	_G.MISCELLANEOUS,
+	L["Retired"],
 }
 
 private.ACQUIRE_STRINGS = {
@@ -330,6 +346,7 @@ private.ACQUIRE_STRINGS = {
 	"COLLECTORS_EDITION",	-- 13
 	"PROMO",		-- 14
 	"MISC",			-- 15
+	"RETIRED",		-- 16
 }
 
 private.ACQUIRE_TYPES = GenerateLookup_ID(private.ACQUIRE_STRINGS)
@@ -461,6 +478,15 @@ private.FACTION_IDS = {
 	KIRIN_TOR_OFFENSIVE = 1387,
 	SUNREAVER_ONSLAUGHT = 1388,
 	BIZMOS_BRAWLPUB = 1419,
+	FROSTWOLF_ORCS = 1445,
+	EMPEROR_SHAOHAO = 1492,
+	ARAKKOA_OUTCASTS = 1515,
+	VOLJINS_SPEAR = 1681,
+	WRYNNS_VANGUARD = 1682,
+	LAUGHING_SKULL_ORCS = 1708,
+	SHATARI_DEFENSE = 1710,
+	STEAMWHEEDLE_PRESERVATION_SOCIETY = 1711,
+	COUNCIL_OF_EXARCHS = 1731,
 
 }
 
@@ -483,201 +509,217 @@ private.LOCALIZED_REPUTATION_LEVELS = {
 -------------------------------------------------------------------------------
 -- Zones.
 -------------------------------------------------------------------------------
-private.ZONE_NAMES = {
-	DUROTAR = _G.GetMapNameByID(4),
-	MULGORE = _G.GetMapNameByID(9),
-	NORTHERN_BARRENS = _G.GetMapNameByID(11),
-	ARATHI_HIGHLANDS = _G.GetMapNameByID(16),
-	BADLANDS = _G.GetMapNameByID(17),
-	BLASTED_LANDS = _G.GetMapNameByID(19),
-	TIRISFAL_GLADES = _G.GetMapNameByID(20),
-	SILVERPINE_FOREST = _G.GetMapNameByID(21),
-	WESTERN_PLAGUELANDS = _G.GetMapNameByID(22),
-	EASTERN_PLAGUELANDS = _G.GetMapNameByID(23),
-	HILLSBRAD_FOOTHILLS = _G.GetMapNameByID(24),
-	THE_HINTERLANDS = _G.GetMapNameByID(26),
-	DUN_MOROGH = _G.GetMapNameByID(27),
-	SEARING_GORGE = _G.GetMapNameByID(28),
-	BURNING_STEPPES = _G.GetMapNameByID(29),
-	ELWYNN_FOREST = _G.GetMapNameByID(30),
-	DEADWIND_PASS = _G.GetMapNameByID(32),
-	DUSKWOOD = _G.GetMapNameByID(34),
-	LOCH_MODAN = _G.GetMapNameByID(35),
-	REDRIDGE_MOUNTAINS = _G.GetMapNameByID(36),
-	NORTHERN_STRANGLETHORN = _G.GetMapNameByID(37),
-	SWAMP_OF_SORROWS = _G.GetMapNameByID(38),
-	WESTFALL = _G.GetMapNameByID(39),
-	WETLANDS = _G.GetMapNameByID(40),
-	TELDRASSIL = _G.GetMapNameByID(41),
-	DARKSHORE = _G.GetMapNameByID(42),
-	ASHENVALE = _G.GetMapNameByID(43),
-	THOUSAND_NEEDLES = _G.GetMapNameByID(61),
-	STONETALON_MOUNTAINS = _G.GetMapNameByID(81),
-	DESOLACE = _G.GetMapNameByID(101),
-	FERALAS = _G.GetMapNameByID(121),
-	TANARIS = _G.GetMapNameByID(161),
-	AZSHARA = _G.GetMapNameByID(181),
-	FELWOOD = _G.GetMapNameByID(182),
-	UNGORO_CRATER = _G.GetMapNameByID(201),
-	MOONGLADE = _G.GetMapNameByID(241),
-	SILITHUS = _G.GetMapNameByID(261),
-	WINTERSPRING = _G.GetMapNameByID(281),
-	STORMWIND_CITY = _G.GetMapNameByID(301),
-	ORGRIMMAR = _G.GetMapNameByID(321),
-	IRONFORGE = _G.GetMapNameByID(341),
-	THUNDER_BLUFF = _G.GetMapNameByID(362),
-	DARNASSUS = _G.GetMapNameByID(381),
-	UNDERCITY = _G.GetMapNameByID(382),
-	ALTERAC_VALLEY = _G.GetMapNameByID(401),
-	ARATHI_BASIN = _G.GetMapNameByID(461),
-	EVERSONG_WOODS = _G.GetMapNameByID(462),
-	GHOSTLANDS = _G.GetMapNameByID(463),
-	AZUREMYST_ISLE = _G.GetMapNameByID(464),
-	HELLFIRE_PENINSULA = _G.GetMapNameByID(465),
-	ZANGARMARSH = _G.GetMapNameByID(467),
-	THE_EXODAR = _G.GetMapNameByID(471),
-	SHADOWMOON_VALLEY = _G.GetMapNameByID(473),
-	BLADES_EDGE_MOUNTAINS = _G.GetMapNameByID(475),
-	BLOODMYST_ISLE = _G.GetMapNameByID(476),
-	NAGRAND = _G.GetMapNameByID(477),
-	TEROKKAR_FOREST = _G.GetMapNameByID(478),
-	NETHERSTORM = _G.GetMapNameByID(479),
-	SILVERMOON_CITY = _G.GetMapNameByID(480),
-	SHATTRATH_CITY = _G.GetMapNameByID(481),
-	BOREAN_TUNDRA = _G.GetMapNameByID(486),
-	DRAGONBLIGHT = _G.GetMapNameByID(488),
-	GRIZZLY_HILLS = _G.GetMapNameByID(490),
-	HOWLING_FJORD = _G.GetMapNameByID(491),
-	ICECROWN = _G.GetMapNameByID(492),
-	SHOLAZAR_BASIN = _G.GetMapNameByID(493),
-	THE_STORM_PEAKS = _G.GetMapNameByID(495),
-	ZULDRAK = _G.GetMapNameByID(496),
-	ISLE_OF_QUELDANAS = _G.GetMapNameByID(499),
-	WINTERGRASP = _G.GetMapNameByID(501),
-	PLAGUELANDS_THE_SCARLET_ENCLAVE = _G.GetMapNameByID(502),
-	DALARAN = _G.GetMapNameByID(504),
-	CRYSTALSONG_FOREST = _G.GetMapNameByID(510),
-	THE_NEXUS = _G.GetMapNameByID(520),
-	THE_CULLING_OF_STRATHOLME = _G.GetMapNameByID(521),
-	AHNKAHET_THE_OLD_KINGDOM = _G.GetMapNameByID(522),
-	UTGARDE_KEEP = _G.GetMapNameByID(523),
-	UTGARDE_PINNACLE = _G.GetMapNameByID(524),
-	HALLS_OF_LIGHTNING = _G.GetMapNameByID(525),
-	HALLS_OF_STONE = _G.GetMapNameByID(526),
-	THE_EYE_OF_ETERNITY = _G.GetMapNameByID(527),
-	THE_OCULUS = _G.GetMapNameByID(528),
-	ULDUAR = _G.GetMapNameByID(529),
-	GUNDRAK = _G.GetMapNameByID(530),
-	THE_OBSIDIAN_SANCTUM = _G.GetMapNameByID(531),
-	VAULT_OF_ARCHAVON = _G.GetMapNameByID(532),
-	AZJOL_NERUB = _G.GetMapNameByID(533),
-	DRAKTHARON_KEEP = _G.GetMapNameByID(534),
-	NAXXRAMAS = _G.GetMapNameByID(535),
-	THE_VIOLET_HOLD = _G.GetMapNameByID(536),
-	GILNEAS = _G.GetMapNameByID(539),
-	TRIAL_OF_THE_CRUSADER = _G.GetMapNameByID(543),
-	THE_LOST_ISLES = _G.GetMapNameByID(544),
-	THE_FORGE_OF_SOULS = _G.GetMapNameByID(601),
-	PIT_OF_SARON = _G.GetMapNameByID(602),
-	HALLS_OF_REFLECTION = _G.GetMapNameByID(603),
-	ICECROWN_CITADEL = _G.GetMapNameByID(604),
-	KEZAN = _G.GetMapNameByID(605),
-	MOUNT_HYJAL = _G.GetMapNameByID(606),
-	SOUTHERN_BARRENS = _G.GetMapNameByID(607),
-	KELPTHAR_FOREST = _G.GetMapNameByID(610),
-	GILNEAS_CITY = _G.GetMapNameByID(611),
-	VASHJIR = _G.GetMapNameByID(613),
-	DEEPHOLM = _G.GetMapNameByID(640),
-	THE_CAPE_OF_STRANGLETHORN = _G.GetMapNameByID(673),
-	RUINS_OF_GILNEAS = _G.GetMapNameByID(684),
-	THE_TEMPLE_OF_ATALHAKKAR = _G.GetMapNameByID(687),
-	GNOMEREGAN = _G.GetMapNameByID(691),
-	ULDAMAN = _G.GetMapNameByID(692),
-	MOLTEN_CORE = _G.GetMapNameByID(696),
-	DIRE_MAUL = _G.GetMapNameByID(699),
-	BLACKROCK_DEPTHS = _G.GetMapNameByID(704),
-	TOL_BARAD = _G.GetMapNameByID(708),
-	TOL_BARAD_PENINSULA = _G.GetMapNameByID(709),
-	THE_SHATTERED_HALLS = _G.GetMapNameByID(710),
-	RUINS_OF_AHNQIRAJ = _G.GetMapNameByID(717),
-	ONYXIAS_LAIR = _G.GetMapNameByID(718),
-	ULDUM = _G.GetMapNameByID(720),
-	BLACKROCK_SPIRE = _G.GetMapNameByID(721),
-	AUCHENAI_CRYPTS = _G.GetMapNameByID(722),
-	SETHEKK_HALLS = _G.GetMapNameByID(723),
-	SHADOW_LABYRINTH = _G.GetMapNameByID(724),
-	THE_STEAMVAULT = _G.GetMapNameByID(727),
-	THE_SLAVE_PENS = _G.GetMapNameByID(728),
-	THE_BOTANICA = _G.GetMapNameByID(729),
-	THE_MECHANAR = _G.GetMapNameByID(730),
-	THE_ARCATRAZ = _G.GetMapNameByID(731),
-	MANA_TOMBS = _G.GetMapNameByID(732),
-	THE_BLACK_MORASS = _G.GetMapNameByID(733),
-	OLD_HILLSBRAD_FOOTHILLS = _G.GetMapNameByID(734),
-	LOST_CITY_OF_THE_TOLVIR = _G.GetMapNameByID(747),
-	WAILING_CAVERNS = _G.GetMapNameByID(749),
-	BLACKWING_LAIR = _G.GetMapNameByID(755),
-	THE_DEADMINES = _G.GetMapNameByID(756),
-	RAZORFEN_DOWNS = _G.GetMapNameByID(760),
-	SCARLET_MONASTERY = _G.GetMapNameByID(762),
-	SHADOWFANG_KEEP = _G.GetMapNameByID(764),
-	STRATHOLME = _G.GetMapNameByID(765),
-	AHNQIRAJ = _G.GetMapNameByID(766),
-	THE_STONECORE = _G.GetMapNameByID(768),
-	THE_VORTEX_PINNACLE = _G.GetMapNameByID(769),
-	TWILIGHT_HIGHLANDS = _G.GetMapNameByID(770),
-	AHNQIRAJ_THE_FALLEN_KINGDOM = _G.GetMapNameByID(772),
-	THRONE_OF_THE_FOUR_WINDS = _G.GetMapNameByID(773),
-	HYJAL_SUMMIT = _G.GetMapNameByID(775),
-	SERPENTSHRINE_CAVERN = _G.GetMapNameByID(780),
-	ZULAMAN = _G.GetMapNameByID(781),
-	TEMPEST_KEEP = _G.GetMapNameByID(782),
-	SUNWELL_PLATEAU = _G.GetMapNameByID(789),
-	ZULGURUB = _G.GetMapNameByID(793),
-	MOLTEN_FRONT = _G.GetMapNameByID(795),
-	BLACK_TEMPLE = _G.GetMapNameByID(796),
-	MAGISTERS_TERRACE = _G.GetMapNameByID(798),
-	KARAZHAN = _G.GetMapNameByID(799),
-	FIRELANDS = _G.GetMapNameByID(800),
-	VALLEY_OF_THE_FOUR_WINDS = _G.GetMapNameByID(807),
-	TOWNLONG_STEPPES = _G.GetMapNameByID(810),
-	VALE_OF_ETERNAL_BLOSSOMS = _G.GetMapNameByID(811),
-	WELL_OF_ETERNITY = _G.GetMapNameByID(816),
-	END_TIME = _G.GetMapNameByID(820),
-	DARKMOON_ISLAND = _G.GetMapNameByID(823),
-	DRAGON_SOUL = _G.GetMapNameByID(824),
-	DUSTWALLOW_MARSH = _G.GetMapNameByID(851),
-	KRASARANG_WILDS = _G.GetMapNameByID(857),
-	DREAD_WASTES = _G.GetMapNameByID(858),
-	THE_VEILED_STAIR = _G.GetMapNameByID(873),
-	KUN_LAI_SUMMIT = _G.GetMapNameByID(879),
-	THE_JADE_FOREST = _G.GetMapNameByID(880),
-	SUNSTRIDER_ISLE = _G.GetMapNameByID(893),
-	AMMEN_VALE = _G.GetMapNameByID(894),
-	NEW_TINKERTOWN = _G.GetMapNameByID(895),
-	MOGUSHAN_VAULTS = _G.GetMapNameByID(896),
-	HEART_OF_FEAR = _G.GetMapNameByID(897),
-	SCHOLOMANCE = _G.GetMapNameByID(898),
-	CRYPT_OF_FORGOTTEN_KINGS = _G.GetMapNameByID(900),
-	SHRINE_OF_TWO_MOONS = _G.GetMapNameByID(903),
-	SHRINE_OF_SEVEN_STARS = _G.GetMapNameByID(905),
-	DEEPRUN_TRAM = _G.GetMapNameByID(922),
-	BRAWLGAR_ARENA = _G.GetMapNameByID(925),
-	ISLE_OF_GIANTS = _G.GetMapNameByID(929),
-	THRONE_OF_THUNDER = _G.GetMapNameByID(930),
-	ISLE_OF_THUNDER = _G.GetMapNameByID(933)
-
-}
-
 do
-	local continent_names = { _G.GetMapContinents() }
+	local CONTINENT_NAMES = { _G.GetMapContinents() }
 
-	private.ZONE_NAMES["KALIMDOR"] = continent_names[1]
-	private.ZONE_NAMES["EASTERN_KINGDOMS"] = continent_names[2]
-	private.ZONE_NAMES["OUTLAND"] = continent_names[3]
-	private.ZONE_NAMES["NORTHREND"] = continent_names[4]
-	private.ZONE_NAMES["THE_MAELSTROM"] = continent_names[5]
-	private.ZONE_NAMES["PANDARIA"] = continent_names[6]
+	private.ZONE_NAMES = {
+		DUROTAR = _G.GetMapNameByID(4),
+		MULGORE = _G.GetMapNameByID(9),
+		NORTHERN_BARRENS = _G.GetMapNameByID(11),
+		ARATHI_HIGHLANDS = _G.GetMapNameByID(16),
+		BADLANDS = _G.GetMapNameByID(17),
+		BLASTED_LANDS = _G.GetMapNameByID(19),
+		TIRISFAL_GLADES = _G.GetMapNameByID(20),
+		SILVERPINE_FOREST = _G.GetMapNameByID(21),
+		WESTERN_PLAGUELANDS = _G.GetMapNameByID(22),
+		EASTERN_PLAGUELANDS = _G.GetMapNameByID(23),
+		HILLSBRAD_FOOTHILLS = _G.GetMapNameByID(24),
+		THE_HINTERLANDS = _G.GetMapNameByID(26),
+		DUN_MOROGH = _G.GetMapNameByID(27),
+		SEARING_GORGE = _G.GetMapNameByID(28),
+		BURNING_STEPPES = _G.GetMapNameByID(29),
+		ELWYNN_FOREST = _G.GetMapNameByID(30),
+		DEADWIND_PASS = _G.GetMapNameByID(32),
+		DUSKWOOD = _G.GetMapNameByID(34),
+		LOCH_MODAN = _G.GetMapNameByID(35),
+		REDRIDGE_MOUNTAINS = _G.GetMapNameByID(36),
+		NORTHERN_STRANGLETHORN = _G.GetMapNameByID(37),
+		SWAMP_OF_SORROWS = _G.GetMapNameByID(38),
+		WESTFALL = _G.GetMapNameByID(39),
+		WETLANDS = _G.GetMapNameByID(40),
+		TELDRASSIL = _G.GetMapNameByID(41),
+		DARKSHORE = _G.GetMapNameByID(42),
+		ASHENVALE = _G.GetMapNameByID(43),
+		THOUSAND_NEEDLES = _G.GetMapNameByID(61),
+		STONETALON_MOUNTAINS = _G.GetMapNameByID(81),
+		DESOLACE = _G.GetMapNameByID(101),
+		FERALAS = _G.GetMapNameByID(121),
+		TANARIS = _G.GetMapNameByID(161),
+		AZSHARA = _G.GetMapNameByID(181),
+		FELWOOD = _G.GetMapNameByID(182),
+		UNGORO_CRATER = _G.GetMapNameByID(201),
+		MOONGLADE = _G.GetMapNameByID(241),
+		SILITHUS = _G.GetMapNameByID(261),
+		WINTERSPRING = _G.GetMapNameByID(281),
+		STORMWIND_CITY = _G.GetMapNameByID(301),
+		ORGRIMMAR = _G.GetMapNameByID(321),
+		IRONFORGE = _G.GetMapNameByID(341),
+		THUNDER_BLUFF = _G.GetMapNameByID(362),
+		DARNASSUS = _G.GetMapNameByID(381),
+		UNDERCITY = _G.GetMapNameByID(382),
+		ALTERAC_VALLEY = _G.GetMapNameByID(401),
+		ARATHI_BASIN = _G.GetMapNameByID(461),
+		EVERSONG_WOODS = _G.GetMapNameByID(462),
+		GHOSTLANDS = _G.GetMapNameByID(463),
+		AZUREMYST_ISLE = _G.GetMapNameByID(464),
+		HELLFIRE_PENINSULA = _G.GetMapNameByID(465),
+		ZANGARMARSH = _G.GetMapNameByID(467),
+		THE_EXODAR = _G.GetMapNameByID(471),
+		SHADOWMOON_VALLEY_OUTLAND = (("%s %s"):format(_G.GetMapNameByID(473), _G.PARENS_TEMPLATE:format(CONTINENT_NAMES[6]))),
+		BLADES_EDGE_MOUNTAINS = _G.GetMapNameByID(475),
+		BLOODMYST_ISLE = _G.GetMapNameByID(476),
+		NAGRAND_OUTLAND = (("%s %s"):format(_G.GetMapNameByID(477), _G.PARENS_TEMPLATE:format(CONTINENT_NAMES[6]))),
+		TEROKKAR_FOREST = _G.GetMapNameByID(478),
+		NETHERSTORM = _G.GetMapNameByID(479),
+		SILVERMOON_CITY = _G.GetMapNameByID(480),
+		SHATTRATH_CITY = _G.GetMapNameByID(481),
+		BOREAN_TUNDRA = _G.GetMapNameByID(486),
+		DRAGONBLIGHT = _G.GetMapNameByID(488),
+		GRIZZLY_HILLS = _G.GetMapNameByID(490),
+		HOWLING_FJORD = _G.GetMapNameByID(491),
+		ICECROWN = _G.GetMapNameByID(492),
+		SHOLAZAR_BASIN = _G.GetMapNameByID(493),
+		THE_STORM_PEAKS = _G.GetMapNameByID(495),
+		ZULDRAK = _G.GetMapNameByID(496),
+		ISLE_OF_QUELDANAS = _G.GetMapNameByID(499),
+		WINTERGRASP = _G.GetMapNameByID(501),
+		PLAGUELANDS_THE_SCARLET_ENCLAVE = _G.GetMapNameByID(502),
+		DALARAN = _G.GetMapNameByID(504),
+		CRYSTALSONG_FOREST = _G.GetMapNameByID(510),
+		THE_NEXUS = _G.GetMapNameByID(520),
+		THE_CULLING_OF_STRATHOLME = _G.GetMapNameByID(521),
+		AHNKAHET_THE_OLD_KINGDOM = _G.GetMapNameByID(522),
+		UTGARDE_KEEP = _G.GetMapNameByID(523),
+		UTGARDE_PINNACLE = _G.GetMapNameByID(524),
+		HALLS_OF_LIGHTNING = _G.GetMapNameByID(525),
+		HALLS_OF_STONE = _G.GetMapNameByID(526),
+		THE_EYE_OF_ETERNITY = _G.GetMapNameByID(527),
+		THE_OCULUS = _G.GetMapNameByID(528),
+		ULDUAR = _G.GetMapNameByID(529),
+		GUNDRAK = _G.GetMapNameByID(530),
+		THE_OBSIDIAN_SANCTUM = _G.GetMapNameByID(531),
+		VAULT_OF_ARCHAVON = _G.GetMapNameByID(532),
+		AZJOL_NERUB = _G.GetMapNameByID(533),
+		DRAKTHARON_KEEP = _G.GetMapNameByID(534),
+		NAXXRAMAS = _G.GetMapNameByID(535),
+		THE_VIOLET_HOLD = _G.GetMapNameByID(536),
+		GILNEAS = _G.GetMapNameByID(539),
+		TRIAL_OF_THE_CRUSADER = _G.GetMapNameByID(543),
+		THE_LOST_ISLES = _G.GetMapNameByID(544),
+		THE_FORGE_OF_SOULS = _G.GetMapNameByID(601),
+		PIT_OF_SARON = _G.GetMapNameByID(602),
+		HALLS_OF_REFLECTION = _G.GetMapNameByID(603),
+		ICECROWN_CITADEL = _G.GetMapNameByID(604),
+		KEZAN = _G.GetMapNameByID(605),
+		MOUNT_HYJAL = _G.GetMapNameByID(606),
+		SOUTHERN_BARRENS = _G.GetMapNameByID(607),
+		KELPTHAR_FOREST = _G.GetMapNameByID(610),
+		GILNEAS_CITY = _G.GetMapNameByID(611),
+		VASHJIR = _G.GetMapNameByID(613),
+		DEEPHOLM = _G.GetMapNameByID(640),
+		THE_CAPE_OF_STRANGLETHORN = _G.GetMapNameByID(673),
+		RUINS_OF_GILNEAS = _G.GetMapNameByID(684),
+		THE_TEMPLE_OF_ATALHAKKAR = _G.GetMapNameByID(687),
+		GNOMEREGAN = _G.GetMapNameByID(691),
+		ULDAMAN = _G.GetMapNameByID(692),
+		MOLTEN_CORE = _G.GetMapNameByID(696),
+		DIRE_MAUL = _G.GetMapNameByID(699),
+		BLACKROCK_DEPTHS = _G.GetMapNameByID(704),
+		TOL_BARAD = _G.GetMapNameByID(708),
+		TOL_BARAD_PENINSULA = _G.GetMapNameByID(709),
+		THE_SHATTERED_HALLS = _G.GetMapNameByID(710),
+		RUINS_OF_AHNQIRAJ = _G.GetMapNameByID(717),
+		ONYXIAS_LAIR = _G.GetMapNameByID(718),
+		ULDUM = _G.GetMapNameByID(720),
+		BLACKROCK_SPIRE = _G.GetMapNameByID(721),
+		AUCHENAI_CRYPTS = _G.GetMapNameByID(722),
+		SETHEKK_HALLS = _G.GetMapNameByID(723),
+		SHADOW_LABYRINTH = _G.GetMapNameByID(724),
+		THE_STEAMVAULT = _G.GetMapNameByID(727),
+		THE_SLAVE_PENS = _G.GetMapNameByID(728),
+		THE_BOTANICA = _G.GetMapNameByID(729),
+		THE_MECHANAR = _G.GetMapNameByID(730),
+		THE_ARCATRAZ = _G.GetMapNameByID(731),
+		MANA_TOMBS = _G.GetMapNameByID(732),
+		THE_BLACK_MORASS = _G.GetMapNameByID(733),
+		OLD_HILLSBRAD_FOOTHILLS = _G.GetMapNameByID(734),
+		LOST_CITY_OF_THE_TOLVIR = _G.GetMapNameByID(747),
+		WAILING_CAVERNS = _G.GetMapNameByID(749),
+		BLACKWING_LAIR = _G.GetMapNameByID(755),
+		THE_DEADMINES = _G.GetMapNameByID(756),
+		RAZORFEN_DOWNS = _G.GetMapNameByID(760),
+		SCARLET_MONASTERY = _G.GetMapNameByID(762),
+		SHADOWFANG_KEEP = _G.GetMapNameByID(764),
+		STRATHOLME = _G.GetMapNameByID(765),
+		AHNQIRAJ = _G.GetMapNameByID(766),
+		THE_STONECORE = _G.GetMapNameByID(768),
+		THE_VORTEX_PINNACLE = _G.GetMapNameByID(769),
+		TWILIGHT_HIGHLANDS = _G.GetMapNameByID(770),
+		AHNQIRAJ_THE_FALLEN_KINGDOM = _G.GetMapNameByID(772),
+		THRONE_OF_THE_FOUR_WINDS = _G.GetMapNameByID(773),
+		HYJAL_SUMMIT = _G.GetMapNameByID(775),
+		SERPENTSHRINE_CAVERN = _G.GetMapNameByID(780),
+		ZULAMAN = _G.GetMapNameByID(781),
+		TEMPEST_KEEP = _G.GetMapNameByID(782),
+		SUNWELL_PLATEAU = _G.GetMapNameByID(789),
+		ZULGURUB = _G.GetMapNameByID(793),
+		MOLTEN_FRONT = _G.GetMapNameByID(795),
+		BLACK_TEMPLE = _G.GetMapNameByID(796),
+		MAGISTERS_TERRACE = _G.GetMapNameByID(798),
+		KARAZHAN = _G.GetMapNameByID(799),
+		FIRELANDS = _G.GetMapNameByID(800),
+		VALLEY_OF_THE_FOUR_WINDS = _G.GetMapNameByID(807),
+		TOWNLONG_STEPPES = _G.GetMapNameByID(810),
+		VALE_OF_ETERNAL_BLOSSOMS = _G.GetMapNameByID(811),
+		WELL_OF_ETERNITY = _G.GetMapNameByID(816),
+		END_TIME = _G.GetMapNameByID(820),
+		DARKMOON_ISLAND = _G.GetMapNameByID(823),
+		DRAGON_SOUL = _G.GetMapNameByID(824),
+		DUSTWALLOW_MARSH = _G.GetMapNameByID(851),
+		KRASARANG_WILDS = _G.GetMapNameByID(857),
+		DREAD_WASTES = _G.GetMapNameByID(858),
+		THE_VEILED_STAIR = _G.GetMapNameByID(873),
+		KUN_LAI_SUMMIT = _G.GetMapNameByID(879),
+		THE_JADE_FOREST = _G.GetMapNameByID(880),
+		SUNSTRIDER_ISLE = _G.GetMapNameByID(893),
+		AMMEN_VALE = _G.GetMapNameByID(894),
+		NEW_TINKERTOWN = _G.GetMapNameByID(895),
+		MOGUSHAN_VAULTS = _G.GetMapNameByID(896),
+		HEART_OF_FEAR = _G.GetMapNameByID(897),
+		SCHOLOMANCE = _G.GetMapNameByID(898),
+		CRYPT_OF_FORGOTTEN_KINGS = _G.GetMapNameByID(900),
+		SHRINE_OF_TWO_MOONS = _G.GetMapNameByID(903),
+		SHRINE_OF_SEVEN_STARS = _G.GetMapNameByID(905),
+		DEEPRUN_TRAM = _G.GetMapNameByID(922),
+		BRAWLGAR_ARENA = _G.GetMapNameByID(925),
+		ISLE_OF_GIANTS = _G.GetMapNameByID(929),
+		THRONE_OF_THUNDER = _G.GetMapNameByID(930),
+		ISLE_OF_THUNDER = _G.GetMapNameByID(933),
+		FROSTFIRE_RIDGE = _G.GetMapNameByID(941),
+		TALADOR = _G.GetMapNameByID(946),
+		SHADOWMOON_VALLEY_DRAENOR = (("%s %s"):format(_G.GetMapNameByID(947), _G.PARENS_TEMPLATE:format(CONTINENT_NAMES[14]))),
+		SPIRES_OF_ARAK = _G.GetMapNameByID(948),
+		GORGROND = _G.GetMapNameByID(949),
+		TIMELESS_ISLE = _G.GetMapNameByID(951),
+		NAGRAND_DRAENOR = (("%s %s"):format(_G.GetMapNameByID(950), _G.PARENS_TEMPLATE:format(CONTINENT_NAMES[14]))),
+		SIEGE_OF_ORGRIMMAR = _G.GetMapNameByID(953),
+		LUNARFALL = _G.GetMapNameByID(971),
+		FROSTWALL = _G.GetMapNameByID(976),
+		ASHRAN = _G.GetMapNameByID(978),
+		BLACKROCK_FOUNDRY = _G.GetMapNameByID(988),
+		STORMSHIELD = _G.GetMapNameByID(1009),
+		WARSPEAR = _G.GetMapNameByID(1011),
+		-------------------------------------------------------------------------------
+		-- Continents
+		-------------------------------------------------------------------------------
+		KALIMDOR = CONTINENT_NAMES[2],
+		EASTERN_KINGDOMS = CONTINENT_NAMES[4],
+		OUTLAND = CONTINENT_NAMES[6],
+		NORTHREND = CONTINENT_NAMES[8],
+		THE_MAELSTROM = CONTINENT_NAMES[10],
+		PANDARIA = CONTINENT_NAMES[12],
+		DRAENOR = CONTINENT_NAMES[14],
+	}
 end
 
 private.ZONE_LABELS_FROM_NAME = {}
@@ -724,8 +766,13 @@ private.BOSS_NAMES = {
 	DARK_ANIMUS = _G.EJ_GetEncounterInfo(824),
 	OONDASTA = _G.EJ_GetEncounterInfo(826),
 	JI_KUN = _G.EJ_GetEncounterInfo(828),
+	PARAGONS_OF_THE_KLAXXI = _G.EJ_GetEncounterInfo(853),
+	SIEGECRAFTER_BLACKFUSE = _G.EJ_GetEncounterInfo(865),
+	SHA_OF_PRIDE = _G.EJ_GetEncounterInfo(867),
+	GARROSH_HELLSCREAM = _G.EJ_GetEncounterInfo(869),
+	BLACKHAND = _G.EJ_GetEncounterInfo(959),
+	RUKHMAR = _G.EJ_GetEncounterInfo(1262),
 
-	
 }
 
 -------------------------------------------------------------------------------
@@ -755,13 +802,15 @@ private.CATEGORY_COLORS = {
 	-- Acquire type colors
 	achievement	= "faeb98",
 	custom		= "73b7ff",
+	hint            = "c9c781",
 	mobdrop		= "962626",
 	profession	= "9c6b98",
 	quest		= "dbdb2c",
 	reputation	= "855a99",
+	retired		= "bfb863",
 	trainer		= "c98e26",
 	vendor		= "aad372",
-	world_events	= "80590e",
+	worldevents	= "80590e",
 
 	-- Miscellaneous
 	coords		= "d1ce6f",

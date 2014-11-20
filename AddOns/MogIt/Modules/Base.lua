@@ -179,7 +179,7 @@ mog.base.Help = {
 }
 
 function mog.base.GetFilterArgs(filter,item)
-	if filter == "name" or filter == "itemLevel" or filter == "hasItem" then
+	if filter == "name" or filter == "itemLevel" or filter == "hasItem" or filter == "chestType" then
 		return item;
 	elseif filter == "source" then
 		return mog:GetData("item", item, "source"),mog:GetData("item", item, "sourceinfo");
@@ -216,8 +216,8 @@ local addons = {
 for _, addon in ipairs(addons) do
 	local _, title, _, _, loadable = GetAddOnInfo(addon);
 	if loadable then
-		mog:RegisterModule(addon, tonumber(GetAddOnMetadata(addon, "X-MogItModuleVersion")), {
-			label = title:match("MogIt_(.+)") or title,
+		local module = mog:RegisterModule(addon, tonumber(GetAddOnMetadata(addon, "X-MogItModuleVersion")), {
+			label = title:match("MogIt[%s%-_:]+(.+)") or title,
 			base = true,
 			slots = {},
 			slotList = {},
@@ -238,8 +238,8 @@ for _, addon in ipairs(addons) do
 				"source",
 				"quality",
 				"bind",
+				"chestType",
 				(addon == "MogIt_OneHanded" and "slot") or nil,
-				"hasItem",
 			},
 			sorting = {
 				"level",
@@ -251,6 +251,10 @@ for _, addon in ipairs(addons) do
 				colour = mog.base.SortColour,
 			},
 		});
+		if module then
+			-- dirty fix for now - if the "slot" filter is not present the array is broken unless we do this
+			tinsert(module.filters, "hasItem");
+		end
 	end
 end
 --//

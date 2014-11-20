@@ -1,5 +1,5 @@
-## Interface: 60000
-## X-Curse-Packaged-Version: 3.03.28
+﻿## Interface: 60000
+## X-Curse-Packaged-Version: 3.04.16
 ## X-Curse-Project-Name: ArkInventory
 ## X-Curse-Project-ID: ark-inventory
 ## X-Curse-Repository-ID: wow/ark-inventory/mainline
@@ -8,10 +8,11 @@
 ## Title-zhCN: [背包]ArkInventory 整合背包银行
 ## Author: Arkayenro - Khaz'goroth
 ## Email: arkayenro at gmail dot com
-## Version: 30328
+## Version: 30416
+## X-ReleaseType: 
 ## SavedVariables: ARKINVDB
 
-## Notes: Allows you to view all items from all your characters on the same realm, when-ever and where-ever you want.
+## Notes: Allows you to view all items from all your characters on the same account, when-ever and where-ever you want.
 
 ## DefaultState: Enabled
 ## LoadOnDemand: 0
@@ -19,25 +20,21 @@
 ## LoadManagers: AddonLoader
 ## X-LoadOn-Always: delayed
 
-## OptionalDeps: Blizzard_GuildBankUI, Blizzard_VoidStorageUI, Blizzard_PetJournal, Ace3, AceGUI-3.0-SharedMediaWidgets, LibPeriodicTable-3.1, LibSharedMedia-3.0
+## RequiredDeps: Blizzard_GuildBankUI, Blizzard_VoidStorageUI, Blizzard_PetJournal
 
-## X-Embeds: Ace3, AceGUI-3.0-SharedMediaWidgets, LibPeriodicTable-3.1, LibSharedMedia-3.0
+## OptionalDeps: Ace3, AceGUI-3.0-SharedMediaWidgets, LibPeriodicTable-3.1, LibSharedMedia-3.0, LibDataBroker-1.1, LibDialog-1.0
+## X-Embeds: Ace3, AceGUI-3.0-SharedMediaWidgets, LibPeriodicTable-3.1, LibSharedMedia-3.0, LibDataBroker-1.1, LibDialog-1.0
 
 ## X-Category: Inventory
 ## X-Website: http://arkinventory.googlecode.com
 
 
-
-Libs\LibStub\LibStub.lua
-Libs\CallbackHandler\CallbackHandler-1.0.lua
-Libs\LibDataBroker\LibDataBroker-1.1.lua
-Libs\LibDialog\LibDialog-1.0.lua
+#@no-lib-strip@
+ArkInventoryExternals.xml
+#@end-no-lib-strip@
 
 Libs\ArkDewdrop\ArkDewdrop-3.0.lua
 
-#@no-lib-strip@
-embeds.xml
-#@end-no-lib-strip@
 
 Locale\locale.xml
 
@@ -56,6 +53,8 @@ ArkInventorySearch.lua
 ArkInventorySync.lua
 
 ArkInventoryPetJournal.lua
+ArkInventoryMountJournal.lua
+ArkInventoryToybox.lua
 
 ArkInventoryTooltip.lua
 ArkInventoryMoney.lua
@@ -70,3 +69,5 @@ ArkInventoryLDB.lua
 ArkInventoryStaticPopups.lua
 
 ArkInventoryTranslate.lua
+
+ArkInventoryRealms.lua

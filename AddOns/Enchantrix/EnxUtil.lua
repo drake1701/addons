@@ -1,7 +1,7 @@
 ﻿--[[
 	Enchantrix Addon for World of Warcraft(tm).
-	Version: 5.17.5413 (NeedyNoddy)
-	Revision: $Id: EnxUtil.lua 5339 2012-09-01 21:39:07Z ccox $
+	Version: 5.21c.5521 (SanctimoniousSwamprat)
+	Revision: $Id: EnxUtil.lua 5510 2014-10-25 23:43:11Z ccox $
 	URL: http://enchantrix.org/
 
 	General utility functions
@@ -28,7 +28,7 @@
 		since that is its designated purpose as per:
 		http://www.fsf.org/licensing/licenses/gpl-faq.html#InterpreterIncompat
 ]]
-Enchantrix_RegisterRevision("$URL: http://svn.norganna.org/auctioneer/branches/5.17/Enchantrix/EnxUtil.lua $", "$Rev: 5339 $")
+Enchantrix_RegisterRevision("$URL: http://svn.norganna.org/auctioneer/branches/5.21c/Enchantrix/EnxUtil.lua $", "$Rev: 5510 $")
 
 -- Global functions
 local getItems
@@ -700,7 +700,7 @@ function createProfiler(name)
 end
 
 Enchantrix.Util = {
-	Revision			= "$Revision: 5339 $",
+	Revision			= "$Revision: 5510 $",
 
 	GetItems			= getItems,
 	GetItemType			= getItemType,
@@ -754,14 +754,25 @@ function Enchantrix.Util.DisenchantSkillRequiredForItemLevel(level, quality)
 	-- should we cache this in a table?
 
 	if (not level or not quality) then
-		--Enchantrix.Util.DebugPrintQuick( "nil level or quality", level, quality )
+		-- Enchantrix.Util.DebugPrintQuick( "nil level or quality", level, quality )		-- DEBUGGING
 		return 0
 	end
-	
--- ccox - Panda items, this is partly guesswork
-	if (quality == 2 and level >= 340) then
+
+	-- WoD items all require skill level 1
+	if (quality == 2 and level >= 480) then
 		-- all greens
-		return 475;					-- 384 - 460
+		return 1;
+	 elseif (quality == 3 and level >= 500) then
+		-- blues
+	 	return 1;
+	 elseif (level >= 610) then		-- TODO - ccox - verify lowest WoD epic
+	 	-- epics
+	 	return 1;				-- TODO - ccox - verify this!
+	
+	-- Panda items
+	elseif (quality == 2 and level >= 340) then
+		-- all greens
+		return 475;					-- 384 - 494
 	elseif (quality == 3 and level >= 390) then
 		-- blues
 		if (level > 425) then
@@ -771,7 +782,7 @@ function Enchantrix.Util.DisenchantSkillRequiredForItemLevel(level, quality)
 		end
 	elseif (level >= 420) then
 		-- all epics
-		return 525;					-- 420 - 516		525 armor, 575 weapons - well, it's less screwed up than it was; a few more weeks and Blizz will get it right
+		return 525;					-- 420 - 600		525 armor, 575 weapons - well, it's less screwed up than it was; a few more weeks and Blizz will get it right
 
 	-- Cataclysm items
 	elseif (level >= 270) then

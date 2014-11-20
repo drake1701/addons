@@ -1,0 +1,158 @@
+------------------------------------------------------------------------
+r396 | bsmorgan | 2014-11-17 20:59:23 +0000 (Mon, 17 Nov 2014) | 1 line
+Changed paths:
+   A /tags/2.65 (from /trunk:395)
+
+Tagging as 2.65
+------------------------------------------------------------------------
+r395 | bsmorgan | 2014-11-17 14:51:11 +0000 (Mon, 17 Nov 2014) | 2 lines
+Changed paths:
+   M /trunk/Skillet.toc
+
+Skillet:
+- Version number change to force new package (updated localization)
+------------------------------------------------------------------------
+r394 | bsmorgan | 2014-11-16 03:05:04 +0000 (Sun, 16 Nov 2014) | 2 lines
+Changed paths:
+   M /trunk/SkilletData.lua
+
+Skillet:
+- More localization fixes for Blizzard Engineering bug (ticket 308)
+------------------------------------------------------------------------
+r393 | bsmorgan | 2014-11-16 02:51:51 +0000 (Sun, 16 Nov 2014) | 2 lines
+Changed paths:
+   M /trunk/Skillet.lua
+   M /trunk/Skillet.toc
+   M /trunk/SkilletData.lua
+
+Skillet:
+- Localize fix for Blizzard WoD Engineering bug (ticket 308)
+------------------------------------------------------------------------
+r391 | bsmorgan | 2014-11-06 16:15:39 +0000 (Thu, 06 Nov 2014) | 2 lines
+Changed paths:
+   M /trunk/Skillet.lua
+   M /trunk/SkilletData.lua
+   M /trunk/UI/MainFrame.lua
+   M /trunk/UI/MainFrame.xml
+
+Skillet:
+- Change 1/0 to true/false for Blizzard API calls noted in ticket 306
+------------------------------------------------------------------------
+r390 | bsmorgan | 2014-11-05 14:53:58 +0000 (Wed, 05 Nov 2014) | 2 lines
+Changed paths:
+   M /trunk/SkilletQueue.lua
+   M /trunk/UI/MainFrame.xml
+
+Skillet:
+- Increase maximum queue item count to 9999, Ticket 305
+------------------------------------------------------------------------
+r389 | bsmorgan | 2014-11-01 15:29:28 +0000 (Sat, 01 Nov 2014) | 2 lines
+Changed paths:
+   M /trunk/Inventory.lua
+   M /trunk/Skillet.lua
+   M /trunk/Skillet.toc
+   M /trunk/UI/MainFrame.lua
+   M /trunk/UI/ShoppingList.lua
+
+Skillet:
+- Add count of Auction House items independent of Altoholic (Ticket 304)
+------------------------------------------------------------------------
+r387 | bsmorgan | 2014-10-21 13:57:32 +0000 (Tue, 21 Oct 2014) | 3 lines
+Changed paths:
+   M /trunk/SkilletQueue.lua
+   M /trunk/UI/ShoppingList.lua
+
+Skillet:
+- Add persistent copy of entire bank
+- Use entire bank when processing the queue
+------------------------------------------------------------------------
+r386 | bsmorgan | 2014-10-20 23:00:23 +0000 (Mon, 20 Oct 2014) | 2 lines
+Changed paths:
+   M /trunk/RecipeGroups.lua
+   M /trunk/SkilletData.lua
+   M /trunk/UI/Sorting.lua
+
+Skillet:
+- Adjust debugging output
+------------------------------------------------------------------------
+r385 | bsmorgan | 2014-10-20 21:58:07 +0000 (Mon, 20 Oct 2014) | 2 lines
+Changed paths:
+   M /trunk/SkilletQueue.lua
+
+Skillet:
+- Fix for ticket 302, compare number with nil error
+------------------------------------------------------------------------
+r384 | bsmorgan | 2014-10-19 20:57:14 +0000 (Sun, 19 Oct 2014) | 2 lines
+Changed paths:
+   M /trunk/Skillet.lua
+
+Skillet:
+- Add slash command to reinitialize Skillet's (savedvariables) database.
+------------------------------------------------------------------------
+r383 | bsmorgan | 2014-10-19 16:09:53 +0000 (Sun, 19 Oct 2014) | 2 lines
+Changed paths:
+   M /trunk/SkilletQueue.lua
+
+Skillet:
+- Use reagent bank when processing the queue
+------------------------------------------------------------------------
+r382 | bsmorgan | 2014-10-18 21:37:39 +0000 (Sat, 18 Oct 2014) | 3 lines
+Changed paths:
+   M /trunk/Skillet.toc
+
+Skillet:
+- Bump Skillet database version
+- Fix reported nil reference in sorting
+------------------------------------------------------------------------
+r381 | bsmorgan | 2014-10-18 21:23:43 +0000 (Sat, 18 Oct 2014) | 2 lines
+Changed paths:
+   M /trunk/Skillet.lua
+   M /trunk/Skillet.toc
+   M /trunk/UI/Sorting.lua
+
+Skillet:
+- 
+------------------------------------------------------------------------
+r380 | bsmorgan | 2014-10-18 18:23:57 +0000 (Sat, 18 Oct 2014) | 2 lines
+Changed paths:
+   M /trunk/UI/ShoppingList.lua
+
+Skillet:
+- Convert to a more efficient persistent storage of reagent bank.
+------------------------------------------------------------------------
+r378 | bsmorgan | 2014-10-17 19:31:13 +0000 (Fri, 17 Oct 2014) | 3 lines
+Changed paths:
+   M /trunk/UI/Utils.lua
+
+Skillet:
+- Opps, a better fix for SetHyperlinkCompareItem has been removed from 6.0.2
+
+------------------------------------------------------------------------
+r377 | bsmorgan | 2014-10-17 19:21:45 +0000 (Fri, 17 Oct 2014) | 2 lines
+Changed paths:
+   M /trunk/UI/Utils.lua
+
+Skillet:
+- SetHyperlinkCompareItem has been removed from 6.0.2
+------------------------------------------------------------------------
+r376 | ethancentaurai | 2014-10-17 18:26:47 +0000 (Fri, 17 Oct 2014) | 2 lines
+Changed paths:
+   M /trunk/UI/MainFrame.lua
+
+Skillet:
+- Removed guild perk bonus calculations as the Working Overtime perk was removed in 6.0.2.
+------------------------------------------------------------------------
+r375 | bsmorgan | 2014-10-17 17:50:04 +0000 (Fri, 17 Oct 2014) | 5 lines
+Changed paths:
+   M /trunk/DebugAids.lua
+   M /trunk/Skillet.lua
+   M /trunk/Skillet.toc
+   M /trunk/UI/MainFrame.lua
+   M /trunk/UI/ShoppingList.lua
+
+Skillet:
+- Added slash commands for additional debugging controls.
+- Updated debugging code with additional runtime controls.
+- Added major version number to the main frame title bar.
+- Added preliminary Reagent Bank support (treat as another bank bag).
+------------------------------------------------------------------------

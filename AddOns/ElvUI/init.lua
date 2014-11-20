@@ -3,23 +3,25 @@
 
 To load the AddOn engine add this to the top of your file:
 	
-	local E, L, V, P, G = unpack(select(2, ...)); --Inport: Engine, Locales, PrivateDB, ProfileDB, GlobalDB
+	local E, L, V, P, G = unpack(select(2, ...)); --Import: Engine, Locales, PrivateDB, ProfileDB, GlobalDB
 	
 To load the AddOn engine inside another addon add this to the top of your file:
 	
-	local E, L, V, P, G = unpack(select(2, ...)); --Inport: Engine, Locales, PrivateDB, ProfileDB, GlobalDB
+	local E, L, V, P, G = unpack(select(2, ...)); --Import: Engine, Locales, PrivateDB, ProfileDB, GlobalDB
 ]]
 
 BINDING_HEADER_ELVUI = GetAddOnMetadata(..., "Title");
 
-local AddOnName, Engine = ...;
+local AddOnName, Engine = ...;  
 local AddOn = LibStub("AceAddon-3.0"):NewAddon(AddOnName, "AceConsole-3.0", "AceEvent-3.0", 'AceTimer-3.0', 'AceHook-3.0');
+AddOn.callbacks = AddOn.callbacks or 
+  LibStub("CallbackHandler-1.0"):New(AddOn)
 AddOn.DF = {}; AddOn.DF["profile"] = {}; AddOn.DF["global"] = {}; AddOn.privateVars = {}; AddOn.privateVars["profile"] = {}; -- Defaults
 AddOn.Options = {
 	type = "group",
 	name = AddOnName,
 	args = {},
-};
+}
 
 local Locale = LibStub("AceLocale-3.0"):GetLocale(AddOnName, false);
 Engine[1] = AddOn;
@@ -68,7 +70,7 @@ function AddOn:OnInitialize()
 			self:CopyTable(self.private, ElvPrivateDB.profiles[profileKey])
 		end
 	end	
-
+ 
 	if self.private.general.pixelPerfect then
 		self.Border = 1;
 		self.Spacing = 0;
@@ -146,7 +148,7 @@ function AddOn:ToggleConfig()
 	end
 	
 	if not IsAddOnLoaded("ElvUI_Config") then
-		local _, _, _, _, _, reason = GetAddOnInfo("ElvUI_Config")
+		local _, _, _, _, reason = GetAddOnInfo("ElvUI_Config")
 		if reason ~= "MISSING" and reason ~= "DISABLED" then 
 			LoadAddOn("ElvUI_Config")
 			if GetAddOnMetadata("ElvUI_Config", "Version") ~= "1.01" then

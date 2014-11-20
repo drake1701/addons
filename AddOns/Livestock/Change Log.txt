@@ -1,3 +1,75 @@
+Version 2.2.5
+
+- Fixed macro errors (re-create macros or assign an icon to fix issue)
+
+Version 2.2.4
+
+- Fix for Druids in Draenor
+
+Version 2.2.3
+
+- Fix for Draenor mounting
+
+Version 2.2.2
+
+- Fixed interactions with Monk Zen Flight
+
+Version 2.2.1
+
+- Moonkins now remain in moonkin form when mounting (fix for non-combo button)
+
+Version 2.2.0
+
+- Fixed dragging pets into the Zone/Subzone screen
+- Disabled dragging mounts into the Zone/Subzone screen (use the command line)
+- Better handling of the new flying mounts in land menu setting
+- Moonkins now remain in moonkin form when mounting
+
+Version 2.1.0
+
+- Hide mounts from the opposite faction
+
+Version 2.0.5
+
+- Fixed flying dismounts for non-druids
+
+Version 2.0.4
+
+- New Option: Include flying mounts in land menu
+- More druid fixes
+
+Version 2.0.3
+
+- Fixed Death Knights and Paladins
+- Additional fixes for Druids
+
+Version 2.0.2
+
+- Support Flight Form when using Glyph of the Stag
+
+Version 2.0.1
+
+- Fixed error on non-hunters
+
+Version 2.0.0
+
+- Support for patch 6.0.2
+- Fixed some issues with druid forms
+- Low level druids will use cat form until they learn travel form
+- Aspect of the Hawk removed (can cancel AotC/AotP when mounting)
+
+Version 1.9.9
+
+- Fixed Outlands flying mounts
+
+Version 1.9.8
+
+- random() changed to fastrandom() for 5.4.2 patch
+
+Version 1.9.7
+
+- TOC update for patch 5.4
+
 Version 1.9.6
 
 - TOC update for patch 5.3

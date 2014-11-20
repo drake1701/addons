@@ -16,14 +16,14 @@ copytable = function(original)
 end
 
 local function RaidMemberCount()
-	if UnitInRaid("player") then 
-		return GetNumGroupMembers() 
+	if UnitInRaid("player") then
+		return GetNumGroupMembers()
 	end
 end
 
 local function PartyMemberCount()
-	if UnitInParty("player") then 
-		return GetNumGroupMembers() 
+	if UnitInParty("player") then
+		return GetNumGroupMembers()
 	end
 end
 
@@ -37,12 +37,12 @@ TidyPlatesUtility.GetSpec = GetSpec
 
 local function GetGroupInfo()
 	local groupType, groupCount
-	
+
 	if UnitInRaid("player") then groupType = "raid"
-		groupCount = GetNumGroupMembers() 
+		groupCount = GetNumGroupMembers()
 			-- Unitids for raid groups go from raid1..to..raid40.  No errors.
-	elseif UnitInParty("player") then groupType = "party" 
-		groupCount = GetNumGroupMembers() - 1		
+	elseif UnitInParty("player") then groupType = "party"
+		groupCount = GetNumGroupMembers() - 1
 			-- WHY?  Because the range for unitids are party1..to..party4.  GetNumGroupMembers() includes the Player, causing errors.
 	else return end
 
@@ -56,13 +56,13 @@ local function mergetable(master, mate)
 	local merged = {}
 	local matedata
 	for key, value in pairs(master) do
-		if type(value) == "table" then 
+		if type(value) == "table" then
 			matedata = mate[key]
-			if type(matedata) == "table" then merged[key] = mergetable(value, matedata) 
+			if type(matedata) == "table" then merged[key] = mergetable(value, matedata)
 			else merged[key] = copytable(value) end
-		else 
+		else
 			matedata = mate[key]
-			if matedata == nil then merged[key] = master[key] 
+			if matedata == nil then merged[key] = master[key]
 			else merged[key] = matedata end
 		end
 	end
@@ -77,12 +77,12 @@ local function updatetable(original, added)
 
 	for index, var in pairs(original) do
 		if type(var) == "table" then original[index] = updatetable(var, added[index]) or var
-		else 
-			--original[index] = added[index] or original[index] 
+		else
+			--original[index] = added[index] or original[index]
 			if added[index] ~= nil then
-				original[index] = added[index] 
+				original[index] = added[index]
 			else original[index] = original[index] end
-		
+
 		end
 	end
 	return original
@@ -113,37 +113,37 @@ do
 		local allyUnitid, allyThreat = nil, 0
 		local playerIsTanking, playerSituation, playerThreat = UnitDetailedThreatSituation("player", enemyUnitid)
 		if not playerThreat then return end
-		
+
 		-- Get Group Type
 		local evalUnitid, evalIndex, evalThreat
 		local groupType, size, startAt = nil, nil, 1
-		if UnitInRaid("player") then 
+		if UnitInRaid("player") then
 			groupType = "raid"
 			groupSize = TidyPlatesUtility:GetNumRaidMembers()
 			startAt = 2
-		elseif UnitInParty("player") then 
+		elseif UnitInParty("player") then
 			groupType = "party"
 			groupSize = TidyPlatesUtility:GetNumPartyMembers()
 		else groupType = nil end
-		
+
 		-- Cycle through Group, picking highest threat holder
 		if groupType then
 			for allyIndex = startAt, groupSize do
 				evalUnitid = groupType..allyIndex
 				evalThreat = select(3, UnitDetailedThreatSituation(evalUnitid, enemyUnitid))
-				if evalThreat and evalThreat > allyThreat then 
-					allyThreat = evalThreat 
+				if evalThreat and evalThreat > allyThreat then
+					allyThreat = evalThreat
 					allyUnitid = evalUnitid
 				end
 			end
 		end
-		
+
 		-- Request Pet Threat (if possible)
-		if HasPetUI() and UnitExists("pet") then 
+		if HasPetUI() and UnitExists("pet") then
 			evalThreat = select(3, UnitDetailedThreatSituation("pet", enemyUnitid)) or 0
 			if evalThreat > allyThreat then
 				allyThreat = evalThreat
-				allyUnitid = "pet" 
+				allyUnitid = "pet"
 			end
 		end
 
@@ -160,12 +160,12 @@ do
 			if playerThreat >= 100 then 	-- The enemy is attacking you. You are tanking. 	Returns: 1. Your threat, plus your lead over the next highest person, 2. Your Unitid (since you're tanking)
 				return tonumber(playerThreat + (100-allyThreat)), "player"
 			else 	-- The enemy is not attacking you.  Returns: 1. Your scaled threat percent, 2. Who is On Top
-				return tonumber(playerThreat), allyUnitid 
+				return tonumber(playerThreat), allyUnitid
 			end
 		end
 		--]]
 	end
-	
+
 	TidyPlatesUtility.GetRelativeThreat = GetRelativeThreat
 end
 ------------------------------------------------------------------
@@ -218,48 +218,48 @@ end
 local function CreateRadioButtons(self, reference, parent, numberOfButtons, defaultButton, spacing, list, label)
 	local index
 	local radioButtonSet = {}
-	
+
 	for index = 1, numberOfButtons do
 		radioButtonSet[index] = CreateFrame( "CheckButton", reference..index, parent, "UIRadioButtonTemplate" )
 		radioButtonSet[index].Label = _G[reference..index.."Text"]
 		radioButtonSet[index].Label:SetText(list[index] or " ")
 		radioButtonSet[index].Label:SetWidth(250)
 		radioButtonSet[index].Label:SetJustifyH("LEFT")
-		
-		if index > 1 then 
-			radioButtonSet[index]:SetPoint("TOP", radioButtonSet[index-1], "BOTTOM", 0, -(spacing or 10)) 
+
+		if index > 1 then
+			radioButtonSet[index]:SetPoint("TOP", radioButtonSet[index-1], "BOTTOM", 0, -(spacing or 10))
 		end
-		
-		radioButtonSet[index]:SetScript("OnClick", function (self) 
+
+		radioButtonSet[index]:SetScript("OnClick", function (self)
 			local button
 			for button = 1, numberOfButtons do radioButtonSet[button]:SetChecked(false) end
 			self:SetChecked(true)
 		end)
 	end
-	
-	radioButtonSet.GetChecked = function() 
+
+	radioButtonSet.GetChecked = function()
 		local index
 		for index = 1, numberOfButtons do
 			if radioButtonSet[index]:GetChecked() then return index end
 		end
 	end
-	
-	radioButtonSet.SetChecked = function(self, number) 
+
+	radioButtonSet.SetChecked = function(self, number)
 		local index
 		for index = 1, numberOfButtons do radioButtonSet[index]:SetChecked(false) end
 		radioButtonSet[number]:SetChecked(true)
 	end
-	
+
 	--if label then
 	--	dropdown.Label = dropdown:CreateFontString(nil, 'ARTWORK', 'GameFontNormal')
 	--	dropdown.Label:SetPoint("TOPLEFT", 18, 18)
 	--	dropdown.Label:SetText(label)
 	--end
-	
+
 	radioButtonSet[defaultButton]:SetChecked(true)
 	radioButtonSet.GetValue = radioButtonSet.GetChecked
 	radioButtonSet.SetValue = radioButtonSet.SetChecked
-	
+
 	return radioButtonSet
 end
 
@@ -287,16 +287,16 @@ local function CreateSliderFrame(self, reference, parent, label, val, minval, ma
 	--slider.Value
 	if mode and mode == "ACTUAL" then
 		slider.Value:SetText(tostring(ceil(val)))
-		slider:SetScript("OnValueChanged", function() 
+		slider:SetScript("OnValueChanged", function()
 			local v = tostring(ceil(slider:GetValue()))
-			slider.Value:SetText(v) 
+			slider.Value:SetText(v)
 		end)
 		slider.Low:SetText(ceil(minval or 0))
 		slider.High:SetText(ceil(maxval or 1))
 	else
 		slider.Value:SetText(tostring(ceil(100*(val or .5))))
-		slider:SetScript("OnValueChanged", function() 
-			slider.Value:SetText(tostring(ceil(100*slider:GetValue())).."%") 
+		slider:SetScript("OnValueChanged", function()
+			slider.Value:SetText(tostring(ceil(100*slider:GetValue())).."%")
 		end)
 		slider.Low:SetText(ceil((minval or 0)*100).."%")
 		slider.High:SetText(ceil((maxval or 1)*100).."%")
@@ -305,64 +305,228 @@ local function CreateSliderFrame(self, reference, parent, label, val, minval, ma
 	--slider.tooltipText = "Slider"
 	return slider
 end
-		
--- http://www.wowwiki.com/UI_Object_UIDropDownMenu
--- item.fontObject
+
+------------------------------------------------
+-- Alternative Dropdown Menu
+------------------------------------------------
+
+local DropDownMenuFrame = CreateFrame("Frame")
+local MaxDropdownItems = 25
+
+DropDownMenuFrame:SetSize(100, 100)
+DropDownMenuFrame:SetFrameStrata("TOOLTIP");
+DropDownMenuFrame:Hide()
+
+local Border = CreateFrame("Frame", nil, DropDownMenuFrame)
+Border:SetBackdrop(
+		{	bgFile = "Interface/DialogFrame/UI-DialogBox-Background-Dark",
+			--bgFile = "Interface/Tooltips/UI-Tooltip-Background",
+            edgeFile = "Interface/Tooltips/UI-Tooltip-Border",
+            --edgeFile = "Interface/DialogFrame/UI-DialogBox-Border",
+            tile = true, tileSize = 16, edgeSize = 16,
+            insets = { left = 4, right = 4, top = 4, bottom = 4 }});
+Border:SetBackdropColor(0,0,0,1);
+Border:SetPoint("TOPLEFT", DropDownMenuFrame, "TOPLEFT")
+--Border:SetPoint("TOPRIGHT", DropDownMenuFrame, "TOPRIGHT")
+
+
+for i = 1, MaxDropdownItems do
+	local button = CreateFrame("Button", "TidyPlateDropdownMenuButton"..i, DropDownMenuFrame)
+	DropDownMenuFrame["Button"..i] = button
+
+	button:SetHeight(15)
+	button:SetPoint("RIGHT", DropDownMenuFrame, "RIGHT")
+	button:SetText("Button")
+
+	button._ButtonIndex = i
+
+	if i > 1 then
+		button:SetPoint("TOPLEFT", DropDownMenuFrame["Button"..i-1], "BOTTOMLEFT")
+	else
+		-- Initial Corner Point
+		button:SetPoint("TOPLEFT", DropDownMenuFrame, "TOPLEFT", 10, -8)
+	end
+
+	local region = select(1, button:GetRegions())
+	region:SetJustifyH("LEFT")
+	region:SetPoint("LEFT", button, "LEFT")
+	region:SetPoint("RIGHT", button, "RIGHT")
+
+	--button:SetFrameStrata("DIALOG")
+	button:SetHighlightTexture("Interface/QuestFrame/UI-QuestTitleHighlight")
+	button:SetNormalFontObject("GameFontHighlightSmallLeft")
+	button:SetHighlightFontObject("GameFontNormalSmallLeft")
+	button:Show()
+end
+
+--[[
+local CloseDropdownButton = CreateFrame("Button", nil, DropDownMenuFrame, "UIPanelCloseButton")
+CloseDropdownButton:SetPoint("TOPLEFT", DropDownMenuFrame, "TOPRIGHT", -4, 0)
+CloseDropdownButton:SetFrameStrata("TOOLTIP");
+CloseDropdownButton:Raise()
+CloseDropdownButton:Show()
+--]]
+
+
+local function HideDropdownMenu()
+	DropDownMenuFrame:Hide()
+end
+
+
+local function ShowDropdownMenu(sourceFrame, menu, script)
+	if DropDownMenuFrame:IsShown() and DropDownMenuFrame.SourceFrame == sourceFrame then
+		HideDropdownMenu()
+		return
+	end
+
+	local currentSelection
+
+	DropDownMenuFrame.SourceFrame = sourceFrame
+	if sourceFrame.GetValue then currentSelection = sourceFrame:GetValue() end
+
+	local numOfItems = 0
+	local maxWidth = 0
+	for i = 1, MaxDropdownItems do
+		local item = menu[i]
+
+		local button = DropDownMenuFrame["Button"..i]
+
+		if item then
+			local itemText = item.text
+
+			local region1, region2 = button:GetRegions()
+			--print(region1:GetObjectType(), region2:GetObjectType() )
+
+			if currentSelection == i or itemText == currentSelection then
+				-- Selected Item
+				--button:SetAlpha(.8)
+				region1:SetTextColor(1, .8, 0)
+				region1:SetFont(1, .8, 0)
+
+
+				--button:SetBackdrop( { bgFile = "Interface\\QuestFrame\\UI-QuestTitleHighlight", })
+				--button:SetBackdropColor(1,1,1,.7)
+				--itemText = "|cffffdd00"..itemText
+			else
+				-- Non-Selected Items
+				--button:SetAlpha(1)
+				region1:SetTextColor(1, 1, 1)
+				--button:SetBackdrop( { bgFile = nil, })
+			end
+
+			button:SetText(itemText)
+			--button:SetText
+			maxWidth = max(maxWidth, button:GetTextWidth())
+			numOfItems = numOfItems + 1
+			button:SetScript("OnClick", script)
+
+
+			button:Show()
+		else
+			button:Hide()
+		end
+
+	end
+
+	DropDownMenuFrame:SetWidth(maxWidth + 20)
+	Border:SetPoint("BOTTOMRIGHT", DropDownMenuFrame["Button"..numOfItems], "BOTTOMRIGHT", 10, -12)
+	DropDownMenuFrame:SetPoint("TOPLEFT", sourceFrame, "BOTTOM")
+	DropDownMenuFrame:Show()
+	DropDownMenuFrame:Raise()
+
+	-- Make sure the menu stays visible when displayed
+	local LowerBound = Border:GetBottom() or 0
+	if 0 > LowerBound then DropDownMenuFrame:SetPoint("TOPLEFT", sourceFrame, "BOTTOM", 0, LowerBound * -1) end
+end
+
+
+------------------------------------------------
+-- Creates the Dropdown Drawer object
+------------------------------------------------
 local function CreateDropdownFrame(helpertable, reference, parent, menu, default, label, byName)
-	local dropdown = CreateFrame("Frame", reference, parent, "UIDropDownMenuTemplate" )
+
+	--[[
+
+	Add:
+		- Description Text Field on Top, which displays tooltip Text
+		- Textures
+		- Close/Cancel Button
+
+
+	--]]
+
+	local drawer = CreateFrame("Frame", reference, parent, "TidyPlatesDropdownDrawerTemplate" )
 	local index, item
-	dropdown.Text = _G[reference.."Text"]
-	if byName then dropdown.Text:SetText(default) else dropdown.Text:SetText(menu[default].text) end
-	dropdown.Text:SetWidth(100)
-	dropdown:SetWidth(120)
+	drawer.Text = _G[reference.."Text"]
+	drawer.Button = _G[reference.."Button"]
+
+	if byName then drawer.Text:SetText(default) else drawer.Text:SetText(menu[default].text) end
+	drawer.Text:SetWidth(100)
+	drawer:SetWidth(120)
 	--
 	if label then
-		dropdown.Label = dropdown:CreateFontString(nil, 'ARTWORK', 'GameFontNormal')
-		dropdown.Label:SetPoint("TOPLEFT", 18, 18)
-		dropdown.Label:SetText(label)
+		drawer.Label = drawer:CreateFontString(nil, 'ARTWORK', 'GameFontNormal')
+		drawer.Label:SetPoint("TOPLEFT", 18, 18)
+		drawer.Label:SetText(label)
 	end
 
-	
-	dropdown.Value = default
-	
-	local function OnClickDropdownItem(self) 
-		dropdown.Text:SetText(self:GetText())
-		dropdown.Value = self:GetID()
-		if dropdown.OnValueChanged then dropdown.OnValueChanged() end
-	end
-			
-	dropdown.initialize = function(self, level)		-- Replaces the default init function 
-		for index, item in pairs(menu) do
-			item.value = index
-			item.func = OnClickDropdownItem 
 
-			UIDropDownMenu_AddButton(item)
-		end 
-	end
-	
-	dropdown.SetValue = function (self, value) 
-		if byName and value then dropdown.Text:SetText(value) else 
-			dropdown.Text:SetText(menu[value].text); dropdown.Value = value 
+	drawer.Value = default
+
+	drawer.SetValue = function (self, value)
+		if byName and value then drawer.Text:SetText(value) else
+			--print(value, menu, menu[value], drawer.Value)
+			drawer.Text:SetText(menu[value].text); drawer.Value = value
 		end
 	end
-	
-	dropdown.GetValue = function () 
-		if byName then return dropdown.Text:GetText() else
-			return dropdown.Value 
+
+	drawer.GetValue = function ()
+		if byName then return drawer.Text:GetText() else
+			return drawer.Value
 		end
 	end
-	
-	return dropdown
+
+	-- [[
+	------------------------------------------------
+	-- New Dropdown Method
+	------------------------------------------------
+
+	--function drawer.Disable(self)	end
+
+	local function OnClickItem(self)
+		drawer.Text:SetText(self:GetText())
+		drawer.Value = self._ButtonIndex
+		if drawer.OnValueChanged then drawer.OnValueChanged(drawer) end
+		PlaySound("igMainMenuOptionCheckBoxOn");
+		HideDropdownMenu()
+	end
+
+	local function OnClickDropdown()
+		PlaySound("igMainMenuOptionCheckBoxOn");
+		ShowDropdownMenu(drawer, menu, OnClickItem)
+	end
+
+	local function OnHideDropdown()
+		HideDropdownMenu()
+	end
+
+	-- Override the default menu display scripts...
+	local button = _G[reference.."Button"]
+	button:SetScript("OnClick", OnClickDropdown)
+	button:SetScript("OnHide", OnHideDropdown)
+	--]]
+
+	return drawer
 end
 
 -- [[ COLOR
 local CreateColorBox
 do
-	
+
 	local workingFrame
 	local function ChangeColor(cancel)
 		local a, r, g, b
-		if cancel then 
+		if cancel then
 			--r,g,b,a = unpack(ColorPickerFrame.startingval )
 			workingFrame:SetBackdropColor(unpack(ColorPickerFrame.startingval ))
 		else
@@ -384,14 +548,14 @@ do
 		ColorPickerFrame:SetFrameLevel(frame:GetFrameLevel()+1)
 		ColorPickerFrame:Hide(); ColorPickerFrame:Show(); -- Need to activate the OnShow handler.
 	end
-	
+
 	function CreateColorBox(self, reference, parent, label, r, g, b, a)
 		local colorbox = CreateFrame("Button", reference, parent)
 		colorbox:SetWidth(24)
 		colorbox:SetHeight(24)
-		colorbox:SetBackdrop({bgFile = "Interface\\ChatFrame\\ChatFrameColorSwatch", 
-												edgeFile = "Interface/Tooltips/UI-Tooltip-Border", 
-												tile = false, tileSize = 16, edgeSize = 8, 
+		colorbox:SetBackdrop({bgFile = "Interface\\ChatFrame\\ChatFrameColorSwatch",
+												edgeFile = "Interface/Tooltips/UI-Tooltip-Border",
+												tile = false, tileSize = 16, edgeSize = 8,
 												insets = { left = 1, right = 1, top = 1, bottom = 1 }});
 		colorbox:SetBackdropColor(r, g, b, a);
 		colorbox:SetScript("OnClick",function() ShowColorPicker(colorbox) end)
@@ -399,7 +563,7 @@ do
 		colorbox.Label = colorbox:CreateFontString(nil, 'ARTWORK', 'GameFontWhiteSmall')
 		colorbox.Label:SetPoint("TOPLEFT", colorbox, "TOPRIGHT", 4, -7)
 		colorbox.Label:SetText(label)
-		
+
 		colorbox.GetValue = function() local color = {}; color.r, color.g, color.b, color.a = colorbox:GetBackdropColor(); return color end
 		colorbox.SetValue = function(self, color) colorbox:SetBackdropColor(color.r, color.g, color.b, color.a); end
 		--colorbox.tooltipText = "Colorbox"
@@ -416,6 +580,8 @@ PanelHelpers.CreateRadioButtons = CreateRadioButtons
 PanelHelpers.CreateSliderFrame = CreateSliderFrame
 PanelHelpers.CreateDropdownFrame = CreateDropdownFrame
 PanelHelpers.CreateColorBox = CreateColorBox
+PanelHelpers.ShowDropdownMenu = ShowDropdownMenu
+PanelHelpers.HideDropdownMenu = HideDropdownMenu
 
 TidyPlatesUtility.PanelHelpers = PanelHelpers
 
@@ -425,14 +591,14 @@ local function StartMovement(frame)
 	-- Store Original Point to frame.OriginalAnchor
 	frame:StartMoving()
 	local OriginalAnchor = frame.OriginalAnchor
-	
-	if not OriginalAnchor.point then 
-		OriginalAnchor.point, OriginalAnchor.relativeTo, OriginalAnchor.relativePoint, 
+
+	if not OriginalAnchor.point then
+		OriginalAnchor.point, OriginalAnchor.relativeTo, OriginalAnchor.relativePoint,
 			OriginalAnchor.xOfs, OriginalAnchor.yOfs = frame:GetPoint(1)
 		print("Starting Movement from, ", OriginalAnchor.xOfs,  OriginalAnchor.yOfs)
 	end
-		
-	
+
+
 	-- Store Current Screen-RelativePosition to frame.NewAnchor
 end
 
@@ -444,7 +610,7 @@ local function FinishMovement(frame)
 		NewAnchor.xOfs, NewAnchor.yOfs = frame:GetPoint(1)
 	print(frame:GetName(), " has been moved, " , NewAnchor.xOfs - OriginalAnchor.xOfs, " , ", NewAnchor.yOfs - OriginalAnchor.yOfs)
 	frame:StopMovingOrSizing()
-	-- Process the 
+	-- Process the
 end
 
 local function EnableFreePositioning(frame)
@@ -480,7 +646,7 @@ do
 		timeToUpdate = curTime + 1
 		-- Cycle through the watchlist
 		for func, expiration in pairs(CallList) do
-			if expiration < curTime then 
+			if expiration < curTime then
 				CallList[func] = nil
 				func()
 			else count = count + 1 end
@@ -493,21 +659,50 @@ do
 		-- Register Frame
 		CallList[ func] = expiration + GetTime()
 		-- Init Watchframe
-		if not WatcherframeActive then 
+		if not WatcherframeActive then
 			Watcherframe:SetScript("OnUpdate", CheckWatchList)
 			WatcherframeActive = true
 		end
 	end
-	
+
 	TidyPlatesUtility.CallIn = CallIn
-	
+
 end
 
 
 
+--------------------------------------------------------------------------------------------------
+-- InterfaceOptionsFrame_OpenToCategory
+-- Quick and dirty fix
+--------------------------------------------------------------------------------------------------
 
+do
+	local fixed = false
 
+	local function OpenInterfacePanel(panel)
+		if not fixed then
 
+			local panelName = panel.name
+			if not panelName then return end
+
+			local t = {}
+
+			for i, p in pairs(INTERFACEOPTIONS_ADDONCATEGORIES) do
+				if p.name == panelName then
+					t.element = p
+					InterfaceOptionsListButton_ToggleSubCategories(t)
+				end
+			end
+			fixed = true
+		end
+
+		InterfaceOptionsFrame_OpenToCategory(panel)
+	end
+
+	TidyPlatesUtility.OpenInterfacePanel = OpenInterfacePanel
+end
+
+-- /run for i,v in pairs(INTERFACEOPTIONS_ADDONCATEGORIES) do print(i, v, v.name) end
 
 
 

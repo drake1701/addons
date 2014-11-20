@@ -1,12 +1,13 @@
 local mod	= DBM:NewMod("Gothik", "DBM-Naxx", 4)
 local L		= mod:GetLocalizedStrings()
 
-mod:SetRevision(("$Revision: 7 $"):sub(12, -3))
+mod:SetRevision(("$Revision: 166 $"):sub(12, -3))
 mod:SetCreatureID(16060)
+mod:SetEncounterID(1109)
 mod:SetModelID(16279)
 mod:RegisterCombat("combat")
 
-mod:RegisterEvents(
+mod:RegisterEventsInCombat(
 	"UNIT_DIED"
 )
 
@@ -103,13 +104,11 @@ function mod:NextWave()
 end
 
 function mod:UNIT_DIED(args)
-	if bit.band(args.destGUID:sub(0, 5), 0x00F) == 3 then
-		local cid = self:GetCIDFromGUID(args.destGUID)
-		if cid == 16126 then -- Unrelenting Rider
-			warnRiderDown:Show()
-		elseif cid == 16125 then -- Unrelenting Deathknight
-			warnKnightDown:Show()
-		end
+	local cid = self:GetCIDFromGUID(args.destGUID)
+	if cid == 16126 then -- Unrelenting Rider
+		warnRiderDown:Show()
+	elseif cid == 16125 then -- Unrelenting Deathknight
+		warnKnightDown:Show()
 	end
 end
 

@@ -2,7 +2,11 @@ local MogIt,mog = ...;
 _G["MogIt"] = mog;
 local L = mog.L;
 
-local character = DataStore_Containers and DataStore:GetCharacter()
+local ItemInfo = LibStub("LibItemInfo-1.0");
+
+LibStub("Libra"):EmbedWidgets(mog);
+
+local character = DataStore_Containers and DataStore:GetCharacter();
 
 mog.frame = CreateFrame("Frame","MogItFrame",UIParent,"ButtonFrameTemplate");
 mog.list = {};
@@ -11,32 +15,13 @@ function mog:Error(msg)
 	DEFAULT_CHAT_FRAME:AddMessage("MogIt: "..msg,0.9,0.5,0.9);
 end
 
-function mog.IsDropdownShown(dd)
-	return DropDownList1 and DropDownList1:IsShown() and UIDropDownMenu_GetCurrentDropDown() == dd;
-end
-
-function mog:ToggleDropdown(value, dropdownFrame, anchor, xOffset, yOffset, menuList, button)
-	dropdownFrame.displayMode = "MENU"
-	ToggleDropDownMenu(nil, value, dropdownFrame, anchor, xOffset, yOffset, menuList, button);
-	dropdownFrame.displayMode = nil
-end
-
-
 --// Slash Commands
 function mog:ToggleFrame()
-	if mog.frame:IsShown() then
-		HideUIPanel(mog.frame);
-	else
-		ShowUIPanel(mog.frame);
-	end
+	ToggleFrame(mog.frame);
 end
 
 function mog:TogglePreview()
-	if mog.view:IsShown() then
-		HideUIPanel(mog.view);
-	else
-		ShowUIPanel(mog.view);
-	end
+	ToggleFrame(mog.view);
 end
 --//
 
@@ -75,7 +60,7 @@ mog.mmb = LibStub("LibDataBroker-1.1"):NewDataObject("MogIt",{
 
 
 --// Module API
-mog.moduleVersion = 1;
+mog.moduleVersion = 2;
 mog.modules = {};
 mog.moduleList = {};
 
@@ -102,9 +87,8 @@ function mog:RegisterModule(name,version,data)
 	data.name = name;
 	mog.modules[name] = data;
 	table.insert(mog.moduleList,data);
-	if mog.menu.active == mog.menu.modules and mog.IsDropdownShown(mog.menu) then
-		HideDropDownMenu(1);
-		ToggleDropDownMenu(1,data,mog.menu);
+	if mog.menu.active == mog.menu.modules then
+		mog.menu:Rebuild(1);
 	end
 	return data;
 end
@@ -121,7 +105,7 @@ end
 
 function mog:BuildList(top,module)
 	if (module and mog.active and mog.active.name ~= module) then return end;
-	mog.list = mog.active and mog.active:BuildList() or {};
+	mog.list = mog.active and mog.active.BuildList and mog.active:BuildList() or {};
 	mog:SortList(nil,true);
 	mog.scroll:update(top and 1);
 	mog.filt.models:SetText(#mog.list);
@@ -130,32 +114,22 @@ end
 
 
 --// Item Cache
-local GetItemInfo = GetItemInfo;
-
-local function refreshDropdown(menu)
-	if mog.IsDropdownShown(menu) then
-		HideDropDownMenu(1);
-		ToggleDropDownMenu(nil, nil, menu, "cursor", 0, 0, menu.menuList);
-	end
-end
-
 local itemCacheCallbacks = {
 	BuildList = mog.BuildList;
 	ModelOnEnter = function()
 		local owner = GameTooltip:GetOwner();
 		if owner and GameTooltip[mog] then
-			mog.ModelOnEnter(owner);
+			owner:OnEnter();
 		end
 	end,
 	ItemMenu = function()
-		refreshDropdown(mog.Item_Menu);
+		mog.Item_Menu:Rebuild(1);
 	end,
 	SetMenu = function()
-		refreshDropdown(mog.Set_Menu);
+		mog.Set_Menu:Rebuild(1);
 	end,
 };
 
-local cacheFrame = CreateFrame("Frame");
 local pendingCallbacks = {};
 
 for k in pairs(itemCacheCallbacks) do
@@ -167,15 +141,15 @@ function mog:AddItemCacheCallback(name, func)
 	pendingCallbacks[name] = {};
 end
 
-function mog:GetItemInfo(id, type)
-	if not type then return GetItemInfo(id) end
-	if GetItemInfo(id) then
+function mog:GetItemInfo(id, callback)
+	if not callback then return ItemInfo[id] end
+	if ItemInfo[id] then
 		-- clear pending items when they are cached
-		pendingCallbacks[type][id] = nil;
-		return GetItemInfo(id);
-	elseif itemCacheCallbacks[type] then
+		pendingCallbacks[callback][id] = nil;
+		return ItemInfo[id];
+	elseif itemCacheCallbacks[callback] then
 		-- add to pending items for this callback if not cached
-		pendingCallbacks[type][id] = true;
+		pendingCallbacks[callback][id] = true;
 	end
 end
 
@@ -186,8 +160,9 @@ function mog.ItemInfoReceived()
 			itemCacheCallbacks[k]();
 		end
 	end
-	cacheFrame:SetScript("OnUpdate", nil);
 end
+
+ItemInfo.RegisterCallback(mog, "OnItemInfoReceivedBatch", "ItemInfoReceived");
 --//
 
 function mog:HasItem(itemID)
@@ -198,7 +173,11 @@ end
 --// Events
 local defaults = {
 	profile = {
+		sortWishlist = false,
+		dressupPreview = false,
 		singlePreview = false,
+		previewUIPanel = false,
+		previewFixedSize = false,
 		noAnim = false,
 		minimap = {},
 		url = "Battle.net",
@@ -226,6 +205,9 @@ local defaults = {
 		tooltipRotate = true,
 		tooltipMog = true,
 		tooltipMod = "None",
+		tooltipCustomModel = false,
+		tooltipRace = 1,
+		tooltipGender = 0,
 	}
 }
 
@@ -242,6 +224,8 @@ function mog.LoadSettings()
 	mog.tooltip.rotate:SetShown(mog.db.profile.tooltipRotate);
 	
 	mog.scroll:update();
+	
+	mog:SetSinglePreview(mog.db.profile.singlePreview);
 end
 
 mog.frame:RegisterEvent("ADDON_LOADED");
@@ -275,9 +259,8 @@ function mog:ADDON_LOADED(addon)
 		end
 	elseif mog.modules[addon] then
 		mog.modules[addon].loaded = true;
-		if mog.menu.active == mog.menu.modules and mog.IsDropdownShown(mog.menu) then
-			HideDropDownMenu(1);
-			ToggleDropDownMenu(1,mog.modules[addon],mog.menu,mog.menu.modules,0,0);
+		if mog.menu.active == mog.menu.modules then
+			mog.menu:Rebuild(1)
 		end
 	end
 end
@@ -291,10 +274,6 @@ function mog:PLAYER_LOGIN()
 	end)
 end
 
-function mog:GET_ITEM_INFO_RECEIVED()
-	cacheFrame:SetScript("OnUpdate", mog.ItemInfoReceived);
-end
-
 function mog:PLAYER_EQUIPMENT_CHANGED(slot, hasItem)
 	-- don't do anything if the slot is not visible (necklace, ring, trinket)
 	if mog.db.profile.gridDress == "equipped" then
@@ -304,12 +283,12 @@ function mog:PLAYER_EQUIPMENT_CHANGED(slot, hasItem)
 				local slotName = mog.mogSlots[slot];
 				if hasItem then
 					if (slot ~= INVSLOT_HEAD or ShowingHelm()) and (slot ~= INVSLOT_BACK or ShowingCloak()) then
-						frame.model:TryOn(mog.mogSlots[slot] and select(6, GetTransmogrifySlotInfo(slot)) or GetInventoryItemID("player", slot), slotName);
+						frame:TryOn(mog.mogSlots[slot] and select(6, GetTransmogrifySlotInfo(slot)) or GetInventoryItemID("player", slot), slotName);
 					end
 				else
-					frame.model:UndressSlot(slot);
+					frame:UndressSlot(slot);
 				end
-				frame.model:TryOn(item);
+				frame:TryOn(item);
 			end
 		end
 	end
@@ -373,24 +352,24 @@ mog.slots = {
 mog.slotsType = {
 	INVTYPE_HEAD = "HeadSlot",
 	INVTYPE_SHOULDER = "ShoulderSlot",
-	INVTYPE_BODY = "ShirtSlot",
 	INVTYPE_CLOAK = "BackSlot",
 	INVTYPE_CHEST = "ChestSlot",
 	INVTYPE_ROBE = "ChestSlot",
+	INVTYPE_BODY = "ShirtSlot",
+	INVTYPE_TABARD = "TabardSlot",
+	INVTYPE_WRIST = "WristSlot",
+	INVTYPE_HAND = "HandsSlot",
 	INVTYPE_WAIST = "WaistSlot",
 	INVTYPE_LEGS = "LegsSlot",
 	INVTYPE_FEET = "FeetSlot",
-	INVTYPE_WRIST = "WristSlot",
 	INVTYPE_2HWEAPON = "MainHandSlot",
 	INVTYPE_WEAPON = "MainHandSlot",
 	INVTYPE_WEAPONMAINHAND = "MainHandSlot",
 	INVTYPE_WEAPONOFFHAND = "SecondaryHandSlot",
-	INVTYPE_RANGED = "SecondaryHandSlot",
+	INVTYPE_RANGED = "MainHandSlot",
 	INVTYPE_RANGEDRIGHT = "MainHandSlot",
 	INVTYPE_SHIELD = "SecondaryHandSlot",
 	INVTYPE_HOLDABLE = "SecondaryHandSlot",
-	INVTYPE_HAND = "HandsSlot",
-	INVTYPE_TABARD = "TabardSlot",
 };
 
 -- all slot IDs that can be transmogrified

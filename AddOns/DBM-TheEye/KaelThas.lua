@@ -1,7 +1,7 @@
 local mod	= DBM:NewMod("KaelThas", "DBM-TheEye")
 local L		= mod:GetLocalizedStrings()
 
-mod:SetRevision(("$Revision: 455 $"):sub(12, -3))
+mod:SetRevision(("$Revision: 546 $"):sub(12, -3))
 mod:SetCreatureID(19622)
 mod:SetModelID(20023)
 mod:SetZone()
@@ -9,17 +9,13 @@ mod:SetZone()
 mod:RegisterCombat("yell", L.YellPull1, L.YellPull2)
 mod:SetUsedIcons(1, 6, 7, 8)
 
-mod:RegisterEvents(
+mod:RegisterEventsInCombat(
 	"SPELL_CAST_START",
 	"SPELL_AURA_APPLIED",
 	"SPELL_AURA_APPLIED_DOSE",
 	"SPELL_MISSED",
 	"SPELL_AURA_REMOVED",
 	"SPELL_CAST_SUCCESS",
-	"SPELL_DAMAGE",
-	"SWING_DAMAGE",
-	"RANGE_DAMAGE",
-	"UNIT_TARGET_UNFILTERED",
 	"CHAT_MSG_MONSTER_EMOTE",
 	"CHAT_MSG_MONSTER_YELL",
 	"UNIT_DIED",
@@ -28,19 +24,20 @@ mod:RegisterEvents(
 
 local warnGaze			= mod:NewAnnounce("WarnGaze", 4, 39414)
 local warnFear			= mod:NewCastAnnounce(44863, 3)
-local warnConflag		= mod:NewTargetAnnounce(37018, 3)
-local warnToy			= mod:NewTargetAnnounce(37027, 3)
+local warnConflag		= mod:NewTargetAnnounce(37018, 4)
+local warnToy			= mod:NewTargetAnnounce(37027, 2)
 local warnPhase2		= mod:NewPhaseAnnounce(2)
 local warnMobDead		= mod:NewAnnounce("WarnMobDead", 3, nil, false)
 local warnPhase3		= mod:NewPhaseAnnounce(3)
 local warnPhase4		= mod:NewPhaseAnnounce(4)
-local warnMC			= mod:NewTargetAnnounce(36797, 3)
-local warnPhoenix		= mod:NewSpellAnnounce(36723, 3)
-local warnFlamestrike	= mod:NewSpellAnnounce(36735, 3)
+local warnDisruption	= mod:NewSpellAnnounce(36834, 3)
+local warnMC			= mod:NewTargetAnnounce(36797, 4)
+local warnPhoenix		= mod:NewSpellAnnounce(36723, 2)
+local warnFlamestrike	= mod:NewSpellAnnounce(36735, 4)
 local warnEgg			= mod:NewAnnounce("WarnEgg", 4, 36723)
 local warnPyro			= mod:NewCastAnnounce(36819, 4)
 local warnPhase5		= mod:NewPhaseAnnounce(5)
-local warnGravity		= mod:NewSpellAnnounce(35966, 3)
+local warnGravity		= mod:NewSpellAnnounce(35966, 4)
 
 local specWarnGaze		= mod:NewSpecialWarning("SpecWarnGaze")
 local specWarnToy		= mod:NewSpecialWarningYou(37027, mod:IsTank())
@@ -52,77 +49,24 @@ local specWarnVapor		= mod:NewSpecialWarningStack(35859, nil, 2)
 local timerPhase		= mod:NewTimer(105, "TimerPhase", 28131)
 local timerPhase1mob	= mod:NewTimer(30, "TimerPhase1mob", 28131)
 local timerNextGaze		= mod:NewTimer(8.5, "TimerNextGaze", 39414)
-local timerFear			= mod:NewCastTimer(1.5, 39427)
 local timerFearCD		= mod:NewCDTimer(31, 39427)
 local timerToy			= mod:NewTargetTimer(60, 37027)
 local timerPhoenixCD	= mod:NewCDTimer(45, 36723)
 local timerRebirth		= mod:NewTimer(15, "TimerRebirth", 36723)
 local timerShieldCD		= mod:NewCDTimer(60, 36815)
-local timerPyro			= mod:NewCastTimer(4, 36819)
 local timerGravityCD	= mod:NewNextTimer(92, 35941)
 local timerGravity		= mod:NewBuffActiveTimer(32, 35941)
 
 mod:AddBoolOption("HealthFrame", true)
-mod:AddBoolOption("RangeFrame", true)
 mod:AddBoolOption("MCIcon", true)
-mod:AddBoolOption("GazeIcon", true)
-mod:AddBoolOption("GazeWhisper", false, "announce")
+mod:AddBoolOption("GazeIcon", false)
+mod:AddBoolOption("RangeFrame", true)
 
 local mcIcon = 8
 local warnConflagTargets = {}
 local warnMCTargets = {}
 local shieldDown = false
 local phase5 = false
-
-local showShieldHealthBar, hideShieldHealthBar
-do
-	local frame = CreateFrame("Frame") -- using a separate frame avoids the overhead of the DBM event handlers which are not meant to be used with frequently occuring events like all damage events...
-	local shieldedMob
-	local absorbRemaining = 0
-	local maxAbsorb = 0
-	local function getShieldHP()
-		return math.max(1, math.floor(absorbRemaining / maxAbsorb * 100))
-	end
-	frame:RegisterEvent("COMBAT_LOG_EVENT_UNFILTERED")
-	frame:SetScript("OnEvent", function(self, event, timestamp, subEvent, hideCaster, sourceGUID, sourceName, sourceFlags, sourceRaidFlags, destGUID, destName, destFlags, destRaidFlags, ...)
-		if shieldedMob == destGUID then
-			local absorbed
-			if subEvent == "SWING_MISSED" then 
-				absorbed = select( 3, ... ) 
-			elseif subEvent == "RANGE_MISSED" or subEvent == "SPELL_MISSED" or subEvent == "SPELL_PERIODIC_MISSED" then 
-				absorbed = select( 6, ... )
-			end
-			if absorbed then
-				absorbRemaining = absorbRemaining - absorbed
-			end
-		end
-	end)
-	
-	function showShieldHealthBar(self, mob, shieldName, absorb)
-		shieldedMob = mob
-		absorbRemaining = absorb
-		maxAbsorb = absorb
-		DBM.BossHealth:RemoveBoss(getShieldHP)
-		DBM.BossHealth:AddBoss(getShieldHP, shieldName)
-		mod:Schedule(10, hideShieldHealthBar)
-	end
-	
-	function hideShieldHealthBar()
-		DBM.BossHealth:RemoveBoss(getShieldHP)
-	end
-end
-
-function mod:EggSpawned() --Is there a better way then this? This is ugly
-	if self:AntiSpam(20) then 
-		warnEgg:Show()
-		specWarnEgg:Show()
-		timerRebirth:Show()
-		DBM.BossHealth:AddBoss(21364, L.Egg)
-		self:Schedule(15, function()
-			DBM.BossHealth:RemoveBoss(21364)
-		end)
-	end
-end
 
 local function showConflag()
 	warnConflag:Show(table.concat(warnConflagTargets, "<, >"))
@@ -142,15 +86,17 @@ function mod:OnCombatStart(delay)
 	shieldDown = false
 	phase5 = false
 	timerPhase1mob:Start(32, L.Thaladred)
-	if self.Options.HealthFrame then
+	if DBM.BossHealth:IsShown() then
+		DBM.BossHealth:Clear()
 		DBM.BossHealth:Show(L.name)
+		DBM.BossHealth:AddBoss(20064, L.Thaladred)
 	end
-	DBM.BossHealth:AddBoss(20064, L.Thaladred)
 end
 
 function mod:OnCombatEnd()
-	DBM.BossHealth:Clear()
-	DBM.RangeCheck:Hide()
+	if self.Options.RangeFrame then
+		DBM.RangeCheck:Hide()
+	end
 end
 
 function mod:SPELL_AURA_APPLIED(args)
@@ -178,7 +124,8 @@ function mod:SPELL_AURA_APPLIED(args)
 		end
 	elseif args.spellId == 36815 and not phase5 then
 		shieldDown = false
-		showShieldHealthBar(self, args.destGUID, args.spellName, 80000)
+		self:ShowShieldHealthBar(args.destGUID, args.spellName, 80000)
+		self:ScheduleMethod(10, "RemoveShieldHealthBar", args.destGUID)
 		specWarnShield:Show()
 		timerShieldCD:Start()
 	elseif args.spellId == 35859 and args:IsPlayer() and self:IsInCombat() and (args.amount or 1) >= 2 then
@@ -192,8 +139,8 @@ function mod:SPELL_AURA_REMOVED(args)
 	if args.spellId == 36815 and not phase5 then
 		shieldDown = true
 		specWarnPyro:Show(args.sourceName)
-		self:Unschedule(hideShieldHealthBar)
-		hideShieldHealthBar()
+		self:UnscheduleMethod("RemoveShieldHealthBar", args.destGUID)
+		self:RemoveShieldHealthBar(args.destGUID)
 	elseif args.spellId == 36797 then
 		if self.Options.MCIcon then
 			self:SetIcon(args.destName, 0)
@@ -206,89 +153,82 @@ end
 function mod:SPELL_CAST_START(args)
 	if args.spellId == 44863 then
 		warnFear:Show()
-		timerFear:Start()
 		timerFearCD:Start()
 	elseif args.spellId == 36819 then
 		warnPyro:Show()
-		timerPyro:Show()
 	elseif args.spellId == 35941 then
 		warnGravity:Show()
 		timerGravity:Start()
 		timerGravityCD:Start()
---		timerPhoenixCD:Start(70)--May need tuning or better placement.
 	end
 end
 
 function mod:SPELL_CAST_SUCCESS(args)
 	if args.spellId == 36723 then
 		warnPhoenix:Show()
-		timerPhoenixCD:Start()
-	elseif args:GetDestCreatureID() == 21364 then
-		self:EggSpawned()
-	end
-end
-
-function mod:SPELL_DAMAGE(sourceGUID, sourceName, sourceFlags, sourceRaidFlags, destGUID)
-	if self:GetCIDFromGUID(destGUID) == 21364 then
-		self:EggSpawned()
-	end
-end
-mod.SWING_DAMAGE = mod.SPELL_DAMAGE
-mod.RANGE_DAMAGE = mod.SPELL_DAMAGE
-
-function mod:UNIT_TARGET_UNFILTERED()
-	if self:GetUnitCreatureId("target") == 21364 then
-		self:EggSpawned()
+		if phase5 then
+			timerPhoenixCD:Start(90)
+		else
+			timerPhoenixCD:Start()
+		end
+	elseif args.spellId == 36834 then
+		warnDisruption:Show()
+	elseif args.spellId == 34341 and self:IsInCombat() then
+		warnEgg:Show()
+		specWarnEgg:Show()
+		timerRebirth:Show()
+		DBM.BossHealth:AddBoss(21364, L.Egg)
+		self:Schedule(15, function()
+			DBM.BossHealth:RemoveBoss(21364)
+		end)
 	end
 end
 
 function mod:UNIT_DIED(args)
-	if bit.band(args.destGUID:sub(0, 5), 0x00F) == 3 then
-		local cid = self:GetCIDFromGUID(args.destGUID)
-		if cid == 20064 then
-			timerNextGaze:Cancel()
-			DBM.BossHealth:RemoveBoss(20064)
-		elseif cid == 20060 then
-			timerFearCD:Cancel()
-			DBM.BossHealth:RemoveBoss(20060)
-		elseif cid == 20062 then
-			if self.Options.RangeFrame then
-				DBM.RangeCheck:Hide()
-			end
-			DBM.BossHealth:RemoveBoss(20062)
-		elseif cid == 20063 then
-			DBM.BossHealth:RemoveBoss(20063)
-		elseif cid == 21268 then
-			warnMobDead:Show(L.Bow)
-			DBM.BossHealth:RemoveBoss(21268)
-		elseif cid == 21269 then
-			warnMobDead:Show(L.Axe)
-			DBM.BossHealth:RemoveBoss(21269)
-		elseif cid == 21270 then
-			warnMobDead:Show(L.Mace)
-			DBM.BossHealth:RemoveBoss(21270)
-		elseif cid == 21271 then
-			warnMobDead:Show(L.Dagger)
-			DBM.BossHealth:RemoveBoss(21271)
-		elseif cid == 21272 then
-			warnMobDead:Show(L.Sword)
-			DBM.BossHealth:RemoveBoss(21272)
-		elseif cid == 21273 then
-			warnMobDead:Show(L.Shield)
-			DBM.BossHealth:RemoveBoss(21273)
-		elseif cid == 21274 then
-			warnMobDead:Show(L.Staff)
-			DBM.BossHealth:RemoveBoss(21274)
-		elseif cid == 21364 then
-			timerRebirth:Cancel()
-			DBM.BossHealth:RemoveBoss(21364)
+	local cid = self:GetCIDFromGUID(args.destGUID)
+	if cid == 20064 then
+		timerNextGaze:Cancel()
+		DBM.BossHealth:RemoveBoss(20064)
+	elseif cid == 20060 then
+		timerFearCD:Cancel()
+		DBM.BossHealth:RemoveBoss(20060)
+	elseif cid == 20062 then
+		if self.Options.RangeFrame then
+			DBM.RangeCheck:Hide()
 		end
+		DBM.BossHealth:RemoveBoss(20062)
+	elseif cid == 20063 then
+		DBM.BossHealth:RemoveBoss(20063)
+	elseif cid == 21268 then
+		warnMobDead:Show(L.Bow)
+		DBM.BossHealth:RemoveBoss(21268)
+	elseif cid == 21269 then
+		warnMobDead:Show(L.Axe)
+		DBM.BossHealth:RemoveBoss(21269)
+	elseif cid == 21270 then
+		warnMobDead:Show(L.Mace)
+		DBM.BossHealth:RemoveBoss(21270)
+	elseif cid == 21271 then
+		warnMobDead:Show(L.Dagger)
+		DBM.BossHealth:RemoveBoss(21271)
+	elseif cid == 21272 then
+		warnMobDead:Show(L.Sword)
+		DBM.BossHealth:RemoveBoss(21272)
+	elseif cid == 21273 then
+		warnMobDead:Show(L.Shield)
+		DBM.BossHealth:RemoveBoss(21273)
+	elseif cid == 21274 then
+		warnMobDead:Show(L.Staff)
+		DBM.BossHealth:RemoveBoss(21274)
+	elseif cid == 21364 then
+		timerRebirth:Cancel()
+		DBM.BossHealth:RemoveBoss(21364)
 	end
 end
 
 function mod:CHAT_MSG_MONSTER_EMOTE(msg, _, _, _, target)
 	if msg == L.EmoteGaze or msg:find(L.EmoteGaze) then
-		local target = DBM:GetFullNameByShortName(target)
+		local target = DBM:GetUnitFullName(target)
 		warnGaze:Show(target)
 		timerNextGaze:Start()
 		if target == UnitName("player") then
@@ -296,9 +236,6 @@ function mod:CHAT_MSG_MONSTER_EMOTE(msg, _, _, _, target)
 		end
 		if self.Options.GazeIcon then
 			self:SetIcon(target, 1, 15)
-		end
-		if DBM:GetRaidRank() > 1 and self.Options.GazeWhisper then
-			self:SendWhisper(L.GazeWhisper, target)
 		end
 	end
 end
@@ -348,14 +285,15 @@ function mod:CHAT_MSG_MONSTER_YELL(msg)
 		phase5 = true
 		timerPhoenixCD:Cancel()
 		timerShieldCD:Cancel()
-		timerPhase:Start(47)
-		warnPhase5:Schedule(47)
+		timerPhase:Start(45)
+		warnPhase5:Schedule(45)
 		timerGravityCD:Start(60)
+		timerPhoenixCD:Start(137)
 	end
 end
 
-function mod:UNIT_SPELLCAST_SUCCEEDED(uId, spellName)
-	if spellName == GetSpellInfo(36735) and self:LatencyCheck() then
+function mod:UNIT_SPELLCAST_SUCCEEDED(uId, _, _, _, spellId)
+	if spellId == 36735 then
 		self:SendSync("Flamestrike")
 	end
 end

@@ -73,12 +73,6 @@ function UF:Construct_Combobar(frame)
 		CPoints[i].backdrop:SetParent(CPoints)
 	end
 	
-	CPoints[1]:SetStatusBarColor(0.69, 0.31, 0.31)		
-	CPoints[2]:SetStatusBarColor(0.69, 0.31, 0.31)
-	CPoints[3]:SetStatusBarColor(0.65, 0.63, 0.35)
-	CPoints[4]:SetStatusBarColor(0.65, 0.63, 0.35)
-	CPoints[5]:SetStatusBarColor(0.33, 0.59, 0.33)	
-
 	return CPoints
 end
 
@@ -150,7 +144,11 @@ end
 
 
 function UF:Construct_ReadyCheckIcon(frame)
-	local tex = frame.RaisedElementParent:CreateTexture(nil, "OVERLAY", nil, 7)
+	local f = CreateFrame("FRAME", nil, frame)
+	f:SetFrameStrata("HIGH")
+	f:SetFrameLevel(100)
+	
+	local tex = f:CreateTexture(nil, "OVERLAY", nil, 7)
 	tex:Size(12)
 	tex:Point("BOTTOM", frame.Health, "BOTTOM", 0, 2)
 	
@@ -279,7 +277,7 @@ function UF:UpdateComboDisplay(event, unit)
 	if (unit == 'pet') then return end
 	local db = UF.player.db
 	local cpoints = self.CPoints
-	local cp = (UnitHasVehicleUI("player") or UnitHasVehicleUI("vehicle")) and GetComboPoints('vehicle', 'target') or GetComboPoints('player', 'target')
+	local cp = (UnitHasVehicleUI("player") or UnitHasVehicleUI("vehicle")) and UnitPower('vehicle', 4) or UnitPower('player', 4)
 
 	for i=1, MAX_COMBO_POINTS do
 		if(i <= cp) then
@@ -298,7 +296,9 @@ function UF:UpdateComboDisplay(event, unit)
 	local USE_PORTRAIT = db.portrait.enable
 	local USE_PORTRAIT_OVERLAY = db.portrait.overlay and USE_PORTRAIT
 	local PORTRAIT_WIDTH = db.portrait.width
-	
+	if not self.Portrait then
+		self.Portrait = db.portrait.style == '2D' and self.Portrait2D or self.Portrait3D
+	end
 
 	if USE_PORTRAIT_OVERLAY or not USE_PORTRAIT then
 		PORTRAIT_WIDTH = 0
@@ -450,9 +450,10 @@ function UF:UpdateAuraWatch(frame, petOverride)
 				end
 				
 				if not icon.cd then
-					icon.cd = CreateFrame("Cooldown", nil, icon)
+					icon.cd = CreateFrame("Cooldown", nil, icon, "CooldownFrameTemplate")
 					icon.cd:SetAllPoints(icon)
 					icon.cd:SetReverse(true)
+					icon.cd:SetHideCountdownNumbers(true)
 					icon.cd:SetFrameLevel(icon:GetFrameLevel())
 				end			
 

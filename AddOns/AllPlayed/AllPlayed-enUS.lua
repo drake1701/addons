@@ -1,7 +1,7 @@
 -- AllPlayed-enUS.lua
--- $Id: AllPlayed-enUS.lua 278 2013-03-03 20:20:04Z LaoTseu $
+-- $Id: AllPlayed-enUS.lua 284 2013-09-01 21:43:40Z LaoTseu $
 if not AllPlayed_revision then AllPlayed_revision = {} end
-AllPlayed_revision.enUS	= ("$Revision: 278 $"):match("(%d+)")
+AllPlayed_revision.enUS	= ("$Revision: 284 $"):match("(%d+)")
 
 
 --local L = AceLibrary("AceLocale-2.2"):new("AllPlayed")
@@ -211,3 +211,6 @@ L["Lvl: %d"]																		= true
 L["Total Character Levels: "]													= true
 L["Show level total"]															= true
 L["Show the total levels for all characters"]							= true
+
+L["Show Guild Name"]																= true
+L["Show the character guild name"]											= true

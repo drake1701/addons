@@ -65,7 +65,20 @@ local function LoadSkin()
 			self:SetBackdropBorderColor(r2, g2, b2)
 		end
 	end)
-
+	
+	CalendarInviteStatusContextMenu:SetTemplate("Default")
+	hooksecurefunc(CalendarInviteStatusContextMenu, "SetBackdropColor", function(self, r, g, b, a)
+		local r2, g2, b2, a2 = unpack(E["media"].backdropfadecolor)
+		if r ~= r2 or g ~= g2 or b ~= b2 or a ~= a2 then
+			self:SetBackdropColor(r2, g2, b2, a2)
+		end
+	end)
+	hooksecurefunc(CalendarInviteStatusContextMenu, "SetBackdropBorderColor", function(self, r, g, b)
+		local r2, g2, b2 = unpack(E["media"].bordercolor)
+		if r ~= r2 or g ~= g2 or b ~= b2 then
+			self:SetBackdropBorderColor(r2, g2, b2)
+		end
+	end)
 	
 	--Boost frame levels
 	for i=1, 42 do
@@ -149,9 +162,6 @@ local function LoadSkin()
 	
 	S:HandleCloseButton(CalendarMassInviteCloseButton)
 	S:HandleButton(CalendarMassInviteGuildAcceptButton)
-	S:HandleButton(CalendarMassInviteArenaButton2)
-	S:HandleButton(CalendarMassInviteArenaButton3)
-	S:HandleButton(CalendarMassInviteArenaButton5)
 	S:HandleDropDownBox(CalendarMassInviteGuildRankMenu, 130)
 	
 	S:HandleEditBox(CalendarMassInviteGuildMinLevelEdit)

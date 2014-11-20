@@ -1,5 +1,3 @@
-local E, L, DF = unpack(select(2, ...)) -- Import Functions/Constants, Config, Locales
-
 local _, ns = ...
 local oUF = oUF or ns.oUF
 if not oUF then return end
@@ -44,17 +42,23 @@ end
 
 local function CheckTalentTree(tree)
 	local activeGroup = GetActiveSpecGroup()
+	
 	if activeGroup and GetSpecialization(false, false, activeGroup) then
 		return tree == GetSpecialization(false, false, activeGroup)
 	end
 end
  
 local function CheckSpec(self, event, levels)
-	-- Not interested in gained points from leveling
 	if event == "CHARACTER_POINTS_CHANGED" and levels > 0 then return end
 
 	--Check for certain talents to see if we can dispel magic or not
-	if playerClass == "PALADIN" then
+	if playerClass == "PRIEST" then
+		if CheckTalentTree(3) then
+			dispellist.Disease = false
+		else
+			dispellist.Disease = true	
+		end		
+	elseif playerClass == "PALADIN" then
 		if CheckTalentTree(1) then
 			dispellist.Magic = true
 		else
@@ -127,13 +131,7 @@ local function Enable(object)
 		return
 	end
  
-	-- make sure aura scanning is active for this object
 	object:RegisterEvent("UNIT_AURA", Update)
-	object:RegisterEvent("PLAYER_TALENT_UPDATE", CheckSpec)
-	object:RegisterEvent("CHARACTER_POINTS_CHANGED", CheckSpec)
-	CheckSpec(object)
-
-	object:RegisterUnitEvent("UNIT_AURA", object.unit)
 	if playerClass == "DRUID" then
 		object:RegisterEvent("SPELLS_CHANGED", CheckSymbiosis)
 	end
@@ -147,14 +145,12 @@ local function Enable(object)
 		local r, g, b, a = object.DebuffHighlight:GetVertexColor()
 		origColors[object] = { r = r, g = g, b = b, a = a}
 	end
- 
+
 	return true
 end
- 
+
 local function Disable(object)
 	object:UnregisterEvent("UNIT_AURA", Update)
-	object:UnregisterEvent("PLAYER_TALENT_UPDATE", CheckSpec)
-	object:UnregisterEvent("CHARACTER_POINTS_CHANGED", CheckSpec)
 
 	if playerClass == "DRUID" then
 		object:UnregisterEvent("SPELLS_CHANGED", CheckSymbiosis)
@@ -172,7 +168,13 @@ local function Disable(object)
 		if color then
 			object.DebuffHighlight:SetVertexColor(color.r, color.g, color.b, color.a)
 		end
-	end	
+	end
 end
- 
+
+local f = CreateFrame("Frame")
+f:RegisterEvent("PLAYER_TALENT_UPDATE")
+f:RegisterEvent("CHARACTER_POINTS_CHANGED")
+f:RegisterEvent("PLAYER_SPECIALIZATION_CHANGED")
+f:SetScript("OnEvent", CheckSpec)
+
 oUF:AddElement('DebuffHighlight', Update, Enable, Disable)

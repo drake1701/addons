@@ -33,6 +33,7 @@ GTFO.FFSpellID["116434"] = {
 GTFO.FFSpellID["113645"] = {
 	--desc = "Sabotage (Saboteur Kip'tilak)";
 	sound = 3;
+	ignoreSelfInflicted = true;
 };
 
 -- ********************
@@ -55,4 +56,18 @@ GTFO.FFSpellID["137530"] = {
 GTFO.FFSpellID["140621"] = {
 	--desc = "Fungi Spores (Fungal Growth)";
 	sound = 2;
+};
+
+-- **********************
+-- * Siege of Orgrimmar *
+-- **********************
+
+GTFO.FFSpellID["146818"] = {
+	--desc = "Aura of Pride (Sha of Pride)";
+	sound = 1;
+};
+
+GTFO.FFSpellID["142928"] = {
+	--desc = "Displaced Energy (Malkorok)";
+	sound = 3;
 };

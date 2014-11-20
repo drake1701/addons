@@ -1,7 +1,7 @@
 local mod	= DBM:NewMod("Rage", "DBM-Hyjal")
 local L		= mod:GetLocalizedStrings()
 
-mod:SetRevision(("$Revision: 436 $"):sub(12, -3))
+mod:SetRevision(("$Revision: 535 $"):sub(12, -3))
 mod:SetCreatureID(17767)
 mod:SetModelID(17444)
 mod:SetZone()
@@ -9,7 +9,7 @@ mod:SetUsedIcons(8)
 
 mod:RegisterCombat("combat")
 
-mod:RegisterEvents(
+mod:RegisterEventsInCombat(
 	"SPELL_AURA_APPLIED",
 	"SPELL_AURA_REMOVED",
 	"SPELL_CAST_START"
@@ -18,7 +18,7 @@ mod:RegisterEvents(
 local warnIceBolt		= mod:NewSpellAnnounce(31249, 3)
 local warnDnd			= mod:NewSpellAnnounce(31258, 3)
 
-local timerDnd			= mod:NewCastTimer(15, 31258)
+local timerDnd			= mod:NewBuffActiveTimer(16, 31258)
 local timerDndCD		= mod:NewCDTimer(46, 31258)
 
 local specWarnIceBolt	= mod:NewSpecialWarningYou(31249)
@@ -26,7 +26,7 @@ local specWarnDnD		= mod:NewSpecialWarningMove(31258)
 
 local berserkTimer		= mod:NewBerserkTimer(600)
 
-mod:AddBoolOption("IceBoltIcon", true)
+mod:AddBoolOption("IceBoltIcon", false)
 
 function mod:OnCombatStart(delay)
 	berserkTimer:Start(-delay)

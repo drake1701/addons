@@ -51,13 +51,13 @@ end
 function DailyGrind:IsDailyAvailableQuest(availableQuests, index)
 	local titleIdx = self:GetAvailableQuestTitleIndex(index);
 	local isDailyIdx = titleIdx + self:GetAvailableQuestIsDailyIndex();
-	return availableQuests[isDailyIdx] == 1;
+	return availableQuests[isDailyIdx];
 end
 
 function DailyGrind:IsRepeatableAvailableQuest(availableQuests, index)
 	local titleIdx = self:GetAvailableQuestTitleIndex(index);
 	local isRepeatableIdx = titleIdx + self:GetAvailableQuestIsRepeatableIndex();
-	return availableQuests[isRepeatableIdx] == 1;
+	return availableQuests[isRepeatableIdx];
 end
 
 function DailyGrind:IsDailyActiveQuest(activeQuestTitle)
@@ -65,7 +65,7 @@ function DailyGrind:IsDailyActiveQuest(activeQuestTitle)
 	for i = 1, numEntries, 1 do
 		local questTitle, level, questTag, suggestedGroup, isHeader, isCollapsed, isComplete, isDaily, questID = GetQuestLogTitle(i);
 		if self:SanitizeQuestTitle(questTitle) == activeQuestTitle then
-			return isDaily == 1;
+			return isDaily;
 		end
 	end
 end
@@ -73,7 +73,7 @@ end
 function DailyGrind:IsCompleteActiveQuest(activeQuests, index)
 	local titleIdx = self:GetActiveQuestTitleIndex(index)
 	local isCompleteIdx = titleIdx + self:GetActiveQuestIsCompleteIndex();
-	return activeQuests[isCompleteIdx] == 1;
+	return activeQuests[isCompleteIdx];
 end
 
 function DailyGrind:IsCompleteActiveQuest_Greeting(activeQuestTitle)
@@ -82,7 +82,7 @@ function DailyGrind:IsCompleteActiveQuest_Greeting(activeQuestTitle)
 		local questTitle, level, questTag, suggestedGroup, isHeader, isCollapsed, isComplete, isDaily, questID = GetQuestLogTitle(i);
 		if self:SanitizeQuestTitle(questTitle) == activeQuestTitle then
 			self:Debug("Found \""..activeQuestTitle.."\"");
-			return isComplete ~= nil;
+			return isComplete;
 		end
 	end
 end
@@ -105,14 +105,14 @@ end
 function DailyGrind:DebugQuest(isRepeating, isInHistory)
 	local output = "";
 	if isRepeating then
-		output = output.."Repeating quest detected";
+		output = output.."Repeating quest ";
 	else
-		output = output.."Not a repeating quest";
+		output = output.."Non-repeating quest";
 	end
 	if isInHistory then
-		output = output..", found in history";
+		output = output.." found in history";
 	else
-		output = output..", not found in history";
+		output = output.." not found in history";
 	end
 	output = output..".";
 	self:Debug(output);

@@ -2,10 +2,10 @@
 ************************************************************************
 Custom.lua
 ************************************************************************
-File date: 2013-04-21T04:32:34Z
-File hash: 55d7fb5
-Project hash: d1ccde1
-Project version: 2.0.2
+File date: 2014-11-13T18:47:05Z
+File hash: ccdb610
+Project hash: 7dcae1d
+Project version: 2.0.12
 ************************************************************************
 Please see http://www.wowace.com/addons/arl/ for more information.
 ************************************************************************
@@ -41,10 +41,12 @@ function addon:InitCustom()
 	AddCustom("SOR")
 	AddCustom("RECRUIT")
 	AddCustom("MYSTERIOUS_EGG",	Z.SHOLAZAR_BASIN,		54.6,	56.2)
+	AddCustom("DISGUSTING_JAR",	Z.SHOLAZAR,BASIN,		55.0,	69.0)
 	AddCustom("TCG",		Z.THE_CAPE_OF_STRANGLETHORN,	42.6,	71.6)
 	AddCustom("STORE")
+	AddCustom("PLUSHIE")
+	AddCustom("WEBSTORE")
 	AddCustom("ARENA")
-	AddCustom("ANNUAL_PASS")
 	AddCustom("CITY")
 	AddCustom("NOBLE_VENDOR")
 	AddCustom("CE")
@@ -63,7 +65,7 @@ function addon:InitCustom()
 	AddCustom("EUPROMO")
 	AddCustom("SHOEXALTED")
 	AddCustom("PETBATTLEDAILY")
-	AddCustom("COT",			Z.TANARIS)
+	AddCustom("COT",		Z.TANARIS)
 	AddCustom("PETTAMER")
 	AddCustom("MOUNTAIN_DEW")
 	AddCustom("FIONA'S_CHARM",	Z.EASTERN_PLAGUELANDS,		34.8,	69.2)
@@ -71,10 +73,33 @@ function addon:InitCustom()
 	AddCustom("PRIMAL_EGG",		Z.PANDARIA)
 	AddCustom("HEROIC")
 	AddCustom("NORMAL")
-	AddCustom("FISHING_DAILIES")
 	AddCustom("LFR")
+	AddCustom("FLEX")
+	AddCustom("FISHING_DAILIES")
 	AddCustom("OLYMPICS")
 	AddCustom("DIREHORN")
+	AddCustom("BLINGTRON")
+	AddCustom("CRANENEST",		Z.TIMELESS_ISLE)
+	AddCustom("TIMELESS_CHEST",	Z.TIMELESS_ISLE,		59.4,	40.6)
+	AddCustom("UNCLAIMED_BM",	Z.NAGRAND_DRAENOR,		53.8,	15.0)
+	AddCustom("STABLES")
+	AddCustom("MYTHIC")
+	AddCustom("INVADERS_TREASURE")
+	AddCustom("PICKPOCKET")
+	AddCustom("GEYSER_GUN",		Z.THRONE_OF_THUNDER)
+	AddCustom("WINTERVEIL_GIFT")
+	AddCustom("CIRCLE_OF_BLOOD",	Z.FROSTFIRE_RIDGE)
+	AddCustom("DECEPTIA",		Z.TALADOR,			58.9,	12.0)
+	AddCustom("ASTROLOGER",		Z.SHADOWMOON_VALLEY_DRAENOR,	49.3,	37.5)
+	AddCustom("VINDICATORS_CACHE",	Z.SHADOWMOON_VALLEY_DRAENOR,	51.1,	79.1)
+	AddCustom("SWAMPLIGHTER_HIVE",	Z.SHADOWMOON_VALLEY_DRAENOR,	55.3,	74.8)
+	AddCustom("CURIOUS_DEATHWEB_EGG",	Z.SHADOWMOON_VALLEY_DRAENOR, 66.6,	86.9)
+	AddCustom("INN")
+	AddCustom("MENAGERIE_DAILY")
+	AddCustom("TEROCLAW_NEST",	Z.TALADOR)
+	AddCustom("NAT_PAGLE")
+	AddCustom("KETYAS_STASH",	Z.TALADOR,			54.0,	27.6)
+	AddCustom("RYLAK_NEST",		Z.FROSTFIRE_RIDGE)
 
 	self.InitCustom = nil
 end

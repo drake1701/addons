@@ -1,5 +1,5 @@
 --[[
-
+ 
 Skillet: A tradeskill window replacement.
 Copyright (c) 2007 Robert Clark <nogudnik@gmail.com>
 
@@ -18,7 +18,7 @@ along with this program.  If not, see <http://www.gnu.org/licenses/>.
 
 ]]--
 
-local L = LibStub("AceLocale-3.0"):NewLocale("Skillet", "enUS")
+local L = LibStub("AceLocale-3.0"):NewLocale("Skillet", "enUS", true, true)
 if not L then return end
 
 L["About"] = true
@@ -59,6 +59,7 @@ L["DISPLAYSHOPPINGLISTATBANKDESC"] = "Display a shopping list of the items that 
 L["DISPLAYSHOPPINGLISTATBANKNAME"] = "Display shopping list at banks"
 L["DISPLAYSHOPPINGLISTATGUILDBANKDESC"] = "Display a shopping list of the items that are needed to craft queued recipes but are not in your bags"
 L["DISPLAYSHOPPINGLISTATGUILDBANKNAME"] = "Display shopping list at guild banks"
+L["Draenor Engineering"] = true
 L["Enabled"] = true
 L["Enchant"] = true
 L["ENHANCHEDRECIPEDISPLAYDESC"] = "When enabled, recipe names will have one or more '+' characters appeneded to their name to inidcate the difficulty of the recipe."
@@ -67,6 +68,8 @@ L["Expand all groups"] = true
 L["Features"] = true
 L["FEATURESDESC"] = "Optional behavior that can be enabled and disabled"
 L["Filter"] = true
+L["Flush All Data"] = true
+L["FLUSHALLDATADESC"] = "Flush all Skillet data"
 L["Glyph "] = true
 L["Gold earned"] = true
 L["Grouping"] = true
@@ -74,6 +77,7 @@ L["have"] = true
 L["Hide trivial"] = true
 L["Hide uncraftable"] = true
 L["Include alts"] = true
+L["Include guild"] = true
 L["Inventory"] = true
 L["INVENTORYDESC"] = "Inventory Information"
 L["is now disabled"] = true
@@ -82,6 +86,7 @@ L["Library"] = true
 L["LINKCRAFTABLEREAGENTSDESC"] = "If you can create a reagent needed for the current recipe, clicking the reagent will take you to its recipe."
 L["LINKCRAFTABLEREAGENTSNAME"] = "Make reagents clickable"
 L["Load"] = true
+L["Merge items"] = true
 L["Move Down"] = true
 L["Move to Bottom"] = true
 L["Move to Top"] = true
@@ -94,6 +99,7 @@ L["Notes"] = true
 L["not yet cached"] = true
 L["Number of items to queue/create"] = true
 L["Options"] = true
+L["Order by item"] = true
 L["Pause"] = true
 L["Process"] = true
 L["Purchased"] = true
@@ -122,6 +128,8 @@ L["Scanning tradeskill"] = true
 L["Selected Addon"] = true
 L["Select skill difficulty threshold"] = true
 L["Sells for "] = true
+L["Shopping Clear"] = true
+L["SHOPPINGCLEARDESC"] = "Clear the shopping list"
 L["Shopping List"] = true
 L["SHOPPINGLISTDESC"] = "Display the shopping list"
 L["SHOWBANKALTCOUNTSDESC"] = "When calculating and displaying craftable item counts, include items from your bank and from your other characters"
@@ -157,6 +165,8 @@ L["Trained"] = true
 L["TRANSPARAENCYDESC"] = "Transparency of the main trade skill window"
 L["Transparency"] = true
 L["Unknown"] = true
+L["Using Bank for"] = true
+L["Using Reagent Bank for"] = true
 L["VENDORAUTOBUYDESC"] = "If you have queued recipes and talk to a vendor that sells something needed for those reicpes, it will be automatically purchased."
 L["VENDORAUTOBUYNAME"] = "Automatically buy reagents"
 L["VENDORBUYBUTTONDESC"] = "Display a button when talking to vendors that will allow you to be the needed reagents for all queued recipes."

@@ -13,12 +13,12 @@
 ## X-Credits: OttoDeFe for the launher icon.
 ## SavedVariables: GatherMate2DB, GatherMate2HerbDB, GatherMate2MineDB, GatherMate2FishDB, GatherMate2GasDB, GatherMate2TreasureDB, GatherMate2ArchaeologyDB
 ## X-Category: Map
-## Version: 1.26
+## Version: 1.32.1
 ## X-License: ARR
-## OptionalDeps: Ace3, LibDataBroker-1.1, LibMapData-1.0
+## OptionalDeps: Ace3, LibDataBroker-1.1
 ## LoadManagers: AddonLoader
 ## X-LoadOn-Always: delayed
-## X-Curse-Packaged-Version: 1.26
+## X-Curse-Packaged-Version: 1.32.1
 ## X-Curse-Project-Name: GatherMate2
 ## X-Curse-Project-ID: gathermate2
 ## X-Curse-Repository-ID: wow/gathermate2/mainline
@@ -35,7 +35,6 @@ Libs\AceGUI-3.0\AceGUI-3.0.xml
 Libs\AceConsole-3.0\AceConsole-3.0.xml
 Libs\AceConfig-3.0\AceConfig-3.0.xml
 Libs\AceDBOptions-3.0\AceDBOptions-3.0.xml
-Libs\LibMapData-1.0\library.lua
 #@end-no-lib-strip@
 
 Locales\GatherMate2-enUS.lua

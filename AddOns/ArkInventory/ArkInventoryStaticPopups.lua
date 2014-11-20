@@ -1,4 +1,4 @@
-local _G = _G
+﻿local _G = _G
 local select = _G.select
 local pairs = _G.pairs
 local ipairs = _G.ipairs
@@ -19,14 +19,14 @@ ArkInventory.Lib.StaticDialog:Register( "BATTLE_PET_RENAME", {
 			text = ACCEPT,
 			on_click = function( self )
 				local text = self.editboxes[1]:GetText( )
-				C_PetJournal.SetCustomName( self.data, text )
+				ArkInventory.PetJournal.SetName( self.data, text )
 				PetJournal_UpdateAll( )
 			end,
 		},
 		{
 			text = PET_RENAME_DEFAULT_LABEL,
 			on_click = function( self )
-				C_PetJournal.SetCustomName( self.data, "" )
+				ArkInventory.PetJournal.SetName( self.data, "" )
 				PetJournal_UpdateAll( )
 			end,
 		},
@@ -42,8 +42,7 @@ ArkInventory.Lib.StaticDialog:Register( "BATTLE_PET_RENAME", {
 			max_letters = 16,
 			
 			on_enter_pressed = function( editbox, data )
-				local text = editbox:GetText( )
-				C_PetJournal.SetCustomName( data, text )
+				ArkInventory.PetJournal.SetName( data, editbox:GetText( ) )
 				PetJournal_UpdateAll( )
 				ArkInventory.Lib.StaticDialog:Dismiss( "BATTLE_PET_RENAME", data )
 			end,
@@ -56,7 +55,7 @@ ArkInventory.Lib.StaticDialog:Register( "BATTLE_PET_RENAME", {
 	},
 	
 	on_show = function( self, data )
-		self.editboxes[1]:SetText( ArkInventory.PetJournal.GetPetInfo( data ).customName or "" )
+		self.editboxes[1]:SetText( ArkInventory.PetJournal.GetPet( data ).cn or "" )
 	end,
 	
 } )
@@ -84,7 +83,7 @@ ArkInventory.Lib.StaticDialog:Register( "BATTLE_PET_RELEASE", {
 	
 	on_show = function( self, data )
 		
-		local pd = ArkInventory.PetJournal.GetPetInfo( data )
+		local pd = ArkInventory.PetJournal.GetPet( data )
 		
 		local qd = ""
 		

@@ -5,7 +5,7 @@
 ## Notes-zhTW: ??NPC?????/?????????
 ## Notes-zhCN: ??NPC?????/???????????????
 ## Interface: 60000
-## Version: 5.001
+## Version: 6.001
 ## Author: Kiki (AutoProfitX2 since WoW 4.0)
 ## X-Credits: Uniquesone (AutoProfitX2) , Bigzero (AutoProfitX2) , Trouncer (AutoProfit, original author)
 ## SavedVariables: AutoProfitX2DB, AutoProfitX2_ExceptionlistVersion, AutoProfitX2_Settings
@@ -13,7 +13,7 @@
 ## X-Embeds: Ace3, LibGratuity-3.0, LibBabble-Inventory-3.0, CallbackHandler-1.0
 ## X-Category: Inventory
 ## X-Notes: Based on Trouncer's AutoProfit v4.00 and Bigzero's AutoProfitX2 and Uniquesone's AutoProfitX2.
-## X-Curse-Packaged-Version: 5.001
+## X-Curse-Packaged-Version: v6.0
 ## X-Curse-Project-Name: AutoProfitX2
 ## X-Curse-Project-ID: autoprofitx2
 ## X-Curse-Repository-ID: wow/autoprofitx2/mainline

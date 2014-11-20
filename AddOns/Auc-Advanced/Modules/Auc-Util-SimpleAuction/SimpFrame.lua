@@ -1,7 +1,7 @@
 --[[
 	Auctioneer - Simplified Auction Posting
-	Version: 5.17.5413 (NeedyNoddy)
-	Revision: $Id: SimpFrame.lua 5388 2012-12-17 17:04:51Z brykrys $
+	Version: 5.21c.5521 (SanctimoniousSwamprat)
+	Revision: $Id: SimpFrame.lua 5514 2014-10-31 12:04:13Z brykrys $
 	URL: http://auctioneeraddon.com/
 
 	This is an addon for World of Warcraft that adds a simple dialog for
@@ -32,6 +32,7 @@
 if not AucAdvanced then return end
 
 local lib = AucAdvanced.Modules.Util.SimpleAuction
+if not lib then return end
 local private = lib.Private
 local aucPrint,decode,_,_,replicate,_,get,set,default,debugPrint,fill = AucAdvanced.GetModuleLocals()
 local Const = AucAdvanced.Const
@@ -280,8 +281,7 @@ function private.UpdateDisplay()
 	end
 
 	if priceType == "auto" and cStack ~= oStack then
-		private.UpdatePricing()
-		return
+		return private.UpdatePricing()
 	elseif priceType == "fixed" and cStack ~= lStack then
 		cBid = cBid / lStack * cStack
 		cBuy = cBuy / lStack * cStack
@@ -360,40 +360,42 @@ end
 function private.UpdateCompetition(image)
 	local data = {}
 	local style = {}
-	for i = 1, #image do
-		local result = image[i]
-		local tLeft = result[Const.TLEFT]
-		if (tLeft == 1) then tLeft = "30m"
-		elseif (tLeft == 2) then tLeft = "2h"
-		elseif (tLeft == 3) then tLeft = "12h"
-		elseif (tLeft == 4) then tLeft = "48h"
-		end
-		local count = result[Const.COUNT]
-		if count < 1 then count = 1 end -- in case a 0 slips through
-		data[i] = {
-			result[Const.SELLER],
-			tLeft,
-			count,
-			floor(0.5+result[Const.MINBID]/count),
-			floor(0.5+result[Const.CURBID]/count),
-			floor(0.5+result[Const.BUYOUT]/count),
-			result[Const.MINBID],
-			result[Const.CURBID],
-			result[Const.BUYOUT],
-			result[Const.LINK]
-		}
-		local curbid = result[Const.CURBID]
-		if curbid == 0 then
-			curbid = result[Const.MINBID]
-		end
-		--color ignored/self sellers
-		local seller = result[Const.SELLER]
-		if seller == Const.PlayerName then
-			if not style[i] then style[i] = {} end
-			style[i][1] = { textColor = {0,1,0} }
-		elseif IsPlayerIgnored(seller) then
-			if not style[i] then style[i] = {} end
-			style[i][1] = { textColor = {1,0,0} }
+	if image then
+		for i = 1, #image do
+			local result = image[i]
+			local tLeft = result[Const.TLEFT]
+			if (tLeft == 1) then tLeft = "30m"
+			elseif (tLeft == 2) then tLeft = "2h"
+			elseif (tLeft == 3) then tLeft = "12h"
+			elseif (tLeft == 4) then tLeft = "48h"
+			end
+			local count = result[Const.COUNT]
+			if count < 1 then count = 1 end -- in case a 0 slips through
+			data[i] = {
+				result[Const.SELLER],
+				tLeft,
+				count,
+				floor(0.5+result[Const.MINBID]/count),
+				floor(0.5+result[Const.CURBID]/count),
+				floor(0.5+result[Const.BUYOUT]/count),
+				result[Const.MINBID],
+				result[Const.CURBID],
+				result[Const.BUYOUT],
+				result[Const.LINK]
+			}
+			local curbid = result[Const.CURBID]
+			if curbid == 0 then
+				curbid = result[Const.MINBID]
+			end
+			--color ignored/self sellers
+			local seller = result[Const.SELLER]
+			if seller == Const.PlayerName then
+				if not style[i] then style[i] = {} end
+				style[i][1] = { textColor = {0,1,0} }
+			elseif IsPlayerIgnored(seller) then
+				if not style[i] then style[i] = {} end
+				style[i][1] = { textColor = {1,0,0} }
+			end
 		end
 	end
 	frame.imageview.sheet:SetData(data, style)
@@ -401,7 +403,10 @@ end
 
 function private.UpdatePricing()
 	local link = frame.icon.itemLink
-	if not link then return end
+	if not link then
+		private.UpdateCompetition() -- wipe
+		return
+	end
 	local mid, seen = 0,0
 	local stack = frame.stacks.size:GetNumber()
 	local _,_,_,_,_,_,_,stx = GetItemInfo(link)
@@ -552,78 +557,88 @@ end
 --this solved issues with alt double click posting items before our onupdate could be called enough cycles to set all the changed values
 function private.CheckUpdate()
 	if not frame.CurItem.link then return end
+	local updatepricing, updatedisplay = false, false
+
 	local buy = MoneyInputFrame_GetCopper(frame.buyout)
 	local bid = MoneyInputFrame_GetCopper(frame.minprice)
 	local stack = frame.stacks.size:GetNumber()
 	local number = frame.stacks.num:GetNumber()
-	local match = frame.options.matchmy:GetChecked()
-	local undercut = frame.options.undercut:GetChecked()
-	local remember = frame.options.remember:GetChecked()
-	local duration = frame.duration.time.selected
 	if frame.CurItem.buy ~= buy then --New Buyout manually entered
 		frame.CurItem.buy = buy
 		frame.CurItem.buyper = buy/(stack or 1)
 		frame.CurItem.manual = true
-		private.UpdateDisplay()
+		updatedisplay = true
 	end
 	if frame.CurItem.bid ~= bid then --New Bid manually entered
 		frame.CurItem.bid = bid
 		frame.CurItem.bidper = bid/(stack or 1)
 		frame.CurItem.manual = true
-		private.UpdateDisplay()
+		updatedisplay = true
 	end
 	if  stack and stack > 0 and frame.CurItem.stack ~= stack then --new stack size entered
 		frame.CurItem.stack = stack
-		private.UpdatePricing()
+		updatepricing = true
 	end
 	if  number and number > 0 and frame.CurItem.number ~= number then --new number of stacks entered
 		frame.CurItem.number = number
-		private.UpdatePricing()
+		updatepricing = true
 	end
-	if  frame.CurItem.match ~= match then
+
+	local match = frame.options.matchmy:GetChecked()
+	if frame.CurItem.match ~= match then
 		frame.CurItem.match = match
 		if match then --turn off other checkboxes
 			frame.CurItem.manual = false
-			frame.CurItem.undercut = nil
+			frame.CurItem.undercut = false
 			frame.options.undercut:SetChecked(false)
-			frame.CurItem.remember = nil
-			frame.options.remember:SetChecked(false)
+			frame.options.remember:SetChecked(false) -- frame.CurItem.remember gets updated below
 		end
-		private.UpdatePricing()
+		updatepricing = true
 	end
+	local undercut = frame.options.undercut:GetChecked()
 	if  frame.CurItem.undercut ~= undercut then
 		frame.CurItem.undercut = undercut
 		if undercut then --turn off other checkboxes
 			frame.CurItem.manual = false
-			frame.CurItem.match = nil
+			frame.CurItem.match = false
 			frame.options.matchmy:SetChecked(false)
-			frame.CurItem.remember = nil
-			frame.options.remember:SetChecked(false)
+			frame.options.remember:SetChecked(false) -- frame.CurItem.remember gets updated below
 		end
-		private.UpdatePricing()
+		updatepricing = true
 	end
-	if  frame.CurItem.duration ~= duration then
-		frame.CurItem.duration = duration
-		private.UpdatePricing()
-	end
+
+	local remember = frame.options.remember:GetChecked()
 	if  frame.CurItem.remember ~= remember then
-		frame.CurItem.manual = true
 		frame.CurItem.remember = remember
 		if remember then
-			private.SaveConfig()
-			frame.CurItem.match = nil
+			frame.CurItem.match = false
 			frame.options.matchmy:SetChecked(false)
-			frame.CurItem.undercut = nil
+			frame.CurItem.undercut = false
 			frame.options.undercut:SetChecked(false)
+			frame.CurItem.manual = true
 		else
 			private.RemoveConfig()
 		end
-		private.UpdatePricing()
+		updatepricing = true
 
 	end
-	if frame.CurItem.remember then
+
+	local duration = frame.duration.time.selected
+	if  frame.CurItem.duration ~= duration then
+		frame.CurItem.duration = duration
+		updatepricing = true
+	end
+
+	if updatepricing then
+		private.UpdatePricing() -- also calls private.UpdateDisplay()
+	elseif updatedisplay then
+		private.UpdateDisplay()
+	end
+	if (updatepricing or updatedisplay) and frame.CurItem.remember then
 		private.SaveConfig()
 	end
+
+	frame.CurItem.valuechanged = nil
 end
 
 function private.IconClicked()
@@ -649,19 +664,24 @@ function private.LoadItemLink(itemLink, size)
 		end
 		if linkType == "item" then
 			local itemName, _, itemRarity, _, _, _, _, _, _, itemTexture = GetItemInfo(itemLink)
-			if not itemName then return private.LoadItemLink() end
 			name = itemName
 			quality = itemRarity
 			texture = itemTexture
 			itemLink = SanitizeLink(itemLink)
 		elseif linkType == "battlepet" then
 			local _, speciesID, _, petQuality = strsplit(":", itemLink)
-			local petName, petIcon = C_PetJournal.GetPetInfoBySpeciesID(tonumber(speciesID) or 0)
-			if not petName then return private.LoadItemLink() end
-			name = petName
-			texture = petIcon
-			quality = tonumber(petQuality) or -1
+			speciesID = tonumber(speciesID)
+			if speciesID then
+				local petName, petIcon = C_PetJournal.GetPetInfoBySpeciesID(speciesID)
+				name = petName
+				texture = petIcon
+				quality = tonumber(petQuality) or -1
+			end
 		end
+		if not name then
+			return private.LoadItemLink()
+		end
+
 		frame.CurItem.link = itemLink
 		frame.CurItem.name = name
 		frame.icon.itemLink = itemLink
@@ -694,29 +714,12 @@ function private.LoadItemLink(itemLink, size)
 	frame.fees:SetText("")
 	frame.err:SetText("-- No item selected --")
 	frame.stacks.equals:SetText("= 0")
-	private.ClearSetting()
-	private.LoadConfig()
-
-	if not frame.options.remember:GetChecked() then
-		local uBid, uBuy = private.GetMyPrice(itemLink)
-		if uBid and get("util.simpleauc.auto.match") then
-			frame.options.matchmy:SetChecked(true)
-			frame.options.undercut:SetChecked(false)
-			frame.CurItem.match = true
-			frame.CurItem.undercut = nil
-		elseif get("util.simpleauc.auto.undercut") then
-			frame.options.matchmy:SetChecked(false)
-			frame.options.undercut:SetChecked(true)
-			frame.CurItem.match = nil
-			frame.CurItem.undercut = true
-		end
-	end
-
+	private.ClearSetting() -- calls private.UpdatePricing()
+	private.LoadConfig() -- calls private.UpdatePricing() again if settings were loaded
 
 	if itemLink and size then
 		frame.stacks.size:SetNumber(size)
 	end
-	--private.UpdatePricing()
 end
 
 function private.DoTooltip()
@@ -788,8 +791,8 @@ function private.LoadConfig()
 	frame.CurItem.duration = duration
 	frame.CurItem.number = number
 	frame.CurItem.stack = stack
-	frame.CurItem.match = nil
-	frame.CurItem.undercut = nil
+	frame.CurItem.match = false
+	frame.CurItem.undercut = false
 	frame.CurItem.remember = true
 	frame.CurItem.manual = true
 	private.UpdatePricing()
@@ -821,11 +824,7 @@ function private.ClearSetting()
 	frame.CurItem.buyper = nil
 	frame.CurItem.stack = nil
 	frame.CurItem.number = nil
-	frame.CurItem.match = nil
-	frame.CurItem.undercut = nil
-	frame.CurItem.remember = nil
-	frame.CurItem.manual = nil
-	frame.CurItem.duration = nil
+	frame.CurItem.manual = false
 	MoneyInputFrame_ResetMoney(frame.minprice)
 	MoneyInputFrame_ResetMoney(frame.buyout)
 	frame.stacks.num:SetNumber(0)
@@ -835,15 +834,26 @@ function private.ClearSetting()
 		get("util.simpleauc.auto.undercut"),
 		get("util.simpleauc.auto.match"),
 		get("util.simpleauc.auto.duration")
-	if under then match = false end
+	if match then
+		local uBid, uBuy = private.GetMyPrice(frame.CurItem.link)
+		if uBid then
+			under = false
+		elseif under then
+			match = false
+		end
+	end
 
 	frame.options.matchmy:SetChecked(match)
+	frame.CurItem.match = match
 	frame.options.undercut:SetChecked(under)
+	frame.CurItem.undercut = under
 	frame.options.remember:SetChecked(false)
+	frame.CurItem.remember = false
 	frame.duration.time.selected = dur
 	frame.duration.time[1]:SetChecked(dur == 12)
 	frame.duration.time[2]:SetChecked(dur == 24)
 	frame.duration.time[3]:SetChecked(dur == 48)
+	frame.CurItem.duration = dur
 	private.UpdatePricing()
 end
 
@@ -873,7 +883,6 @@ function private.Refresh(background)
 	if not link then return end
 	if strmatch(link, "|Hitem:") then
 		local itemName, _, itemRarity, _, itemMinLevel, itemType, itemSubType = GetItemInfo(link)
-		if not itemName then return end
 		name = itemName
 		minLevel = itemMinLevel
 		typeId = Const.CLASSESREV[itemType]
@@ -884,12 +893,12 @@ function private.Refresh(background)
 	else
 		local lType, speciesID, _, petQuality = strsplit(":", link)
 		lType = lType:sub(-9)
+		speciesID = tonumber(speciesID)
 		if lType == "battlepet" and speciesID then
 			-- it's a pet
 			local _,_,_,_,iMin, iType = GetItemInfo(82800) -- Pet Cage
 			-- all caged pets should have the default pet name (custom names are removed when caging)
-			local petName, _, petType = C_PetJournal.GetPetInfoBySpeciesID(tonumber(speciesID))
-			if not petName then return end
+			local petName, _, petType = C_PetJournal.GetPetInfoBySpeciesID(speciesID)
 			name = petName
 			minLevel = iMin
 			typeId = Const.CLASSESREV[iType]
@@ -897,6 +906,7 @@ function private.Refresh(background)
 			quality = tonumber(petQuality)
 		end
 	end
+	if not name then return end
 	aucPrint(("Refreshing view of {{%s}}"):format(name))--Refreshing view of {{%s}}
 	if background and type(background) == 'boolean' then
 		StartPushedScan(name, minLevel, minLevel, nil, typeId, subtypeId, nil, quality)
@@ -918,7 +928,7 @@ function private.CreateFrames()
 	local MatchString = ""
 	frame.list = {}
 	frame.cache = {}
-	frame.CurItem = {}
+	frame.CurItem = {match = false, undercut = false, remember = false}
 	frame.detail = {0,0,0,"",""}
 	Stubby.RegisterFunctionHook("PickupContainerItem", 200, private.postPickupContainerItemHook)
 
@@ -1094,15 +1104,15 @@ function private.CreateFrames()
 	frame.options.label:SetText("Options:")
 
 	frame.create = CreateFrame("Button", "AucAdvSimpFrameCreate", frame, "OptionsButtonTemplate")
-	frame.create:SetPoint("BOTTOMRIGHT", AuctionFrameMoneyFrame, "TOPRIGHT", 0, 10)
-	frame.create:SetWidth(140)
+	frame.create:SetPoint("BOTTOMRIGHT", AuctionFrameMoneyFrame, "TOPRIGHT", -1, 10)
+	frame.create:SetWidth(160)
 	frame.create:SetText("Create Auction")
 	frame.create:SetScript("OnClick", private.PostAuction)
 	frame.create:Disable()
 
 	frame.clear = CreateFrame("Button", "AucAdvSimpFrameRemember", frame, "OptionsButtonTemplate")
-	frame.clear:SetPoint("TOPLEFT", frame, "TOPLEFT", 69, -13)
-	--frame.clear:SetWidth(85)
+	frame.clear:SetPoint("TOPLEFT", AuctionFrameMoneyFrame, "TOPRIGHT", -1, 3)
+	frame.clear:SetWidth(110)
 	frame.clear:SetText("Clear Settings")
 	frame.clear:SetScript("OnClick", function() private.ClearSetting() private.RemoveConfig() end)
 
@@ -1188,7 +1198,6 @@ function private.CreateFrames()
 			AuctionFrameBotRight:SetTexture("Interface\\AuctionFrame\\UI-AuctionFrame-Browse-BotRight")
 			AuctionFrameMoneyFrame:Show()
 			frame:Show()
-			AucAdvanced.Scan.LoadScanData()
 			private.UpdateDisplay() -- update for any bag changes while frame was hidden
 		else
 			AuctionFrameMoneyFrame:Show()
@@ -1359,4 +1368,4 @@ function private.CreateFrames()
 	frame:RegisterEvent("BAG_UPDATE")
 end
 
-AucAdvanced.RegisterRevision("$URL: http://svn.norganna.org/auctioneer/branches/5.17/Auc-Util-SimpleAuction/SimpFrame.lua $", "$Rev: 5388 $")
+AucAdvanced.RegisterRevision("$URL: http://svn.norganna.org/auctioneer/branches/5.21c/Auc-Util-SimpleAuction/SimpFrame.lua $", "$Rev: 5514 $")

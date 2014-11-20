@@ -1,33 +1,34 @@
-local Kotmogu	= DBM:NewMod("z998", "DBM-PvP", 2)
-local L			= Kotmogu:GetLocalizedStrings()
+local mod		= DBM:NewMod("z998", "DBM-PvP", 2)
+local L			= mod:GetLocalizedStrings()
 
-Kotmogu:SetZone(DBM_DISABLE_ZONE_DETECTION)
+mod:SetRevision(("$Revision: 38 $"):sub(12, -3))
+mod:SetZone(DBM_DISABLE_ZONE_DETECTION)
 
-Kotmogu:RegisterEvents(
+mod:RegisterEvents(
 	"ZONE_CHANGED_NEW_AREA"
 )
 
-local winTimer 		= Kotmogu:NewTimer(30, "TimerWin", "Interface\\Icons\\INV_Misc_PocketWatch_01")
+local winTimer 		= mod:NewTimer(30, "TimerWin", "Interface\\Icons\\INV_Misc_PocketWatch_01")
 
 local bgzone = false
 local orbs = {}
-Kotmogu:AddBoolOption("ShowKotmoguEstimatedPoints", true, nil, function()
-	if Kotmogu.Options.ShowKotmoguEstimatedPoints and bgzone then
-		Kotmogu:ShowEstimatedPoints()
+mod:AddBoolOption("ShowKotmoguEstimatedPoints", true, nil, function()
+	if mod.Options.ShowKotmoguEstimatedPoints and bgzone then
+		mod:ShowEstimatedPoints()
 	else
-		Kotmogu:HideEstimatedPoints()
+		mod:HideEstimatedPoints()
 	end
 end)
-Kotmogu:AddBoolOption("ShowKotmoguOrbsToWin", false, nil, function()
-	if Kotmogu.Options.ShowKotmoguOrbsToWin and bgzone then
-		Kotmogu:ShowOrbsToWin()
+mod:AddBoolOption("ShowKotmoguOrbsToWin", false, nil, function()
+	if mod.Options.ShowKotmoguOrbsToWin and bgzone then
+		mod:ShowOrbsToWin()
 	else
-		Kotmogu:HideOrbsToWin()
+		mod:HideOrbsToWin()
 	end
 end)
 
-Kotmogu:RemoveOption("HealthFrame")
-Kotmogu:RemoveOption("SpeedKillTimer")
+mod:RemoveOption("HealthFrame")
+mod:RemoveOption("SpeedKillTimer")
 
 local ResPerSec = {
 	[0] = 1e-300,
@@ -86,8 +87,8 @@ end
 
 local function GetScore()
 	if not bgzone then return 0,0 end
-	local alliance = tonumber(string.match((select(4, GetWorldStateUIInfo(1)) or ""), L.ScoreExpr)) or 0
-	local horde = tonumber(string.match((select(4, GetWorldStateUIInfo(2)) or ""), L.ScoreExpr)) or 0
+	local alliance = tonumber(string.match((select(4, GetWorldStateUIInfo(2)) or ""), L.ScoreExpr)) or 0
+	local horde = tonumber(string.match((select(4, GetWorldStateUIInfo(3)) or ""), L.ScoreExpr)) or 0
 	return alliance, horde
 end
 
@@ -108,10 +109,10 @@ do
 	end
 end
 
-function Kotmogu:OnInitialize()
+function mod:OnInitialize()
 	if DBM:GetCurrentArea() == 998 then
 		bgzone = true
-		Kotmogu:RegisterShortTermEvents(
+		self:RegisterShortTermEvents(
 			"CHAT_MSG_BG_SYSTEM_HORDE",
 			"CHAT_MSG_BG_SYSTEM_ALLIANCE",
 			"CHAT_MSG_BG_SYSTEM_NEUTRAL",
@@ -120,51 +121,51 @@ function Kotmogu:OnInitialize()
 		)
 		table.wipe(orbs)
 		update_gametime()
-		if Kotmogu.Options.ShowKotmoguEstimatedPoints then
-			Kotmogu:ShowEstimatedPoints()
+		if self.Options.ShowKotmoguEstimatedPoints then
+			self:ShowEstimatedPoints()
 		end
-		if Kotmogu.Options.ShowKotmoguOrbsToWin then
-			Kotmogu:ShowOrbsToWin()
+		if self.Options.ShowKotmoguOrbsToWin then
+			self:ShowOrbsToWin()
 		end
 	else
 		bgzone = false
-		Kotmogu:UnregisterShortTermEvents()
+		self:UnregisterShortTermEvents()
 		table.wipe(orbs)
 		winTimer:Stop()
 
-		if Kotmogu.Options.ShowKotmoguEstimatedPoints then
-			Kotmogu:HideEstimatedPoints()
+		if self.Options.ShowKotmoguEstimatedPoints then
+			self:HideEstimatedPoints()
 		end
-		if Kotmogu.Options.ShowKotmoguOrbsToWin then
-			Kotmogu:HideOrbsToWin()
+		if self.Options.ShowKotmoguOrbsToWin then
+			self:HideOrbsToWin()
 		end
 	end
 end
 
-function Kotmogu:ZONE_CHANGED_NEW_AREA()
+function mod:ZONE_CHANGED_NEW_AREA()
 	self:ScheduleMethod(1, "OnInitialize")
 end
 
-function Kotmogu:CHAT_MSG_BG_SYSTEM_ALLIANCE(msg)
+function mod:CHAT_MSG_BG_SYSTEM_ALLIANCE(msg)
 	if not bgzone then return end
 	local name, color = msg:match(L.OrbTaken)
 	AddOrb(color, name, "Alliance")
 end
 
-function Kotmogu:CHAT_MSG_BG_SYSTEM_HORDE(msg)
+function mod:CHAT_MSG_BG_SYSTEM_HORDE(msg)
 	if not bgzone then return end
 	local name, color = msg:match(L.OrbTaken)
 	AddOrb(color, name, "Horde")
 end
 
-function Kotmogu:CHAT_MSG_BG_SYSTEM_NEUTRAL(msg)
+function mod:CHAT_MSG_BG_SYSTEM_NEUTRAL(msg)
 	if not bgzone then return end
 	if msg==L.OrbReturn or msg:find(L.OrbReturn) then
 		local color = msg:match(L.OrbReturn)
 		RemoveOrb(color)
 	end
 end
-Kotmogu.CHAT_MSG_RAID_BOSS_EMOTE = Kotmogu.CHAT_MSG_BG_SYSTEM_NEUTRAL
+mod.CHAT_MSG_RAID_BOSS_EMOTE = mod.CHAT_MSG_BG_SYSTEM_NEUTRAL
 
 
 do
@@ -174,7 +175,7 @@ do
 	local last_horde_orbs = 0
 	local last_alliance_orbs= 0
 
-	function Kotmogu:UPDATE_WORLD_STATES()
+	function mod:UPDATE_WORLD_STATES()
 		if not bgzone then return end
 	
 		local AllyOrbs, HordeOrbs, TotalOrbs = GetNumOrbs()
@@ -209,9 +210,9 @@ do
 		
 	end
 
-	function Kotmogu:UpdateWinTimer()
-		local AllyTime = (1600 - last_alliance_score) / ResPerSec[last_alliance_orbs]
-		local HordeTime = (1600 - last_horde_score) / ResPerSec[last_horde_orbs]
+	function mod:UpdateWinTimer()
+		local AllyTime = (1500 - last_alliance_score) / ResPerSec[last_alliance_orbs]
+		local HordeTime = (1500 - last_horde_score) / ResPerSec[last_horde_orbs]
 		
 		if AllyTime > 5000 then AllyTime = 5000 end
 		if HordeTime > 5000 then HordeTime = 5000 end
@@ -228,13 +229,14 @@ do
 			if self.ScoreFrame1Text and self.ScoreFrame2Text then
 				local AllyPoints = math.floor(math.floor(((HordeTime * ResPerSec[last_alliance_orbs]) + last_alliance_score) / 10) * 10)
 				self.ScoreFrame1Text:SetText("("..AllyPoints..")")
-				self.ScoreFrame2Text:SetText("(1600)")
+				self.ScoreFrame2Text:SetText("(1500)")
 			end
 
 			winner_is = 2
 			winTimer:Update(get_gametime(), get_gametime()+HordeTime)
 			winTimer:DisableEnlarge()
-			winTimer:UpdateName(L.WinBarText:format(L.Horde or FACTION_HORDE))
+			local title = L.Horde or FACTION_HORDE--L.Horde is nil in english local, unless it's added to non english local, FACTION_HORDE will be used
+			winTimer:UpdateName(L.WinBarText:format(title))
 			winTimer:SetColor(hordeColor)
 			winTimer:UpdateIcon("Interface\\Icons\\INV_BannerPVP_01.blp")
 
@@ -242,13 +244,14 @@ do
 			if self.ScoreFrame1Text and self.ScoreFrame2Text then
 				local HordePoints = math.floor(math.floor(((AllyTime * ResPerSec[last_horde_orbs]) + last_horde_score) / 10) * 10)
 				self.ScoreFrame2Text:SetText("("..HordePoints..")")
-				self.ScoreFrame1Text:SetText("(1600)")		
+				self.ScoreFrame1Text:SetText("(1500)")		
 			end
 
 			winner_is = 1
 			winTimer:Update(get_gametime(), get_gametime()+AllyTime)
 			winTimer:DisableEnlarge()
-			winTimer:UpdateName(L.WinBarText:format(L.Alliance or FACTION_ALLIANCE))
+			local title = L.Alliance or FACTION_ALLIANCE--L.Alliance is nil in english local, unless it's added to non english local, FACTION_ALLIANCE will be used
+			winTimer:UpdateName(L.WinBarText:format(title))
 			winTimer:SetColor(allyColor)
 			winTimer:UpdateIcon("Interface\\Icons\\INV_BannerPVP_02.blp")
 		end
@@ -266,10 +269,10 @@ do
 				FriendlyOrbs = last_horde_orbs
 				EnemyOrbs = last_alliance_orbs
 			end
-			if ((1600 - FriendlyLast) / ResPerSec[FriendlyOrbs]) > ((1600 - EnemyLast) / ResPerSec[EnemyOrbs]) then
+			if ((1500 - FriendlyLast) / ResPerSec[FriendlyOrbs]) > ((1500 - EnemyLast) / ResPerSec[EnemyOrbs]) then
 				for i=1, 4 do
-					local EnemyTime = (1600 - EnemyLast) / ResPerSec[ 4 - i ]
-					local FriendlyTime = (1600 - FriendlyLast) / ResPerSec[ i ]
+					local EnemyTime = (1500 - EnemyLast) / ResPerSec[ 4 - i ]
+					local FriendlyTime = (1500 - FriendlyLast) / ResPerSec[ i ]
 					if( FriendlyTime < EnemyTime ) then
 						baseLowest = FriendlyTime
 					else
@@ -278,7 +281,7 @@ do
 					
 					local EnemyFinal = math.floor( ( EnemyLast + math.floor( baseLowest * ResPerSec[ 5 - i ] + 0.5 ) ) / 10 ) * 10
 					local FriendlyFinal = math.floor( ( FriendlyLast + math.floor( baseLowest * ResPerSec[ i ] + 0.5 ) ) / 10 ) * 10
-					if( FriendlyFinal >= 1600 and EnemyFinal < 1600 ) then
+					if( FriendlyFinal >= 1500 and EnemyFinal < 1500 ) then
 						self.ScoreFrameToWinText:SetText(L.OrbsToWin:format(i))
 						break
 					end
@@ -290,7 +293,7 @@ do
 	end
 end
 
-function Kotmogu:ShowEstimatedPoints()
+function mod:ShowEstimatedPoints()
 	if AlwaysUpFrame1Text and AlwaysUpFrame2Text then
 		if not self.ScoreFrame1 then
 			self.ScoreFrame1 = CreateFrame("Frame", nil, AlwaysUpFrame1)
@@ -317,7 +320,7 @@ function Kotmogu:ShowEstimatedPoints()
 	end
 end
 
-function Kotmogu:ShowOrbsToWin()
+function mod:ShowOrbsToWin()
 	if AlwaysUpFrame1Text and AlwaysUpFrame2Text then
 		if not self.ScoreFrameToWin then
 			self.ScoreFrameToWin = CreateFrame("Frame", nil, AlwaysUpFrame2)
@@ -333,7 +336,7 @@ function Kotmogu:ShowOrbsToWin()
 	end
 end
 
-function Kotmogu:HideEstimatedPoints()
+function mod:HideEstimatedPoints()
 	if self.ScoreFrame1 and self.ScoreFrame2 then
 		self.ScoreFrame1:Hide()
 		self.ScoreFrame1Text:SetText("")
@@ -342,7 +345,7 @@ function Kotmogu:HideEstimatedPoints()
 	end
 end
 
-function Kotmogu:HideOrbsToWin()
+function mod:HideOrbsToWin()
 	if self.ScoreFrameToWin then
 		self.ScoreFrameToWin:Hide()
 		self.ScoreFrameToWinText:SetText("")

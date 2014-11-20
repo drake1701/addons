@@ -62,7 +62,7 @@ function DT:RegisterLDB()
 		end
 
 		local function textUpdate(event, name, key, value, dataobj)
-			if value == nil or (len(value) > 5) or value == 'n/a' or name == value then
+			if value == nil or (len(value) >= 3) or value == 'n/a' or name == value then
 				curFrame.text:SetText(value ~= 'n/a' and value or name)
 			else
 				curFrame.text:SetText(name..': '..hex..value..'|r')
@@ -121,6 +121,7 @@ function DT:SetupTooltip(panel)
 	self.tooltip:Hide()
 	self.tooltip:SetOwner(parent, parent.anchor, parent.xOff, parent.yOff)
 	self.tooltip:ClearLines()
+	GameTooltip:Hide() -- WHY??? BECAUSE FUCK GAMETOOLTIP, THATS WHY!!
 end
 
 function DT:RegisterPanel(panel, numPoints, anchor, xOff, yOff)
@@ -140,7 +141,7 @@ function DT:RegisterPanel(panel, numPoints, anchor, xOff, yOff)
 			panel.dataPanels[pointIndex].text:SetAllPoints()
 			panel.dataPanels[pointIndex].text:FontTemplate()
 			panel.dataPanels[pointIndex].text:SetJustifyH("CENTER")
-			panel.dataPanels[pointIndex].text:SetJustifyV("middle")	
+			panel.dataPanels[pointIndex].text:SetJustifyV("MIDDLE")	
 		end
 		
 		panel.dataPanels[pointIndex]:Point(DT:GetDataPanelPoint(panel, i, numPoints))

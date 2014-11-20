@@ -117,7 +117,7 @@ Slash Commands for Livestock
 		you're in.
 
 		The second argument can either be an itemLink (or text in brackets) of one of your learned pets or mounts or one of the words "nopet", "nomount", "whichpet", or
-		"whichmount".  If it is an itemLink (or text), then Livestock will designate that pet or mount for the zone or suzone you're in, depending on the first
+		"whichmount".  If it is an itemLink (or text), then Livestock will designate that pet or mount for the zone or subzone you're in, depending on the first
 		argument.  If it's "nomount" or "nopet", it will clear out the designated pet or mount for the zone.  "whichpet" and "whichmount" display the
 		stored pet or mount for that zone.
 

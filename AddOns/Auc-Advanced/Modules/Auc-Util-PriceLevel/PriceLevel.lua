@@ -1,7 +1,7 @@
 --[[
 	Auctioneer - Price Level Utility module
-	Version: 5.17.5413 (NeedyNoddy)
-	Revision: $Id: PriceLevel.lua 5365 2012-09-24 17:33:48Z brykrys $
+	Version: 5.21c.5521 (SanctimoniousSwamprat)
+	Revision: $Id: PriceLevel.lua 5458 2014-06-13 10:40:11Z brykrys $
 	URL: http://auctioneeraddon.com/
 
 	This is an addon for World of Warcraft that adds a price level indicator
@@ -249,15 +249,23 @@ function private.ListUpdate()
 		if (index <= numBatchAuctions + (NUM_AUCTION_ITEMS_PER_PAGE * AuctionFrameBrowse.page)) then
 			if AucAdvanced.Modules.Util.CompactUI
 			and AucAdvanced.Modules.Util.CompactUI.inUse then
-				_,_,_,_,_,_,_,_,_,_,_,_,_,_,_,_,_,_,_,_,
+				_,_,_,_,_,_,_,_,_,_,_,_,_,_,_,_,_,_,_,_,_,
 				priceLevel,_,r,g,b = AucAdvanced.Modules.Util.CompactUI.GetContents(offset+i)
 				lib.SetBar(i, r,g,b, priceLevel)
 			else
 				link =  GetAuctionItemLink("list", offset + i)
 				if link then
-					_,_, quantity, _,_,_,_, minBid, minInc, buyPrice, bidPrice =  GetAuctionItemInfo("list", offset + i)
-					if bidPrice>0 then bidPrice = bidPrice + minInc
-					else bidPrice = minBid end
+					_,_, quantity, _,_,_,_, minBid, minInc, buyPrice, bidPrice = GetAuctionItemInfo("list", offset + i)
+					if bidPrice>0 then
+						bidPrice = bidPrice + minInc
+						if buyPrice > 0 and bidPrice > buyPrice then
+							bidPrice = buyPrice
+						end
+					elseif minBid > 0 then
+						bidPrice = minBid
+					else
+						bidPrice = 1
+					end
 					priceLevel, perItem, r,g,b = lib.CalcLevel(link, quantity, bidPrice, buyPrice)
 					lib.SetBar(i, r,g,b, priceLevel)
 				end
@@ -294,6 +302,7 @@ function lib.CalcLevel(link, quantity, bidPrice, buyPrice, itemWorth, serverKey)
 		end
 		if not itemWorth then return end
 	end
+	if itemWorth < 1 then return end -- avoid 0 or very small itemWorth
 
 	local perItem = stackPrice / quantity
 	local priceLevel = perItem / itemWorth * 100
@@ -314,4 +323,4 @@ function lib.CalcLevel(link, quantity, bidPrice, buyPrice, itemWorth, serverKey)
 	return priceLevel, perItem, r,g,b, lvl, itemWorth
 end
 
-AucAdvanced.RegisterRevision("$URL: http://svn.norganna.org/auctioneer/branches/5.17/Auc-Util-PriceLevel/PriceLevel.lua $", "$Rev: 5365 $")
+AucAdvanced.RegisterRevision("$URL: http://svn.norganna.org/auctioneer/branches/5.21c/Auc-Util-PriceLevel/PriceLevel.lua $", "$Rev: 5458 $")

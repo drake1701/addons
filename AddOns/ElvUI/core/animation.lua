@@ -4,6 +4,7 @@
 local E, L, V, P, G = unpack(select(2, ...)); --Inport: Engine, Locales, PrivateDB, ProfileDB, GlobalDB
 
 local random = math.random
+
 function E:SetUpAnimGroup(object, type, ...)
 	if not type then type = 'Flash' end
 	
@@ -16,6 +17,21 @@ function E:SetUpAnimGroup(object, type, ...)
 		object.anim.fadeout = object.anim:CreateAnimation("ALPHA", "FadeOut")
 		object.anim.fadeout:SetChange(-1)
 		object.anim.fadeout:SetOrder(1)
+	elseif type == 'FlashLoop' then
+		object.anim = object:CreateAnimationGroup("Flash")
+		object.anim.fadein = object.anim:CreateAnimation("ALPHA", "FadeIn")
+		object.anim.fadein:SetChange(1)
+		object.anim.fadein:SetOrder(2)
+
+		object.anim.fadeout = object.anim:CreateAnimation("ALPHA", "FadeOut")
+		object.anim.fadeout:SetChange(-1)
+		object.anim.fadeout:SetOrder(1)	
+
+		object.anim:SetScript("OnFinished", function(self, requested)
+			if(not requested) then
+				object.anim:Play()
+			end
+		end)	
 	elseif type == 'Shake' then
 		object.shake = object:CreateAnimationGroup("Shake")
 		object.shake:SetLooping("REPEAT")
@@ -117,21 +133,23 @@ function E:StopShakeHorizontal(object)
 	end
 end
 
-function E:Flash(object, duration)
+function E:Flash(object, duration, loop)
 	if not object.anim then
-		E:SetUpAnimGroup(object, 'Flash')
+		E:SetUpAnimGroup(object, loop and "FlashLoop" or 'Flash')
 	end
 
-	if not object.anim:IsPlaying() then
+	if not object.anim.playing then
 		object.anim.fadein:SetDuration(duration)
 		object.anim.fadeout:SetDuration(duration)
 		object.anim:Play()
+		object.anim.playing = true
 	end
 end
 
 function E:StopFlash(object)
-	if object.anim and object.anim:IsPlaying() then
+	if object.anim and object.anim.playing then
 		object.anim:Stop()
+		object.anim.playing = nil;
 	end
 end
 

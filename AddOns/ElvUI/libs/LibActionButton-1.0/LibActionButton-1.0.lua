@@ -88,11 +88,14 @@ local InitializeEventHandler, OnEvent, ForAllButtons, OnUpdate
 
 local SPELL_POWER_HOLY_POWER = SPELL_POWER_HOLY_POWER;
 local HAND_OF_LIGHT = GetSpellInfo(90174);
+local DIVINE_CRUSADER = GetSpellInfo(144595)
 local PLAYERCLASS = select(2, UnitClass('player'))
 local HOLY_POWER_SPELLS = {
 	[85256] = GetSpellInfo(85256), --Templar's Verdict
 	[53385] = GetSpellInfo(53385), --Divine Storm
 	[53600] = GetSpellInfo(53600), --Shield of the Righteous
+	[157048] = GetSpellInfo(157048), -- Final Verdict
+	[152262] = GetSpellInfo(152262), --Seraphim
 };
 
 
@@ -789,7 +792,8 @@ function OnUpdate(_, elapsed)
 			if rangeTimer <= 0 then
 				local inRange = button:IsInRange()
 				local oldRange = button.outOfRange
-				button.outOfRange = (inRange == 0)
+				button.outOfRange = (inRange == false)
+
 				if oldRange ~= button.outOfRange then
 					if button.config.outOfRangeColoring == "button" then
 						UpdateUsable(button)
@@ -802,7 +806,7 @@ function OnUpdate(_, elapsed)
 								hotkey:Hide()
 							end
 						end
-						if inRange == 0 then
+						if button.outOfRange then
 							hotkey:SetVertexColor(unpack(button.config.colors.range))
 						else
 							hotkey:SetVertexColor(0.6, 0.6, 0.6)
@@ -1049,12 +1053,14 @@ end
 function UpdateUsable(self)
 	-- TODO: make the colors configurable
 	-- TODO: allow disabling of the whole recoloring
+
 	if self.config.outOfRangeColoring == "button" and self.outOfRange then
+		
 		self.icon:SetVertexColor(unpack(self.config.colors.range))
 	else
 		local isUsable, notEnoughMana = self:IsUsable()
 		local action = self._state_action
-		if PLAYERCLASS == 'PALADIN' and IsHolyPowerAbility(action) and not(UnitPower('player', SPELL_POWER_HOLY_POWER) >= 3 or UnitBuff('player', HAND_OF_LIGHT)) then
+		if PLAYERCLASS == 'PALADIN' and IsHolyPowerAbility(action) and not(UnitPower('player', SPELL_POWER_HOLY_POWER) >= 3 or UnitBuff('player', HAND_OF_LIGHT) or UnitBuff('player', DIVINE_CRUSADER)) then
 			self.icon:SetVertexColor(unpack(self.config.colors.hp))
 		elseif isUsable then
 			self.icon:SetVertexColor(1.0, 1.0, 1.0)

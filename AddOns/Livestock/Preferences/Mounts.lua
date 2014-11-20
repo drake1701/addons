@@ -85,44 +85,44 @@ sb14:SetScript("OnClick", function()
 	LivestockComboButton:SetAttribute("groupaspects",LivestockSettings.groupaspects)
 end)
 
-local sb18 = Recompense.CreateButtonAndText("LivestockSmartPreferencesFrameHawkHunterAspects", smartprefs, 5, -226, "LivestockSmartPreferencesFrameHawkHunterAspectsText")
-sb18:SetScript("OnClick", function()
-	LivestockSettings.hawkaspects = 1 - LivestockSettings.hawkaspects
-	LivestockComboButton:SetAttribute("hawkaspects",LivestockSettings.hawkaspects)
-end)
-
-local sb19 = Recompense.CreateButtonAndText("LivestockSmartPreferencesFrameMountHunterAspects", smartprefs, 5, -244, "LivestockSmartPreferencesFrameMountHunterAspectsText")
+local sb19 = Recompense.CreateButtonAndText("LivestockSmartPreferencesFrameMountHunterAspects", smartprefs, 5, -226, "LivestockSmartPreferencesFrameMountHunterAspectsText")
 sb19:SetScript("OnClick", function()
 	LivestockSettings.mountaspects = 1 - LivestockSettings.mountaspects
 	LivestockComboButton:SetAttribute("mountaspects",LivestockSettings.mountaspects)
 end)
-if class ~= "HUNTER" then sb9:Disable() sb10:Disable() sb14:Disable() sb18:Disable() sb19:Disable() end
+if class ~= "HUNTER" then sb9:Disable() sb10:Disable() sb14:Disable() sb19:Disable() end
 
-local sb11 = Recompense.CreateButtonAndText("LivestockSmartPreferencesFrameSlowFallWhileFalling", smartprefs, 5, -262, "LivestockSmartPreferencesFrameSlowFallWhileFallingText")
+local sb11 = Recompense.CreateButtonAndText("LivestockSmartPreferencesFrameSlowFallWhileFalling", smartprefs, 5, -244, "LivestockSmartPreferencesFrameSlowFallWhileFallingText")
 sb11:SetScript("OnClick", function()
 	LivestockSettings.slowfall = 1 - LivestockSettings.slowfall
 end)
 if class ~= "MAGE" and class ~= "PRIEST" then sb11:Disable() end
 
-local sb15 = Recompense.CreateButtonAndText("LivestockSmartPreferencesFrameWaterStrider", smartprefs, 5, -280, "LivestockSmartPreferencesFrameWaterStriderText")
+local sb15 = Recompense.CreateButtonAndText("LivestockSmartPreferencesFrameWaterStrider", smartprefs, 5, -262, "LivestockSmartPreferencesFrameWaterStriderText")
 sb15:SetScript("OnClick", function()
 	LivestockSettings.waterstrider = 1 - LivestockSettings.waterstrider
 end)
 
-local sb16 = Recompense.CreateButtonAndText("LivestockSmartPreferencesFrameWaterStrider2", smartprefs, 5, -298, "LivestockSmartPreferencesFrameWaterStrider2Text")
+local sb16 = Recompense.CreateButtonAndText("LivestockSmartPreferencesFrameWaterStrider2", smartprefs, 5, -280, "LivestockSmartPreferencesFrameWaterStrider2Text")
 sb16:SetScript("OnClick", function()
 	LivestockSettings.waterstrider2 = 1 - LivestockSettings.waterstrider2
 end)
 
-local sb17 = Recompense.CreateButtonAndText("LivestockSmartPreferencesFrameZenFlight", smartprefs, 5, -316, "LivestockSmartPreferencesFrameZenFlightText")
+local sb17 = Recompense.CreateButtonAndText("LivestockSmartPreferencesFrameZenFlight", smartprefs, 5, -298, "LivestockSmartPreferencesFrameZenFlightText")
 sb17:SetScript("OnClick", function()
 	LivestockSettings.zenflight = 1 - LivestockSettings.zenflight
 end)
 if class ~= "MONK" then sb17:Disable() end
 
-local sb20 = Recompense.CreateButtonAndText("LivestockSmartPreferencesFrameNewMount", smartprefs, 5, -334, "LivestockSmartPreferencesFrameNewMountText")
+local sb20 = Recompense.CreateButtonAndText("LivestockSmartPreferencesFrameNewMount", smartprefs, 5, -316, "LivestockSmartPreferencesFrameNewMountText")
 sb20:SetScript("OnClick", function()
 	LivestockSettings.newmount = 1 - LivestockSettings.newmount
+end)
+
+local sb21 = Recompense.CreateButtonAndText("LivestockSmartPreferencesFrameFlyLand", smartprefs, 5, -334, "LivestockSmartPreferencesFrameFlyLandText")
+sb21:SetScript("OnClick", function()
+	LivestockSettings.flyland = 1 - LivestockSettings.flyland
+	Livestock.RenumberMounts()
 end)
 
 local sbb = CreateFrame("Button", "LivestockSmartPreferencesFrameOpenLivestockMenuButton", smartprefs, "GameMenuButtonTemplate")

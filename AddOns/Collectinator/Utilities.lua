@@ -3,10 +3,10 @@
 Utilities.lua
 Utilitiy functions used for Collectinator
 ************************************************************************
-File date: 2013-01-27T04:27:43Z
-File hash: 2be3d04
-Project hash: d1ccde1
-Project version: 2.0.2
+File date: 2013-11-24T02:01:02Z
+File hash: 65c163c
+Project hash: 7dcae1d
+Project version: 2.0.12
 ************************************************************************
 Please see http://www.wowace.com/addons/collectinator/ for more information.
 ************************************************************************
@@ -103,102 +103,26 @@ end
 -------------------------------------------------------------------------------
 -- Text dumping functions
 -------------------------------------------------------------------------------
-
---------------------------------------------------------------------------------
---- Creates a new frame with the contents of a text dump so you can copy and paste
--- Code borrowed from Antiarc (Chatter) with permission
---------------------------------------------------------------------------------
-do
-	local copy_frame = _G.CreateFrame("Frame", "Collectinator_CopyFrame", _G.UIParent)
-	copy_frame:SetBackdrop({
-		bgFile = [[Interface\DialogFrame\UI-DialogBox-Background]],
-		edgeFile = [[Interface\DialogFrame\UI-DialogBox-Border]],
-		tile = true,
-		tileSize = 16,
-		edgeSize = 16,
-		insets = {
-			left = 3,
-			right = 3,
-			top = 5,
-			bottom = 3
-		}
-	})
-	copy_frame:SetBackdropColor(0, 0, 0, 1)
-	copy_frame:SetWidth(750)
-	copy_frame:SetHeight(400)
-	copy_frame:SetPoint("CENTER", _G.UIParent, "CENTER")
-	copy_frame:SetFrameStrata("DIALOG")
-
-	table.insert(_G.UISpecialFrames, "Collectinator_CopyFrame")
-
-	local scrollArea = _G.CreateFrame("ScrollFrame", "CollectinatorCopyScroll", copy_frame, "UIPanelScrollFrameTemplate")
-	scrollArea:SetPoint("TOPLEFT", copy_frame, "TOPLEFT", 8, -30)
-	scrollArea:SetPoint("BOTTOMRIGHT", copy_frame, "BOTTOMRIGHT", -30, 8)
-
-	local edit_box = _G.CreateFrame("EditBox", nil, copy_frame)
-	edit_box:SetMultiLine(true)
-	edit_box:SetMaxLetters(0)
-	edit_box:EnableMouse(true)
-	edit_box:SetAutoFocus(true)
-	edit_box:SetFontObject("ChatFontNormal")
-	edit_box:SetWidth(650)
-	edit_box:SetHeight(270)
-	edit_box:SetScript("OnEscapePressed", function()
-		copy_frame:Hide()
-	end)
-	edit_box:HighlightText(0)
-
-	scrollArea:SetScrollChild(edit_box)
-
-	local close = _G.CreateFrame("Button", nil, copy_frame, "UIPanelCloseButton")
-	close:SetPoint("TOPRIGHT", copy_frame, "TOPRIGHT")
-
-	copy_frame:Hide()
-
-	private.TextDump = {
-		output = {}
-	}
-
-	function private.TextDump:AddLine(text)
-		self:InsertLine(#self.output + 1, text)
-	end
-
-	function private.TextDump:Clear()
-		table.wipe(self.output)
-	end
-
-	function private.TextDump:Display(separator, collectable_type)
-		local display_text = (not collectable_type) and table.concat(self.output, separator or "\n")
-
-		if display_text == "" then
-			return
-		end
-		edit_box:SetText(display_text)
-		edit_box:HighlightText(0)
-		edit_box:SetCursorPosition(1)
-		copy_frame:Show()
-	end
-
-	function private.TextDump:InsertLine(position, text)
-		if _G.type(text) ~= "string" or text == "" then
-			return
-		end
-		table.insert(self.output, position, text)
-	end
-
-	function private.TextDump:Lines()
-		return #self.output
-	end
-
-	function private.TextDump:String(separator)
-		return table.concat(self.output, separator or "\n")
-	end
-end -- do
-
 --[===[@debug@
 do
 	local L = LibStub("AceLocale-3.0"):GetLocale(private.addon_name)
 	local TextDump = private.TextDump
+
+	private.DUMP_COMMANDS = {
+		empties = function()
+			addon:ShowEmptySources()
+		end,
+		phrases = function()
+			addon:DumpPhrases()
+		end,
+		zones = function(input)
+			if not input then
+				addon:Print("Type the name or partial name of a zone.")
+				return
+			end
+			addon:DumpZones(input)
+		end
+	}
 
 	function addon:DumpPhrases()
 		local sorted = {}
@@ -207,6 +131,7 @@ do
 			sorted[#sorted + 1] = phrase
 		end
 		table.sort(sorted)
+		TextDump:Clear()
 
 		for index = 1, #sorted do
 			local phrase = sorted[index]
@@ -260,16 +185,16 @@ do
 	end
 
 	function addon:DumpReps()
-		output:Clear()
+		TextDump:Clear()
 
 		for index = 1, 1500 do
 			local rep_name = _G.GetFactionInfoByID(index)
 
 			if rep_name and private.FACTION_STRINGS[index] then
-				output:AddLine(("[\"%s\"] = _G.GetFactionInfoByID(%d),"):format(TableKeyFormat(rep_name), index))
+				TextDump:AddLine(("[\"%s\"] = _G.GetFactionInfoByID(%d),"):format(TableKeyFormat(rep_name), index))
 			end
 		end
-		output:Display()
+		TextDump:Display()
 	end
 
 	--[=[
@@ -339,19 +264,26 @@ do
 			end
 
 			if count == 0 then
-				addon:Debug("%s %s (%s) has no collections.", description, unit.name or _G.UNKNOWN, unit_id)
+				TextDump:AddLine(("%s %s (%s) has no collections."):format(description, unit.name or _G.UNKNOWN, unit_id))
 			end
 		end
 	end
 
 	function addon:ShowEmptySources()
-		private.LoadAllRecipes()
+		private.LoadAllCollectables()
+		TextDump:Clear()
 
 		find_empties(private.vendor_list, "Vendor")
 		find_empties(private.mob_list, "Mob")
 		find_empties(private.quest_list, "Quest")
 		find_empties(private.custom_list, "Custom Entry")
 		find_empties(private.world_events_list, "World Event")
+
+		if TextDump:Lines() == 0 then
+			TextDump:AddLine("Nothing to display.")
+		end
+
+		TextDump:Display()
 	end
 end -- do
 --@end-debug@]===]

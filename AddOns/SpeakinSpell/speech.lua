@@ -1,4 +1,4 @@
-﻿-- Author      : RisM
+-- Author      : RisM
 -- Create Date : 6/28/2009 4:04:27 PM
 
 local SpeakinSpell = LibStub("AceAddon-3.0"):GetAddon("SpeakinSpell")
@@ -165,7 +165,7 @@ function SpeakinSpell:GetChatLanguageForSpell(EventTableEntry)
 
 		--self:DebugMsg(funcname, string.format(L["Random:%d <= Chance:%d"], Random, Chance) )
 		if Random <= Chance then -- use racial language
-			return self:GetRacialLanguage()
+			return select(2, GetLanguageByIndex(2))
 		else -- use Common
 			return nil --more reliable than GetDefaultLanguage("player") for our purposes here
 		end
@@ -174,7 +174,7 @@ function SpeakinSpell:GetChatLanguageForSpell(EventTableEntry)
 		return nil
 	elseif "RACIAL" == EventTableEntry.RPLanguage then
 		-- use the racial language
-		return self:GetRacialLanguage();
+		return select(2, GetLanguageByIndex(2));
 	else
 		-- invalid option, assume common
 		-- TODOFUTURE: add SpeakinSpell language filters like "Pirate" and "Drunk" (and treat Random as one of those?)
@@ -461,7 +461,20 @@ function SpeakinSpell:SpeakForSpell(DetectedEvent)
 	
 	-- determine which channel we will speak in
 	local channel = self:GetChatChannelForSpell(DetectedEvent.EventTableEntry)
-	
+   
+   -- added for instance channel support
+	local EnableInstanceChannel= DetectedEvent.EventTableEntry.InstanceChannel and self:CheckForInstance()==true
+   
+self:DebugMsg(funcname, "Checking Instance Channel Active: "..tostring(EnableInstanceChannel).." Instance Channel toggle is:"..tostring(DetectedEvent.EventTableEntry.InstanceChannel))
+
+   
+-- need to check and see if Party, raid, is set <> Silent
+if channel == "PARTY"  or channel == "RAID" then
+   if EnableInstanceChannel and not EnableWhisperTarget then 
+      channel="INSTANCE_CHAT" 
+   end
+end
+   
 	--TODOFUTURE: make it an option to whisper yourself - but be wary of the auto self-cast logic
 	local EnableWhisperTarget = DetectedEvent.EventTableEntry.WhisperTarget and DetectedEvent.target and (DetectedEvent.target ~= "") and (DetectedEvent.target ~= "Unknown") and (DetectedEvent.target ~= UnitName("player")) and UnitIsFriend("player",DetectedEvent.target)
 

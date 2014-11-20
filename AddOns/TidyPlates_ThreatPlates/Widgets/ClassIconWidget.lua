@@ -3,32 +3,47 @@
 -----------------------
 local path = "Interface\\AddOns\\TidyPlates_ThreatPlates\\Widgets\\ClassIconWidget\\"
 
+local function enabled()
+	local db = TidyPlatesThreat.db.profile.classWidget
+	return db.ON
+end
+
+local function UpdateSettings(frame)
+	local db = TidyPlatesThreat.db.profile.classWidget
+	frame:SetHeight(db.scale)
+	frame:SetWidth(db.scale)		
+	frame:SetPoint((db.anchor), frame:GetParent(), (db.x), (db.y))
+end
+
 local function UpdateClassIconWidget(frame, unit)
 	local db = TidyPlatesThreat.db.profile
-	if db.classWidget.ON then
-		if unit.class and (unit.class ~= "UNKNOWN") then
-			frame.Icon:SetTexture(path..db.classWidget.theme.."\\"..unit.class) 
-			frame:Show()
-		elseif db.cache[unit.name] and db.friendlyClassIcon then
-			local class = db.cache[unit.name]
-			frame.Icon:SetTexture(path..db.classWidget.theme.."\\"..class)
-			frame:Show()
-		elseif unit.guid and not db.cache[unit.name] and db.friendlyClassIcon then
-			local _, engClass = GetPlayerInfoByGUID(unit.guid)
-			if engClass then
-				frame.Icon:SetTexture(path..db.classWidget.theme.."\\"..engClass)
-				frame:Show()
+	if not enabled() then frame:Hide(); return end
+	local class 
+	if unit.class and (unit.class ~= "UNKNOWN") then
+		class = unit.class
+	elseif db.friendlyClassIcon then
+		if unit.guid then
+			local _, Class = GetPlayerInfoByGUID(unit.guid)
+			if not db.cache[unit.name] then
+				if db.cacheClass then
+					db.cache[unit.name] = Class
+				end
+				class = Class
+			else
+				class = db.cache[unit.name]
 			end
-		else 
-			frame:Hide() 		
-		end
-	else 
-		frame:Hide() 
+		end			
+	end
+	if class then -- Value shouldn't need to change
+		UpdateSettings(frame)
+		frame.Icon:SetTexture(path..db.classWidget.theme.."\\"..class)
+		frame:Show()
+	else
+		frame:Hide()	
 	end
 end
 
 local function CreateClassIconWidget(parent)
-	local db = TidyPlatesThreat.db.profile.classWidget
 	local frame = CreateFrame("Frame", nil, parent)
 	frame:SetHeight(64)
 	frame:SetWidth(64)
@@ -38,5 +53,7 @@ local function CreateClassIconWidget(parent)
 	frame.Update = UpdateClassIconWidget
 	return frame
 end
+
+ThreatPlatesWidgets.RegisterWidget("ClassIconWidget",CreateClassIconWidget,false,enabled)
 
 ThreatPlatesWidgets.CreateClassIconWidget = CreateClassIconWidget

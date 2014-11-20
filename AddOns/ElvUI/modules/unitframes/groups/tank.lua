@@ -44,7 +44,7 @@ function UF:Update_TankHeader(header, db)
 
 	if not header.positioned then
 		header:ClearAllPoints()
-		header:Point("TOPLEFT", E.UIParent, "TOPLEFT", 4, -240)
+		header:Point("TOPLEFT", E.UIParent, "TOPLEFT", 4, -186)
 
 		E:CreateMover(header, header:GetName()..'Mover', L['MT Frames'], nil, nil, nil, 'ALL,RAID10,RAID25,RAID40')
 		header.mover.positionOverride = "TOPLEFT"
@@ -168,7 +168,7 @@ function UF:Update_TankFrames(frame, db)
 		end
 	end	
 	
-	UF:ToggleTransparentStatusBar(UF.db.colors.transparentHealth, frame.Health, frame.Health.bg)
+	UF:ToggleTransparentStatusBar(UF.db.colors.transparentHealth, frame.Health, frame.Health.bg, true)
 
 	frame:UpdateAllElements()
 end

@@ -1,73 +1,112 @@
-local T, C, L, G = unpack(select(2, ...)) 
+local T, C, L = select(2, ...):unpack()
 
--- don't use our zonemap script if capping is used.
-if IsAddOnLoaded("Capping") then return end
+local ZoneMap = CreateFrame("Frame")
+local Movers = T["Movers"]
 
--- BG TINY MAP (BG, mining, etc)
-local tinymap = CreateFrame("Frame", "TukuiZoneMap", UIParent)
-tinymap:SetPoint("CENTER")
-tinymap:SetSize(223, 150)
-tinymap:EnableMouse(true)
-tinymap:SetMovable(true)
-tinymap:RegisterEvent("ADDON_LOADED")
-tinymap:SetPoint("CENTER", UIParent, 0, 0)
-tinymap:SetFrameLevel(7)
-tinymap:Hide()
-G.Maps.Zonemap = tinymap
+function ZoneMap:SetMapAlpha()
+    local NumDetailTiles = GetNumberOfDetailTiles()
+    
+    for i = 1, NumDetailTiles do
+    	local Tile = _G["BattlefieldMinimap"..i]
+    	
+        Tile:SetAlpha(1)
+    end
+end
 
--- create minimap background
-local tinymapbg = CreateFrame("Frame", nil, tinymap)
-tinymapbg:SetAllPoints()
-tinymapbg:SetFrameLevel(0)
-tinymapbg:SetTemplate("Default")
+function ZoneMap:OnShow()
+	local Auras = T.Auras
+	local Check = select(2, BattlefieldMinimap:GetPoint())
+	
+	ZoneMap:SetMapAlpha()
 
-tinymap:SetScript("OnEvent", function(self, event, addon)
-	if addon ~= "Blizzard_BattlefieldMinimap" then return end
-
-	BattlefieldMinimap:SetScript("OnShow", function(self)
-		tinymap:Show()		
-		BattlefieldMinimapCorner:Kill()
-		BattlefieldMinimapBackground:Kill()
-		BattlefieldMinimapTab:Kill()
-		BattlefieldMinimapTabLeft:Kill()
-		BattlefieldMinimapTabMiddle:Kill()
-		BattlefieldMinimapTabRight:Kill()
-		self:SetParent(tinymap)
-		self:SetPoint("TOPLEFT", tinymap, "TOPLEFT", 2, -2)
-		self:SetFrameStrata(tinymap:GetFrameStrata())
-		BattlefieldMinimapCloseButton:ClearAllPoints()
-		BattlefieldMinimapCloseButton:SetPoint("TOPRIGHT", -4, 0)
-		BattlefieldMinimap:SetFrameLevel(6)
-		BattlefieldMinimapCloseButton:SetFrameLevel(8)
-		tinymap:SetScale(1)
-		tinymap:SetAlpha(1)
-		BattlefieldMinimapCloseButton:SkinCloseButton()
+	if (Check ~= Minimap) then
+		return
+	end
+	
+	if (Auras) then
+		local Buffs = T.Auras.Headers[1]
 		
-		BattlefieldMinimap_Update() --BugFix map not update on initial show
-	end)
-
-	BattlefieldMinimap:SetScript("OnHide", function(self)
-		tinymap:SetScale(0.00001)
-		tinymap:SetAlpha(0)
-	end)
-
-	self:SetScript("OnMouseUp", function(self, btn)
-		if btn == "LeftButton" then
-			self:StopMovingOrSizing()
-			if OpacityFrame:IsShown() then OpacityFrame:Hide() end -- seem to be a bug with default ui in 4.0, we hide it on next click
-		elseif btn == "RightButton" then
-			ToggleDropDownMenu(nil, nil, BattlefieldMinimapTabDropDown, self:GetName(), 0, -4)
-			if OpacityFrame:IsShown() then OpacityFrame:Hide() end -- seem to be a bug with default ui in 4.0, we hide it on next click
-		end
-	end)
-
-	self:SetScript("OnMouseDown", function(self, btn)
-		if btn == "LeftButton" then
-			if BattlefieldMinimapOptions and BattlefieldMinimapOptions.locked then
-				return
-			else
-				self:StartMoving()
+		if (Buffs) then
+			local A1, P, A2, X, Y = Buffs:GetPoint()
+		
+			X = tonumber(T.Round(X))
+			Y = tonumber(T.Round(Y))
+		
+			if (A1 == "TOPRIGHT" and A2 == "TOPRIGHT" and X == -184 and Y == -28) then
+				Buffs:ClearAllPoints()
+				Buffs:SetPoint("TOPRIGHT", BattlefieldMinimap, "TOPLEFT", -14, 2)
 			end
+		
+			Buffs.MovedByZoneMap = true
+			Buffs.OriginalPosition = {A1, P, A2, X, Y}
 		end
-	end)
-end)
+	end
+end
+
+function ZoneMap:OnHide()
+	local Auras = T.Auras
+	
+	if (Auras) then
+		local Buffs = T.Auras.Headers[1]
+
+		if (Buffs and Buffs.MovedByZoneMap) then
+			Buffs:ClearAllPoints()
+			Buffs:SetPoint(unpack(Buffs.OriginalPosition))
+		end
+	end
+end
+
+function ZoneMap:AddHooks()
+	BattlefieldMinimap:HookScript("OnShow", ZoneMap.OnShow)
+	BattlefieldMinimap:HookScript("OnHide", ZoneMap.OnHide)
+	
+	-- Restore position of buffs if moved from minimap
+	hooksecurefunc(BattlefieldMinimap, "ClearAllPoints", ZoneMap.OnHide)
+end
+
+function ZoneMap:Enable()
+	LoadAddOn("Blizzard_BattlefieldMinimap")
+	
+	ZoneMap:SetMapAlpha()
+	ZoneMap:AddHooks()
+	
+	BattlefieldMinimapCorner:SetTexture(nil)
+	
+	BattlefieldMinimapBackground:SetTexture(nil)
+	
+	BattlefieldMinimapTab:Kill()
+	
+	BattlefieldMinimap:SetHeight(165)
+	BattlefieldMinimap:ClearAllPoints()
+	BattlefieldMinimap:SetPoint("TOPRIGHT", Minimap, "TOPLEFT", 0, 0)
+	BattlefieldMinimap:StripTextures()
+
+	BattlefieldMinimap:CreateBackdrop()
+	BattlefieldMinimap.Backdrop:ClearAllPoints()
+	BattlefieldMinimap.Backdrop:SetPoint("TOPLEFT", -2, 2)
+	BattlefieldMinimap.Backdrop:SetPoint("BOTTOMRIGHT", -4, 23)
+	BattlefieldMinimap.Backdrop:SetBackdropColor(0, 0, 0, 0)
+	BattlefieldMinimap.Backdrop:SetFrameLevel(BattlefieldMinimap:GetFrameLevel() + 2)
+	
+	BattlefieldMinimapCloseButton:SkinCloseButton()
+	BattlefieldMinimapCloseButton:ClearAllPoints()
+	BattlefieldMinimapCloseButton:SetPoint("TOPRIGHT", BattlefieldMinimap, "TOPRIGHT", 0, 0)
+	BattlefieldMinimapCloseButton:SetAlpha(1)
+		
+	BattlefieldMinimap.Title = CreateFrame("Frame", nil, BattlefieldMinimap)
+	BattlefieldMinimap.Title:SetWidth(BattlefieldMinimap:GetWidth() - 2)
+	BattlefieldMinimap.Title:SetHeight(19)
+	BattlefieldMinimap.Title:SetTemplate()
+	BattlefieldMinimap.Title:SetPoint("BOTTOM", -3, 3)
+	BattlefieldMinimap.Title:FontString("Text", C.Medias.Font, 12)
+	BattlefieldMinimap.Title.Text:SetPoint("CENTER", BattlefieldMinimap.Title)
+	BattlefieldMinimap.Title.Text:SetText(BATTLEFIELD_MINIMAP)
+	
+	Movers:RegisterFrame(BattlefieldMinimap)
+	
+	if BattlefieldMinimap:IsShown() then
+		ZoneMap:OnShow()
+	end
+end
+
+T["Maps"].Zonemap = ZoneMap

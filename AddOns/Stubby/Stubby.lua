@@ -1,7 +1,7 @@
 --[[
 	Stubby AddOn for World of Watcraft (tm)
-	Version: 5.17.5413 (NeedyNoddy)
-	Revision: $Id: Stubby.lua 275 2010-10-03 14:00:39Z kandoko $
+	Version: 5.21c.5521 (SanctimoniousSwamprat)
+	Revision: $Id: Stubby.lua 374 2014-10-31 12:11:53Z brykrys $
 	URL: http://auctioneeraddon.com/dl/Stubby/
 
 	Stubby is an addon that allows you to register boot code for
@@ -163,7 +163,7 @@
 	This constant is Stubby's revision number, a simple positive
 	integer that will increase by an arbitrary amount with each
 	new version of Stubby.
-	Current $Revision: 275 $
+	Current $Revision: 374 $
 
 	Example:
 	-------------------------------------------
@@ -196,7 +196,7 @@
 		since that is its designated purpose as per:
 		http://www.fsf.org/licensing/licenses/gpl-faq.html#InterpreterIncompat
 ]]
-LibStub("LibRevision"):Set("$URL: http://svn.norganna.org/libs/trunk/Stubby/Stubby.lua $","$Rev: 275 $","5.1.DEV.", 'auctioneer', 'libs')
+LibStub("LibRevision"):Set("$URL: http://svn.norganna.org/libs/trunk/Stubby/Stubby.lua $","$Rev: 374 $","5.1.DEV.", 'auctioneer', 'libs')
 
 -------------------------------------------------------------------------------
 -- Error codes
@@ -219,13 +219,14 @@ local config = {
 	events = {},
 }
 
-local DebugLib = LibStub("DebugLib")
-local debug, assert
+local DebugLib = LibStub("DebugLib", true)
+local debug
+local assert = assert -- fallback to standard lua assert function
 if DebugLib then
 	debug, assert = DebugLib("Stubby")
 else
 	function debug() end
-	assert = debug
+	-- leave assert as it is
 end
 
 StubbyConfig = {}
@@ -886,21 +887,18 @@ function inspectAddOn(addonName, title, info)
 end
 
 function searchForNewAddOns()
-	local addonCount = GetNumAddOns()
-	local name, title, notes, enabled, loadable, reason, security, requiresLoad
-	for i=1, addonCount do
-		requiresLoad = false
-		name, title, notes, enabled, loadable, reason, security = GetAddOnInfo(i)
-		if (IsAddOnLoadOnDemand(i) and shouldInspectAddOn(name) and loadable) then
-			local addonDeps = { GetAddOnDependencies(i) }
-			for _, dependancy in pairs(addonDeps) do
-				if (dependancy:lower() == "stubby") then
-					requiresLoad = true
+	for i=1, GetNumAddOns() do
+		if IsAddOnLoadOnDemand(i) then
+			local name, title, notes, _, reason = GetAddOnInfo(i)
+			if shouldInspectAddOn(name) and (reason == "DEMAND_LOADED" or reason == "DEP_DEMAND_LOADED") then
+				for _, dependancy in pairs({GetAddOnDependencies(i)}) do
+					if (dependancy:lower() == "stubby") then
+						inspectAddOn(name, title, notes)
+						break
+					end
 				end
 			end
 		end
-
-		if (requiresLoad) then inspectAddOn(name, title, notes) end
 	end
 end
 
@@ -910,8 +908,8 @@ function runBootCodes()
 	if (not StubbyConfig.boots) then return end
 	for addon, boots in pairs(StubbyConfig.boots) do
 		if (not IsAddOnLoaded(addon) and IsAddOnLoadOnDemand(addon)) then
-			local _, _, _, _, loadable = GetAddOnInfo(addon)
-			if (loadable) then
+			local _, _, _, _, reason = GetAddOnInfo(addon)
+			if reason == "DEMAND_LOADED" or reason == "DEP_DEMAND_LOADED" then
 				for bootname, boot in pairs(boots) do
 					RunScript(boot)
 				end
@@ -1024,7 +1022,7 @@ end
 
 -- Extract the revision number from SVN keyword string
 function getRevision()
-	return tonumber(("$Revision: 275 $"):match("(%d+)"))
+	return tonumber(("$Revision: 374 $"):match("(%d+)"))
 end
 
 -------------------------------------------------------------------------------

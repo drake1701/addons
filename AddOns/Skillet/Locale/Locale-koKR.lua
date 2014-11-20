@@ -1,5 +1,5 @@
 --[[
-
+ 
 Skillet: A tradeskill window replacement.
 Copyright (c) 2007 Robert Clark <nogudnik@gmail.com>
 
@@ -63,6 +63,7 @@ L["DISPLAYSHOPPINGLISTATBANKDESC"] = "은챙창에 제작에 필요한 재료를
 L["DISPLAYSHOPPINGLISTATBANKNAME"] = "은행창에 쇼핑리스트 표시"
 L["DISPLAYSHOPPINGLISTATGUILDBANKDESC"] = "가방에는 없지만 제조법을 보고 제작할 때 필요한 아이템을 쇼핑리스트에 표시합니다."
 L["DISPLAYSHOPPINGLISTATGUILDBANKNAME"] = "길드은행에서 쇼핑리스트를 표시합니다."
+L["Draenor Engineering"] = "Draenor Engineering" -- Requires localization
 L["Enabled"] = "가능"
 L["Enchant"] = "마법부여"
 L["ENHANCHEDRECIPEDISPLAYDESC"] = "가능하면 제조법 이름에 제조법의 숙련도도 표시됩니다."
@@ -71,6 +72,8 @@ L["Expand all groups"] = "모든 그룹 확장" -- Needs review
 L["Features"] = "기능"
 L["FEATURESDESC"] = "Skillet 기능 설정"
 L["Filter"] = "필터링"
+L["Flush All Data"] = "모든 데이터 삭제" -- Needs review
+L["FLUSHALLDATADESC"] = "Skillet 데이터를 삭제합니다." -- Needs review
 L["Glyph "] = "문양 "
 L["Gold earned"] = "금전 획득"
 L["Grouping"] = "분류"
@@ -78,6 +81,7 @@ L["have"] = "소지" -- Needs review
 L["Hide trivial"] = "회색 제작템 숨기기"
 L["Hide uncraftable"] = "제작할 수 없는 아이템 숨기기"
 L["Include alts"] = "다른캐릭터 포함"
+L["Include guild"] = "길드 포함" -- Needs review
 L["Inventory"] = "인벤토리"
 L["INVENTORYDESC"] = "인벤토리 정보"
 L["is now disabled"] = "is now disabled"
@@ -86,6 +90,7 @@ L["Library"] = "라이브러리"
 L["LINKCRAFTABLEREAGENTSDESC"] = "현재 제조법에 필요한 다른 재료를 클릭하면 자동으로 제작합니다."
 L["LINKCRAFTABLEREAGENTSNAME"] = " 다른 재료 클릭으로 제작"
 L["Load"] = "불러옴"
+L["Merge items"] = "아이템 제작" -- Needs review
 L["Move Down"] = "아래로 이동"
 L["Move to Bottom"] = "화면 아래로 이동"
 L["Move to Top"] = "화면 위로 이동"
@@ -98,6 +103,7 @@ L["Notes"] = "메모"
 L["not yet cached"] = "캐쉬가 없습니다."
 L["Number of items to queue/create"] = "에약/제작 가능한 갯수"
 L["Options"] = "설정"
+L["Order by item"] = "아이템으로 정렬" -- Needs review
 L["Pause"] = "중지"
 L["Process"] = "진행"
 L["Purchased"] = "구매"
@@ -126,6 +132,8 @@ L["Scanning tradeskill"] = "전문기술 조사"
 L["Selected Addon"] = "선택한 애드온"
 L["Select skill difficulty threshold"] = "숙련도 증가 선택"
 L["Sells for "] = "Sells for "
+L["Shopping Clear"] = "쇼핑리스트 초기화" -- Needs review
+L["SHOPPINGCLEARDESC"] = "쇼핑리스트를 초기화 합니다." -- Needs review
 L["Shopping List"] = "쇼핑 리스트"
 L["SHOPPINGLISTDESC"] = "쇼핑 리스트를 표시합니다."
 L["SHOWBANKALTCOUNTSDESC"] = "제작 아이템 수량을 계산하여 보여줄 때, 다른 캐릭터의 은행에 소지하고 있는 아이템도 포함하여 표시합니다."
@@ -161,6 +169,8 @@ L["Trained"] = "배움"
 L["TRANSPARAENCYDESC"] = "전문기술 창의 투명도를 조정합니다."
 L["Transparency"] = "투명도"
 L["Unknown"] = "알 수 없음"
+L["Using Bank for"] = "은행 사용" -- Needs review
+L["Using Reagent Bank for"] = "재료 은행 사용" -- Needs review
 L["VENDORAUTOBUYDESC"] = "재료가 부족할 경우 상인을 만나면 자동으로 필요한 만큼의 재료를 구매합니다."
 L["VENDORAUTOBUYNAME"] = "재료 자동 구매"
 L["VENDORBUYBUTTONDESC"] = "재료가 부족할 때 상인을 만나면 구매할 수 있는 버튼을 표시합니다."

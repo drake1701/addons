@@ -1,0 +1,9 @@
+2014-11-16  MMOSimca  <MMOSimca@gmail.com>
+
+[05e91a83226f] [v1.1.7]
+* PetData.lua:
+
+Updated breeds for the obtainable pets Thicket Skitterer, Bloodsting Wasp, and Golden Dawnfeather.
+Updated breeds for the unobtainable pets Gorefu, Carrotus Maximus, and Gnawface.
+
+

@@ -42,16 +42,14 @@ L:SetWarningLocalization({
 
 L:SetTimerLocalization({
 	SubmergTimer		= "隱沒",
-	EmergeTimer			= "現身",
-	TimerCombat			= "戰鬥開始"
+	EmergeTimer			= "現身"
 })
 
 L:SetOptionLocalization({
 	Emerged				= "當艾胡恩現身時顯示警告",
 	specWarnAttack		= "當艾胡恩變得脆弱時顯示特別警告",
 	SubmergTimer		= "為隱沒顯示計時器",
-	EmergeTimer			= "為現身顯示計時器",
-	TimerCombat			= "為戰鬥開始顯示計時器"
+	EmergeTimer			= "為現身顯示計時器"
 })
 
 L:SetMiscLocalization({
@@ -89,13 +87,8 @@ L:SetWarningLocalization({
 	warnHorsemanHead		= "旋風斬 - 轉換目標!"
 })
 
-L:SetTimerLocalization{
-	TimerCombatStart		= "戰鬥開始"
-}
-
 L:SetOptionLocalization({
 	WarnPhase				= "為每個階段改變顯示警告",
-	TimerCombatStart		= "顯示戰鬥開始的計時器",
 	warnHorsemanSoldiers	= "為跳動的南瓜出現顯示警告",
 	warnHorsemanHead		= "為旋風斬顯示特別警告 (第二次及最後的頭顱出現)"
 })
@@ -112,70 +105,6 @@ L = DBM:GetModLocalization("Greench")
 
 L:SetGeneralLocalization({
 	name = "可惡的格林奇"
-})
-
---------------------------
---  Blastenheimer 5000  --
---------------------------
-L = DBM:GetModLocalization("Cannon")
-
-L:SetGeneralLocalization({
-	name = "5000型超級大砲"
-})
-
--------------
---  Gnoll  --
--------------
-L = DBM:GetModLocalization("Gnoll")
-
-L:SetGeneralLocalization({
-	name = "痛扁豺狼人"
-})
-
-L:SetWarningLocalization({
-	warnGameOverQuest	= "獲得%d點，此次最多可能取得%d點。",
-	warnGameOverNoQuest	= "此次遊戲最多可能取得%d點。",
-	warnGnoll			= "豺狼人出現",
-	warnHogger			= "霍格出現",
-	specWarnHogger		= "霍格出現!"
-})
-
-L:SetOptionLocalization({
-	warnGameOver	= "當遊戲結束時顯示最多可以取得的點數",
-	warnGnoll		= "為豺狼人出現顯示警告",
-	warnHogger		= "為霍格出現顯示警告",
-	specWarnHogger	= "為霍格出現顯示特別警告"
-})
-
-------------------------
---  Shooting Gallery  --
-------------------------
-L = DBM:GetModLocalization("Shot")
-
-L:SetGeneralLocalization({
-	name = "打靶場"
-})
-
-L:SetOptionLocalization({
-	SetBubbles			= "自動地為$spell:101871關閉對話氣泡功能\n(當遊戲結束後還原功能)"
-})
-
-----------------------
---  Tonk Challenge  --
-----------------------
-L = DBM:GetModLocalization("Tonks")
-
-L:SetGeneralLocalization({
-	name = "坦克大戰"
-})
-
------------------------
---  Darkmoon Rabbit  --
------------------------
-L = DBM:GetModLocalization("Rabbit")
-
-L:SetGeneralLocalization({
-	name = "暗月小兔"
 })
 
 --------------------------

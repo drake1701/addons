@@ -4,12 +4,12 @@
 ## Interface: 60000
 ## SavedVariables: SwatterData
 ##
-## Version: 5.17.5413 (NeedyNoddy)
-## Revision: $Id: !Swatter.toc 353 2013-05-25 00:26:54Z MentalPower $
+## Version: 5.21c.5521 (SanctimoniousSwamprat)
+## Revision: $Id: !Swatter.toc 370 2014-10-14 01:59:24Z dinesh $
 ## Author: Norganna's AddOns
 ## X-Part-Of: Libraries
 ## X-Category: Library
-## X-Max-Interface: 50100
+## X-Max-Interface: 60000
 ## X-URL: http://zip.norganna.org/libs/!Swatter/
 ## X-Feedback: http://forums.norganna.org
 ##

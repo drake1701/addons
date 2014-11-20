@@ -4,7 +4,7 @@
 ## Version: 2.0
 ## Author: Johnny C. Lam
 ##
-## Interface: 60000
+## Interface: 50001
 ## Dependencies: Auc-Advanced
 ## OptionalDeps: TheUndermineJournal, TheUndermineJournalGE
 ## X-Curse-Packaged-Version: 2.0

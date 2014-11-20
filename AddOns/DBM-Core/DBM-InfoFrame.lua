@@ -1,4 +1,3 @@
--- ********************************************
 -- **             DBM Info Frame             **
 -- **     http://www.deadlybossmods.com      **
 -- ********************************************
@@ -56,26 +55,20 @@ local createFrame
 local onUpdate
 local dropdownFrame
 local initializeDropdown
+local currentMapId
 local maxlines
-local infoFrameThreshold
-local pIndex
-local extraPIndex
-local lowestFirst
-local tankIgnored
-local iconModifier
-local headerText = "DBM Info Frame"	-- this is only used if DBM.InfoFrame:SetHeader(text) is not called before :Show()
 local currentEvent
-local sortingAsc
+local headerText = "DBM Info Frame"	-- this is only used if DBM.InfoFrame:SetHeader(text) is not called before :Show()
 local lines = {}
-local icons = {}
+local sortingAsc
 local sortedLines = {}
-local lastStacks = {}
+local icons = {}
+local value = {}
 
 -------------------
 -- Local Globals --
 -------------------
 --Entire InfoFrame is a looping onupdate function. All of these globals get used several times a second
-local IsInGroup = IsInGroup
 local GetRaidTargetIndex = GetRaidTargetIndex
 local UnitName = UnitName
 local UnitHealth = UnitHealth
@@ -87,9 +80,10 @@ local UnitIsDeadOrGhost = UnitIsDeadOrGhost
 local GetSpellInfo = GetSpellInfo
 local UnitThreatSituation = UnitThreatSituation
 local GetRaidRosterInfo = GetRaidRosterInfo
-local GetRealZoneText = GetRealZoneText
+local UnitPosition = UnitPosition
 local GetPartyAssignment = GetPartyAssignment
 local UnitGroupRolesAssigned = UnitGroupRolesAssigned
+local twipe = table.wipe
 
 ---------------------
 --  Dropdown Menu  --
@@ -115,6 +109,7 @@ do
 			UIDropDownMenu_AddButton(info, 1)
 
 			info = UIDropDownMenu_CreateInfo()
+			info.keepShownOnClick = true
 			info.text = DBM_CORE_INFOFRAME_SHOW_SELF
 			if DBM.Options.InfoFrameShowSelf then
 				info.checked = true
@@ -146,7 +141,7 @@ function createFrame()
 	frame:SetWidth(64)
 	frame:EnableMouse(true)
 	frame:SetToplevel(true)
-	frame:SetMovable()
+	frame:SetMovable(1)
 	GameTooltip_OnLoad(frame)
 	frame:SetPadding(16)
 	frame:RegisterForDrag("LeftButton")
@@ -163,13 +158,6 @@ function createFrame()
 		DBM.Options.InfoFrameY = y
 		DBM.Options.InfoFramePoint = point
 	end)
-	frame:SetScript("OnUpdate", function(self, e)
-		elapsed = elapsed + e
-		if elapsed >= 0.5 then
-			onUpdate(self, elapsed)
-			elapsed = 0
-		end
-	end)
 	frame:SetScript("OnEvent", function(self, event, ...)
 		if infoFrame[event] then
 			infoFrame[event](self, ...)
@@ -177,7 +165,7 @@ function createFrame()
 	end)
 	frame:SetScript("OnMouseDown", function(self, button)
 		if button == "RightButton" then
-			UIDropDownMenu_Initialize(dropdownFrame, initializeDropdown, "MENU")
+			UIDropDownMenu_Initialize(dropdownFrame, initializeDropdown)
 			ToggleDropDownMenu(1, nil, dropdownFrame, "cursor", 5, -10)
 		end
 	end)
@@ -191,8 +179,9 @@ end
 local updateCallbacks = {}
 local function sortFuncDesc(a, b) return lines[a] > lines[b] end
 local function sortFuncAsc(a, b) return lines[a] < lines[b] end
+local function namesortFuncAsc(a, b) return a < b end
 local function updateLines()
-	table.wipe(sortedLines)
+	twipe(sortedLines)
 	for i in pairs(lines) do
 		sortedLines[#sortedLines + 1] = i
 	end
@@ -206,26 +195,56 @@ local function updateLines()
 	end
 end
 
+local function updateNamesortLines()
+	twipe(sortedLines)
+	for i in pairs(lines) do
+		sortedLines[#sortedLines + 1] = i
+	end
+	table.sort(sortedLines, namesortFuncAsc)
+	for i, v in ipairs(updateCallbacks) do
+		v(sortedLines)
+	end
+end
+
+local function updateLinesCustomSort(sortFunc)
+	twipe(sortedLines)
+	for i in pairs(lines) do
+		sortedLines[#sortedLines + 1] = i
+	end
+	if type(sortFunc) == "function" then
+		table.sort(sortedLines, sortFunc)
+	end
+	for i, v in ipairs(updateCallbacks) do
+		v(sortedLines)
+	end
+end
+
 local function updateIcons()
-	table.wipe(icons)
-	if IsInGroup() then
-		for uId in DBM:GetGroupMembers() do
-			local icon = GetRaidTargetIndex(uId)
-			if icon then
-				icons[UnitName(uId)] = ("|TInterface\\TargetingFrame\\UI-RaidTargetingIcon_%d:0|t"):format(icon)
-			end
+	twipe(icons)
+	for uId in DBM:GetGroupMembers() do
+		local icon = GetRaidTargetIndex(uId)
+		local icon2 = GetRaidTargetIndex(uId.."target")
+		if icon then
+			icons[UnitName(uId)] = ("|TInterface\\TargetingFrame\\UI-RaidTargetingIcon_%d:0|t"):format(icon)
+		end
+		if icon2 then
+			icons[UnitName(uId.."target")] = ("|TInterface\\TargetingFrame\\UI-RaidTargetingIcon_%d:0|t"):format(icon2)
+		end
+	end
+	for i = 1, 5 do
+		local icon = GetRaidTargetIndex("boss"..i)
+		if icon then
+			icons[UnitName("boss"..i)] = ("|TInterface\\TargetingFrame\\UI-RaidTargetingIcon_%d:0|t"):format(icon)
 		end
 	end
 end
 
 local function updateHealth()
-	table.wipe(lines)
-	if IsInGroup() then
-		for uId in DBM:GetGroupMembers() do
-			local icon = GetRaidTargetIndex(uId)
-			if UnitHealth(uId) < infoFrameThreshold and not UnitIsDeadOrGhost(uId) then
-				lines[UnitName(uId)] = UnitHealth(uId) - infoFrameThreshold
-			end
+	twipe(lines)
+	local threshold = value[1]
+	for uId in DBM:GetGroupMembers() do
+		if UnitHealth(uId) < threshold and not UnitIsDeadOrGhost(uId) then
+			lines[UnitName(uId)] = UnitHealth(uId) - threshold
 		end
 	end
 	updateLines()
@@ -233,42 +252,44 @@ local function updateHealth()
 end
 
 local function updatePlayerPower()
-	table.wipe(lines)
-	if IsInGroup() then
-		for uId in DBM:GetGroupMembers() do
-			if not UnitIsDeadOrGhost(uId) and UnitPower(uId, pIndex)/UnitPowerMax(uId, pIndex)*100 >= infoFrameThreshold then
-				lines[UnitName(uId)] = UnitPower(uId, pIndex)
-			end
+	twipe(lines)
+	local threshold = value[1]
+	local powerType = value[2]
+	for uId in DBM:GetGroupMembers() do
+		local maxPower = UnitPowerMax(uId, powerType)
+		if maxPower ~= 0 and not UnitIsDeadOrGhost(uId) and UnitPower(uId, powerType) / UnitPowerMax(uId, powerType) * 100 >= threshold then
+			lines[UnitName(uId)] = UnitPower(uId, powerType)
 		end
 	end
-	if DBM.Options.InfoFrameShowSelf and not lines[UnitName("player")] and UnitPower("player", pIndex) > 0 then
-		lines[UnitName("player")] = UnitPower("player", pIndex)
+	if DBM.Options.InfoFrameShowSelf and not lines[UnitName("player")] and UnitPower("player", powerType) > 0 then
+		lines[UnitName("player")] = UnitPower("player", powerType)
 	end
 	updateLines()
 	updateIcons()
 end
 
 local function updateEnemyPower()
-	table.wipe(lines)
+	twipe(lines)
+	local threshold = value[1]
+	local powerType = value[2]
 	for i = 1, 5 do
-		if UnitPower("boss"..i, pIndex)/UnitPowerMax("boss"..i, pIndex)*100 >= infoFrameThreshold then
-			lines[UnitName("boss"..i)] = UnitPower("boss"..i, pIndex)
-		end
-	end
-	if extraPIndex then
-		if UnitPower("player", extraPIndex) > 0 then
-			lines[UnitName("player")] = UnitPower("player", extraPIndex)
+		if UnitExists("boss"..i) and (UnitPower("boss"..i, powerType) / UnitPowerMax("boss"..i, powerType) * 100 >= threshold) then
+			lines[UnitName("boss"..i)] = UnitPower("boss"..i, powerType)
 		end
 	end
 	updateLines()
+	updateIcons()
 end
 
 --Buffs that are good to have, therefor bad not to have them.
 local function updatePlayerBuffs()
-	table.wipe(lines)
-	if IsInGroup() then
-		for uId in DBM:GetGroupMembers() do
-			if not UnitBuff(uId, GetSpellInfo(infoFrameThreshold)) and not UnitIsDeadOrGhost(uId) then
+	twipe(lines)
+	local spellName = GetSpellInfo(value[1])
+	local tankIgnored = value[2]
+	for uId in DBM:GetGroupMembers() do
+		if tankIgnored and UnitGroupRolesAssigned(uId) == "TANK" or GetPartyAssignment("MAINTANK", uId, 1) then
+		else
+			if not UnitBuff(uId, spellName) and not UnitIsDeadOrGhost(uId) then
 				lines[UnitName(uId)] = ""
 			end
 		end
@@ -279,11 +300,13 @@ end
 
 --Debuffs that are good to have, therefor it's bad NOT to have them.
 local function updateGoodPlayerDebuffs()
-	table.wipe(lines)
-	if IsInGroup() then
-		for uId in DBM:GetGroupMembers() do
-			if tankIgnored and (UnitGroupRolesAssigned(uId) == "TANK" or GetPartyAssignment("MAINTANK", uId, 1)) then break end
-			if not UnitDebuff(uId, GetSpellInfo(infoFrameThreshold)) and not UnitIsDeadOrGhost(uId) then
+	twipe(lines)
+	local spellName = GetSpellInfo(value[1])
+	local tankIgnored = value[2]
+	for uId in DBM:GetGroupMembers() do
+		if tankIgnored and UnitGroupRolesAssigned(uId) == "TANK" or GetPartyAssignment("MAINTANK", uId, 1) then
+		else
+			if not UnitDebuff(uId, spellName) and not UnitIsDeadOrGhost(uId) then
 				lines[UnitName(uId)] = ""
 			end
 		end
@@ -294,12 +317,14 @@ end
 
 --Debuffs that are bad to have, therefor it is bad to have them.
 local function updateBadPlayerDebuffs()
-	table.wipe(lines)
-	if IsInGroup() then
-		for uId, i in DBM:GetGroupMembers() do
-			if tankIgnored and (UnitGroupRolesAssigned(uId) == "TANK" or GetPartyAssignment("MAINTANK", uId, 1)) then break end
-			if UnitDebuff(uId, GetSpellInfo(infoFrameThreshold)) and not UnitIsDeadOrGhost(uId) then
-				lines[UnitName(uId)] = i
+	twipe(lines)
+	local spellName = GetSpellInfo(value[1])
+	local tankIgnored = value[2]
+	for uId in DBM:GetGroupMembers() do
+		if tankIgnored and UnitGroupRolesAssigned(uId) == "TANK" or GetPartyAssignment("MAINTANK", uId, 1) then
+		else
+			if UnitDebuff(uId, spellName) and not UnitIsDeadOrGhost(uId) then
+				lines[UnitName(uId)] = ""
 			end
 		end
 	end
@@ -309,62 +334,13 @@ end
 
 --Debuffs that are bad to have, but we want to show players who do NOT have them
 local function updateReverseBadPlayerDebuffs()
-	table.wipe(lines)
-	if IsInGroup() then
-		for uId, i in DBM:GetGroupMembers() do
-			if tankIgnored and (UnitGroupRolesAssigned(uId) == "TANK" or GetPartyAssignment("MAINTANK", uId, 1)) then break end
-			if not UnitDebuff(uId, GetSpellInfo(infoFrameThreshold)) and not UnitIsDeadOrGhost(uId) then
-				lines[UnitName(uId)] = i
-			end
-		end
-	end
-	updateLines()
-	updateIcons()
-end
-
-local function updatePlayerBuffStacks()
-	table.wipe(lines)
-	updateIcons()	-- update Icons first in case of an "icon modifier"
-	if IsInGroup() then
-		for uId in DBM:GetGroupMembers() do
-			if UnitBuff(uId, GetSpellInfo(infoFrameThreshold)) then
-				lines[UnitName(uId)] = select(4, UnitBuff(uId, GetSpellInfo(infoFrameThreshold)))
-			elseif UnitBuff(uId, GetSpellInfo(pIndex)) then
-				lines[UnitName(uId)] = lastStacks[UnitName(uId)] or 0			-- is always 0 ?
-				if iconModifier then
-					icons[UnitName(uId)] = ("|TInterface\\TargetingFrame\\UI-RaidTargetingIcon_%d:0|t"):format(iconModifier)
-				end
-			end
-		end
-	end
-
-	table.wipe(lastStacks)		-- 'Erase' the old table, and copy the current values into it
-	for k,v in pairs(lines) do
-		lastStacks[k] = v
-	end
-
-	updateLines()
-end
-
-local function updatePlayerDebuffStacks()
-	table.wipe(lines)
-	local spell = GetSpellInfo(infoFrameThreshold)
-	if IsInGroup() then
-		for uId in DBM:GetGroupMembers() do
-			if UnitDebuff(uId, spell) then
-				lines[UnitName(uId)] = select(4, UnitDebuff(uId, spell))
-			end
-		end
-	end
-	updateIcons()
-	updateLines()
-end
-
-local function updatePlayerAggro()
-	table.wipe(lines)
-	if IsInGroup() then
-		for uId in DBM:GetGroupMembers() do
-			if UnitThreatSituation(uId) == infoFrameThreshold then
+	twipe(lines)
+	local spellName = GetSpellInfo(value[1])
+	local tankIgnored = value[2]
+	for uId in DBM:GetGroupMembers() do
+		if tankIgnored and UnitGroupRolesAssigned(uId) == "TANK" or GetPartyAssignment("MAINTANK", uId, 1) then
+		else
+			if not UnitDebuff(uId, spellName) and not UnitIsDeadOrGhost(uId) and not UnitDebuff(uId, GetSpellInfo(27827)) then--27827 Spirit of Redemption. This particular info frame wants to ignore this
 				lines[UnitName(uId)] = ""
 			end
 		end
@@ -373,197 +349,221 @@ local function updatePlayerAggro()
 	updateIcons()
 end
 
-local function getUnitCreatureId(uId)
-	local guid = UnitGUID(uId)
-	return (guid and (tonumber(guid:sub(6, 10), 16))) or 0
+local function updatePlayerBuffStacks()
+	twipe(lines)
+	local spellName = GetSpellInfo(value[1])
+	for uId in DBM:GetGroupMembers() do
+		if UnitBuff(uId, spellName) then
+			lines[UnitName(uId)] = select(4, UnitBuff(uId, spellName))
+		end
+	end
+	updateIcons()
+	updateLines()
 end
-local function updatePlayerTargets()
-	table.wipe(lines)
-	if IsInGroup() then
-		for uId, i in DBM:GetGroupMembers() do
-			if getUnitCreatureId(uId.."target") ~= infoFrameThreshold and (UnitGroupRolesAssigned(uId) == "DAMAGER" or UnitGroupRolesAssigned(uId) == "NONE") then
-				lines[UnitName(uId)] = i
-			end
+
+local function updatePlayerDebuffStacks()
+	twipe(lines)
+	local spellName = GetSpellInfo(value[1])
+	for uId in DBM:GetGroupMembers() do
+		if UnitDebuff(uId, spellName) then
+			lines[UnitName(uId)] = select(4, UnitDebuff(uId, spellName))
+		end
+	end
+	updateIcons()
+	updateLines()
+end
+
+local function updatePlayerAggro()
+	twipe(lines)
+	local aggroType = value[1]
+	for uId in DBM:GetGroupMembers() do
+		if UnitThreatSituation(uId) == aggroType then
+			lines[UnitName(uId)] = ""
 		end
 	end
 	updateLines()
 	updateIcons()
 end
 
+local function updatePlayerTargets()
+	twipe(lines)
+	local cId = value[1]
+	for uId, i in DBM:GetGroupMembers() do
+		if DBM:GetUnitCreatureId(uId.."target") ~= cId and (UnitGroupRolesAssigned(uId) == "DAMAGER" or UnitGroupRolesAssigned(uId) == "NONE") then
+			lines[UnitName(uId)] = ""
+		end
+	end
+	updateLines()
+	updateIcons()
+end
+
+local function updateByFunction()
+	twipe(lines)
+	local func = value[1]
+	local sortFunc = value[2]
+	local useIcon = value[3]
+	lines = func()
+	if sortFunc then
+		updateLinesCustomSort(sortFunc)
+	else
+		updateLines()
+	end
+	if useIcon then
+		updateIcons()
+	end
+end
+
+local function updateTest()
+	twipe(lines)
+	lines["Alpha"] = 1
+	lines["Beta"] = 10
+	lines["Gamma"] = 25
+	lines["Delta"] = 50
+	lines["Epsilon"] = 100
+	updateLines()
+end
+
+local events = {
+	["health"] = updateHealth,
+	["playerpower"] = updatePlayerPower,
+	["enemypower"] = updateEnemyPower,
+	["playerbuff"] = updatePlayerBuffs,
+	["playergooddebuff"] = updateGoodPlayerDebuffs,
+	["playerbaddebuff"] = updateBadPlayerDebuffs,
+	["reverseplayerbaddebuff"] = updateReverseBadPlayerDebuffs,
+	["playeraggro"] = updatePlayerAggro,
+	["playerbuffstacks"] = updatePlayerBuffStacks,
+	["playerdebuffstacks"] = updatePlayerDebuffStacks,
+	["playertargets"] = updatePlayerTargets,
+	["function"] = updateByFunction,
+	["test"] = updateTest
+}
+
 ----------------
 --  OnUpdate  --
 ----------------
-function onUpdate(self, elapsed)
-	local addedSelf = false
+local friendlyEvents = {
+	["health"] = true,
+	["playerpower"] = true,
+	["playerbuff"] = true,
+	["playergooddebuff"] = true,
+	["playerbaddebuff"] = true,
+	["reverseplayerbaddebuff"] = true,
+	["playeraggro"] = true,
+	["playerbuffstacks"] = true,
+	["playerdebuffstacks"] = true,
+	["playertargets"] = true
+}
+
+function onUpdate(frame)
+	if events[currentEvent] then
+		events[currentEvent]()
+	else
+		frame:Hide()
+		error("DBM-InfoFrame: Unsupported event", 2)
+	end
 	local color = NORMAL_FONT_COLOR
-	self:ClearLines()
+	frame:ClearLines()
 	if headerText then
-		self:AddLine(headerText, 255, 255, 255, 0)
+		frame:AddLine(headerText, 255, 255, 255, 0)
 	end
-	if currentEvent == "health" then
-		updateHealth()
-	elseif currentEvent == "playerpower" then
-		updatePlayerPower()
-	elseif currentEvent == "enemypower" then
-		updateEnemyPower()
-	elseif currentEvent == "playerbuff" then
-		updatePlayerBuffs()
-	elseif currentEvent == "playergooddebuff" then
-		updateGoodPlayerDebuffs()
-	elseif currentEvent == "playerbaddebuff" then
-		updateBadPlayerDebuffs()
-	elseif currentEvent == "reverseplayerbaddebuff" then
-		updateReverseBadPlayerDebuffs()
-	elseif currentEvent == "playeraggro" then
-		updatePlayerAggro()
-	elseif currentEvent == "playerbuffstacks" then
-		updatePlayerBuffStacks()
-	elseif currentEvent == "playerdebuffstacks" then
-		updatePlayerDebuffStacks()
-	elseif currentEvent == "playertargets" then
-		updatePlayerTargets()
-	end
---	updateIcons()
-	local playerZone = GetRealZoneText()
 	local linesShown = 0
 	for i = 1, #sortedLines do
 		if linesShown >= maxlines then
 			break
 		end
-		local name = sortedLines[i]
-		-- filter players who are not in the current zone (i.e. just idling/watching while being in the raid)
-		local unitId = DBM:GetRaidUnitId(DBM:GetFullNameByShortName(name))
-		local raidId = unitId and unitId:sub(0, 4) == "raid" and (tonumber(unitId:sub(5) or 0) or 0)
-		if not raidId or select(7, GetRaidRosterInfo(raidId)) == playerZone then
-			linesShown = linesShown + 1
-			local power = lines[name]
-			local icon = icons[name]
-			-- work-around for the player bug, "name" should actually be called "displayName" or something as it might contain the icon in addition to the name
-			-- so we need playerName if we just want the raw name
-			local playerName = name
-			if icon then
-				name = icons[name]..name
-			end
-			if playerName == UnitName("player") then
-				addedSelf = true
-				if currentEvent == "playerbuff" or currentEvent == "playerbaddebuff" or currentEvent == "playergooddebuff" or currentEvent == "health" or currentEvent == "playertargets" or (currentEvent == "playeraggro" and infoFrameThreshold == 3) then--Player name on frame bad a thing make it red.
-					self:AddDoubleLine(name, power, 255, 0, 0, 255, 255, 255)	-- (leftText, rightText, left.R, left.G, left.B, right.R, right.G, right.B)
-				elseif currentEvent == "playerbuffstacks" or (currentEvent == "playeraggro" and infoFrameThreshold == 0) or currentEvent == "enemypower" or currentEvent == "reverseplayerbaddebuff" then--Player name on frame is a good thing, make it green
-					self:AddDoubleLine(name, power, 0, 255, 0, 255, 255, 255)	-- (leftText, rightText, left.R, left.G, left.B, right.R, right.G, right.B)
-				else--it's not defined a color, so default to white.
-					self:AddDoubleLine(name, power, color.R, color.G, color.B, 255, 255, 255)	-- (leftText, rightText, left.R, left.G, left.B, right.R, right.G, right.B)
+		local leftText = sortedLines[i]
+		local rightText = lines[leftText]
+		local icon = icons[leftText] and icons[leftText]..leftText
+		if friendlyEvents[currentEvent] then
+			local unitId = DBM:GetRaidUnitId(DBM:GetUnitFullName(leftText)) or "player"--Prevent nil logical error
+			local addedSelf
+			if unitId and select(4, UnitPosition(unitId)) == currentMapId then
+				linesShown = linesShown + 1
+				if leftText == UnitName("player") then--It's player.
+					addedSelf = true
+					if currentEvent == "health" or currentEvent == "playerpower" or currentEvent == "playerbuff" or currentEvent == "playergooddebuff" or currentEvent == "playerbaddebuff" or currentEvent == "playertargets" or (currentEvent == "playeraggro" and value[1] == 3) then--Red
+						frame:AddDoubleLine(icon or leftText, rightText, 255, 0, 0, 255, 255, 255)-- (leftText, rightText, left.R, left.G, left.B, right.R, right.G, right.B)
+					else--Green
+						frame:AddDoubleLine(icon or leftText, rightText, 0, 255, 0, 255, 255, 255)
+					end
+				else--It's not player, do nothing special with it. Ordinary white text.
+					frame:AddDoubleLine(icon or leftText, rightText, color.R, color.G, color.B, 255, 255, 255)
 				end
-			else--It's not player, do nothing special with it. Ordinary white text.
-				self:AddDoubleLine(name, power, color.R, color.G, color.B, 255, 255, 255)	-- (leftText, rightText, left.R, left.G, left.B, right.R, right.G, right.B)
+			end
+			if not addedSelf and DBM.Options.InfoFrameShowSelf and currentEvent == "playerpower" then-- Only Shows on playerpower event.
+				frame:AddDoubleLine(UnitName("player"), lines[UnitName("player")], color.R, color.G, color.B, 255, 255, 255)
+			end
+		else
+			linesShown = linesShown + 1
+			if currentEvent == "enemypower" then--Green
+				frame:AddDoubleLine(icon or leftText, rightText, 0, 255, 0, 255, 255, 255)
+			else
+				frame:AddDoubleLine(icon or leftText, rightText, color.R, color.G, color.B, 255, 255, 255)
 			end
 		end
-	end					 						-- Add a method to color the power value?
-	if not addedSelf and DBM.Options.InfoFrameShowSelf and currentEvent == "playerpower" then 	-- Don't show self on health/enemypower/playerdebuff/playeraggro
-		self:AddDoubleLine(UnitName("player"), lines[UnitName("player")], color.R, color.G, color.B, 255, 255, 255)
 	end
-	self:Show()
+	frame:Show()
 end
-
 
 ---------------
 --  Methods  --
 ---------------
-function infoFrame:Show(maxLines, event, threshold, powerIndex, iconMod, extraPowerIndex, sortLowest, ignoreTank, ...)
+function infoFrame:Show(maxLines, event, ...)
+	currentMapId = select(4, UnitPosition("player"))
 	if DBM.Options.DontShowInfoFrame and (event or 0) ~= "test" then return end
-	maxLines = maxLines or 5
-	
-	infoFrameThreshold = threshold
-	maxlines = maxLines
-	pIndex = powerIndex		-- used as 'filter' for player buff stacks
-	iconModifier = iconMod
-	extraPIndex = extraPowerIndex
-	lowestFirst = sortLowest
-	tankIgnored = ignoreTank
+
+	maxlines = maxLines or 5
 	currentEvent = event
+	for i = 1, select("#", ...) do
+		value[i] = select(i, ...)
+	end
 	frame = frame or createFrame()
 
-	if lowestFirst then
-		sortingAsc = true
-	end
 	if event == "health" then
 		sortingAsc = true	-- Person who misses the most HP to be at threshold is listed on top
-		updateHealth()
-	elseif event == "playerpower" then
-		updatePlayerPower()
-	elseif event == "enemypower" then
-		updateEnemyPower()
-	elseif event == "playerbuff" then
-		updatePlayerBuffs()
-	elseif event == "playergooddebuff" then
-		updateGoodPlayerDebuffs()
-	elseif event == "playerbaddebuff" then
-		updateBadPlayerDebuffs()
-	elseif currentEvent == "reverseplayerbaddebuff" then
-		updateReverseBadPlayerDebuffs()
-	elseif currentEvent == "playeraggro" then
-		updatePlayerAggro()
-	elseif currentEvent == "playerbuffstacks" then
-		updatePlayerBuffStacks()
-	elseif currentEvent == "playerdebuffstacks" then
-		updatePlayerDebuffStacks()
-	elseif currentEvent == "playertargets" then
-		updatePlayerTargets()
-	elseif currentEvent == "test" then
-	else
-		error("DBM-InfoFrame: Unsupported event", 2)
 	end
 
+	if events[currentEvent] then
+		events[currentEvent]()
+	else
+		error("DBM-InfoFrame: Unsupported event", 2)
+		return
+	end
+
+	if not friendlyEvents[currentEvent] then
+		twipe(icons)
+	end
 	frame:Show()
 	frame:SetOwner(UIParent, "ANCHOR_PRESERVE")
-	onUpdate(frame, 0)
+	onUpdate(frame)
+	if not frame.ticker then
+		frame.ticker = C_Timer.NewTicker(0.5, function() onUpdate(frame) end)
+	end
 end
 
 function infoFrame:RegisterCallback(cb)
 	updateCallbacks[#updateCallbacks + 1] = cb
 end
 
-function infoFrame:Update(event)
-	if event == "health" then
-		updateHealth()
-	elseif event == "playerpower" then
-		updatePlayerPower()
-	elseif event == "enemypower" then
-		updateEnemyPower()
-	elseif event == "playerbuff" then
-		updatePlayerBuffs()
-	elseif event == "playergooddebuff" then
-		updateGoodPlayerDebuffs()
-	elseif event == "playerbaddebuff" then
-		updateBadPlayerDebuffs()
-	elseif currentEvent == "reverseplayerbaddebuff" then
-		updateReverseBadPlayerDebuffs()
-	elseif event == "playeraggro" then
-		updatePlayerAggro()
-	elseif event == "playerbuffstacks" then
-		updatePlayerBuffStacks()
-	elseif event == "playerdebuffstacks" then
-		updatePlayerDebuffStacks()
-	elseif event == "playertargets" then
-		updatePlayerTargets()
-	else
-		error("DBM-InfoFrame: Unsupported event", 2)
-	end
+function infoFrame:Update()
+	onUpdate(frame)
 end
 
 function infoFrame:Hide()
-	table.wipe(lines)
-	table.wipe(sortedLines)
-	table.wipe(updateCallbacks)
+	twipe(lines)
+	twipe(icons)
+	twipe(sortedLines)
+	twipe(updateCallbacks)
 	headerText = "DBM Info Frame"
-	sortingAsc = false
-	infoFrameThreshold = nil
-	pIndex = nil
-	currentEvent = nil
 	maxlines = nil
-	lowestFirst = nil
-	tankIgnored = nil
-	extraPIndex = nil
+	currentEvent = nil
+	twipe(value)
 	if frame then
+		if frame.ticker then
+			frame.ticker:Cancel()
+			frame.ticker = nil
+		end
 		frame:Hide()
 	end
 end
@@ -577,6 +577,6 @@ function infoFrame:SetHeader(text)
 	headerText = text
 end
 
-function infoFrame:SetSorting(ascending)
+function infoFrame:SetSortingAsc(ascending)
 	sortingAsc = ascending
 end

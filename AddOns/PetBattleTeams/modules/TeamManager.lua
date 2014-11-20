@@ -22,13 +22,13 @@ SELECTED_TEAM_CHANGED
 
 
 local PetBattleTeams = LibStub("AceAddon-3.0"):GetAddon("PetBattleTeams")
-local TeamManager = PetBattleTeams:NewModule("TeamManager")
+ TeamManager = PetBattleTeams:NewModule("TeamManager")
 local PETS_PER_TEAM = 3
 local START = 1
 local UPDATE_PETJOURNAL = 4
 local DESUMMON_PET = 5
 local FINISHED = 6
-local EMPTY_PET = "0x0000000000000000"
+local EMPTY_PET = "BattlePet-0-000000000000"
 local _
 local LibPetJournal = LibStub("LibPetJournal-2.0")
 
@@ -63,26 +63,32 @@ local function OnUpdate(self,elapsed)
 			end
 		end
 		
-		--print(self.step,tonumber(petID,16) ~= tonumber(currentPetID or EMPTY_PET,16),ability1 ~= abilities[1],ability2 ~= abilities[2],ability3 ~= abilities[3])
-		if tonumber(petID,16) ~= tonumber(currentPetID or EMPTY_PET ,16) then 
+		if petID ~= (currentPetID or EMPTY_PET) then 
 			C_PetJournal.SetPetLoadOutInfo(self.step,petID) 
 			return
 		else
-			
-			if ability1 ~= abilities[1] then 
-				C_PetJournal.SetAbility(self.step, 1, abilities[1])
-				return
-			elseif ability2 ~= abilities[2] then
-				C_PetJournal.SetAbility(self.step, 2, abilities[2])
-				return
-			elseif ability3 ~= abilities[3] then
-				C_PetJournal.SetAbility(self.step, 3, abilities[3])
+
+			if not pcall(
+				function()
+						if ability1 ~= abilities[1] then 
+							C_PetJournal.SetAbility(self.step, 1, abilities[1])
+							return
+						elseif ability2 ~= abilities[2] then
+							C_PetJournal.SetAbility(self.step, 2, abilities[2])
+							return
+						elseif ability3 ~= abilities[3] then
+							C_PetJournal.SetAbility(self.step, 3, abilities[3])
+							return
+						end
+				end) then
+				C_PetJournal.SetPetLoadOutInfo(self.step,EMPTY_PET)
+				self.step = self.step +1
 				return
 			end
 		end
 		
 		
-		if tonumber(petID,16) == tonumber(currentPetID,16) and ability1 == abilities[1] and ability2 == abilities[2] and ability3 == abilities[3] then
+		if petID == currentPetID and ability1 == abilities[1] and ability2 == abilities[2] and ability3 == abilities[3] then
 			self.step = self.step +1
 			return
 		end
@@ -226,7 +232,7 @@ function TeamManager:SetIgnoreEmptyPets(enabled)
 end
 	
 function TeamManager:GetIgnoreEmptyPets()
-	return self.db.global.ignoreEmptyPets
+	return true--self.db.global.ignoreEmptyPets
 end
 
 
@@ -267,7 +273,7 @@ function TeamManager:GetPetInfo(teamIndex,petIndex)
 	if self.teams[teamIndex] and self.teams[teamIndex][petIndex] then
 		local pet = self.teams[teamIndex][petIndex]
 		
-		if pet and pet.petID and tonumber(pet.petID, 16) > 0  then
+		if pet and pet.petID and pet.petID ~= EMPTY_PET  then
 			local abilities = pet.abilities
 			return pet.petID, abilities
 		end
@@ -632,6 +638,19 @@ function TeamManager:OnInitialize()
 			end
 		end
 	end
+
+
+	--convert hex petIds to Wod ID's
+	for i=1,#self.teams do
+		for j=1,3 do
+			
+			if self.teams[i][j] and self.teams[i][j].petID and self.teams[i][j].petID:match("^0x") then -- if petID is from MOP: 0x000 ...
+				self.teams[i][j].petID = format("BattlePet-0-%s", self.teams[i][j].petID:match("0x0000(%x+)")) -- convert id to BattlePet-0-00...
+			end
+
+		end
+	end
+
 	
 	if #self.teams == 0 then
 		self:CreateTeam()

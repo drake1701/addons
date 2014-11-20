@@ -103,11 +103,7 @@ plugin.options =
 function plugin.OnInitialize()
 	if not Skillet.db.profile.plugins.beancounter then
 		Skillet.db.profile.plugins.beancounter = {}
-	end
-	if not Skillet.db.profile.plugins.beancounter.enabled then
 		Skillet.db.profile.plugins.beancounter.enabled = true
-	end
-	if not Skillet.db.profile.plugins.beancounter.days then
 		Skillet.db.profile.plugins.beancounter.days = 30
 	end
 	local acecfg = LibStub("AceConfig-3.0")
@@ -181,7 +177,7 @@ function plugin.GetExtraText(skill, recipe)
 	if BeanCounterDB and itemID and Skillet.db.profile.plugins.beancounter.enabled then
 
 		if BeanCounter and BeanCounterUiFrame and BeanCounterUiFrame:IsVisible() then
-				name = GetItemInfo(itemID)
+				local name = GetItemInfo(itemID)
 				if name then
 					BeanCounter.API.search(name)
 				end

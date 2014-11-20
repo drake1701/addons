@@ -1,7 +1,7 @@
 --[[
 	Configator - A library to help you create a gui config
-	Version: 5.17.5413 (NeedyNoddy)
-	Revision: $Id: Configator.lua 344 2012-10-06 15:56:26Z Esamynn $
+	Version: 5.21c.5521 (SanctimoniousSwamprat)
+	Revision: $Id: Configator.lua 376 2014-11-05 17:34:52Z brykrys $
 	URL: http://auctioneeraddon.com/dl/
 
 	License:
@@ -54,11 +54,11 @@ USAGE:
 ]]
 
 local LIBRARY_VERSION_MAJOR = "Configator"
-local LIBRARY_VERSION_MINOR = 29
+local LIBRARY_VERSION_MINOR = 32
 local lib = LibStub:NewLibrary(LIBRARY_VERSION_MAJOR, LIBRARY_VERSION_MINOR)
 if not lib then return end
 
-LibStub("LibRevision"):Set("$URL: http://svn.norganna.org/libs/trunk/Configator/Configator.lua $","$Rev: 344 $","5.1.DEV.", 'auctioneer', 'libs')
+LibStub("LibRevision"):Set("$URL: http://svn.norganna.org/libs/trunk/Configator/Configator.lua $","$Rev: 376 $","5.1.DEV.", 'auctioneer', 'libs')
 
 local kit = {}
 
@@ -1298,7 +1298,7 @@ function kit:AddControl(id, cType, column, ...)
 		control = el
 		last = el
 	elseif (cType == "Selectbox") then
-		local level, list, setting, text, maxLabelLength = ...
+		local level, list, setting, width, text, maxLabelLength = ...
 		local indent = 10 * (level or 1)
 		-- Selectbox
 		local tmpName = lib.CreateAnonName()
@@ -1312,10 +1312,18 @@ function kit:AddControl(id, cType, column, ...)
 			end
 		end
 
+		if type(width) ~= "number" then
+			if type(width) == "string" then
+				maxLabelLength = text
+				text = width
+			end
+			width = 140
+		end
+
 		local SelectBox = LibStub:GetLibrary("SelectBox")
-		el = SelectBox:Create(tmpName, content, 140, function(...) self:ChangeSetting(...) end, list, "Default")
+		el = SelectBox:Create(tmpName, content, width, function(...) self:ChangeSetting(...) end, list, "Default")
 		kpos = kpos+1 kids[kpos] = el
-		anchorPoint(content, el, last, column+indent - 5, colwidth or 140, 22, 4)
+		anchorPoint(content, el, last, column+indent - 5, colwidth or width, 22, 4)
 		el.list = list
 		el.setting = setting
 		el.stype = "SelectBox";
@@ -1329,7 +1337,7 @@ function kit:AddControl(id, cType, column, ...)
 			el:SetJustifyH("LEFT")
 			kpos = kpos+1 kids[kpos] = el
 			if (colwidth) then colwidth = colwidth - 15 end
-			anchorPoint(content, el, last, (colwidth or 140)+35+column+indent, (colwidth or maxLabelLength), 14, -3)
+			anchorPoint(content, el, last, (colwidth or width)+35+column+indent, (colwidth or maxLabelLength), 14, -3)
 			el:SetText(text)
 			control.textEl = el
 		end
@@ -1453,8 +1461,21 @@ function kit:AddControl(id, cType, column, ...)
 			slave:SetNumber((el:GetValue())/100)
 			el.slave = slave
 		end
-		el:SetScript("OnValueChanged", function(...)
-			self:ChangeSetting(...)
+		el:SetScript("OnValueChanged", function(element, value)
+			-- From WoW 5.4, dragging the slider's thumb results in values that are not correctly aligned to ValueStep [CNFG-107]
+			-- Values set by calling SetValue will be correctly aligned: use this to correct any erroneous values
+			-- When calling SetValue from within OnValueChanged, protect against function re-entry
+			-- Retrieve corrected value from GetValue; check it has actually changed before continuing
+			if element.isReEntering then return end
+			element.isReEntering = true
+			element:SetValue(value)
+			element.isReEntering = nil
+			value = element:GetValue()
+			if value == element.prevValue then return end
+			element.prevValue = value
+			-- (this correction code should be removed when Blizzard fixes the problem)
+
+			self:ChangeSetting(element, value)
 			if (slave) then
 				local myVal = el:GetValue()
 				if slave:GetNumber() ~= myVal/100 then

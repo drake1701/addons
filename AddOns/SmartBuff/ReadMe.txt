@@ -163,6 +163,22 @@ aeldra@sonnenkinder.org
 Changes: 
 Rev     Date        Description
 ------  ----------  -----------------------
+6.0b    2014-10-23  Updated code for Warlords of Draenor
+                    Updated buff lists
+                    Updated item lists
+                    Added toybox support
+                    Thanks for donation: Maik M :)
+                    
+6.0a    2014-10-16  Updated code for Warlords of Draenor
+                    Included Broker addon
+                    Thanks for donation: Chris S, Glenn J, Jennyfer H, Jon B, Michael Z :)
+
+5.4b    2013-10-30  Fixed LUA errors with RealmName
+
+5.4a    2013-09-12  Fixed LUA errors with sliders
+                    Fixed action button position issue
+                    Updated TOC
+
 5.3b    2013-06-03  Fixed action button position issue
                     Thanks for donation: Isabela, Ronald G. :)
 

@@ -1,5 +1,5 @@
 --[[
-
+ 
 Skillet: A tradeskill window replacement.
 Copyright (c) 2007 Robert Clark <nogudnik@gmail.com>
 
@@ -59,6 +59,7 @@ L["DISPLAYSHOPPINGLISTATBANKDESC"] = "Mostrar uma lista de compras de itens nece
 L["DISPLAYSHOPPINGLISTATBANKNAME"] = "Mostrar lista de itens no banco"
 L["DISPLAYSHOPPINGLISTATGUILDBANKDESC"] = "Mostrar uma lista de compras de itens necessarios para fabricação das receitas que você não tem na sua bolsa"
 L["DISPLAYSHOPPINGLISTATGUILDBANKNAME"] = "Mostrar lista e itens no banco do clã"
+-- L["Draenor Engineering"] = ""
 L["Enabled"] = "Hablitado"
 L["Enchant"] = "Encantamento"
 L["ENHANCHEDRECIPEDISPLAYDESC"] = "Quando habilitado, aparecera um ou mais caractere '+' ao lado da receita pra indicar a dificuldade"
@@ -67,6 +68,8 @@ L["Expand all groups"] = "Expandir todos os grupos"
 L["Features"] = "Caracteristicas"
 L["FEATURESDESC"] = "Habilita ou deshabilita Caracteristicas extras"
 L["Filter"] = "Filtro"
+-- L["Flush All Data"] = ""
+-- L["FLUSHALLDATADESC"] = ""
 L["Glyph "] = "Glifos"
 L["Gold earned"] = "Ouro ganho"
 L["Grouping"] = "Agrupando"
@@ -74,6 +77,7 @@ L["have"] = "possui"
 L["Hide trivial"] = "Esconder triviais"
 L["Hide uncraftable"] = "Esconde não produziveis"
 L["Include alts"] = "Incluir alts"
+-- L["Include guild"] = ""
 L["Inventory"] = "Inventorio"
 L["INVENTORYDESC"] = "Informações o inventario"
 L["is now disabled"] = [=[esta desabilitado
@@ -84,6 +88,7 @@ L["Library"] = "Biblioteca"
 L["LINKCRAFTABLEREAGENTSDESC"] = "Torna os reagentes clicaveis"
 L["LINKCRAFTABLEREAGENTSNAME"] = "Fazer reagentes ser clicavel"
 L["Load"] = "Carregar"
+-- L["Merge items"] = ""
 L["Move Down"] = [=[Mover abaixo
 reordenando a fila]=]
 L["Move to Bottom"] = [=[Mover para o final
@@ -100,6 +105,7 @@ L["Notes"] = "Notas"
 L["not yet cached"] = "ainda não armazenados em cache"
 L["Number of items to queue/create"] = "Número de itens para fila/criar"
 L["Options"] = "Opções"
+-- L["Order by item"] = ""
 L["Pause"] = "Pausa"
 L["Process"] = "Processo"
 L["Purchased"] = "Comprados"
@@ -128,6 +134,8 @@ L["Scanning tradeskill"] = "Verificando as receitas"
 L["Selected Addon"] = "Addon Selecionado"
 L["Select skill difficulty threshold"] = ""
 L["Sells for "] = "Vender por"
+-- L["Shopping Clear"] = ""
+-- L["SHOPPINGCLEARDESC"] = ""
 L["Shopping List"] = "Lista de Compras"
 L["SHOPPINGLISTDESC"] = "Mostra a lista de compras"
 L["SHOWBANKALTCOUNTSDESC"] = "Quando calcular os itens possiveis de fabricação usa os itens do banco de de personagens alternativos"
@@ -166,6 +174,8 @@ L["TRANSPARAENCYDESC"] = "Transparência da janela principal"
 L["Transparency"] = "Transparência"
 L["Unknown"] = [=[Desconhecido
 origem da receita desconhecida]=]
+-- L["Using Bank for"] = ""
+-- L["Using Reagent Bank for"] = ""
 L["VENDORAUTOBUYDESC"] = "Se você tiver itens"
 L["VENDORAUTOBUYNAME"] = "Comprar reagentes automaticamente"
 L["VENDORBUYBUTTONDESC"] = "Mostra o botão de compra de reagentes nos vendedores"

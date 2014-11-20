@@ -1,3 +1,37 @@
+--------------
+5.4.7.00
+--------------
+Fixed bug with the racial language selection.
+
+Fixed a bug that would crash the SpeakinSpell interface if opened during combat.
+  Note: Memory usage stats are not available during combat.
+
+Updated the advertisement function to work in instance channel
+
+added "Use Instance Channel if Available" option.  Enables the use of the 
+       Instance Channel for a speech if the channel is available. (useful 
+       to automatically announce speeches that are already set for party or 
+       raid)
+
+New Feature Spellbook integration - look for a button labeled SS associated 
+            with each spell. it will automatically open the SpeekinSpell editor 
+            with that spell selected as the fiter search.   
+
+
+--------------
+5.4.0.02
+--------------
+upgraded to full release to get back into wide circulation
+
+--------------
+5.4.0.01 beta
+--------------
+"up to date" for WoW 5.4
+fixed code for arena data that was broken when arena teams were removed.
+this is the only bug fix in this release as it was a terminal bug. 
+No other reported non critical bugs have been addressed.  
+Speakinspell is once again alive.
+  
 ---------
 5.1.0.01
 ---------

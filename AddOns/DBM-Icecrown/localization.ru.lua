@@ -2,84 +2,6 @@
 
 local L
 
----------------------------
---  Trash - Lower Spire  --
----------------------------
-L = DBM:GetModLocalization("LowerSpireTrash")
-
-L:SetGeneralLocalization{
-	name = "Треш-мобы Шпиля"
-}
-
-L:SetWarningLocalization{
-	SpecWarnTrap		= "Ловушка активирована! - Заклятый страж освобожден"--creatureid 37007
-}
-
-L:SetOptionLocalization{
-	SpecWarnTrap		= "Спец-предупреждение для активации ловушки"
-}
-
-L:SetMiscLocalization{
-	WarderTrap1		= "Кто... идет?",
-	WarderTrap2		= "Я пробудился...",
-	WarderTrap3		= "В покои господина проникли!"
-}
-
----------------------------
---  Trash - Plagueworks  --
----------------------------
-L = DBM:GetModLocalization("PlagueworksTrash")
-
-L:SetGeneralLocalization{
-	name = "Треш-мобы Чумодельни"
-}
-
-L:SetWarningLocalization{
-	WarnMortalWound	= "%s на |3-5(>%s<) (%d)",		-- Mortal Wound on >args.destName< (args.amount)
-	SpecWarnTrap	= "Ловушка активирована! - приближаются Мстительные свежеватели"--creatureid 37038
-}
-
-L:SetOptionLocalization{
-	SpecWarnTrap	= "Спец-предупреждение для активации ловушки"
-}
-
-L:SetMiscLocalization{
-	FleshreaperTrap1		= "Скорей, нападем на них сзади!",
-	FleshreaperTrap2		= "Вам не уйти от нас.",
-	FleshreaperTrap3		= "Живые? Здесь?!"
-}
-
----------------------------
---  Trash - Crimson Hall  --
----------------------------
-L = DBM:GetModLocalization("CrimsonHallTrash")
-
-L:SetGeneralLocalization{
-	name = "Треш-мобы Багрового зала"
-}
-
----------------------------
---  Trash - Frostwing Hall  --
----------------------------
-L = DBM:GetModLocalization("FrostwingHallTrash")
-
-L:SetGeneralLocalization{
-	name = "Треш-мобы Зала Ледокрылых"
-}
-
-L:SetWarningLocalization{
-	SpecWarnGosaEvent	= "Приближаются защитники Синдрагосы!"
-}
-
-
-L:SetOptionLocalization{
-	SpecWarnGosaEvent	= "Спец-предупреждение для активации защитников Синдрагосы"
-}
-
-L:SetMiscLocalization{
-	SindragosaEvent		= "Они не должны прорваться к Синдрагосе! Скорее, остановите их!"
-}
-
 ----------------------
 --  Lord Marrowgar  --
 ----------------------
@@ -87,19 +9,6 @@ L = DBM:GetModLocalization("LordMarrowgar")
 
 L:SetGeneralLocalization{
 	name = "Лорд Ребрад"
-}
-
-L:SetTimerLocalization{
-	AchievementBoned	= "Время до освобождения"
-}
-
-L:SetWarningLocalization{
-	WarnImpale			= "Прокалывание: >%s<"
-}
-
-L:SetOptionLocalization{
-	WarnImpale			= "Объявлять цели заклинания $spell:69062",
-	AchievementBoned	= "Отсчет времени для достижения Косточка попалась"
 }
 
 -------------------------
@@ -117,15 +26,14 @@ L:SetTimerLocalization{
 
 L:SetWarningLocalization{
 	WarnReanimating				= "Помощник воскрешается",			-- Reanimating an adherent or fanatic
-	WarnTouchInsignificance		= "%s на |3-5(>%s<) (%d)",		-- Touch of Insignificance on >args.destName< (args.amount)
 	WarnAddsSoon				= "Скоро призыв помощников"
 }
 
 L:SetOptionLocalization{
 	WarnAddsSoon				= "Предупреждать заранее о призыве помощников",
-	WarnReanimating				= "Предупреждение при воскрешении помощников",											-- Reanimated Adherent/Fanatic spawning
+	WarnReanimating				= "Предупреждение при воскрешении помощников",	-- Reanimated Adherent/Fanatic spawning
 	TimerAdds					= "Отсчет времени до призыва помощников",
-	ShieldHealthFrame			= "Показывать здоровье босса с индикатором здоровья для \n$spell:70842"
+	ShieldHealthFrame			= "Показывать здоровье босса с индикатором здоровья для <br/>$spell:70842"
 }
 
 L:SetMiscLocalization{
@@ -145,18 +53,15 @@ L:SetGeneralLocalization{
 }
 
 L:SetWarningLocalization{
-	WarnBattleFury	= "%s (%d)",
-	WarnAddsSoon	= "Скоро призыв помощников"
+	WarnAddsSoon	= "Скоро новые помощники"
 }
 
 L:SetOptionLocalization{
-	TimerCombatStart	= "Отсчет времени до начала боя",
 	WarnAddsSoon		= "Предупреждать заранее о призыве помощников",
 	TimerAdds			= "Отсчет времени до новых помощников"
 }
 
 L:SetTimerLocalization{
-	TimerCombatStart	= "Начало боя",
 	TimerAdds			= "Призыв помощников"
 }
 
@@ -180,17 +85,7 @@ L:SetGeneralLocalization{
 	name = "Саурфанг Смертоносный"
 }
 
-L:SetWarningLocalization{
-	WarnFrenzySoon	= "Скоро Бешенство"
-}
-
-L:SetTimerLocalization{
-	TimerCombatStart		= "Начало боя"
-}
-
 L:SetOptionLocalization{
-	TimerCombatStart		= "Отсчет времени до начала боя",
-	WarnFrenzySoon			= "Предупреждать о скором Бешенстве (на ~33%)",
 	RangeFrame				= "Показывать окно проверки дистанции (12 м)",
 	RunePowerFrame			= "Показывать здоровье босса + индикатор для $spell:72371",
 	BeastIcons				= "Устанавливать метки на Кровавые чудовища"
@@ -213,8 +108,8 @@ L:SetGeneralLocalization{
 
 L:SetOptionLocalization{
 	RangeFrame			= "Показывать окно проверки дистанции (8 м)",
-	AnnounceSporeIcons	= "Объявлять метки целей заклинания $spell:69279 в рейд-чат\n(требуются права помощника)",
-	AchievementCheck	= "Объявлять о провале достижения 'Масок нет!' в рейд-чат\n(требуются права помощника)"
+	AnnounceSporeIcons	= "Объявлять метки целей заклинания $spell:69279 в рейд-чат<br/>(требуются права помощника)",
+	AchievementCheck	= "Объявлять о провале достижения 'Масок нет!' в рейд-чат<br/>(требуются права помощника)"
 }
 
 L:SetMiscLocalization{
@@ -240,7 +135,7 @@ L:SetOptionLocalization{
 	WarnOozeSpawn				= "Предупреждение при появлении Малого слизнюка",
 	SpecWarnLittleOoze			= "Спец-предупреждение, когда вас атакует Малый слизнюк",--creatureid 36897
 	RangeFrame					= "Показывать окно проверки дистанции (8 м)",
-	TankArrow					= "Показывать стрелку для кайтера Большого слизнюка (экспериментально)"
+	TankArrow					= "Показывать стрелку для кайтера Большого слизнюка"
 }
 
 L:SetMiscLocalization{
@@ -344,8 +239,7 @@ L:SetOptionLocalization{
 L:SetMiscLocalization{
 	YellPull		= "Чужаки ворвались во внутренние покои. Уничтожьте зеленого дракона! Пусть останутся лишь кости и прах для воскрешения!",
 	YellKill		= "Я ИЗЛЕЧИЛАСЬ! Изера, даруй мне силу покончить с этими нечестивыми тварями.",
-	YellPortals		= "Я открыла портал в Изумрудный Сон. Там вы найдете спасение, герои...",
-	YellPhase2		= "Силы возвращаются ко мне. Герои, еще немного!"--Need to confirm this is when adds spawn faster (phase 2) before used in mod
+	YellPortals		= "Я открыла портал в Изумрудный Сон. Там вы найдете спасение, герои..."
 }
 
 ------------------
@@ -357,15 +251,15 @@ L:SetGeneralLocalization{
 	name = "Синдрагоса"
 }
 
+L:SetWarningLocalization{
+	WarnAirphase			= "Воздушная фаза",
+	WarnGroundphaseSoon		= "Синдрагоса скоро приземлится"
+}
+
 L:SetTimerLocalization{
 	TimerNextAirphase		= "След. воздушная фаза",
 	TimerNextGroundphase	= "След. наземная фаза",
 	AchievementMystic		= "Время для устранения Таинственной энергии"
-}
-
-L:SetWarningLocalization{
-	WarnAirphase			= "Воздушная фаза",
-	WarnGroundphaseSoon		= "Синдрагоса скоро приземлится"
 }
 
 L:SetOptionLocalization{
@@ -373,9 +267,9 @@ L:SetOptionLocalization{
 	WarnGroundphaseSoon		= "Предупреждать заранее о наземной фазе",
 	TimerNextAirphase		= "Отсчет времени до следующей воздушной фазы",
 	TimerNextGroundphase	= "Отсчет времени до следующей наземной фазы",
-	AnnounceFrostBeaconIcons= "Объявлять метки целей заклинания $spell:70126 в рейд-чат\n(требуются права помощника)",
+	AnnounceFrostBeaconIcons= "Объявлять метки целей заклинания $spell:70126 в рейд-чат<br/>(требуются права помощника)",
 	ClearIconsOnAirphase	= "Снимать все метки перед воздушной фазой",
-	AchievementCheck		= "Объявлять предупреждения для достижения 'Таинственная дама'\nв рейд-чат (требуются права помощника)",
+	AchievementCheck		= "Объявлять предупреждения для достижения 'Таинственная дама'<br/>в рейд-чат (требуются права помощника)",
 	RangeFrame				= "Показывать игроков с метками в окне проверки дистанции (10 норм., 20 гер.)"
 }
 
@@ -406,14 +300,12 @@ L:SetWarningLocalization{
 }
 
 L:SetTimerLocalization{
-	TimerCombatStart	= "Начало боя",
 	TimerRoleplay		= "Представление",
 	PhaseTransition		= "Переходная фаза",
 	TimerNecroticPlagueCleanse = "Очищение Мертвящей чумы"
 }
 
 L:SetOptionLocalization{
-	TimerCombatStart		= "Отсчет времени до начала боя",
 	TimerRoleplay			= "Отсчет времени для представления",
 	WarnNecroticPlagueJump	= "Объявлять цели прыжков $spell:73912",
 	TimerNecroticPlagueCleanse	= "Отсчет времени для очищения Мертвящей чумы до первого тика",
@@ -421,9 +313,9 @@ L:SetOptionLocalization{
 	ValkyrWarning			= "Объявлять, кого схватили Валь'киры",
 	SpecWarnYouAreValkd		= "Спец-предупреждение, когда вас схватила Валь'кира",
 	ValkyrIcon				= "Устанавливать метки на Валь'кир",
-	AnnounceValkGrabs		= "Объявлять игроков, схваченных Валь'кирами, в рейд-чат\n(требуются права помощника)",
+	AnnounceValkGrabs		= "Объявлять игроков, схваченных Валь'кирами, в рейд-чат<br/>(требуются права помощника)",
 	SpecWarnValkyrLow		= "Спец-предупреждение, когда у Валь'киры меньше 55% HP",
-	AnnouncePlagueStack		= "Объявлять стаки заклинания $spell:73912 в рейд-чат (10\nстаков, далее каждые 5) (требуются права помощника)"
+	AnnouncePlagueStack		= "Объявлять стаки заклинания $spell:73912 в рейд-чат (10<br/>стаков, далее каждые 5) (требуются права помощника)"
 }
 
 L:SetMiscLocalization{
@@ -433,4 +325,35 @@ L:SetMiscLocalization{
 	ValkGrabbed				= "Валь'кира схватила %s",
 	PlagueStackWarning		= "Предупреждение: %s получил %d стаков Мертвящей чумы",
 	AchievementCompleted	= ">> ДОСТИЖЕНИЕ ВЫПОЛНЕНО: %s получил %d стаков Мертвящей чумы <<"
+}
+
+-------------
+--  Trash  --
+-------------
+L = DBM:GetModLocalization("ICCTrash")
+
+L:SetGeneralLocalization{
+	name = "Icecrown Trash"
+}
+
+L:SetWarningLocalization{
+	SpecWarnTrapL		= "Ловушка активирована! - Заклятый страж освобожден",
+	SpecWarnTrapP		= "Ловушка активирована! - приближаются Мстительные свежеватели",
+	SpecWarnGosaEvent	= "Приближаются защитники Синдрагосы!"
+}
+
+L:SetOptionLocalization{
+	SpecWarnTrapL		= "Спец-предупреждение для активации ловушки",
+	SpecWarnTrapP		= "Спец-предупреждение для активации ловушки",
+	SpecWarnGosaEvent	= "Спец-предупреждение для активации защитников Синдрагосы"
+}
+
+L:SetMiscLocalization{
+	WarderTrap1			= "Кто... идет?",
+	WarderTrap2			= "Я пробудился...",
+	WarderTrap3			= "В покои господина проникли!",
+	FleshreaperTrap1	= "Скорей, нападем на них сзади!",
+	FleshreaperTrap2	= "Вам не уйти от нас.",
+	FleshreaperTrap3	= "Живые? Здесь?!",
+	SindragosaEvent		= "Они не должны прорваться к Синдрагосе! Скорее, остановите их!"
 }

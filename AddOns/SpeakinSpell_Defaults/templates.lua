@@ -1,4 +1,4 @@
-﻿-- Author      : RisM
+-- Author      : RisM
 -- Create Date : 9/24/2009 11:04:29 PM
 
 local SpeakinSpell = LibStub("AceAddon-3.0"):GetAddon("SpeakinSpell")
@@ -441,10 +441,12 @@ function SpeakinSpell:Template_BuildAuto_Random()
 	local Factions = {
 		-- guildName, guildRankName, guildRankIndex = GetGuildInfo(unit);
 		guildName = guildName,
-		-- teamName, teamSize, teamRating, weekPlayed, weekWins, seasonPlayed, seasonWins, playerPlayed, seasonPlayerPlayed, teamRank, playerRating = GetArenaTeam(id);
-		arena2 = GetArenaTeam(1),
-		arena3 = GetArenaTeam(2),
-		arena5 = GetArenaTeam(3),
+		-- rating, seasonPlayed, seasonWon, weeklyPlayed, weeklyWon = GetInspectArenaData(Id);
+      -- GetArenaTeam replaced GetInspectArenaData in patch 5.4.0 caused the addon to untimatly break.
+		arena2 = GetInspectArenaData(1),
+      arena3 = GetInspectArenaData(2),
+      arena5 = GetInspectArenaData(3),
+      
 	}
 	--TODOLATER: these queries on not working on a first time clean install, but they do work on /ss reset ... i think it's a load timing issue
 	--self:DebugMsgDumpTable( Factions, "Affiliations", 2 )

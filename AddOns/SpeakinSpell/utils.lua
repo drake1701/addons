@@ -1,4 +1,4 @@
-﻿-- Author      : RisM
+-- Author      : RisM
 -- Create Date : 6/28/2009 3:54:18 PM
 
 local SpeakinSpell = LibStub("AceAddon-3.0"):GetAddon("SpeakinSpell")
@@ -311,6 +311,20 @@ function SpeakinSpell:GetRandomTableEntry( t, last )
 	return sel
 end
 
+ -- Note Added this fuction to just do a boolen check for if we are in an 
+ -- instance, usefull for when we want to sup one group type for another because 
+ -- while your in a party, raid, or BG  you can also be in an instance 
+
+function SpeakinSpell:CheckForInstance()
+
+   local inInstance = select (1,IsInInstance())
+   if inInstance ==1 then 
+      return true
+   else
+      return false
+   end
+
+end 
 
 function SpeakinSpell:GetScenarioKey()
 	local funcname = "GetScenarioKey"
@@ -393,9 +407,17 @@ function SpeakinSpell:GetAddonMemoryUsedString()
 	-- start
 	local total = 0
 	local Report = L["Memory usage report\n"]
+   
+   -- make sure we are not in combat or this will crash.
+   
+   if UnitAffectingCombat("player") then
+   -- if we are in combat return a blank report and continue on. 
+      return Report;
+   end
+   
 	-- list all the modules
 	for i,module in ipairs(MODULES) do
-		UpdateAddOnMemoryUsage(module)
+      UpdateAddOnMemoryUsage(module)
 		local kb = GetAddOnMemoryUsage(module)
 		total = total + kb
 		local format = L["<module>: <kb> kb"]

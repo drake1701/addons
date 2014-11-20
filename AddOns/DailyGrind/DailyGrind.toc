@@ -1,11 +1,11 @@
 ## Author: |cFFF0770BDeldinor|r of |cFFB2E4FFElune|r
 ## Interface: 60000
 ## Notes: Automated daily quest accepting and turn-in.
+## Title: Daily Grind
+## Version: 3.0
 ## SavedVariables: DailyGrindQuests, QuestHistory
 ## SavedVariablesPerCharacter: DailyGrindSettings, Settings
-## Title: Daily Grind
-## Version: 2.0
-## X-Curse-Packaged-Version: 2.0
+## X-Curse-Packaged-Version: 3.0.3
 ## X-Curse-Project-Name: Daily Grind
 ## X-Curse-Project-ID: daily-grind
 ## X-Curse-Repository-ID: wow/daily-grind/mainline
@@ -21,3 +21,4 @@ NpcBlacklist.lua
 Options.lua
 QuestList.lua
 SuspendKeyList.lua
+Bindings.xml

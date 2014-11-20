@@ -1,4 +1,4 @@
-﻿-- Author      : RisM
+-- Author      : RisM
 -- Create Date : 6/28/2009 4:03:23 PM
 
 local SpeakinSpell = LibStub("AceAddon-3.0"):GetAddon("SpeakinSpell")
@@ -40,11 +40,13 @@ local SLASH_COMMANDS_SIMPLE = {
 	["ad /g"]		= function() SpeakinSpell:Advertise("GUILD") end,
 	["ad /p"]		= function() SpeakinSpell:Advertise("PARTY") end,
 	["ad /ra"]		= function() SpeakinSpell:Advertise("RAID") end,
+   ["ad /i"]      = function() SpeakinSpell:Advertise("INSTANCE_CHAT") end,
 	["testallsubs"] = function() SpeakinSpell:TestAllSubs() end,
 	["memory"]		= function() SpeakinSpell:Print( SpeakinSpell:GetAddonMemoryUsedString() ) end,
 	["sync"]		= function() SpeakinSpell:Network_AutoSync() end,
 	["guides"]		= function() SpeakinSpell:ToggleSetupGuides() end,
 	["recent"]		= function() SpeakinSpell:ReportRecentEvents() end,
+   --["spells"]  =function()  SpeakinSpell:dumpspellBook() end,
 }
 
 --NOTE: always include a space in the key, so that params will not start with that
@@ -87,6 +89,7 @@ L["guides"]
 L["recent"]
 L["ad "]
 L["sync "]
+--L["spells"]
 --]]
 
 --[[

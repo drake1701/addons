@@ -1,7 +1,7 @@
 --[[
 	Auctioneer
-	Version: 5.17.5413 (NeedyNoddy)
-	Revision: $Id: CoreConst.lua 5399 2013-03-28 18:53:54Z brykrys $
+	Version: 5.21c.5521 (SanctimoniousSwamprat)
+	Revision: $Id: CoreConst.lua 5518 2014-11-06 11:35:20Z brykrys $
 	URL: http://auctioneeraddon.com/
 
 	This is an addon for World of Warcraft that adds statistical history to the auction data that is collected
@@ -36,7 +36,6 @@ if not AucAdvanced then return end
 local lib = {
 	PlayerName = UnitName("player"),
 	PlayerRealm = GetRealmName(),
-	PlayerFaction = UnitFactionGroup("player"),
 
 	AucMinTimes = {
 		0,
@@ -113,7 +112,7 @@ local lib = {
 	AMHIGH = 19,
 	SELLER = 20,
 	FLAG = 21,
-	ID = 22,
+	DEP1 = 22, -- deprecated entry, currently unused
 	ITEMID = 23,
 	SUFFIX = 24,
 	FACTOR = 25,
@@ -122,32 +121,32 @@ local lib = {
 	LASTENTRY = 27, -- Used to determine how many entries the table has when copying (some entries can be nil so # won't work)
 
 	ScanPosLabels = {"LINK", "ILEVEL", "ITYPE", "ISUB", "IEQUIP", "PRICE", "TLEFT", "TIME", "NAME", "TEXTURE", "COUNT", "QUALITY", "CANUSE", "ULEVEL", "MINBID", "MININC",
-		"BUYOUT", "CURBID", "AMHIGH", "SELLER", "FLAG", "ID", "ITEMID", "SUFFIX", "FACTOR", "ENCHANT", "SEED" },
+		"BUYOUT", "CURBID", "AMHIGH", "SELLER", "FLAG", "DEP1", "ITEMID", "SUFFIX", "FACTOR", "ENCHANT", "SEED" },
 
-	FLAG_DIRTY = 1,
+	-- Permanent flags (stored in save file)
 	FLAG_UNSEEN = 2,
 	FLAG_FILTER = 4,
+	-- Temporary flags (only used during processing - higher values to leave lower ones free for permanent flags)
+	FLAG_DIRTY = 64,
+
+	ALEVEL_OFF = 0,
+	ALEVEL_LOW = 1,
+	ALEVEL_MED = 2,
+	ALEVEL_HI = 3,
 
 	CLASSES = { GetAuctionItemClasses() },
 	SUBCLASSES = { },
 	CLASSESREV = { }, -- Table mapping names to index in CLASSES table
 	SUBCLASSESREV = { }, -- Table mapping from CLASS and SUBCLASSES names to index number in SUBCLASSES
 
-	MAXSKILLLEVEL = 600,
-	MAXUSERLEVEL = 90,
-	MAXITEMLEVEL = 550,
+	MAXSKILLLEVEL = 700,
+	MAXUSERLEVEL = 100,
+	MAXITEMLEVEL = 700,
+	MAXBIDPRICE = 9999999999, -- copy from Blizzard_AuctionUI.lua, so it is available before AH loads
+
 }
 
-lib.InvTypes = lib.EquipEncode -- backward compatibility - deprecated entry
-
-lib.ServerKeyHome = lib.PlayerRealm .."-".. lib.PlayerFaction
-lib.ServerKeyNeutral = lib.PlayerRealm .."-Neutral"
-if lib.PlayerFaction == "Alliance" then
-	lib.OpposingFaction = "Horde"
-else
-	lib.OpposingFaction = "Alliance"
-end
-lib.ServerKeyOpposing = lib.PlayerRealm .."-".. lib.OpposingFaction
+lib.CompactRealm = lib.PlayerRealm:gsub(" ", "") -- CompactRealm is realm name with spaces removed
 
 for i = 1, #lib.CLASSES do
 	lib.CLASSESREV[lib.CLASSES[i]] = i
@@ -179,4 +178,4 @@ CompileInvTypes(GetAuctionInvTypes(2, 1))
 
 AucAdvanced.Const = lib
 
-AucAdvanced.RegisterRevision("$URL: http://svn.norganna.org/auctioneer/branches/5.17/Auc-Advanced/CoreConst.lua $", "$Rev: 5399 $")
+AucAdvanced.RegisterRevision("$URL: http://svn.norganna.org/auctioneer/branches/5.21c/Auc-Advanced/CoreConst.lua $", "$Rev: 5518 $")

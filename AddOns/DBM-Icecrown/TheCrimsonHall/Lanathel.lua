@@ -1,8 +1,9 @@
 local mod	= DBM:NewMod("Lanathel", "DBM-Icecrown", 3)
 local L		= mod:GetLocalizedStrings()
 
-mod:SetRevision(("$Revision: 58 $"):sub(12, -3))
+mod:SetRevision(("$Revision: 122 $"):sub(12, -3))
 mod:SetCreatureID(37955)
+mod:SetEncounterID(1103)
 mod:SetModelID(31165)
 mod:SetUsedIcons(4, 5, 6, 7, 8)
 
@@ -37,13 +38,13 @@ local specWarnSwarmingShadows		= mod:NewSpecialWarningMove(71266)
 local specWarnMindConrolled			= mod:NewSpecialWarningTarget(70923, mod:IsTank())
 
 local timerNextInciteTerror			= mod:NewNextTimer(100, 73070)
-local timerFirstBite				= mod:NewCastTimer(15, 70946)
+local timerFirstBite				= mod:NewNextTimer(15, 70946)
 local timerNextPactDarkfallen		= mod:NewNextTimer(30.5, 71340)
 local timerNextSwarmingShadows		= mod:NewNextTimer(30.5, 71266)
 local timerInciteTerror				= mod:NewBuffActiveTimer(4, 73070)
 local timerBloodBolt				= mod:NewBuffActiveTimer(6, 71772)
-local timerBloodThirst				= mod:NewBuffActiveTimer(10, 70877)
-local timerEssenceoftheBloodQueen	= mod:NewBuffActiveTimer(60, 70867)
+local timerBloodThirst				= mod:NewBuffFadesTimer(10, 70877)
+local timerEssenceoftheBloodQueen	= mod:NewBuffFadesTimer(60, 70867)
 
 local berserkTimer					= mod:NewBerserkTimer(320)
 
@@ -186,7 +187,7 @@ mod.SPELL_PERIODIC_MISSED = mod.SPELL_PERIODIC_DAMAGE
 
 function mod:CHAT_MSG_RAID_BOSS_EMOTE(msg, _, _, _, target)
 	if msg:match(L.SwarmingShadows) then
-		local target = DBM:GetFullNameByShortName(target)
+		local target = DBM:GetUnitFullName(target)
 		warnSwarmingShadows:Show(target)
 		timerNextSwarmingShadows:Start()
 		if target == UnitName("player") then

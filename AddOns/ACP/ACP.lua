@@ -311,7 +311,7 @@ function ACP:GetAddonStatus(addon)
     end
 
 
-    local name, title, notes, enabled, loadable, reason, security = GetAddOnInfo(addon)
+    local name, title, notes, loadable, reason, security, newVersion = GetAddOnInfo(addon)
 
     if reason == "MISSING" and type(addon) == "string" then
         addon = self:ResolveLibraryName(addon) or addon
@@ -320,6 +320,7 @@ function ACP:GetAddonStatus(addon)
 
     local loaded = IsAddOnLoaded(addon)
     local isondemand = IsAddOnLoadOnDemand(addon)
+    local enabled = GetAddOnEnableState(UnitName("player"), addon) > 0;
     local color, note
 
     if reason == "DISABLED" then color, note = "9d9d9d", getreason(reason) -- Grey
@@ -372,29 +373,52 @@ local ACP_DefaultSet = {}
 local ACP_DEFAULT_SET = 0
 local ACP_BLIZZARD_ADDONS = {
     "Blizzard_AchievementUI",
+    "Blizzard_ArchaeologyUI",
     "Blizzard_ArenaUI",
     "Blizzard_AuctionUI",
+    "Blizzard_AuthChallengeUI",
     "Blizzard_BarbershopUI",
     "Blizzard_BattlefieldMinimap",
     "Blizzard_BindingUI",
+    "Blizzard_BlackMarketUI",
     "Blizzard_Calendar",
+    "Blizzard_ChallengesUI",
+    "Blizzard_ClientSavedVariables",
     "Blizzard_CombatLog",
     "Blizzard_CombatText",
+    "Blizzard_CompactRaidFrames",
+    "Blizzard_CUFProfiles",
     "Blizzard_DebugTools",
+    "Blizzard_EncounterJournal",
+    "Blizzard_GarrisonUI",
     "Blizzard_GlyphUI",
     "Blizzard_GMChatUI",
     "Blizzard_GMSurveyUI",
     "Blizzard_GuildBankUI",
+    "Blizzard_GuildControlUI",
+    "Blizzard_GuildUI",
     "Blizzard_InspectUI",
+    "Blizzard_ItemAlterationUI",
     "Blizzard_ItemSocketingUI",
+    "Blizzard_ItemUpgradeUI",
+    "Blizzard_LookingForGuildUI",
     "Blizzard_MacroUI",
+    "Blizzard_MovePad",
+    "Blizzard_ObjectiveTracker",
+    "Blizzard_PetBattleUI",
+    "Blizzard_PetJournal",
+    "Blizzard_PVPUI",
+    "Blizzard_QuestChoice",
     "Blizzard_RaidUI",
+    "Blizzard_StoreUI",
     "Blizzard_TalentUI",
     "Blizzard_TimeManager",
     "Blizzard_TokenUI",
     "Blizzard_TradeSkillUI",
     "Blizzard_TrainerUI",
+    "Blizzard_VoidStorageUI",
 }
+
 local NUM_BLIZZARD_ADDONS = #ACP_BLIZZARD_ADDONS
 ACP.ACP_BLIZZARD_ADDONS = ACP_BLIZZARD_ADDONS
 local enabledList -- Used to prevent recursive loop in EnableAddon.
@@ -469,8 +493,6 @@ function ACP:OnLoad(this)
     -- Make sure we are properly scaled.
     self.frame:SetScale(UIParent:GetEffectiveScale());
 
-    GameMenuButtonAddOns:SetText(L["AddOns"])
-
     for i=1,ACP_MAXADDONS do
         local button = _G[ACP_FRAME_NAME .. "Entry" .. i .. "LoadNow"]
         button:SetText(L["Load"])
@@ -495,22 +517,7 @@ function ACP:OnLoad(this)
         OnAccept = function()
             ReloadUI()
         end,
-        OnCancel = function(data, reason)
-            if (reason == "timeout") then
-                ReloadUI()
-            else
-                StaticPopupDialogs["ACP_RELOADUI"].reloadAccepted = false
-            end
-        end,
-        OnHide = function()
-            if (StaticPopupDialogs["ACP_RELOADUI"].reloadAccepted) then
-                ReloadUI();
-            end
-        end,
-        OnShow = function()
-            StaticPopupDialogs["ACP_RELOADUI"].reloadAccepted = true;
-        end,
-        timeout = 5,
+        timeout = 0,
         hideOnEscape = 1,
         exclusive = 1,
         whileDead = 1,
@@ -521,15 +528,13 @@ function ACP:OnLoad(this)
         text = L["ACP: Some protected addons aren't loaded. Reload now?"],
         button1 = TEXT(ACCEPT),
         button2 = TEXT(CANCEL),
-        OnAccept = function()
+        OnAccept = function(this)
             ReloadUI()
         end,
-        OnCancel = function(data, reason)
-            if (reason == "timeout") then
-                ReloadUI()
-            end
+        OnCancel = function(this, data, reason)
+            ACP_Data.reloadRequired = nil
         end,
-        timeout = 5,
+        timeout = 10,
         hideOnEscape = 1,
         exclusive = 1,
         whileDead = 1,
@@ -540,7 +545,7 @@ function ACP:OnLoad(this)
         text = L["Save the current addon list to [%s]?"],
         button1 = TEXT(YES),
         button2 = TEXT(CANCEL),
-        OnAccept = function()
+        OnAccept = function(this)
             self:SaveSet(self.savingSet)
             CloseDropDownMenus(1)
         end,
@@ -673,12 +678,12 @@ function ACP:OnEvent(this, event, arg1, arg2, arg3)
 
         local reloadRequired = false
         for k,v in pairs(savedVar.ProtectedAddons) do
-            local name, title, notes, enabled, loadable, reason, security = GetAddOnInfo(k)
-
+            local name, title, notes, loadable, reason, security, newVersion    = GetAddOnInfo(k)
+            local enabled = GetAddOnEnableState(UnitName("player"), name) > 0;
             if reason == 'MISSING' then
                 savedVar.ProtectedAddons[k] = nil
             elseif (not enabled) or enabled == 0 then
-                EnableAddOn(k)
+                EnableAddOn(k, UnitName("player"))
                 reloadRequired = true
             end
 
@@ -700,6 +705,11 @@ function ACP:OnEvent(this, event, arg1, arg2, arg3)
         this:UnregisterEvent("PLAYER_ENTERING_WORLD")
         this:RegisterEvent("PLAYER_ALIVE")
 
+        GameMenuButtonAddons:SetScript("OnClick", function()
+            PlaySound("igMainMenuOption");
+            HideUIPanel(GameMenuFrame);
+            ShowUIPanel(ACP_AddonList);
+        end)
 
     --        ACP:ProcessBugSack("session")
     elseif event == "ADDON_LOADED" then
@@ -1232,7 +1242,7 @@ function ACP:EnableAddon(addon, shift, ctrl)
     if ctrl then nochildren = not nochildren end
 
     if norecurse then
-        EnableAddOn(addon)
+        EnableAddOn(addon, UnitName("player"))
     else
         local name = GetAddOnInfo(addon)
         ACP_EnableRecurse(name, nochildren)
@@ -1325,7 +1335,9 @@ function ACP:SaveSet(set)
 
     local name, enabled, _
     for i=1,GetNumAddOns() do
-        name, _, _, enabled = GetAddOnInfo(i)
+        name =  GetAddOnInfo(i)
+        enabled = GetAddOnEnableState(UnitName("player"), name) > 0;
+
         if enabled and name ~= ACP_ADDON_NAME and not ACP:IsAddOnProtected(name) then
             table.insert(addonSet, name)
         end
@@ -1362,7 +1374,7 @@ function ACP:UnloadSet(set)
     for i=1,GetNumAddOns() do
         name = GetAddOnInfo(i)
         if name ~= ACP_ADDON_NAME and ACP:FindAddon(list, name) and not ACP:IsAddOnProtected(name) then
-            DisableAddOn(name)
+            DisableAddOn(name, UnitName("player"))
         end
     end
 
@@ -1423,7 +1435,7 @@ function ACP:Security_OnClick(addon)
             savedVar.ProtectedAddons[addon] = true
         end
 
-        EnableAddOn(addon)
+        EnableAddOn(addon, UnitName("player"))
     end
     self:AddonList_OnShow()
 end
@@ -1522,10 +1534,10 @@ end
 
 function ACP:DisableAllAddons()
     DisableAllAddOns()
-    EnableAddOn(ACP_ADDON_NAME)
+    EnableAddOn(ACP_ADDON_NAME, UnitName("player"))
 
     for k in pairs(savedVar.ProtectedAddons) do
-        EnableAddOn(k)
+        EnableAddOn(k, UnitName("player"))
     end
     ACP:Print("Disabled all addons (except ACP & protected)")
     
@@ -1601,7 +1613,7 @@ function ACP:AddonList_Enable(addonIndex, enabled, shift, ctrl, category)
             reclaim(enabledList)
             enabledList = nil
         else
-            DisableAddOn(addonIndex)
+            DisableAddOn(addonIndex, UnitName("player"))
         end
 
         if category and collapsedAddons[category] then
@@ -1611,7 +1623,7 @@ function ACP:AddonList_Enable(addonIndex, enabled, shift, ctrl, category)
                 if enabled then
                     self:EnableAddon(v, shift, ctrl)
                 else
-                    DisableAddOn(v)
+                    DisableAddOn(v, UnitName("player"))
                 end
             end
         end
@@ -1711,12 +1723,12 @@ function ACP:AddonList_OnShow_Fast(this)
                 if collapsedAddons[obj.category] then
                     local t = self:GetAddonCategoryTable(obj.category)
                     subCount = t and #t
-                end
+                end 
 
-                local name, title, notes, enabled, loadable, reason, security
+                local  name, title, notes, loadable, reason, security, newVersion
                 if (addonIdx > origNumAddons) then
                     name = ACP_BLIZZARD_ADDONS[(addonIdx - origNumAddons)]
-                    name, title, notes, enabled, loadable, reason, security = GetAddOnInfo(name)
+                    name, title, notes, loadable, reason, security, newVersion  = GetAddOnInfo(name)
                     --					obj.addon = name
                     --					title = L[name]
                     --					notes = ""
@@ -1729,9 +1741,10 @@ function ACP:AddonList_OnShow_Fast(this)
                     --					security = "SECURE"
                     obj.addon = name
                 else
-                    name, title, notes, enabled, loadable, reason, security = GetAddOnInfo(addonIdx)
+                    name, title, notes, loadable, reason, security, newVersion  = GetAddOnInfo(addonIdx)
                     obj.addon = addonIdx
                 end
+                local enabled = GetAddOnEnableState(UnitName("player"), name) > 0;
                 local loaded = IsAddOnLoaded(name)
                 local ondemand = IsAddOnLoadOnDemand(name)
                 if (loadable) then
@@ -1806,18 +1819,20 @@ function ACP:AddonList_OnShow_Fast(this)
 
                 end
 
-                --[[
-                                if (reason) then
-                                    status:SetText(TEXT(_G["ADDON_"..reason)))
-                                elseif (loaded) then
-                                    status:SetText(L["Loaded"])
-                                elseif (ondemand) then
-                                    status:SetText(L["Loaded on demand."])
-                                else
-                                    status:SetText("")
-                                end
-                ]] if addonIdx <= origNumAddons then
+
+--                if (reason) then
+--                    status:SetText(TEXT(_G["ADDON_"..reason]))
+--                elseif (loaded) then
+--                    status:SetText(L["Loaded"])
+--                elseif (ondemand) then
+--                    status:SetText(L["Loaded on demand."])
+--                else
+--                    status:SetText("")
+--                end
+                if addonIdx <= origNumAddons then
                     status:SetText(CLR:Colorize(self:GetAddonStatus(addonIdx)))
+                else
+                    status:SetText("")
                 end
 
                 if (not loaded and enabled and ondemand) then
@@ -2000,7 +2015,7 @@ function ACP:ShowTooltip(this, index)
         index = ACP_BLIZZARD_ADDONS[(index - GetNumAddOns())]
     end
 
-    local name, title, notes, enabled, loadable, reason, security = GetAddOnInfo(index)
+    local name, title, notes, loadable, reason, security, newVersion  = GetAddOnInfo(index)
     local author = GetAddOnMetadata(name, "Author")
     local version = ParseVersion(GetAddOnMetadata(name, "Version"))
     local deps = {
@@ -2139,7 +2154,7 @@ local function iterate_over(...)
     for i=1,select("#", ...) do
         local x = select(i, ...)
         if x and x:len() > 0 then
-            EnableAddOn(x)
+            EnableAddOn(x, UnitName("player"))
         end
     end
 end
@@ -2155,7 +2170,7 @@ local function recursive_iterate_over(sink, ...)
 end
 
 local function enable_lod_dependants(addon)
-    local addon_name, title, notes, enabled, loadable, reason, security = GetAddOnInfo(addon)
+    local addon_name, title, notes, loadable, reason, security, newVersion = GetAddOnInfo(addon)
 
     -- dont do this for FuBar, its annoying
     if addon_name == "FuBar" then
@@ -2163,7 +2178,8 @@ local function enable_lod_dependants(addon)
     end
 
     for i=1,GetNumAddOns() do
-        local name, title, notes, enabled, loadable, reason, security = GetAddOnInfo(i)
+        local name, title, notes, loadable, reason, security, newVersion = GetAddOnInfo(i)
+        local enabled = GetAddOnEnableState(UnitName("player"), GetAddOnInfo(name)) > 0;
         local isdep = find_iterate_over(addon_name, GetAddOnDependencies(name))
         local ondemand = IsAddOnLoadOnDemand(name)
 
@@ -2186,16 +2202,16 @@ local function enableFunc(x) ACP_EnableRecurse(x, true) end
 local function enableIfLodFunc(x) if IsAddOnLoadOnDemand(x) then ACP_EnableRecurse(x, true) end end
 
 function ACP_EnableRecurse(name, skip_children)
-    local _, _, _, enabled = GetAddOnInfo(name)
+    local enabled = GetAddOnEnableState(UnitName("player"), GetAddOnInfo(name)) > 0;
     if enabled then
         return
 
     end
 
-    if (type(name) == "string" and strlen(name) > 0) or
+    if (type(name) == "string" and strlen(name) > 0) or 
         (type(name) == "number" and name > 0) then
 
-        EnableAddOn(name)
+        EnableAddOn(name, UnitName("player"))
 
         if not skip_children then
             enable_lod_dependants(name)
@@ -2203,7 +2219,8 @@ function ACP_EnableRecurse(name, skip_children)
 
         recursive_iterate_over(enableFunc, GetAddOnDependencies(name))
         if GetAddOnOptionalDependencies then
-            recursive_iterate_over(enableIfLodFunc, GetAddOnOptionalDependencies(name))
+            recursive_iterate_over(enableFunc, GetAddOnOptionalDependencies(name))
+--            recursive_iterate_over(enableIfLodFunc, GetAddOnOptionalDependencies(name))
         end
     else
     --    self:Print(L["Addon <%s> not valid"]:format(tostring(name)))

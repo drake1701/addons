@@ -224,8 +224,9 @@ local function FontTemplate(fs, font, fontSize, fontStyle)
 	fs.fontSize = fontSize
 	fs.fontStyle = fontStyle
 	
-	if not font then font = LSM:Fetch("font", E.db['general'].font) end
-	if not fontSize then fontSize = E.db.general.fontSize end
+	font = font or LSM:Fetch("font", E.db['general'].font)
+	fontSize = fontSize or E.db.general.fontSize
+
 	if fontStyle == 'OUTLINE' and E.db.general.font:lower():find('pixel') then
 		if (fontSize > 10 and not fs.fontSize) then
 			fontStyle = 'MONOCHROMEOUTLINE'
@@ -244,7 +245,7 @@ local function FontTemplate(fs, font, fontSize, fontStyle)
 	E["texts"][fs] = true
 end
 
-local function StyleButton(button, noHover, noPushed, noChecked)
+local function StyleButton(button, noHover, noPushed, noChecked, noCD)
 	if button.SetHighlightTexture and not button.hover and not noHover then
 		local hover = button:CreateTexture("frame", nil, self)
 		hover:SetTexture(1, 1, 1, 0.3)
@@ -274,6 +275,8 @@ local function StyleButton(button, noHover, noPushed, noChecked)
 	if cooldown then
 		cooldown:ClearAllPoints()
 		cooldown:SetInside()
+		cooldown:SetDrawEdge(false)
+		if not noCD then cooldown:SetSwipeColor(0, 0, 0, 1) end
 	end
 end
 

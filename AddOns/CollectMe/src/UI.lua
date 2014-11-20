@@ -1,3 +1,5 @@
+local CollectMe = LibStub("AceAddon-3.0"):GetAddon("CollectMe")
+
 CollectMe.UI = CollectMe:NewModule("UI", "AceEvent-3.0")
 local AceGUI = LibStub("AceGUI-3.0")
 
@@ -41,11 +43,18 @@ function CollectMe.UI:Build()
     local container = AceGUI:Create("SimpleGroup")
     container:SetLayout("Fill")
     container:SetFullWidth(true)
-    container:SetHeight(407)
+    container:SetHeight(427)
     f:AddChild(container)
 
     local tabs = AceGUI:Create("TabGroup")
-    tabs:SetTabs({ {text = self.L["Mounts"], value = CollectMe.MOUNT}, {text = self.L["Companions"], value = CollectMe.COMPANION}, {text = self.L["Titles"], value = CollectMe.TITLE}, {text = self.L["Random Companion"], value = CollectMe.RANDOM_COMPANION}, {text = self.L["Random Mount"], value = CollectMe.RANDOM_MOUNT}})
+    tabs:SetTabs({
+        {text = self.L["Mounts"], value = CollectMe.MOUNT},
+        {text = self.L["Companions"], value = CollectMe.COMPANION},
+        {text = self.L["Titles"], value = CollectMe.TITLE},
+        {text = self.L["Toys"], value = CollectMe.TOYS },
+        {text = self.L["Random Companion"], value = CollectMe.RANDOM_COMPANION},
+        {text = self.L["Random Mount"], value = CollectMe.RANDOM_MOUNT}
+    })
     tabs:SetCallback("OnGroupSelected", function (container, event, group) self:SelectGroup(container, group) end)
     container:AddChild(tabs)
 
@@ -75,8 +84,10 @@ function CollectMe.UI:Build()
 end
 
 function CollectMe.UI:ReloadScroll()
-    self.scroll:ReleaseChildren()
-    CollectMe:BuildData(true)
+    if self.frame:IsVisible() then
+        self.scroll:ReleaseChildren()
+        CollectMe:BuildData(true)
+    end
 end
 
 function CollectMe.UI:Show(group)
@@ -203,7 +214,7 @@ function CollectMe.UI:CreateButton(text, parent)
     return f
 end
 
-function CollectMe.UI:CreateCheckbox(label, value, callbacks, max_lines, height)
+function CollectMe.UI:CreateCheckbox(label, value, callbacks, max_lines, height, enabled)
     local f = AceGUI:Create("CheckBox")
 
     if label ~= nil then
@@ -217,6 +228,9 @@ function CollectMe.UI:CreateCheckbox(label, value, callbacks, max_lines, height)
     end
     if height ~= nil then
         f:SetHeight(height)
+    end
+    if enabled ~= nil then
+        f:SetDisabled(not enabled)
     end
 
     f:SetFullWidth(true)
@@ -272,7 +286,11 @@ function CollectMe.UI:AddCollectMeButtons()
 
         local cmbutton2 = CreateFrame("Button", "CollectMeOpen2Button", PetJournal, "UIPanelButtonTemplate")
         cmbutton2:ClearAllPoints()
-        cmbutton2:SetPoint("RIGHT", PetJournalFindBattle, "LEFT", -5, 0)
+        if IsAddOnLoaded("PetTracker_Journal") then
+            cmbutton2:SetPoint("RIGHT", PetTracker_JournalTrackToggle, "LEFT", -5, 0)
+        else
+            cmbutton2:SetPoint("RIGHT", PetJournalFindBattle, "LEFT", -5, 0)
+        end
         cmbutton2:SetHeight(22)
         cmbutton2:SetWidth(100)
         cmbutton2:SetText(CollectMe.ADDON_NAME)

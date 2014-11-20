@@ -1,14 +1,16 @@
 -------------------------------------------------------------------------------
--- Localized Lua globals.
+-- Localized Lua API.
 -------------------------------------------------------------------------------
 local _G = getfenv(0)
 
+local math = _G.math
 local string = _G.string
 local table = _G.table
-local math = _G.math
 
 local bit = _G.bit
 local pairs = _G.pairs
+local tonumber = _G.tonumber
+local tostring = _G.tostring
 local select = _G.select
 local type = _G.type
 
@@ -17,19 +19,17 @@ local type = _G.type
 -------------------------------------------------------------------------------
 local FOLDER_NAME, private = ...
 
-local LibStub	= _G.LibStub
-local addon	= LibStub("AceAddon-3.0"):GetAddon(private.addon_name)
-local L		= LibStub("AceLocale-3.0"):GetLocale(private.addon_name)
-local QTip	= LibStub("LibQTip-1.0")
-local Dialog	= LibStub("LibDialog-1.0")
+local LibStub = _G.LibStub
+local addon = LibStub("AceAddon-3.0"):GetAddon(private.addon_name)
+local L = LibStub("AceLocale-3.0"):GetLocale(private.addon_name)
+local QTip = LibStub("LibQTip-1.0")
+local Dialog = LibStub("LibDialog-1.0")
 
 -------------------------------------------------------------------------------
--- Constants
+-- Imports.
 -------------------------------------------------------------------------------
-local NUM_COLLECTABLE_LINES = 25
-local SCROLL_DEPTH	= 5
-local LISTFRAME_WIDTH	= 295
-local LIST_ENTRY_WIDTH	= 286
+local CreateListEntry = private.CreateListEntry
+local SetTextColor = private.SetTextColor
 
 local CATEGORY_COLORS	= private.CATEGORY_COLORS
 local BASIC_COLORS	= private.BASIC_COLORS
@@ -38,6 +38,14 @@ local COMMON1		= private.COMMON_FLAGS_WORD1
 
 local A			= private.ACQUIRE_TYPES
 local REPLEVEL		= private.LOCALIZED_REPUTATION_LEVELS
+
+-------------------------------------------------------------------------------
+-- Constants.
+-------------------------------------------------------------------------------
+local NUM_COLLECTABLE_LINES = 25
+local SCROLL_DEPTH	= 5
+local LISTFRAME_WIDTH	= 295
+local LIST_ENTRY_WIDTH	= 286
 
 local COORD_FORMAT	= "(%.2f, %.2f)"
 
@@ -114,10 +122,6 @@ end
 local ListItem_ShowTooltip
 
 local acquire_tooltip
-
-local AcquireTable = private.AcquireTable
-local ReleaseTable = private.ReleaseTable
-local SetTextColor = private.SetTextColor
 
 -------------------------------------------------------------------------------
 -- Frame creation and anchoring
@@ -217,10 +221,6 @@ function private.InitializeListFrame()
 	-- sliding the thumb, or from clicking the up/down buttons.
 	ScrollBar:SetScript("OnValueChanged", function(self, value)
 		local min_val, max_val = self:GetMinMaxValues()
-		local current_tab = MainPanel.tabs[MainPanel.current_tab]
-		local member = "collection_" .. MainPanel.current_collectable_type .. "_scroll_value"
-
-		current_tab[member] = value
 
 		if value == min_val then
 			ScrollUpButton:Disable()
@@ -232,6 +232,7 @@ function private.InitializeListFrame()
 			ScrollUpButton:Enable()
 			ScrollDownButton:Enable()
 		end
+		MainPanel.current_tab:SetScrollValue(MainPanel.current_collectable_type, value)
 		ListFrame:Update(nil, true)
 	end)
 
@@ -239,7 +240,7 @@ function private.InitializeListFrame()
 		if ListFrame.selected_entry then
 			return
 		end
-		ListItem_ShowTooltip(self, ListFrame.entries[self.string_index])
+		ListItem_ShowTooltip(self, ListFrame.entries[self.entry_index])
 	end
 
 	local function Bar_OnLeave(self)
@@ -249,50 +250,44 @@ function private.InitializeListFrame()
 		QTip:Release(acquire_tooltip)
 	end
 
-	local function Bar_OnClick(self, mouse_button, is_down)
-		local old_selected = ListFrame.selected_entry
-		ListFrame.selected_entry = nil
-
-		if old_selected and old_selected.button then
-			old_selected.button.selected_texture:Hide()
-			Bar_OnLeave(old_selected.button)
-		end
-		Bar_OnEnter(self)
-
-		local entry = ListFrame.entries[self.string_index]
-		if old_selected ~= entry then
-			self.selected_texture:Show()
-			ListFrame.selected_entry = entry
-		end
-	end
-
 	local function ListItem_OnClick(self, button, down)
-		local clicked_index = self.string_index
+		local clicked_index = self.entry_index
 
-		-- Don't do anything if they've clicked on an empty button
 		if not clicked_index or clicked_index == 0 then
 			return
 		end
-		local clicked_line = ListFrame.entries[clicked_index]
+		local entry = ListFrame.entries[clicked_index]
+		local collectable = entry.collectable
 
-		if not clicked_line then
-			return
-		end
+		if button == "RightButton" and collectable and (not entry.parent or entry.parent.collectable ~= entry.collectable) then
+			local old_selected = ListFrame.selected_entry
+			local entry_button = entry.button
 
-		-- First, check if this is a "modified" click, and react appropriately
-		if clicked_line.collectable and _G.IsModifierKeyDown() then
+			ListFrame.selected_entry = nil
+
+			if old_selected and old_selected.button then
+				old_selected.button.selected_texture:Hide()
+				Bar_OnLeave(old_selected.button)
+			end
+			Bar_OnEnter(entry_button)
+
+			if old_selected ~= entry then
+				entry_button.selected_texture:Show()
+				ListFrame.selected_entry = entry
+			end
+		elseif collectable and _G.IsModifierKeyDown() then
 			if _G.IsControlKeyDown() then
 				if _G.IsShiftKeyDown() then
-					--addon:AddWaypoint(clicked_line.collectable, clicked_line.acquire_id, clicked_line.location_id, clicked_line.npc_id)
+					--addon:AddWaypoint(clicked_line.collectable, clicked_line:AcquireID(), clicked_line:LocationID(), clicked_line.npc_id)
 					addon:Print("Waypoints are not yet supported.")
 				else
 					local edit_box = _G.ChatEdit_ChooseBoxForSend()
 
 					_G.ChatEdit_ActivateChat(edit_box)
-					edit_box:Insert(_G.GetSpellLink(clicked_line.collectable.collection_spell_id))
+					edit_box:Insert(_G.GetSpellLink(entry.collectable.collection_spell_id))
 				end
 			elseif _G.IsShiftKeyDown() then
-				local collectable_item_id = clicked_line.collectable:ItemID()
+				local collectable_item_id = entry.collectable:ItemID()
 
 				if collectable_item_id then
 					local _, item_link = _G.GetItemInfo(collectable_item_id)
@@ -309,69 +304,60 @@ function private.InitializeListFrame()
 				end
 			elseif _G.IsAltKeyDown() then
 				local exclusion_list = addon.db.profile.exclusionlist
-				local collectable = clicked_line.collectable
+				local collectable = entry.collectable
 
 				exclusion_list[collectable.type][collectable.id] = (not exclusion_list[collectable.type][collectable.id] and true or nil)
 				ListFrame:Update(nil, false)
 			end
-		elseif clicked_line.type == "header" or clicked_line.type == "subheader" then
+		elseif entry:IsHeader() or entry:IsSubHeader() then
 			-- three possibilities here (all with no modifiers)
 			-- 1) We clicked on the collectable button on a closed collectable
 			-- 2) We clicked on the collectable button of an open collectable
 			-- 3) we clicked on the expanded text of an open collectable
-			if clicked_line.is_expanded then
-				local check_type = clicked_line.type
+			if entry.is_expanded then
 				local removal_index = clicked_index + 1
-				local entry = ListFrame.entries[removal_index]
-				local current_tab = MainPanel.tabs[MainPanel.current_tab]
+				local target_entry = ListFrame.entries[removal_index]
+				local current_tab = MainPanel.current_tab
 
-				-- get rid of our expanded lines
-				while entry and entry.type ~= check_type do
+				while target_entry and target_entry:Type() ~= entry:Type() do
 					-- Headers are never removed.
-					if entry.type == "header" then
+					if target_entry:IsHeader() then
 						break
 					end
-					current_tab:ModifyEntry(entry, false)
-					ReleaseTable(table.remove(ListFrame.entries, removal_index))
-					entry = ListFrame.entries[removal_index]
+					current_tab:SaveListEntryState(target_entry, false)
+					private.ReleaseTable(table.remove(ListFrame.entries, removal_index))
+					target_entry = ListFrame.entries[removal_index]
 				end
-				current_tab:ModifyEntry(clicked_line, false)
-				clicked_line.is_expanded = false
+				current_tab:SaveListEntryState(entry, false)
+				entry.is_expanded = false
 			else
-				ListFrame:ExpandEntry(clicked_index)
-				clicked_line.is_expanded = true
+				ListFrame:ExpandEntry(entry)
+				entry.is_expanded = true
 			end
 		else
 			-- clicked_line is an expanded entry - find the index for its parent, and remove all of the parent's child entries.
-			local parent = clicked_line.parent
+			local parent = entry.parent
 
 			if parent then
-				local parent_index
-				local entries = ListFrame.entries
-
-				for index = 1, #entries do
-					if entries[index] == parent then
-						parent_index = index
-						break
-					end
-				end
+				local parent_index = parent.button.entry_index
 
 				if not parent_index then
-					addon:Debug("clicked_line (%s): parent wasn't found in ListFrame.entries", clicked_line.text)
+					addon:Debug("clicked_line (%s): parent wasn't found in ListFrame.entries", entry:Text())
 					return
 				end
-				local current_tab = MainPanel.tabs[MainPanel.current_tab]
+				local current_tab = MainPanel.current_tab
 
 				parent.is_expanded = false
-				current_tab:ModifyEntry(parent, false)
+				current_tab:SaveListEntryState(parent, false)
 
 				local child_index = parent_index + 1
+				local entries = ListFrame.entries
 
 				while entries[child_index] and entries[child_index].parent == parent do
-					ReleaseTable(table.remove(entries, child_index))
+					private.ReleaseTable(table.remove(entries, child_index))
 				end
 			else
-				addon:Debug("Error: clicked_line (%s) has no parent.", clicked_line.type or _G.UNKNOWN)
+				addon:Debug("Error: clicked_line (%s) has no parent.", entry:Type() or _G.UNKNOWN)
 			end
 		end
 		ListFrame:Update(nil, true)
@@ -394,6 +380,7 @@ function private.InitializeListFrame()
 
 		local cur_entry = _G.CreateFrame("Button", ("%s_ListEntryButton%d"):format(FOLDER_NAME, index), cur_container)
 		cur_entry:SetSize(LIST_ENTRY_WIDTH, 16)
+		cur_entry:RegisterForClicks("AnyUp")
 
 		local highlight_texture = cur_entry:CreateTexture(nil, "BORDER")
 		highlight_texture:SetTexture([[Interface\ClassTrainerFrame\TrainerTextures]])
@@ -431,13 +418,12 @@ function private.InitializeListFrame()
 
 		if index == 1 then
 			cur_container:SetPoint("TOPLEFT", ListFrame, "TOPLEFT", 0, -3)
-			cur_state:SetPoint("LEFT", cur_container, "LEFT", 0, 0)
-			cur_entry:SetPoint("LEFT", cur_state, "RIGHT", -3, 0)
 		else
 			cur_container:SetPoint("TOPLEFT", ListFrame.button_containers[index - 1], "BOTTOMLEFT", 0, 3)
-			cur_state:SetPoint("LEFT", cur_container, "LEFT", 0, 0)
-			cur_entry:SetPoint("LEFT", cur_state, "RIGHT", -3, 0)
 		end
+		cur_state:SetPoint("LEFT", cur_container, "LEFT", 0, 0)
+		cur_entry:SetPoint("LEFT", cur_state, "RIGHT", -3, 0)
+
 		cur_state.container = cur_container
 
 		cur_state:SetScript("OnClick", ListItem_OnClick)
@@ -447,40 +433,9 @@ function private.InitializeListFrame()
 		ListFrame.entry_buttons[index] = cur_entry
 	end
 
-	function ListFrame:InsertEntry(entry, parent_entry, entry_index, entry_type, entry_expanded, expand_mode)
-		entry.type = entry_type
-
-		if parent_entry then
-			if parent_entry ~= entry then
-				local collectable = parent_entry.collectable
-				local acquire_id = parent_entry.acquire_id
-				local location_id = parent_entry.location_id
-				local npc_id = parent_entry.npc_id
-
-				-- These checks are necessary: Simply nilling fields will break things.
-				if collectable then
-					entry.collectable = collectable
-				end
-
-				if acquire_id then
-					entry.acquire_id = acquire_id
-				end
-
-				if location_id then
-					entry.location_id = location_id
-				end
-
-				if npc_id then
-					entry.npc_id = npc_id
-				end
-				entry.parent = parent_entry
-			else
-				addon:Debug("Attempting to parent an entry to itself.")
-			end
-		elseif entry.type ~= "header" then
-			addon:Debug("Non-header entry without a parent: %s - %s", entry.type, entry.text)
-		end
+	function ListFrame:InsertEntry(entry, entry_index, entry_expanded, expand_mode)
 		local insert_index = entry_index
+		entry.index = entry_index
 
 		-- If we have acquire information for this entry, push the data table into the list
 		-- and start processing the acquires.
@@ -488,10 +443,10 @@ function private.InitializeListFrame()
 			entry.is_expanded = true
 			table.insert(self.entries, insert_index, entry)
 
-			MainPanel.tabs[MainPanel.current_tab]:ModifyEntry(entry, entry_expanded)
+			MainPanel.current_tab:SaveListEntryState(entry, entry_expanded)
 
-			if entry_type == "header" or entry_type == "subheader" then
-				insert_index = self:ExpandEntry(insert_index, expand_mode)
+			if entry:IsHeader() or entry:IsSubHeader() then
+				insert_index = self:ExpandEntry(entry, expand_mode)
 			else
 				insert_index = insert_index + 1
 			end
@@ -618,6 +573,12 @@ function private.InitializeListFrame()
 			[REP2.NETHERWING]			= "netherwing",
 			[REP2.BRAWLERS]				= "brawlers",
 			[REP2.PANDACOMMON3]			= "pandacommon3",
+			[REP2.EMPEROR_SHAOHAO]			= "shaohao",
+			[REP2.DRAENORCOMMON1]			= "draenorcommon1",
+			[REP2.DRAENORCOMMON2]			= "draenorcommon2",
+			[REP2.DRAENORCOMMON3]			= "draenorcommon3",
+			[REP2.STEAMWHEEDLE_PRESERVATION_SOCIETY]	= "steamwheedle",
+			[REP2.ARAKKOA_OUTCASTS]			= "arakkoa",
 		}
 
 		-- Returns true if any of the filter flags are turned on.
@@ -701,7 +662,7 @@ function private.InitializeListFrame()
 
 		function ListFrame:Initialize(expand_mode)
 			for i = 1, #self.entries do
-				ReleaseTable(self.entries[i])
+				private.ReleaseTable(self.entries[i])
 			end
 			table.wipe(self.entries)
 
@@ -815,15 +776,9 @@ function private.InitializeListFrame()
 
 	-- Reset the current buttons/lines
 	function ListFrame:ClearLines()
-		local font_object = addon.db.profile.frameopts.small_list_font and "GameFontNormalSmall" or "GameFontNormal"
-
 		for i = 1, NUM_COLLECTABLE_LINES do
 			local entry = self.entry_buttons[i]
-			local state = self.state_buttons[i]
-
-			entry.string_index = 0
-			entry.text:SetFontObject(font_object)
-
+			entry.text:SetFontObject(addon.db.profile.frameopts.small_list_font and "GameFontNormalSmall" or "GameFontNormal")
 			entry:SetText("")
 			entry:SetScript("OnEnter", nil)
 			entry:SetScript("OnLeave", nil)
@@ -833,12 +788,12 @@ function private.InitializeListFrame()
 			entry.selected_texture:Hide()
 			entry:Disable()
 			entry.button = nil
+			entry.entry_index = 0
 
-			state.string_index = 0
-
+			local state = self.state_buttons[i]
+			state.entry_index = 0
 			state:Hide()
 			state:Disable()
-
 			state:ClearAllPoints()
 		end
 	end
@@ -917,10 +872,8 @@ function private.InitializeListFrame()
 			self.scroll_bar:Hide()
 		else
 			local max_val = num_entries - NUM_COLLECTABLE_LINES
-			local current_tab = MainPanel.tabs[MainPanel.current_tab]
-			local scroll_value = current_tab["collection_"..MainPanel.current_collectable_type.."_scroll_value"] or 0
-
-			scroll_value = math.max(0, math.min(scroll_value, max_val))
+			local current_tab = MainPanel.current_tab
+			local scroll_value = math.max(0, math.min(current_tab:ScrollValue(MainPanel.current_collectable_type) or 0, max_val))
 			offset = scroll_value
 
 			self.scroll_bar:SetMinMaxValues(0, math.max(0, max_val))
@@ -930,68 +883,68 @@ function private.InitializeListFrame()
 		self:ClearLines()
 
 		local button_index = 1
-		local string_index = button_index + offset
+		local entry_index = math.floor(button_index + offset)
 
 		-- Populate the buttons with new values
-		while button_index <= NUM_COLLECTABLE_LINES and string_index <= num_entries do
-			local cur_state = self.state_buttons[button_index]
-			local cur_entry = self.entries[string_index]
+		while button_index <= NUM_COLLECTABLE_LINES and entry_index <= num_entries do
+			local state_button = self.state_buttons[button_index]
+			local list_entry = self.entries[entry_index]
+			local is_entry = list_entry:IsEntry()
+			local is_subentry = not is_entry and list_entry:IsSubEntry()
+			local is_header = not is_subentry and list_entry:IsHeader()
+			local is_subheader = not is_header and list_entry:IsSubHeader()
 
-			if cur_entry.type == "header" or cur_entry.type == "subheader" then
-				cur_state:Show()
+			if is_header or is_subheader then
+				state_button:Show()
 
-				if cur_entry.is_expanded then
-					cur_state:SetNormalTexture([[Interface\MINIMAP\UI-Minimap-ZoomOutButton-Up]])
-					cur_state:SetPushedTexture([[Interface\MINIMAP\UI-Minimap-ZoomOutButton-Down]])
-					cur_state:SetHighlightTexture([[Interface\MINIMAP\UI-Minimap-ZoomButton-Highlight]])
+				if list_entry.is_expanded then
+					state_button:SetNormalTexture([[Interface\MINIMAP\UI-Minimap-ZoomOutButton-Up]])
+					state_button:SetPushedTexture([[Interface\MINIMAP\UI-Minimap-ZoomOutButton-Down]])
+					state_button:SetHighlightTexture([[Interface\MINIMAP\UI-Minimap-ZoomButton-Highlight]])
 				else
-					cur_state:SetNormalTexture([[Interface\MINIMAP\UI-Minimap-ZoomInButton-Up]])
-					cur_state:SetPushedTexture([[Interface\MINIMAP\UI-Minimap-ZoomInButton-Down]])
-					cur_state:SetHighlightTexture([[Interface\MINIMAP\UI-Minimap-ZoomButton-Highlight]])
+					state_button:SetNormalTexture([[Interface\MINIMAP\UI-Minimap-ZoomInButton-Up]])
+					state_button:SetPushedTexture([[Interface\MINIMAP\UI-Minimap-ZoomInButton-Down]])
+					state_button:SetHighlightTexture([[Interface\MINIMAP\UI-Minimap-ZoomButton-Highlight]])
 				end
-				cur_state.string_index = string_index
-				cur_state:Enable()
+				state_button.entry_index = entry_index
+				state_button:Enable()
 			else
-				cur_state:Hide()
-				cur_state:Disable()
+				state_button:Hide()
+				state_button:Disable()
 			end
-			local cur_container = cur_state.container
-			local cur_button = self.entry_buttons[button_index]
+			local line_button = self.entry_buttons[button_index]
 
-			if cur_entry == ListFrame.selected_entry then
-				cur_button.selected_texture:Show()
-			end
-
-			if cur_entry.emphasized then
-				cur_button.emphasis_texture:Show()
+			if list_entry == ListFrame.selected_entry then
+				line_button.selected_texture:Show()
 			end
 
-			if cur_entry.type == "header" or cur_entry.type == "entry" then
-				cur_state:SetPoint("TOPLEFT", cur_container, "TOPLEFT", 0, 0)
-			elseif cur_entry.type == "subheader" or cur_entry.type == "subentry" then
-				cur_state:SetPoint("TOPLEFT", cur_container, "TOPLEFT", 15, 0)
-				cur_button:SetWidth(LIST_ENTRY_WIDTH - 15)
+			if list_entry:IsEmphasized() then
+				line_button.emphasis_texture:Show()
 			end
-			cur_entry.button = cur_button
-			cur_button.string_index = string_index
-			cur_button:SetText(cur_entry.text)
-			cur_button:SetScript("OnEnter", Bar_OnEnter)
-			cur_button:SetScript("OnLeave", Bar_OnLeave)
 
-			if cur_entry.type == "entry" then
-				cur_button:SetScript("OnClick", ListItem_OnClick)
-			else
-				cur_button:SetScript("OnClick", Bar_OnClick)
+			if is_header or is_entry then
+				state_button:SetPoint("TOPLEFT", state_button.container, "TOPLEFT", 0, 0)
+			elseif is_subheader or is_subentry then
+				state_button:SetPoint("TOPLEFT", state_button.container, "TOPLEFT", 15, 0)
+				line_button:SetWidth(LIST_ENTRY_WIDTH - 15)
 			end
-			cur_button:Enable()
+			list_entry.button = line_button
+			line_button.entry_index = entry_index
+
+			line_button:SetText(list_entry:Text())
+			line_button:SetScript("OnEnter", Bar_OnEnter)
+			line_button:SetScript("OnLeave", Bar_OnLeave)
+
+			line_button:SetScript("OnClick", ListItem_OnClick)
+			line_button:Enable()
 
 			-- This function could possibly have been called from a mouse click or by scrolling. Since, in those cases, the list entries have
 			-- changed, the mouse is likely over a different entry - a tooltip should be generated for it.
-			if cur_button:IsMouseOver() then
-				Bar_OnEnter(cur_button)
+			if line_button:IsMouseOver() then
+				Bar_OnEnter(line_button)
 			end
 			button_index = button_index + 1
-			string_index = string_index + 1
+			entry_index = entry_index + 1
 		end
 	end
 
@@ -1027,29 +980,36 @@ function private.InitializeListFrame()
 			return entry_index
 		end
 
-		local name = ColorNameByFaction(trainer.name, trainer.faction)
+		local entry = CreateListEntry(entry_type, parent_entry, collectable)
+		entry:SetNPCID(id_num)
+		entry:SetText("%s%s %s",
+			PADDING,
+			hide_type and "" or SetTextColor(CATEGORY_COLORS["trainer"], L["Trainer"]) .. ":",
+			ColorNameByFaction(trainer.name, trainer.faction)
+		)
+
+		entry_index = ListFrame:InsertEntry(entry, entry_index, true)
+
 		local coord_text = ""
 
 		if trainer.coord_x ~= 0 and trainer.coord_y ~= 0 then
 			coord_text = SetTextColor(CATEGORY_COLORS["coords"], COORD_FORMAT:format(trainer.coord_x, trainer.coord_y))
 		end
-		local entry = AcquireTable()
-
-		entry.text = ("%s%s %s"):format(PADDING, hide_type and "" or SetTextColor(CATEGORY_COLORS["trainer"], L["Trainer"]) .. ":", name)
-		entry.collectable = collectable
-		entry.npc_id = id_num
-
-		entry_index = ListFrame:InsertEntry(entry, parent_entry, entry_index, entry_type, true)
 
 		if coord_text == "" and hide_location then
 			return entry_index
 		end
-		entry = AcquireTable()
-		entry.text = ("%s%s%s %s"):format(PADDING, PADDING, hide_location and "" or SetTextColor(CATEGORY_COLORS["location"], trainer.location), coord_text)
-		entry.collectable = collectable
-		entry.npc_id = id_num
 
-		return ListFrame:InsertEntry(entry, parent_entry, entry_index, entry_type, true)
+		entry = CreateListEntry(entry_type, parent_entry, collectable)
+		entry:SetNPCID(id_num)
+		entry:SetText("%s%s%s %s",
+			PADDING,
+			PADDING,
+			hide_location and "" or SetTextColor(CATEGORY_COLORS["location"], trainer.location),
+			coord_text
+		)
+
+		return ListFrame:InsertEntry(entry, entry_index, true)
 	end
 
 	-- Right now PVP obtained items are located on vendors so they have the vendor and PVP flag.
@@ -1062,64 +1022,72 @@ function private.InitializeListFrame()
 			return entry_index
 		end
 
-		local name = ColorNameByFaction(vendor.name, vendor.faction)
+		local quantity = vendor.item_list[collectable.id]
+		local entry = CreateListEntry(entry_type, parent_entry, collectable)
+		entry:SetNPCID(id_num)
+		entry:SetText("%s%s %s%s",
+			PADDING,
+			hide_type and "" or SetTextColor(CATEGORY_COLORS["vendor"], _G.BATTLE_PET_SOURCE_3) .. ":",
+			ColorNameByFaction(vendor.name, vendor.faction),
+			type(quantity) == "number" and SetTextColor(BASIC_COLORS["white"], (" (%d)"):format(quantity)) or ""
+		)
+
+		entry_index = ListFrame:InsertEntry(entry, entry_index, true)
+
 		local coord_text = ""
 
 		if vendor.coord_x ~= 0 and vendor.coord_y ~= 0 then
 			coord_text = SetTextColor(CATEGORY_COLORS["coords"], COORD_FORMAT:format(vendor.coord_x, vendor.coord_y))
 		end
-		local entry = AcquireTable()
-		local quantity = vendor.item_list[collectable.id]
-
-		entry.text = ("%s%s %s%s"):format(PADDING, hide_type and "" or SetTextColor(CATEGORY_COLORS["vendor"], _G.BATTLE_PET_SOURCE_3) .. ":", name, type(quantity) == "number" and SetTextColor(BASIC_COLORS["white"], (" (%d)"):format(quantity)) or "")
-		entry.collectable = collectable
-		entry.npc_id = id_num
-
-		entry_index = ListFrame:InsertEntry(entry, parent_entry, entry_index, entry_type, true)
 
 		if coord_text == "" and hide_location then
 			return entry_index
 		end
-		entry = AcquireTable()
-		entry.text = ("%s%s%s %s"):format(PADDING, PADDING, hide_location and "" or SetTextColor(CATEGORY_COLORS["location"], vendor.location), coord_text)
-		entry.collectable = collectable
-		entry.npc_id = id_num
+		entry = CreateListEntry(entry_type, parent_entry, collectable)
+		entry:SetNPCID(id_num)
+		entry:SetText("%s%s%s %s",
+			PADDING,
+			PADDING,
+			hide_location and "" or SetTextColor(CATEGORY_COLORS["location"], vendor.location),
+			coord_text
+		)
 
-		return ListFrame:InsertEntry(entry, parent_entry, entry_index, entry_type, true)
+		return ListFrame:InsertEntry(entry, entry_index, true)
 	end
 
 	-- Mobs can be in instances, raids, or specific mob related drops.
 	local function ExpandMobData(entry_index, entry_type, parent_entry, id_num, collectable, hide_location, hide_type)
 		local mob = private.mob_list[id_num]
+		local entry = CreateListEntry(entry_type, parent_entry, collectable)
+		entry:SetNPCID(id_num)
+		entry:SetText("%s%s %s",
+			PADDING,
+			hide_type and "" or SetTextColor(CATEGORY_COLORS["mobdrop"], L["Mob Drop"]) .. ":",
+			SetTextColor(private.REPUTATION_COLORS["hostile"], mob.name)
+		)
+
+		entry_index = ListFrame:InsertEntry(entry, entry_index, true)
+
 		local coord_text = ""
 
 		if mob.coord_x ~= 0 and mob.coord_y ~= 0 then
 			coord_text = SetTextColor(CATEGORY_COLORS["coords"], COORD_FORMAT:format(mob.coord_x, mob.coord_y))
 		end
-		local entry = AcquireTable()
-
-		entry.text = ("%s%s %s"):format(PADDING, hide_type and "" or SetTextColor(CATEGORY_COLORS["mobdrop"], L["Mob Drop"]) .. ":", SetTextColor(private.REPUTATION_COLORS["hostile"], mob.name))
-		entry.collectable = collectable
-		entry.npc_id = id_num
-
-		entry_index = ListFrame:InsertEntry(entry, parent_entry, entry_index, entry_type, true)
 
 		if coord_text == "" and hide_location then
 			return entry_index
 		end
-		entry = AcquireTable()
-		entry.text = ("%s%s%s %s"):format(PADDING, PADDING, hide_location and "" or SetTextColor(CATEGORY_COLORS["location"], mob.location), coord_text)
-		entry.collectable = collectable
-		entry.npc_id = id_num
 
-		if collectable:HasFilter("common1", "RETIRED") then
-			entry = AcquireTable()
-			entry.text = (L["RETIRED_COLLECTABLE_SHORT"])
-			entry.collectable = collectable
-			entry.npc_id = id_num
-		end
+		entry = CreateListEntry(entry_type, parent_entry, collectable)
+		entry:SetNPCID(id_num)
+		entry:SetText("%s%s%s %s",
+			PADDING,
+			PADDING,
+			hide_location and "" or SetTextColor(CATEGORY_COLORS["location"], mob.location),
+			coord_text
+		)
 
-		return ListFrame:InsertEntry(entry, parent_entry, entry_index, entry_type, true)
+		return ListFrame:InsertEntry(entry, entry_index, true)
 	end
 
 	local function ExpandQuestData(entry_index, entry_type, parent_entry, id_num, collectable, hide_location, hide_type)
@@ -1129,48 +1097,46 @@ function private.InitializeListFrame()
 			return entry_index
 		end
 
-		local name = ColorNameByFaction(private.quest_names[id_num], quest.faction)
+		local entry = CreateListEntry(entry_type, parent_entry, collectable)
+		entry:SetText("%s%s %s",
+			PADDING,
+			hide_type and "" or SetTextColor(CATEGORY_COLORS["quest"], _G.BATTLE_PET_SOURCE_2) .. ":",
+			ColorNameByFaction(private.quest_names[id_num], quest.faction)
+		)
+
+		entry_index = ListFrame:InsertEntry(entry, entry_index, true)
+
 		local coord_text = ""
 
 		if quest.coord_x ~= 0 and quest.coord_y ~= 0 then
 			coord_text = SetTextColor(CATEGORY_COLORS["coords"], COORD_FORMAT:format(quest.coord_x, quest.coord_y))
 		end
-		local entry = AcquireTable()
-		entry.text = ("%s%s %s"):format(PADDING, hide_type and "" or SetTextColor(CATEGORY_COLORS["quest"], _G.BATTLE_PET_SOURCE_2) .. ":", name)
-		entry.collectable = collectable
-
-		entry_index = ListFrame:InsertEntry(entry, parent_entry, entry_index, entry_type, true)
 
 		if coord_text == "" and hide_location then
 			return entry_index
 		end
-		entry = AcquireTable()
-		entry.text = ("%s%s%s %s"):format(PADDING, PADDING, hide_location and "" or SetTextColor(CATEGORY_COLORS["location"], quest.location), coord_text)
-		entry.collectable = collectable
 
-		if collectable:HasFilter("common1", "RETIRED") then
-			entry = AcquireTable()
-			entry.text = (L["RETIRED_COLLECTABLE_SHORT"])
-			entry.collectable = collectable
-		end
+		entry = CreateListEntry(entry_type, parent_entry, collectable)
+		entry:SetText("%s%s%s %s",
+			PADDING,
+			PADDING,
+			hide_location and "" or SetTextColor(CATEGORY_COLORS["location"], quest.location),
+			coord_text
+		)
 
-		return ListFrame:InsertEntry(entry, parent_entry, entry_index, entry_type, true)
+		return ListFrame:InsertEntry(entry, entry_index, true)
 	end
 
 	local function ExpandWorldEventsData(entry_index, entry_type, parent_entry, id_num, collectable, hide_location, hide_type)
-		local hex_color = CATEGORY_COLORS["world_events"]
-		local entry = AcquireTable()
+		local hex_color = CATEGORY_COLORS["worldevents"]
+		local entry = CreateListEntry(entry_type, parent_entry, collectable)
+		entry:SetText("%s%s %s",
+			PADDING,
+			hide_type and "" or SetTextColor(hex_color, private.ACQUIRE_NAMES[A.WORLD_EVENTS]) .. ":",
+			SetTextColor(hex_color, private.world_events_list[id_num].name)
+		)
 
-		entry.text = ("%s%s %s"):format(PADDING, hide_type and "" or SetTextColor(hex_color, private.ACQUIRE_NAMES[A.WORLD_EVENTS]) .. ":", SetTextColor(hex_color, private.world_events_list[id_num].name))
-		entry.collectable = collectable
-
-		if collectable:HasFilter("common1", "RETIRED") then
-			entry = AcquireTable()
-			entry.text = (L["RETIRED_COLLECTABLE_SHORT"])
-			entry.collectable = collectable
-		end
-
-		return ListFrame:InsertEntry(entry, parent_entry, entry_index, entry_type, true)
+		return ListFrame:InsertEntry(entry, entry_index, true)
 	end
 
 	local FACTION_LABELS
@@ -1194,20 +1160,21 @@ function private.InitializeListFrame()
 			}
 		end
 
-		local name = ColorNameByFaction(rep_vendor.name, rep_vendor.faction)
-		local entry = AcquireTable()
-		entry.text = ("%s%s %s"):format(PADDING, hide_type and "" or SetTextColor(CATEGORY_COLORS["reputation"], _G.REPUTATION) .. ":", SetTextColor(CATEGORY_COLORS["repname"], private.reputation_list[rep_id].name))
-		entry.collectable = collectable
-		entry.npc_id = vendor_id
+		local entry = CreateListEntry(entry_type, parent_entry, collectable)
+		entry:SetNPCID(vendor_id)
+		entry:SetText("%s%s %s",
+			PADDING,
+			hide_type and "" or SetTextColor(CATEGORY_COLORS["reputation"], _G.REPUTATION) .. ":",
+			SetTextColor(CATEGORY_COLORS["repname"], private.reputation_list[rep_id].name)
+		)
 
-		entry_index = ListFrame:InsertEntry(entry, parent_entry, entry_index, entry_type, true)
+		entry_index = ListFrame:InsertEntry(entry, entry_index, true)
 
-		entry = AcquireTable()
-		entry.text = PADDING .. PADDING .. FACTION_LABELS[rep_level] .. name
-		entry.collectable = collectable
-		entry.npc_id = vendor_id
+		entry = CreateListEntry(entry_type, parent_entry, collectable)
+		entry:SetNPCID(vendor_id)
+		entry:SetText(PADDING .. PADDING .. FACTION_LABELS[rep_level] .. ColorNameByFaction(rep_vendor.name, rep_vendor.faction))
 
-		entry_index = ListFrame:InsertEntry(entry, parent_entry, entry_index, entry_type, true)
+		entry_index = ListFrame:InsertEntry(entry, entry_index, true)
 
 		local coord_text = ""
 
@@ -1218,19 +1185,18 @@ function private.InitializeListFrame()
 		if coord_text == "" and hide_location then
 			return entry_index
 		end
-		entry = AcquireTable()
-		entry.text = ("%s%s%s%s %s"):format(PADDING, PADDING, PADDING, hide_location and "" or SetTextColor(CATEGORY_COLORS["location"], rep_vendor.location), coord_text)
-		entry.collectable = collectable
-		entry.npc_id = vendor_id
 
-		if collectable:HasFilter("common1", "RETIRED") then
-			entry = AcquireTable()
-			entry.text = (L["RETIRED_COLLECTABLE_SHORT"])
-			entry.collectable = collectable
-			entry.npc_id = vendor_id
-		end
+		entry = CreateListEntry(entry_type, parent_entry, collectable)
+		entry:SetNPCID(vendor_id)
+		entry:SetText("%s%s%s%s %s",
+			PADDING,
+			PADDING,
+			PADDING,
+			hide_location and "" or SetTextColor(CATEGORY_COLORS["location"], rep_vendor.location),
+			coord_text
+		)
 
-		return ListFrame:InsertEntry(entry, parent_entry, entry_index, entry_type, true)
+		return ListFrame:InsertEntry(entry, entry_index, true)
 	end
 
 	local function ExpandWorldDropData(entry_index, entry_type, parent_entry, identifier, collectable, hide_location, hide_type)
@@ -1248,61 +1214,52 @@ function private.InitializeListFrame()
 		else
 			drop_location = ""
 		end
-		local entry = AcquireTable()
-		entry.text = ("%s|c%s%s|r%s"):format(PADDING, select(4, _G.GetItemQualityColor(collectable.quality)), L["World Drop"], drop_location)
-		entry.collectable = collectable
 
-		if collectable:HasFilter("common1", "RETIRED") then
-			entry = AcquireTable()
-			entry.text = (L["RETIRED_COLLECTABLE_SHORT"])
-			entry.collectable = collectable
-		end
+		local entry = CreateListEntry(entry_type, parent_entry, collectable)
+		entry:SetText("%s|c%s%s|r%s",
+			PADDING,
+			select(4, _G.GetItemQualityColor(collectable.quality)),
+			L["World Drop"],
+			drop_location
+		)
 
-		return ListFrame:InsertEntry(entry, parent_entry, entry_index, entry_type, true)
+		return ListFrame:InsertEntry(entry, entry_index, true)
 	end
 
 	local function ExpandCustomData(entry_index, entry_type, parent_entry, id_num, collectable, hide_location, hide_type)
-		local entry = AcquireTable()
-		entry.text = PADDING .. SetTextColor(CATEGORY_COLORS["custom"], private.custom_list[id_num].name)
-		entry.collectable = collectable
+		local entry = CreateListEntry(entry_type, parent_entry, collectable)
+		entry:SetText(PADDING .. SetTextColor(CATEGORY_COLORS["custom"], private.custom_list[id_num].name))
 
-		if collectable:HasFilter("common1", "RETIRED") then
-			entry = AcquireTable()
-			entry.text = (L["RETIRED_COLLECTABLE_SHORT"])
-			entry.collectable = collectable
-		end
-
-		return ListFrame:InsertEntry(entry, parent_entry, entry_index, entry_type, true)
+		return ListFrame:InsertEntry(entry, entry_index, true)
 	end
 
 	local function ExpandProfessionData(entry_index, entry_type, parent_entry, id_num, collectable, hide_location, hide_type)
-		local entry = AcquireTable()
-		entry.text = ("%s%s %s"):format(PADDING, hide_type and "" or SetTextColor(CATEGORY_COLORS["profession"], _G.BATTLE_PET_SOURCE_4) .. ":",
-			SetTextColor(BASIC_COLORS["normal"], id_num))
-		entry.collectable = collectable
+		local entry = CreateListEntry(entry_type, parent_entry, collectable)
+		entry:SetText("%s%s %s",
+			PADDING,
+			hide_type and "" or SetTextColor(CATEGORY_COLORS["profession"], _G.BATTLE_PET_SOURCE_4) .. ":",
+			SetTextColor(BASIC_COLORS["normal"], id_num)
+		)
 
-		if collectable:HasFilter("common1", "RETIRED") then
-			entry = AcquireTable()
-			entry.text = (L["RETIRED_COLLECTABLE_SHORT"])
-			entry.collectable = collectable
-		end
-
-		return ListFrame:InsertEntry(entry, parent_entry, entry_index, entry_type, true)
+		return ListFrame:InsertEntry(entry, entry_index, true)
 	end
 
 	local function ExpandAchievementData(entry_index, entry_type, parent_entry, id_num, collectable, hide_location, hide_type)
-		local entry = AcquireTable()
-		entry.text = ("%s%s %s"):format(PADDING, hide_type and "" or SetTextColor(CATEGORY_COLORS["achievement"], _G.ACHIEVEMENTS) .. ":",
-					    SetTextColor(BASIC_COLORS["normal"], select(2, _G.GetAchievementInfo(id_num))))
-		entry.collectable = collectable
+		local entry = CreateListEntry(entry_type, parent_entry, collectable)
+		entry:SetText("%s%s %s",
+			PADDING,
+			hide_type and "" or SetTextColor(CATEGORY_COLORS["achievement"], _G.ACHIEVEMENTS) .. ":",
+			SetTextColor(BASIC_COLORS["normal"], select(2, _G.GetAchievementInfo(id_num)))
+		)
 
-		if collectable:HasFilter("common1", "RETIRED") then
-			entry = AcquireTable()
-			entry.text = (L["RETIRED_COLLECTABLE_SHORT"])
-			entry.collectable = collectable
-		end
+		return ListFrame:InsertEntry(entry, entry_index, true)
+	end
 
-		return ListFrame:InsertEntry(entry, parent_entry, entry_index, entry_type, true)
+	local function ExpandRetiredData(entry_index, entry_type, parent_entry, id_num, recipe, _, _)
+		local entry = CreateListEntry(entry_type, parent_entry, recipe)
+		entry:SetText(PADDING .. SetTextColor(CATEGORY_COLORS.retired, L.RETIRED_COLLECTABLE_LONG))
+
+		return ListFrame:InsertEntry(entry, entry_index, true)
 	end
 
 	local function ExpandAcquireData(entry_index, entry_type, parent_entry, acquire_type, acquire_data, collectable, hide_location, hide_type)
@@ -1325,8 +1282,7 @@ function private.InitializeListFrame()
 			elseif acquire_type == A.REPUTATION then
 				for rep_level, level_info in pairs(info) do
 					for vendor_id in pairs(level_info) do
-						entry_index =  ExpandReputationData(entry_index, entry_type, parent_entry, vendor_id, id_num,
-										    rep_level, collectable, hide_location, hide_type)
+						entry_index =  ExpandReputationData(entry_index, entry_type, parent_entry, vendor_id, id_num, rep_level, collectable, hide_location, hide_type)
 					end
 				end
 			elseif acquire_type == A.WORLD_DROP and obtain_filters.worlddrop then
@@ -1339,15 +1295,18 @@ function private.InitializeListFrame()
 				end
 			elseif acquire_type == A.PROFESSION and obtain_filters.profession then
 				func = ExpandProfessionData
+			elseif acquire_type == A.RETIRED then
+				if not hide_type then
+					func = ExpandRetiredData
+				end
 				--[===[@alpha@
 			elseif acquire_type == A.ACHIEVEMENT and obtain_filters.achievement then
 				func = ExpandAchievementData
 			elseif acquire_type > num_acquire_types then
-				local entry = AcquireTable()
-				entry.text = "Unhandled Acquire Case - Type: " .. acquire_type
-				entry.collectable = collectable
+				local entry = CreateListEntry(entry_type, parent_entry, collectable)
+				entry:SetText("Unhandled Acquire Case - Type: " .. acquire_type)
 
-				entry_index = ListFrame:InsertEntry(entry, parent_entry, entry_index, entry_type, true)
+				entry_index = ListFrame:InsertEntry(entry, entry_index, true)
 				--@end-alpha@]===]
 			end
 
@@ -1358,70 +1317,73 @@ function private.InitializeListFrame()
 		return entry_index
 	end
 
+	-- Recipes with these acquire types will never show as headers.
+	local CHILDLESS_ACQUIRE_TYPES = {
+		[A.ACHIEVEMENT] = true,
+		[A.CUSTOM] = true,
+		[A.RETIRED] = true,
+		[A.WORLD_DROP] = true,
+	}
+
 	-- This function is called when an un-expanded entry in the list has been clicked.
-	function ListFrame:ExpandEntry(entry_index, expand_mode)
-		local orig_index = entry_index
-		local current_entry = self.entries[orig_index]
+	function ListFrame:ExpandEntry(entry, expand_mode)
+		local orig_index = entry.button and entry.button.entry_index or entry.index
 		local expand_all = expand_mode == "deep"
-		local current_tab = MainPanel.tabs[MainPanel.current_tab]
+		local current_tab = MainPanel.current_tab
 		local collectable_type = private.ORDERED_COLLECTIONS[MainPanel.current_collectable_type]
 		local collectables = private.collectable_list[collectable_type]
 
 		-- Entry_index is the position in self.entries that we want to expand. Since we are expanding the current entry, the return
 		-- value should be the index of the next button after the expansion occurs
-		entry_index = entry_index + 1
+		local new_entry_index = orig_index + 1
 
-		current_tab:ModifyEntry(current_entry, true)
+		current_tab:SaveListEntryState(entry, true)
+
+		local acquire_id = entry:AcquireID()
 
 		-- This entry was generated using sorting based on Acquisition.
-		if current_entry.acquire_id then
-			local acquire_id = current_entry.acquire_id
-
-			if current_entry.type == "header" then
+		if acquire_id then
+			if entry:IsHeader() then
 				local acquired_collectables = private.acquire_list[acquire_id].collectables[collectable_type]
 				local sorted_collectables = addon.sorted_collectables
 
 				private.SortCollectables(acquired_collectables, collectable_type)
 
 				for index = 1, #sorted_collectables do
-					local collectable_id = sorted_collectables[index]
-					local collectable_entry = collectables[collectable_id]
+					local collectable = collectables[sorted_collectables[index]]
 
-					if collectable_entry and collectable_entry:HasState("VISIBLE") and MainPanel.search_editbox:MatchesCollectable(collectable_entry) then
-						local entry = AcquireTable()
+					if collectable and collectable:HasState("VISIBLE") and MainPanel.search_editbox:MatchesCollectable(collectable) then
 						local expand = false
-						local type = "subheader"
+						local entry_type = "subheader"
 
-						if acquire_id == A.WORLD_DROP or acquire_id == A.CUSTOM or acquire_id == A.ACHIEVEMENT or acquire_id == A.DISCOVERY then
+						if CHILDLESS_ACQUIRE_TYPES[acquire_id] then
 							expand = true
-							type = "entry"
+							entry_type = "entry"
 						end
-						local is_expanded = (current_tab[collectable_type .." expanded"][collectable_entry]
-								     and current_tab[collectable_type .." expanded"][private.ACQUIRE_NAMES[acquire_id]])
+						local is_expanded = (current_tab[collectable_type .." expanded"][collectable] and current_tab[collectable_type .." expanded"][private.ACQUIRE_NAMES[acquire_id]])
 
-						entry.text = collectable_entry:GetDisplayName()
-						entry.collectable = collectable_entry
-						entry.acquire_id = acquire_id
+						local new_entry = CreateListEntry(entry_type, entry, collectable)
+						new_entry:SetAcquireID(acquire_id)
+						new_entry:SetText(collectable:GetDisplayName())
 
-						entry_index = self:InsertEntry(entry, current_entry, entry_index, type, expand or is_expanded, expand_all or is_expanded)
+						new_entry_index = self:InsertEntry(new_entry, new_entry_index, expand or is_expanded, expand_all or is_expanded)
 					end
 				end
-			elseif current_entry.type == "subheader" then
-				for acquire_type, acquire_data in pairs(current_entry.collectable.acquire_data) do
+			elseif entry:IsSubHeader() then
+				for acquire_type, acquire_data in pairs(entry.collectable.acquire_data) do
 					if acquire_type == acquire_id then
-						entry_index = ExpandAcquireData(entry_index, "subentry", current_entry, acquire_type, acquire_data,
-										current_entry.collectable, false, true)
+						new_entry_index = ExpandAcquireData(new_entry_index, "subentry", entry, acquire_type, acquire_data, entry.collectable, false, true)
 					end
 				end
 			end
-			return entry_index
+			return new_entry_index
 		end
 
-		-- This entry was generated using sorting based on Location.
-		if current_entry.location_id then
-			local location_id = current_entry.location_id
+		local location_id = entry:LocationID()
 
-			if current_entry.type == "header" then
+		-- This entry was generated using sorting based on Location.
+		if location_id then
+			if entry:IsHeader() then
 				local location_collectables = private.location_list[location_id].collectables[collectable_type]
 				local sorted_collectables = addon.sorted_collectables
 
@@ -1433,59 +1395,47 @@ function private.InitializeListFrame()
 
 					if collectable and collectable:HasState("VISIBLE") and MainPanel.search_editbox:MatchesCollectable(collectable) then
 						local expand = false
-						local type = "subheader"
-						local entry = AcquireTable()
+						local entry_type = "subheader"
 						local location_type = location_collectables[collectable_id]
 
 						-- Add World Drop entries as normal entries.
 						if location_type and (location_type == "world_drop" or location_type == "pet_battle") then
 							expand = true
-							type = "entry"
+							entry_type = "entry"
 						end
-						local is_expanded = (current_tab[collectable_type .." expanded"][collectable]
-								     and current_tab[collectable_type .." expanded"][location_id])
+						local is_expanded = (current_tab[collectable_type .." expanded"][collectable] and current_tab[collectable_type .." expanded"][location_id])
 
-						entry.text = collectable:GetDisplayName()
-						entry.collectable = collectable
-						entry.location_id = location_id
+						local new_entry = CreateListEntry(entry_type, entry, collectable)
+						new_entry:SetText(collectable:GetDisplayName())
+						new_entry:SetLocationID(location_id)
 
-						entry_index = self:InsertEntry(entry, current_entry, entry_index, type, expand or is_expanded,
-									       expand_all or is_expanded)
+						new_entry_index = self:InsertEntry(new_entry, new_entry_index, entry_type, expand or is_expanded, expand_all or is_expanded)
 					end
 				end
-			elseif current_entry.type == "subheader" then
-				local collectable_entry = current_entry.collectable
-
+			elseif entry:IsSubHeader() then
 				-- World Drops are not handled here because they are of type "entry".
-				for acquire_type, acquire_data in pairs(collectable_entry.acquire_data) do
+				for acquire_type, acquire_data in pairs(entry.collectable.acquire_data) do
 					-- Only expand an acquisition entry if it is from this location.
 					for id_num, info in pairs(acquire_data) do
 						if acquire_type == A.TRAINER and private.trainer_list[id_num].location == location_id then
-							entry_index = ExpandTrainerData(entry_index, "subentry", current_entry,
-								id_num, current_entry.collectable, true)
+							new_entry_index = ExpandTrainerData(new_entry_index, "subentry", entry, id_num, entry.collectable, true)
 						elseif acquire_type == A.VENDOR and private.vendor_list[id_num].location == location_id then
-							entry_index = ExpandVendorData(entry_index, "subentry", current_entry,
-										       id_num, current_entry.collectable, true)
+							new_entry_index = ExpandVendorData(new_entry_index, "subentry", entry, id_num, entry.collectable, true)
 						elseif acquire_type == A.MOB_DROP and private.mob_list[id_num].location == location_id then
-							entry_index = ExpandMobData(entry_index, "subentry", current_entry,
-										    id_num, current_entry.collectable, true)
+							new_entry_index = ExpandMobData(new_entry_index, "subentry", entry, id_num, entry.collectable, true)
 						elseif acquire_type == A.QUEST and private.quest_list[id_num].location == location_id then
-							entry_index = ExpandQuestData(entry_index, "subentry", current_entry,
-										      id_num, current_entry.collectable, true)
+							new_entry_index = ExpandQuestData(new_entry_index, "subentry", entry, id_num, entry.collectable, true)
 						elseif acquire_type == A.WORLD_EVENTS and private.world_events_list[id_num].location == location_id then
 							-- Hide the acquire type for this - it will already show up in the location list as
 							-- "World Events".
-							entry_index = ExpandWorldEventsData(entry_index, "subentry", current_entry,
-											 id_num, current_entry.collectable, true, true)
+							new_entry_index = ExpandWorldEventsData(new_entry_index, "subentry", entry, id_num, entry.collectable, true, true)
 						elseif acquire_type == A.CUSTOM and private.custom_list[id_num].location == location_id then
-							entry_index = ExpandCustomData(entry_index, "subentry", current_entry,
-										       id_num, current_entry.collectable, true, true)
+							new_entry_index = ExpandCustomData(new_entry_index, "subentry", entry, id_num, entry.collectable, true, true)
 						elseif acquire_type == A.REPUTATION then
 							for rep_level, level_info in pairs(info) do
 								for vendor_id in pairs(level_info) do
 									if private.vendor_list[vendor_id].location == location_id then
-										entry_index =  ExpandReputationData(entry_index, "subentry", current_entry,
-														    vendor_id, id_num, rep_level, current_entry.collectable, true)
+										new_entry_index =  ExpandReputationData(new_entry_index, "subentry", entry, vendor_id, id_num, rep_level, entry.collectable, true)
 									end
 								end
 							end
@@ -1493,16 +1443,16 @@ function private.InitializeListFrame()
 					end
 				end
 			end
-			return entry_index
+			return new_entry_index
 		end
 
 		-- Normal entry - expand all acquire types.
 		local collectable = self.entries[orig_index].collectable
 
 		for acquire_type, acquire_data in pairs(collectable.acquire_data) do
-			entry_index = ExpandAcquireData(entry_index, "entry", current_entry, acquire_type, acquire_data, collectable)
+			new_entry_index = ExpandAcquireData(new_entry_index, "entry", entry, acquire_type, acquire_data, collectable)
 		end
-		return entry_index
+		return new_entry_index
 	end
 end	-- InitializeListFrame()
 
@@ -1673,7 +1623,7 @@ do
 			end
 		end,
 		[A.WORLD_EVENTS] = function(collectable, identifier, location, acquire_info, addline_func)
-			local hex_color = CATEGORY_COLORS["world_events"]
+			local hex_color = CATEGORY_COLORS["worldevents"]
 			addline_func(0, -1, 0, private.ACQUIRE_NAMES[A.WORLD_EVENTS], hex_color, private.world_events_list[identifier].name, hex_color)
 		end,
 		[A.REPUTATION] = function(collectable, identifier, location, acquire_info, addline_func)
@@ -1720,15 +1670,21 @@ do
 			local quality_color = select(4, _G.GetItemQualityColor(collectable.quality)):sub(3)
 
 			if drop_type == "world_drop" then
-				addline_func(0, -1, false, L["World Drop"], quality_color, location, CATEGORY_COLORS["location"])
+				addline_func(0, -1, false, L["World Drop"], quality_color, drop_location, CATEGORY_COLORS.location)
 			elseif drop_type == "pet_battle" then
 				for level_range, coord_list in pairs(collectable.zone_list[identifier]) do
 					addline_func(0, -1, false, _G.BATTLE_PET_SOURCE_5, quality_color)
 
 					for coord_index = 1, #coord_list do
-						local x, y = (":"):split(coord_list[coord_index])
-						addline_func(1, -2, true, ("%s (%s)"):format(identifier, level_range), CATEGORY_COLORS["location"], COORD_FORMAT:format(x, y), CATEGORY_COLORS.coords)
-					end
+                        if coord_list[coord_index] == "unknown" then
+                            addline_func(1, -2, true, ("%s (%s)"):format(drop_location, level_range), CATEGORY_COLORS.location, _G.UNKNOWN, CATEGORY_COLORS.coords)
+                        elseif coord_list[coord_index] == "secondary" then
+                            addline_func(1, -1, true, ("%s (%s)"):format(drop_location, level_range), CATEGORY_COLORS.location, _G.SECONDARY, CATEGORY_COLORS.coords)
+                        else
+                            local x, y = (":"):split(coord_list[coord_index])
+                            addline_func(1, -2, true, ("%s (%s)"):format(drop_location, level_range), CATEGORY_COLORS.location, COORD_FORMAT:format(x, y), CATEGORY_COLORS.coords)
+                        end
+                    end
 				end
 			else
 				addline_func(0, -1, false, _G.UNKNOWN, quality_color, location, CATEGORY_COLORS["location"])
@@ -1757,6 +1713,9 @@ do
 		[A.CUSTOM] = function(collectable, identifier, location, acquire_info, addline_func)
 			addline_func(0, -1, false, private.custom_list[identifier].name, CATEGORY_COLORS["custom"])
 		end,
+		[A.RETIRED] = function(_, identifier, _, _, addline_func)
+			addline_func(0, -1, false, L.RETIRED_COLLECTABLE_LONG, CATEGORY_COLORS.retired)
+		end,
 	}
 
 	-------------------------------------------------------------------------------
@@ -1772,13 +1731,19 @@ do
 		for acquire_type, acquire_data in pairs(collectable.acquire_data) do
 			if not acquire_id or acquire_type == acquire_id then
 				local populate_func = TOOLTIP_ACQUIRE_FUNCS[acquire_type]
+				local count = 0
 
 				for identifier, info in pairs(acquire_data) do
 					if populate_func then
 						populate_func(collectable, identifier, location, info, addline_func)
 					else
-						addline_func(0, -1, 0, L["Unhandled Recipe"], BASIC_COLORS["normal"])
+						addline_func(0, -1, 0, _G.UNKNOWN, BASIC_COLORS["normal"])
 					end
+					count = count + 1
+				end
+
+				if count == 0 and populate_func then
+					populate_func(collectable, nil, location, nil, addline_func)
 				end
 			end
 		end
@@ -1829,10 +1794,11 @@ do
 	}
 
 	local NON_COORD_ACQUIRES = {
-		[A.WORLD_DROP] = true,
-		[A.CUSTOM] = true,
 		[A.ACHIEVEMENT] = true,
-		[A.PROFESSION] = true
+		[A.CUSTOM] = true,
+		[A.PROFESSION] = true,
+		[A.RETIRED] = true,
+		[A.WORLD_DROP] = true,
 	}
 
 	function ListItem_ShowTooltip(owner, list_entry)
@@ -1872,8 +1838,6 @@ do
 		end
 		acquire_tooltip:AddSeparator()
 
-		ttAdd(0, -1, false, L["Obtained From"] .. " : ", BASIC_COLORS["normal"])
-
 		local required_races = collectable:RequiredRaces()
 
 		if required_races and not collectable.is_ignored then
@@ -1885,25 +1849,22 @@ do
 			end
 			ttAdd(0, -1, false, _G.ITEM_RACES_ALLOWED:format(output:String(", ")), BASIC_COLORS["normal"])
 		end
-		addon:DisplayAcquireData(list_entry.collectable, list_entry.acquire_id, list_entry.location_id, ttAdd)
+		ttAdd(0, -1, false, L["Obtained From"] .. " : ", BASIC_COLORS["normal"])
 
-		if collectable:HasFilter("common1", "RETIRED") then
-			ttAdd(0, -1, false, L["RETIRED_COLLECTABLE_LONG"], BASIC_COLORS["normal"])
-		end
+		addon:DisplayAcquireData(list_entry.collectable, list_entry:AcquireID(), list_entry:LocationID(), ttAdd)
 
 		if not addon.db.profile.hide_tooltip_hint then
-			local HINT_COLOR = "c9c781"
-			local acquire_id = list_entry.acquire_id
+			local hint_color = private.CATEGORY_COLORS.hint
 
 			acquire_tooltip:AddSeparator()
 			acquire_tooltip:AddSeparator()
 
-			ttAdd(0, -1, 0, L["ALT_CLICK"], HINT_COLOR)
-			ttAdd(0, -1, 0, L["CTRL_CLICK"], HINT_COLOR)
-			ttAdd(0, -1, 0, L["SHIFT_CLICK"], HINT_COLOR)
+			ttAdd(0, -1, 0, L["ALT_CLICK"], hint_color)
+			ttAdd(0, -1, 0, L["CTRL_CLICK"], hint_color)
+			ttAdd(0, -1, 0, L["SHIFT_CLICK"], hint_color)
 
-			if not NON_COORD_ACQUIRES[acquire_id] and _G.TomTom and (addon.db.profile.worldmap or addon.db.profile.minimap) then
-				ttAdd(0, -1, 0, L["CTRL_SHIFT_CLICK"], HINT_COLOR)
+			if not NON_COORD_ACQUIRES[list_entry:AcquireID()] and _G.TomTom and (addon.db.profile.worldmap or addon.db.profile.minimap) then
+				ttAdd(0, -1, 0, L["CTRL_SHIFT_CLICK"], hint_color)
 			end
 		end
 		acquire_tooltip:Show()

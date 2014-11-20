@@ -6,23 +6,6 @@ FACTION_STANDING_LABEL100 = UNKNOWN
 local format = string.format
 local min, max = math.min, math.max
 
-function M:UpdateExpRepAnchors()
-	local repBar = ReputationBarMover
-	local expBar = ExperienceBarMover
-
-	if (E:HasMoverBeenMoved('ExperienceBarMover') or E:HasMoverBeenMoved('ReputationBarMover')) or not repBar or not expBar then return; end
-	repBar:ClearAllPoints()
-	expBar:ClearAllPoints()
-	
-	if self.expBar:IsShown() and self.repBar:IsShown() then
-		expBar:Point('TOP', E.UIParent, 'TOP', 0, -1)
-		repBar:Point('TOP', self.expBar, 'BOTTOM', 0, -1)
-	elseif self.expBar:IsShown() then
-		expBar:Point('TOP', E.UIParent, 'TOP', 0, -1)
-	else
-		repBar:Point('TOP', E.UIParent, 'TOP', 0, -1)
-	end
-end
 
 function M:GetXP(unit)
 	if(unit == 'pet') then
@@ -75,14 +58,14 @@ function M:UpdateExperience(event)
 		
 		bar.text:SetText(text)
 	end
-	
-	self:UpdateExpRepAnchors()
 end
 
+local backupColor = FACTION_BAR_COLORS[1]
 function M:UpdateReputation(event)
 	local bar = self.repBar
 	
 	local ID = 100
+	local isFriend, friendText
 	local name, reaction, min, max, value = GetWatchedFactionInfo()
 	local numFactions = GetNumFactions();
 
@@ -93,33 +76,35 @@ function M:UpdateReputation(event)
 
 		local text = ''
 		local textFormat = E.db.general.reputation.textFormat		
-		local color = FACTION_BAR_COLORS[reaction]
+		local color = FACTION_BAR_COLORS[reaction] or backupColor
 		bar.statusBar:SetStatusBarColor(color.r, color.g, color.b)	
 
 		bar.statusBar:SetMinMaxValues(min, max)
 		bar.statusBar:SetValue(value)
 		
 		for i=1, numFactions do
-			local factionName, _, standingID = GetFactionInfo(i);
+			local factionName, _, standingID,_,_,_,_,_,_,_,_,_,_, factionID = GetFactionInfo(i);
+			local friendID, friendRep, friendMaxRep, _, _, _, friendTextLevel = GetFriendshipReputation(factionID);
 			if factionName == name then
-				ID = standingID
+				if friendID ~= nil then
+					isFriend = true
+					friendText = friendTextLevel
+				else
+					ID = standingID
+				end
 			end
 		end
 		
-		
-		
 		if textFormat == 'PERCENT' then
-			text = format('%s: %d%% [%s]', name, ((value - min) / (max - min) * 100), _G['FACTION_STANDING_LABEL'..ID])
+			text = format('%s: %d%% [%s]', name, ((value - min) / (max - min) * 100), isFriend and friendText or _G['FACTION_STANDING_LABEL'..ID])
 		elseif textFormat == 'CURMAX' then
-			text = format('%s: %s - %s [%s]', name, E:ShortValue(value - min), E:ShortValue(max - min), _G['FACTION_STANDING_LABEL'..ID])
+			text = format('%s: %s - %s [%s]', name, E:ShortValue(value - min), E:ShortValue(max - min), isFriend and friendText or _G['FACTION_STANDING_LABEL'..ID])
 		elseif textFormat == 'CURPERC' then
-			text = format('%s: %s - %d%% [%s]', name, E:ShortValue(value - min), ((value - min) / (max - min) * 100), _G['FACTION_STANDING_LABEL'..ID])
+			text = format('%s: %s - %d%% [%s]', name, E:ShortValue(value - min), ((value - min) / (max - min) * 100), isFriend and friendText or _G['FACTION_STANDING_LABEL'..ID])
 		end					
 		
 		bar.text:SetText(text)		
 	end
-	
-	self:UpdateExpRepAnchors()
 end
 
 local function ExperienceBar_OnEnter(self)
@@ -127,7 +112,7 @@ local function ExperienceBar_OnEnter(self)
 		E:UIFrameFadeIn(self, 0.4, self:GetAlpha(), 1)
 	end
 	GameTooltip:ClearLines()
-	GameTooltip:SetOwner(self, 'ANCHOR_BOTTOM', 0, -4)
+	GameTooltip:SetOwner(self, 'ANCHOR_CURSOR', 0, -4)
 	
 	local cur, max = M:GetXP('player')
 	local rested = GetXPExhaustion()
@@ -151,12 +136,13 @@ local function ReputationBar_OnEnter(self)
 	GameTooltip:ClearLines()
 	GameTooltip:SetOwner(self, 'ANCHOR_BOTTOM', 0, -4)
 	
-	local name, reaction, min, max, value = GetWatchedFactionInfo()
+	local name, reaction, min, max, value, factionID = GetWatchedFactionInfo()
+	local friendID, _, _, _, _, _, friendTextLevel = GetFriendshipReputation(factionID);
 	if name then
 		GameTooltip:AddLine(name)
 		GameTooltip:AddLine(' ')
 		
-		GameTooltip:AddDoubleLine(STANDING..':', _G['FACTION_STANDING_LABEL'..reaction], 1, 1, 1)
+		GameTooltip:AddDoubleLine(STANDING..':', friendID and friendTextLevel or _G['FACTION_STANDING_LABEL'..reaction], 1, 1, 1)
 		GameTooltip:AddDoubleLine(REPUTATION..':', format('%d / %d (%d%%)', value - min, max - min, (value - min) / (max - min) * 100), 1, 1, 1)
 	end
 	GameTooltip:Show()
@@ -175,7 +161,7 @@ function M:CreateBar(name, onEnter, ...)
 	bar:SetScript('OnEnter', onEnter)
 	bar:SetScript('OnLeave', OnLeave)
 	bar:SetFrameStrata('LOW')
-	bar:SetTemplate('Default')
+	bar:SetTemplate('Transparent')
 	bar:Hide()
 	
 	bar.statusBar = CreateFrame('StatusBar', nil, bar)
@@ -203,7 +189,8 @@ function M:UpdateExpRepDimensions()
 	
 	self.expBar.statusBar:SetOrientation(E.db.general.experience.orientation)
 	self.repBar.statusBar:SetOrientation(E.db.general.reputation.orientation)
-
+	self.expBar.rested:SetOrientation(E.db.general.experience.orientation)
+	
 	if E.db.general.experience.mouseover then
 		self.expBar:SetAlpha(0)
 	else
@@ -218,12 +205,14 @@ function M:UpdateExpRepDimensions()
 end
 
 function M:EnableDisable_ExperienceBar()
-	if UnitLevel('player') ~= MAX_PLAYER_LEVEL and E.db.general.experience.enable then
+	local maxLevel = MAX_PLAYER_LEVEL_TABLE[GetExpansionLevel()];
+	if UnitLevel('player') ~= maxLevel and E.db.general.experience.enable then
 		self:RegisterEvent('PLAYER_XP_UPDATE', 'UpdateExperience')
 		self:RegisterEvent('PLAYER_LEVEL_UP', 'UpdateExperience')
 		self:RegisterEvent("DISABLE_XP_GAIN", 'UpdateExperience')
 		self:RegisterEvent("ENABLE_XP_GAIN", 'UpdateExperience')
 		self:RegisterEvent('UPDATE_EXHAUSTION', 'UpdateExperience')
+		self:UnregisterEvent("UPDATE_EXPANSION_LEVEL")
 		self:UpdateExperience()	
 	else
 		self:UnregisterEvent('PLAYER_XP_UPDATE')
@@ -231,10 +220,9 @@ function M:EnableDisable_ExperienceBar()
 		self:UnregisterEvent("DISABLE_XP_GAIN")
 		self:UnregisterEvent("ENABLE_XP_GAIN")
 		self:UnregisterEvent('UPDATE_EXHAUSTION')
+		self:RegisterEvent("UPDATE_EXPANSION_LEVEL", "EnableDisable_ExperienceBar")
 		self.expBar:Hide()
 	end
-	
-	self:UpdateExpRepAnchors()
 end
 
 function M:EnableDisable_ReputationBar()
@@ -248,14 +236,14 @@ function M:EnableDisable_ReputationBar()
 end
 
 function M:LoadExpRepBar()
-	self.expBar = self:CreateBar('ElvUI_ExperienceBar', ExperienceBar_OnEnter, 'TOP', E.UIParent, 'TOP', 0, -1)
+	self.expBar = self:CreateBar('ElvUI_ExperienceBar', ExperienceBar_OnEnter, 'LEFT', LeftChatPanel, 'RIGHT', E.PixelMode and -1 or 1, 0)
 	self.expBar.statusBar:SetStatusBarColor(0, 0.4, 1, .8)
 	self.expBar.rested = CreateFrame('StatusBar', nil, self.expBar)
 	self.expBar.rested:SetInside()
 	self.expBar.rested:SetStatusBarTexture(E.media.normTex)
 	self.expBar.rested:SetStatusBarColor(1, 0, 1, 0.2)
 
-	self.repBar = self:CreateBar('ElvUI_ReputationBar', ReputationBar_OnEnter, 'TOP', self.expBar, 'BOTTOM', 0, -1)
+	self.repBar = self:CreateBar('ElvUI_ReputationBar', ReputationBar_OnEnter, 'RIGHT', RightChatPanel, 'LEFT', E.PixelMode and 1 or -1, 0)
 
 	self:UpdateExpRepDimensions()
 	
@@ -264,6 +252,4 @@ function M:LoadExpRepBar()
 
 	E:CreateMover(self.expBar, "ExperienceBarMover", L["Experience Bar"])
 	E:CreateMover(self.repBar, "ReputationBarMover", L["Reputation Bar"])
-	
-	self:UpdateExpRepAnchors()
 end

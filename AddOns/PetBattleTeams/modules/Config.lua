@@ -64,7 +64,7 @@ Config.options = {
 				type = "header",
 				
 			},
-			--[[AttachToPetJournal = {
+			AttachToPetJournal = {
 				order = 51,
 				name = "Attach PetBattle Teams to Pet Journal",
 				desc = "When attached, PetBattle Teams will only be usable from the Pet Journal.",
@@ -74,7 +74,7 @@ Config.options = {
 					GUI:SetAttached(val)
 				end,
 				get = function(info) return GUI:GetAttached() end
-			},]]
+			},
 			HideInCombat = {
 				order = 52,
 				name = "Hide PetBattle Teams while in combat or in a Pet Battle",
@@ -86,7 +86,7 @@ Config.options = {
 				end,
 				get = function(info) return GUI:GetHideInCombat() end
 			},
-			--[[LockPosition = {
+			LockPosition = {
 				order = 53,
 				name = "Lock PetBattle Teams Position",
 				type = "toggle",
@@ -96,7 +96,7 @@ Config.options = {
 					GUI:SetLocked(val)
 				end,
 				get = function(info) return GUI:GetLocked() end
-			},]]
+			},
 			showSelectedTeam = {
 				order = 60,
 				name = "Show the selected team indicator",
@@ -168,7 +168,7 @@ Config.options = {
 				type = "header",
 				
 			},
-			IgnoreEmptyPets = {
+			--[[IgnoreEmptyPets = {
 				order = 99,
 				name = "Ignore Empty or invalid pets when setting teams",
 				desc = "When enabled:|nWhen selecting a team, empty or invalid pets will no longer clear battlepet slots and will instead leave which ever pet was there prior to switching teams. If the team is unlocked then leftover valid pet(s) will join the selected team if that pets settings are changed.",
@@ -178,7 +178,7 @@ Config.options = {
 					TeamManager:SetIgnoreEmptyPets(val)
 				end,
 				get = function(info) return TeamManager:GetIgnoreEmptyPets() end
-			},
+			},]]
 			SaveTeams = {
 				order = 100,
 				name = "Automatically Save Teams",

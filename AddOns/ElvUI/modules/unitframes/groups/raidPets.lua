@@ -65,7 +65,7 @@ function UF:Update_RaidpetHeader(header, db)
 	
 	if not headerHolder.positioned then
 		headerHolder:ClearAllPoints()
-		headerHolder:Point("BOTTOMLEFT", E.UIParent, "BOTTOMLEFT", 4, 433)
+		headerHolder:Point("BOTTOMLEFT", E.UIParent, "BOTTOMLEFT", 4, 574)
 		
 		E:CreateMover(headerHolder, headerHolder:GetName()..'Mover', L['Raid Pet Frames'], nil, nil, nil, 'ALL,RAID10,RAID25,RAID40')
 		headerHolder.positioned = true;
@@ -227,6 +227,7 @@ function UF:Update_RaidpetFrames(frame, db)
 
 		if db.buffs.enable then			
 			buffs:Show()
+			UF:UpdateAuraIconSettings(buffs)
 		else
 			buffs:Hide()
 		end
@@ -258,6 +259,7 @@ function UF:Update_RaidpetFrames(frame, db)
 
 		if db.debuffs.enable then
 			debuffs:Show()
+			UF:UpdateAuraIconSettings(debuffs)
 		else
 			debuffs:Hide()
 		end
@@ -366,11 +368,11 @@ function UF:Update_RaidpetFrames(frame, db)
 			frame:Tag(frame[objectName], objectDB.text_format or '')
 			frame[objectName]:SetJustifyH(objectDB.justifyH or 'CENTER')
 			frame[objectName]:ClearAllPoints()
-			frame[objectName]:SetPoint(objectDB.justifyH or 'CENTER', frame, 'CENTER', objectDB.xOffset, objectDB.yOffset)
+			frame[objectName]:SetPoint(objectDB.justifyH or 'CENTER', frame, objectDB.justifyH or 'CENTER', objectDB.xOffset, objectDB.yOffset)
 		end
 	end		
 
-	UF:ToggleTransparentStatusBar(UF.db.colors.transparentHealth, frame.Health, frame.Health.bg)
+	UF:ToggleTransparentStatusBar(UF.db.colors.transparentHealth, frame.Health, frame.Health.bg, true)
 	
 	frame:UpdateAllElements()
 end

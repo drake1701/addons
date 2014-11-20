@@ -1,7 +1,7 @@
 ﻿--[[
 	Auctioneer
-	Version: 5.17.5413 (NeedyNoddy)
-	Revision: $Id: CoreMain.lua 5378 2012-11-12 19:49:23Z brykrys $
+	Version: 5.21c.5521 (SanctimoniousSwamprat)
+	Revision: $Id: CoreMain.lua 5461 2014-06-19 10:37:18Z brykrys $
 	URL: http://auctioneeraddon.com/
 
 	This is an addon for World of Warcraft that adds statistical history to the auction data that is collected
@@ -37,7 +37,6 @@
 	See CoreAPI.lua for a description of the modules API
 ]]
 local AucAdvanced = AucAdvanced
-if not AucAdvanced then return end
 
 if (not AucAdvancedData) then AucAdvancedData = {} end
 if (not AucAdvancedLocal) then AucAdvancedLocal = {} end
@@ -45,18 +44,10 @@ if (not AucAdvancedConfig) then AucAdvancedConfig = {} end
 
 local _, internal = AucAdvanced.GetCoreModule() -- Don't need a module but do need the addon internal storage area.
 
-
--- For our modular stats system, each stats engine should add their
--- subclass to AucAdvanced.Modules.<type>.<name> and store their data into their own
--- data table in AucAdvancedData.Stats.<type><name>
-if (not AucAdvanced.Modules) then AucAdvanced.Modules = {Filter={}, Match={}, Stat={}, Util={}} end
 if (not AucAdvancedData.Stats) then AucAdvancedData.Stats = {} end
 if (not AucAdvancedLocal.Stats) then AucAdvancedLocal.Stats = {} end
 
--- Load DebugLib
-local DebugLib = LibStub("DebugLib")
-
-local tooltip
+local tooltip = AucAdvanced.Libraries.TipHelper
 local ALTCHATLINKTOOLTIP_OPEN
 local ScheduleMessage -- function("event", delay)
 
@@ -347,7 +338,6 @@ local function OnEnteringWorld(frame)
 	Stubby.RegisterFunctionHook("ContainerFrameItemButton_OnModifiedClick", -200, HookClickBag)
 	hooksecurefunc("ChatFrame_OnHyperlinkShow", HookClickLink)
 
-	tooltip = AucAdvanced.GetTooltip()
 	tooltip:Activate()
 	tooltip:AddCallback({type = "item", callback = OnItemTooltip}, 600)
 	tooltip:AddCallback({type = "battlepet", callback = OnPetTooltip}, 600)
@@ -376,6 +366,16 @@ local function OnEvent(self, event, arg1, arg2, ...)
 		end
 	elseif event == "ADDON_LOADED" then
 		OnLoad(arg1)
+	elseif event == "SAVED_VARIABLES_TOO_LARGE" then
+		-- (according to wowpedia) if this occurs it will fire immediately after "ADDON_LOADED"
+		if arg1 == "auc-advanced" then
+			if not AucAdvanced.ABORTLOAD then
+				AucAdvanced.ABORTLOAD = "Auctioneer saved variables too large"
+			end
+		end
+		-- only modules with their own save file need to check for this event
+		-- they should check for their own name (lowercased) in arg1
+		AucAdvanced.SendProcessorMessage("loadfail", arg1, event)
 	elseif event == "PLAYER_LOGOUT" then
 		internal.Scan.Logout()
 		OnUnload()
@@ -386,6 +386,7 @@ end
 
 local EventFrame = CreateFrame("Frame")
 EventFrame:RegisterEvent("ADDON_LOADED")
+EventFrame:RegisterEvent("SAVED_VARIABLES_TOO_LARGE")
 EventFrame:RegisterEvent("PLAYER_LOGOUT")
 EventFrame:RegisterEvent("PLAYER_ENTERING_WORLD")
 EventFrame:SetScript("OnEvent", OnEvent)
@@ -409,66 +410,4 @@ do -- ScheduleMessage handler
 end
 
 
--- Auctioneer's debug functions
-AucAdvanced.Debug = {}
-local addonName = "Auctioneer" -- the addon's name as it will be displayed in
-                               -- the debug messages
--------------------------------------------------------------------------------
--- Prints the specified message to nLog.
---
--- syntax:
---    errorCode, message = debugPrint([message][, category][, title][, errorCode][, level])
---
--- parameters:
---    message   - (string) the error message
---                nil, no error message specified
---    category  - (string) the category of the debug message
---                nil, no category specified
---    title     - (string) the title for the debug message
---                nil, no title specified
---    errorCode - (number) the error code
---                nil, no error code specified
---    level     - (string) nLog message level
---                         Any nLog.levels string is valid.
---                nil, no level specified
---
--- returns:
---    errorCode - (number) errorCode, if one is specified
---                nil, otherwise
---    message   - (string) message, if one is specified
---                nil, otherwise
--------------------------------------------------------------------------------
-function AucAdvanced.Debug.DebugPrint(message, category, title, errorCode, level)
-	return DebugLib.DebugPrint(addonName, message, category, title, errorCode, level)
-end
-
--------------------------------------------------------------------------------
--- Used to make sure that conditions are met within functions.
--- If test is false, the error message will be written to nLog and the user's
--- default chat channel.
---
--- Brings the Level parameter into the auctioneer API fold.
-AucAdvanced.Debug.Level = DebugLib.Level
-
--------------------------------------------------------------------------------
--- Used to make sure that conditions are met within functions.
--- If test is false, the error message will be written to nLog and the user's
--- default chat channel.
---
--- syntax:
---    assertion = assert(test, message)
---
--- parameters:
---    test    - (any)     false/nil, if the assertion failed
---                        anything else, otherwise
---    message - (string)  the message which will be output to the user
---
--- returns:
---    assertion - (boolean) true, if the test passed
---                          false, otherwise
--------------------------------------------------------------------------------
-function AucAdvanced.Debug.Assert(test, message)
-	return DebugLib.Assert(addonName, test, message)
-end
-
-AucAdvanced.RegisterRevision("$URL: http://svn.norganna.org/auctioneer/branches/5.17/Auc-Advanced/CoreMain.lua $", "$Rev: 5378 $")
+AucAdvanced.RegisterRevision("$URL: http://svn.norganna.org/auctioneer/branches/5.21c/Auc-Advanced/CoreMain.lua $", "$Rev: 5461 $")

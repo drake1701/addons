@@ -1,33 +1,35 @@
-local Arathi	= DBM:NewMod("z529", "DBM-PvP", 2)
-local L			= Arathi:GetLocalizedStrings()
+local mod		= DBM:NewMod("z529", "DBM-PvP", 2)
+local L			= mod:GetLocalizedStrings()
 
-Arathi:SetZone(DBM_DISABLE_ZONE_DETECTION)
+mod:SetRevision(("$Revision: 38 $"):sub(12, -3))
+mod:SetZone(DBM_DISABLE_ZONE_DETECTION)
 
-Arathi:RegisterEvents(
+mod:RegisterEvents(
 	"ZONE_CHANGED_NEW_AREA"
 )
 
-local winTimer 		= Arathi:NewTimer(30, "TimerWin", "Interface\\Icons\\INV_Misc_PocketWatch_01")
-local capTimer 		= Arathi:NewTimer(63, "TimerCap", "Interface\\Icons\\Spell_Misc_HellifrePVPHonorHoldFavor")
+local winTimer 		= mod:NewTimer(30, "TimerWin", "Interface\\Icons\\INV_Misc_PocketWatch_01")
+local capTimer 		= mod:NewTimer(60, "TimerCap", "Interface\\Icons\\Spell_Misc_HellifrePVPHonorHoldFavor")
 
 local bgzone = false
-Arathi:AddBoolOption("ShowAbEstimatedPoints", true, nil, function()
-	if Arathi.Options.ShowAbEstimatedPoints and bgzone then
-		Arathi:ShowEstimatedPoints()
+local GetMapLandmarkInfo, GetNumMapLandmarks = GetMapLandmarkInfo, GetNumMapLandmarks
+mod:AddBoolOption("ShowAbEstimatedPoints", true, nil, function()
+	if mod.Options.ShowAbEstimatedPoints and bgzone then
+		mod:ShowEstimatedPoints()
 	else
-		Arathi:HideEstimatedPoints()
+		mod:HideEstimatedPoints()
 	end
 end)
-Arathi:AddBoolOption("ShowAbBasesToWin", false, nil, function()
-	if Arathi.Options.ShowAbBasesToWin and bgzone then
-		Arathi:ShowBasesToWin()
+mod:AddBoolOption("ShowAbBasesToWin", false, nil, function()
+	if mod.Options.ShowAbBasesToWin and bgzone then
+		mod:ShowBasesToWin()
 	else
-		Arathi:HideBasesToWin()
+		mod:HideBasesToWin()
 	end
 end)
 
-Arathi:RemoveOption("HealthFrame")
-Arathi:RemoveOption("SpeedKillTimer")
+mod:RemoveOption("HealthFrame")
+mod:RemoveOption("SpeedKillTimer")
 
 local ResPerSec = {
 	[0] = 1e-300, -- work-around for the divions by zero foo (no, using DOUBLE_MIN is not possible here as it would overflow to infinity which is also an exception)
@@ -101,8 +103,8 @@ local function get_basecount()
 end
 local function get_score()
 	if not bgzone then return 0,0 end
-	local AllyScore		= tonumber(string.match((select(4, GetWorldStateUIInfo(1)) or ""), L.ScoreExpr)) or 0
-	local HordeScore	= tonumber(string.match((select(4, GetWorldStateUIInfo(2)) or ""), L.ScoreExpr)) or 0
+	local AllyScore		= tonumber(string.match((select(4, GetWorldStateUIInfo(2)) or ""), L.ScoreExpr)) or 0
+	local HordeScore	= tonumber(string.match((select(4, GetWorldStateUIInfo(3)) or ""), L.ScoreExpr)) or 0
 	return AllyScore, HordeScore
 end
 
@@ -127,7 +129,7 @@ do
 	local function AB_Initialize()
 		if DBM:GetCurrentArea() == 529 then
 			bgzone = true
-			Arathi:RegisterShortTermEvents(
+			mod:RegisterShortTermEvents(
 				"CHAT_MSG_BG_SYSTEM_HORDE",
 				"CHAT_MSG_BG_SYSTEM_ALLIANCE",
 				"CHAT_MSG_BG_SYSTEM_NEUTRAL",
@@ -145,27 +147,27 @@ do
 				end
 			end
 
-			if Arathi.Options.ShowAbEstimatedPoints then
-				Arathi:ShowEstimatedPoints()
+			if mod.Options.ShowAbEstimatedPoints then
+				mod:ShowEstimatedPoints()
 			end
-			if Arathi.Options.ShowAbBasesToWin then
-				Arathi:ShowBasesToWin()
+			if mod.Options.ShowAbBasesToWin then
+				mod:ShowBasesToWin()
 			end
 
 		elseif bgzone then
 			bgzone = false
-			Arathi:UnregisterShortTermEvents()
+			mod:UnregisterShortTermEvents()
 
-			if Arathi.Options.ShowAbEstimatedPoints then
-				Arathi:HideEstimatedPoints()
+			if mod.Options.ShowAbEstimatedPoints then
+				mod:HideEstimatedPoints()
 			end
-			if Arathi.Options.ShowAbBasesToWin then
-				Arathi:HideBasesToWin()
+			if mod.Options.ShowAbBasesToWin then
+				mod:HideBasesToWin()
 			end
 		end
 	end
-	Arathi.OnInitialize = AB_Initialize
-	function Arathi:ZONE_CHANGED_NEW_AREA()
+	mod.OnInitialize = AB_Initialize
+	function mod:ZONE_CHANGED_NEW_AREA()
 		self:Schedule(1, AB_Initialize)
 	end
 end
@@ -200,10 +202,10 @@ do
 		self:Schedule(1, check_for_updates)
 	end
 
-	Arathi.CHAT_MSG_BG_SYSTEM_ALLIANCE = schedule_check
-	Arathi.CHAT_MSG_BG_SYSTEM_HORDE = schedule_check
-	Arathi.CHAT_MSG_RAID_BOSS_EMOTE = schedule_check
-	Arathi.CHAT_MSG_BG_SYSTEM_NEUTRAL = schedule_check
+	mod.CHAT_MSG_BG_SYSTEM_ALLIANCE = schedule_check
+	mod.CHAT_MSG_BG_SYSTEM_HORDE = schedule_check
+	mod.CHAT_MSG_RAID_BOSS_EMOTE = schedule_check
+	mod.CHAT_MSG_BG_SYSTEM_NEUTRAL = schedule_check
 end
 
 do
@@ -213,7 +215,7 @@ do
 	local last_horde_bases = 0
 	local last_alliance_bases = 0
 
-	function Arathi:UPDATE_WORLD_STATES()
+	function mod:UPDATE_WORLD_STATES()
 		if not bgzone then return end
 
 		local AllyBases, HordeBases = get_basecount()
@@ -244,9 +246,9 @@ do
 			self:UpdateWinTimer()
 		end
 	end
-	function Arathi:UpdateWinTimer()
-		local AllyTime = (1600 - last_alliance_score) / ResPerSec[last_alliance_bases]
-		local HordeTime = (1600 - last_horde_score) / ResPerSec[last_horde_bases]
+	function mod:UpdateWinTimer()
+		local AllyTime = (1500 - last_alliance_score) / ResPerSec[last_alliance_bases]
+		local HordeTime = (1500 - last_horde_score) / ResPerSec[last_horde_bases]
 
 		if AllyTime > 5000 then		AllyTime = 5000 end
 		if HordeTime > 5000 then	HordeTime = 5000 end
@@ -263,13 +265,14 @@ do
 			if self.ScoreFrame1Text and self.ScoreFrame2Text then
 				local AllyPoints = math.floor(math.floor(((HordeTime * ResPerSec[last_alliance_bases]) + last_alliance_score) / 10) * 10)
 				self.ScoreFrame1Text:SetText("("..AllyPoints..")")
-				self.ScoreFrame2Text:SetText("(1600)")
+				self.ScoreFrame2Text:SetText("(1500)")
 			end
 
 			winner_is = 2
 			winTimer:Update(get_gametime(), get_gametime()+HordeTime)
 			winTimer:DisableEnlarge()
-			winTimer:UpdateName(L.WinBarText:format(L.Horde or FACTION_HORDE))
+			local title = L.Horde or FACTION_HORDE--L.Horde is nil in english local, unless it's added to non english local, FACTION_HORDE will be used
+			winTimer:UpdateName(L.WinBarText:format(title))
 			winTimer:SetColor(hordeColor)
 			winTimer:UpdateIcon("Interface\\Icons\\INV_BannerPVP_01.blp")
 
@@ -277,13 +280,14 @@ do
 			if self.ScoreFrame1Text and self.ScoreFrame2Text then
 				local HordePoints = math.floor(math.floor(((AllyTime * ResPerSec[last_horde_bases]) + last_horde_score) / 10) * 10)
 				self.ScoreFrame2Text:SetText("("..HordePoints..")")
-				self.ScoreFrame1Text:SetText("(1600)")		
+				self.ScoreFrame1Text:SetText("(1500)")		
 			end
 
 			winner_is = 1
 			winTimer:Update(get_gametime(), get_gametime()+AllyTime)
 			winTimer:DisableEnlarge()
-			winTimer:UpdateName(L.WinBarText:format(L.Alliance or FACTION_ALLIANCE))
+			local title = L.Alliance or FACTION_ALLIANCE--L.Alliance is nil in english local, unless it's added to non english local, FACTION_ALLIANCE will be used
+			winTimer:UpdateName(L.WinBarText:format(title))
 			winTimer:SetColor(allyColor)
 			winTimer:UpdateIcon("Interface\\Icons\\INV_BannerPVP_02.blp")
 		end
@@ -301,10 +305,10 @@ do
 				FriendlyBases = last_horde_bases
 				EnemyBases = last_alliance_bases
 			end
-			if ((1600 - FriendlyLast) / ResPerSec[FriendlyBases]) > ((1600 - EnemyLast) / ResPerSec[EnemyBases]) then
+			if ((1500 - FriendlyLast) / ResPerSec[FriendlyBases]) > ((1500 - EnemyLast) / ResPerSec[EnemyBases]) then
 				for i=1, 5 do
-					local EnemyTime = (1600 - EnemyLast) / ResPerSec[ 5 - i ]
-					local FriendlyTime = (1600 - FriendlyLast) / ResPerSec[ i ]
+					local EnemyTime = (1500 - EnemyLast) / ResPerSec[ 5 - i ]
+					local FriendlyTime = (1500 - FriendlyLast) / ResPerSec[ i ]
 					if( FriendlyTime < EnemyTime ) then
 						baseLowest = FriendlyTime
 					else
@@ -313,7 +317,7 @@ do
 					
 					local EnemyFinal = math.floor( ( EnemyLast + math.floor( baseLowest * ResPerSec[ 5 - i ] + 0.5 ) ) / 10 ) * 10
 					local FriendlyFinal = math.floor( ( FriendlyLast + math.floor( baseLowest * ResPerSec[ i ] + 0.5 ) ) / 10 ) * 10
-					if( FriendlyFinal >= 1600 and EnemyFinal < 1600 ) then
+					if( FriendlyFinal >= 1500 and EnemyFinal < 1500 ) then
 						self.ScoreFrameToWinText:SetText(L.BasesToWin:format(i))
 						break
 					end
@@ -326,7 +330,7 @@ do
 	end
 end
 
-function Arathi:ShowEstimatedPoints()
+function mod:ShowEstimatedPoints()
 	if AlwaysUpFrame1Text and AlwaysUpFrame2Text then
 		if not self.ScoreFrame1 then
 			self.ScoreFrame1 = CreateFrame("Frame", nil, AlwaysUpFrame1)
@@ -353,7 +357,7 @@ function Arathi:ShowEstimatedPoints()
 	end
 end
 
-function Arathi:ShowBasesToWin()
+function mod:ShowBasesToWin()
 	if AlwaysUpFrame1Text and AlwaysUpFrame2Text then
 		if not self.ScoreFrameToWin then
 			self.ScoreFrameToWin = CreateFrame("Frame", nil, AlwaysUpFrame2)
@@ -369,7 +373,7 @@ function Arathi:ShowBasesToWin()
 	end
 end
 
-function Arathi:HideEstimatedPoints()
+function mod:HideEstimatedPoints()
 	if self.ScoreFrame1 and self.ScoreFrame2 then
 		self.ScoreFrame1:Hide()
 		self.ScoreFrame1Text:SetText("")
@@ -378,7 +382,7 @@ function Arathi:HideEstimatedPoints()
 	end
 end
 
-function Arathi:HideBasesToWin()
+function mod:HideBasesToWin()
 	if self.ScoreFrameToWin then
 		self.ScoreFrameToWin:Hide()
 		self.ScoreFrameToWinText:SetText("")

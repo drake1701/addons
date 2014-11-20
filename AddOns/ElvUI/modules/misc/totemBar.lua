@@ -88,7 +88,7 @@ function TOTEMS:Initialize()
 	
 	local bar = CreateFrame('Frame', 'ElvUI_TotemBar', E.UIParent)
 	bar = CreateFrame('Frame', 'ElvUI_TotemBar', E.UIParent)
-	bar:SetPoint('TOPLEFT', LeftChatPanel, 'TOPRIGHT', 4, 0)
+	bar:SetPoint('TOPLEFT', LeftChatPanel, 'TOPRIGHT', 14, 0)
 	self.bar = bar;
 	
 	for i=1, MAX_TOTEMS do
@@ -108,13 +108,14 @@ function TOTEMS:Initialize()
 		frame.cooldown = CreateFrame('Cooldown', frame:GetName()..'Cooldown', frame, 'CooldownFrameTemplate')
 		frame.cooldown:SetReverse(true)
 		frame.cooldown:SetInside()
+		E:RegisterCooldown(frame.cooldown)
 		self.bar[i] = frame;
 	end
 	
 	self:ToggleEnable()
 	self:PositionAndSize()
 
-	E:CreateMover(bar, 'TotemBarMover', L['Totems']);
+	E:CreateMover(bar, 'TotemBarMover', L['Class Bar']);
 end
 
 E:RegisterModule(TOTEMS:GetName())

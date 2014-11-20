@@ -2,18 +2,38 @@
 -- Combo Point Widget --
 ------------------------
 local path = "Interface\\AddOns\\TidyPlates_ThreatPlates\\Widgets\\ComboPointWidget\\"
-local COMBO_ART = { "1", "2", "3", "4", "5", }
 
 local WidgetList = {}
 
+local Anticipation =  GetSpellInfo(115190)
+
+local function enabled()
+	local db = TidyPlatesThreat.db.profile.comboWidget
+	return db.ON
+end
+
 -- Update Graphics
 local function UpdateWidgetFrame(frame)
-		local points 
-		if UnitExists("target") then points = GetComboPoints("player", "target") end
-		if points and points > 0 and TidyPlatesThreat.db.profile.comboWidget.ON then 
-			frame.Icon:SetTexture(path..COMBO_ART[points]) 
-			frame:Show()
-		else frame:_Hide() end	
+	local points 
+	if UnitExists("target") then 
+		points = GetComboPoints("player", "target") 
+	end
+	if points and points > 0 and enabled() then 
+		if points > 4 then
+			local name, _, _, count = UnitAura("player", Anticipation)
+			
+			if name and count > 0 then
+				points = points + count
+			end
+		end	
+		local db = TidyPlatesThreat.db.profile.comboWidget
+		frame.Icon:SetTexture(path..points)
+		frame:SetScale(db.scale)
+		frame:SetPoint("CENTER",frame:GetParent(),"CENTER",db.x,db.y)
+		frame:Show()
+	else 
+		frame:_Hide()
+	end	
 end
 
 -- Context
@@ -48,11 +68,13 @@ local isEnabled = false
 WatcherFrame:RegisterEvent("UNIT_COMBO_POINTS")
 
 local function WatcherFrameHandler(frame, event, unitid)
-		local guid = UnitGUID("target")
-		if guid then 
-			local widget = WidgetList[guid]
-			if widget then UpdateWidgetFrame(widget) end				-- To update all, use: for guid, widget in pairs(WidgetList) do UpdateWidgetFrame(widget) end
+	local guid = UnitGUID("target")
+	if guid then 
+		local widget = WidgetList[guid]
+		if widget then 
+			UpdateWidgetFrame(widget) 
 		end
+	end
 end
 
 local function EnableWatcherFrame(arg)
@@ -83,4 +105,4 @@ local function CreateWidgetFrame(parent)
 	return frame
 end
 
-ThreatPlatesWidgets.CreateComboPointWidget = CreateWidgetFrame
+ThreatPlatesWidgets.RegisterWidget("ComboPointWidget",CreateWidgetFrame,true,enabled)

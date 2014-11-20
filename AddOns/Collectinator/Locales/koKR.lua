@@ -6,7 +6,7 @@ koKR localization strings for Collectinator
 File date: 2012-09-12T01:10:19Z 
 File revision: @file-revision@ 
 Project revision: @project-revision@
-Project version: 2.0.2
+Project version: 2.0.12
 ************************************************************************
 Currently maintained by:
 http://www.wowace.com/addons/collectinator/localization/translators/
@@ -63,7 +63,9 @@ L["CTRL_SHIFT_CLICK"] = "Ctrl-Shift-Click: 맵과 미니맵에 표시"
 L["Dama Wildmane"] = "다마 와일드메인"
 L["Dame Evniki Kapsalis"] = "귀부인 에브니키 카프살리스"
 L["Darahir"] = "다라히르"
+L["Darkmoon Rabbit"] = "다크문 토끼" -- Needs review
 L["Dealer Rashaad"] = "무역업자 라샤드"
+L["Deathguard Netharian"] = "죽음경비병 네타리온" -- Needs review
 L["Defias Pirate"] = "데피아즈단 해적"
 L["Demisette Cloyce"] = "드미제트 클로이스"
 L["Derrick Brindlebeard"] = "데릭 브린들비어드"
@@ -95,6 +97,7 @@ L["FONT_SIZE_DESC"] = "폰트 크기를 변경합니다."
 L["Freka Bloodaxe"] = "프레카 블러드액스"
 L["Gaelden Hammersmith"] = "가엘덴 해머스미스"
 L["Geen"] = "기인"
+L["Gina Mudclaw"] = "지나 머드클로" -- Needs review
 L["Gregor MacVince"] = "그레고르 맥빈스"
 L["Grella"] = "그렐라"
 L["Grol'dar"] = "그롤다르"
@@ -105,6 +108,7 @@ L["Halpa"] = "할파"
 L["Harb Clawhoof"] = "할브 클로후프"
 L["Hide Pop-Up"] = "팝업 숨김"
 L["Hiren Loresong"] = "히렌 로어송"
+L["Huolon"] = "후오른" -- Needs review
 L["Include Excluded"] = "무시 항목 포함"
 L["Irisee"] = "아이리시"
 L["Jadefang"] = "비취송곳니" -- Needs review
@@ -115,6 +119,7 @@ L["Katie Hunter"] = "케이티 헌터"
 L["Knight Dameron"] = "기사 대메론"
 L["Known"] = "이미 습득"
 L["KNOWN_DESC"] = "이미 습득한 수집품을 검색에 포함합니다."
+L["Ku-Mo"] = "쿠모" -- Needs review
 L["Larkin Thunderbrew"] = "라르킨 썬더브루"
 L["Lelanai"] = "렐라나이"
 L["Lieutenant Karter"] = "부관 칼터"
@@ -191,4 +196,5 @@ L["Yarlyn Amberstill"] = "얄린 앰버스틸"
 L["Zachariah Post"] = "자카리아 포스트"
 L["Zen'Vorka"] = "젠보르카" -- Needs review
 L["Zevrost"] = "제브로스트"
+L["Zhu-Gon the Sour"] = "시큼한 주곤" -- Needs review
 L["Zjolnir"] = "졸니르"

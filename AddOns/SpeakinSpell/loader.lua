@@ -1,4 +1,4 @@
-﻿-- Author      : RisM
+-- Author      : RisM
 -- Create Date : 6/28/2009 3:38:58 PM
 
 -- This loader.lua file is loaded first, and defines default values, sets up critical declarations
@@ -47,7 +47,7 @@ SpeakinSpell.DEVELOPER_MODE = false
 -------------------------------------------------------------------------------
 -- CONSTANTS
 -------------------------------------------------------------------------------
-
+SpeakinSpell.WOWVERSION ="WOW 5.4.x"
 SpeakinSpell.URL = "Search www.curse.com for \"SpeakinSpell\""
 
 SpeakinSpell.ALL_URLs = [[
@@ -105,6 +105,9 @@ SpeakinSpell.DEFAULTS = {
 		RaidOfficer	= "RAID",
 		Raid		= "RAID",
 		Party		= "PARTY",
+      Instance = "INSTANCE_CHAT",
+      InstanceLeader = "INSTANCE_CHAT",
+      InstanceOfficer = "INSTANCE_CHAT",
 		PartyLeader	= "PARTY",
 		Solo		= "SAY",
 	},
@@ -264,7 +267,7 @@ SpeakinSpell.DEFAULTS = {
 		-- The speech list
 		Messages = {}, -- populated with default sample speeches from DEFAULT_SPEECHES in template.lua OnInitialize
 		ReadOnly = {}, -- ReadOnly[string] = true or nil
-		
+		 InstanceChannel=false,
 		-- Channel options / Whisper
 		WhisperTarget = false,
 		Channels = { -- for creating new spells

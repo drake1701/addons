@@ -1,6 +1,5 @@
 local E, L, V, P, G = unpack(select(2, ...)); --Inport: Engine, Locales, PrivateDB, ProfileDB, GlobalDB
 
-
 local Astrolabe = DongleStub("Astrolabe-1.0") 
 local format = string.format
 local sub = string.sub
@@ -10,8 +9,10 @@ local atan2 = math.atan2
 local modf = math.modf
 local ceil = math.ceil
 local floor = math.floor
+local abs = math.abs
 
 --Return short value of a number
+
 function E:ShortValue(v)
 	if v >= 1e9 then
 		return ("%.1fb"):format(v / 1e9):gsub("%.?0+([kmb])$", "%1")
@@ -25,11 +26,7 @@ function E:ShortValue(v)
 end
 
 function E:IsEvenNumber(num)
-	if ( num % 2 ) == 0 then
-		return true;
-	else
-		return false;
-	end
+	return num % 2 == 0
 end
 
 -- http://www.wowwiki.com/ColorGradient
@@ -48,14 +45,17 @@ function E:ColorGradient(perc, ...)
 end
 
 --Return rounded number
-function E:Round(v, decimals)
-    return (("%%.%df"):format(decimals or 0)):format(v)
+function E:Round(num, idp)
+	if(idp and idp > 0) then
+		local mult = 10 ^ idp
+		return floor(num * mult + 0.5) / mult
+	end
+	return floor(num + 0.5)
 end
 
 --Truncate a number off to n places
 function E:Truncate(v, decimals)
-	if not decimals then decimals = 0 end
-    return v - (v % (0.1 ^ decimals))
+    return v - (v % (0.1 ^ (decimals or 0)))
 end
 
 --RGB to Hex
@@ -165,9 +165,6 @@ function E:GetFormattedText(style, min, max)
 end
 
 function E:ShortenString(string, numChars, dots)
-	assert(string, 'You need to provide a string to shorten. Usage: E:ShortenString(string, numChars, includeDots)')
-	assert(numChars, 'You need to provide a length to shorten the string to. Usage: E:ShortenString(string, numChars, includeDots)')
-	
 	local bytes = string:len()
 	if (bytes <= numChars) then
 		return string
@@ -251,7 +248,7 @@ E.TimeFormats = {
 
 
 local DAY, HOUR, MINUTE = 86400, 3600, 60 --used for calculating aura time text
-local DAYISH, HOURISH, MINUTEISH = 3600 * 23.5, 60 * 59.5, 59.5 --used for caclculating aura time at transition points
+local DAYISH, HOURISH, MINUTEISH = HOUR * 23.5, MINUTE * 59.5, 59.5 --used for caclculating aura time at transition points
 local HALFDAYISH, HALFHOURISH, HALFMINUTEISH = DAY/2 + 0.5, HOUR/2 + 0.5, MINUTE/2 + 0.5 --used for calculating next update times
 
 -- will return the the value to display, the formatter id to use and calculates the next update for the Aura
@@ -263,13 +260,13 @@ function E:GetTimeInfo(s, threshhold)
 			return s, 4, 0.051
 		end
 	elseif s < HOUR then
-		local minutes = tonumber(E:Round(s/MINUTE))
+		local minutes = floor((s/MINUTE)+.5)
 		return ceil(s / MINUTE), 2, minutes > 1 and (s - (minutes*MINUTE - HALFMINUTEISH)) or (s - MINUTEISH)
 	elseif s < DAY then
-		local hours = tonumber(E:Round(s/HOUR))
+		local hours = floor((s/HOUR)+.5)
 		return ceil(s / HOUR), 1, hours > 1 and (s - (hours*HOUR - HALFHOURISH)) or (s - HOURISH)
 	else
-		local days = tonumber(E:Round(s/DAY))
+		local days = floor((s/DAY)+.5)
 		return ceil(s / DAY), 0,  days > 1 and (s - (days*DAY - HALFDAYISH)) or (s - DAYISH)
 	end
 end
@@ -305,4 +302,81 @@ function E:GetDistance(unit1, unit2, mapScan)
 	elseif distance then
 		return distance
 	end
+end
+
+--Money text formatting, code taken from Scrooge by thelibrarian ( http://www.wowace.com/addons/scrooge/ )
+local COLOR_COPPER = "|cffeda55f"
+local COLOR_SILVER = "|cffc7c7cf"
+local COLOR_GOLD = "|cffffd700"
+local ICON_COPPER = "|TInterface\\MoneyFrame\\UI-CopperIcon:12:12|t"
+local ICON_SILVER = "|TInterface\\MoneyFrame\\UI-SilverIcon:12:12|t"
+local ICON_GOLD = "|TInterface\\MoneyFrame\\UI-GoldIcon:12:12|t"
+function E:FormatMoney(amount, style, textonly)
+	local coppername = textonly and L.copperabbrev or ICON_COPPER
+	local silvername = textonly and L.silverabbrev or ICON_SILVER
+	local goldname = textonly and L.goldabbrev or ICON_GOLD
+
+	local value = abs(amount)
+	local gold = floor(value / 10000)
+	local silver = floor(mod(value / 100, 100))
+	local copper = floor(mod(value, 100))
+
+	if not style or style == "SMART" then
+		local str = "";
+		if gold > 0 then
+			str = format("%d%s%s", gold, goldname, (silver > 0 or copper > 0) and " " or "")
+		end
+		if silver > 0 then
+			str = format("%s%d%s%s", str, silver, silvername, copper > 0 and " " or "")
+		end
+		if copper > 0 or value == 0 then
+			str = format("%s%d%s", str, copper, coppername)
+		end
+		return str
+	end
+
+	if style == "FULL" then
+		if gold > 0 then
+			return format("%d%s %d%s %d%s", gold, goldname, silver, silvername, copper, coppername)
+		elseif silver > 0 then
+			return format("%d%s %d%s", silver, silvername, copper, coppername)
+		else
+			return format("%d%s", copper, coppername)
+		end
+	elseif style == "SHORT" then
+		if gold > 0 then
+			return format("%.1f%s", amount / 10000, goldname)
+		elseif silver > 0 then
+			return format("%.1f%s", amount / 100, silvername)
+		else
+			return format("%d%s", amount, coppername)
+		end
+	elseif style == "SHORTINT" then
+		if gold > 0 then
+			return format("%d%s", gold, goldname)
+		elseif silver > 0 then
+			return format("%d%s", silver, silvername)
+		else
+			return format("%d%s", copper, coppername)
+		end
+	elseif style == "CONDENSED" then
+		if gold > 0 then
+			return format("%s%d|r.%s%02d|r.%s%02d|r", COLOR_GOLD, gold, COLOR_SILVER, silver, COLOR_COPPER, copper)
+		elseif silver > 0 then
+			return format("%s%d|r.%s%02d|r", COLOR_SILVER, silver, COLOR_COPPER, copper)
+		else
+			return format("%s%d|r", COLOR_COPPER, copper)
+		end
+	elseif style == "BLIZZARD" then
+		if gold > 0 then
+			return format("%s%s %d%s %d%s", BreakUpLargeNumbers(gold), goldname, silver, silvername, copper, coppername)
+		elseif silver > 0 then
+			return format("%d%s %d%s", silver, silvername, copper, coppername)
+		else
+			return format("%d%s", copper, coppername)
+		end
+	end
+
+	-- Shouldn't be here; punt
+	return self:FormatMoney(amount, "SMART")
 end

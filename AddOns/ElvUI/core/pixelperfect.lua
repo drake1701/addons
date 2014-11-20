@@ -19,7 +19,7 @@ function E:UIScale(event)
 
 	if self.screenwidth < 1600 then
 			self.lowversion = true;
-	elseif self.screenwidth >= 3840 --[[or (UIParent:GetWidth() + 1 > self.screenwidth)]] then
+	elseif self.screenwidth >= 3840 and self.global.eyefinity then
 		local width = self.screenwidth;
 		local height = self.screenheight;
 	
@@ -110,6 +110,5 @@ end
 
 -- pixel perfect script of custom ui scale.
 function E:Scale(x)
-	if not self.mult then self:UIScale() end
     return self.mult*floor(x/self.mult+.5);
 end

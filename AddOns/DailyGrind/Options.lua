@@ -13,7 +13,9 @@ DailyGrind.defaultSettings = {
 	Blacklist = {},
 	NpcBlacklist = {},
 	RewardList = {},
-	SuspendKeys = { CTRL = 1 },
+	SuspendKeys = {
+		CTRL = true
+	},
 	RepeatableQuestsEnabled = false
 }
 

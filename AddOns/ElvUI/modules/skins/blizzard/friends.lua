@@ -57,15 +57,11 @@ local function LoadSkin()
 	local KillTextures = {
 		"FriendsFrameBroadcastInputLeft",
 		"FriendsFrameBroadcastInputRight",
-		"FriendsFrameBroadcastInputMiddle",
-		"ChannelFrameDaughterFrameChannelNameLeft",
-		"ChannelFrameDaughterFrameChannelNameRight",
-		"ChannelFrameDaughterFrameChannelNameMiddle",
-		"ChannelFrameDaughterFrameChannelPasswordLeft",
-		"ChannelFrameDaughterFrameChannelPasswordRight",				
-		"ChannelFrameDaughterFrameChannelPasswordMiddle",			
+		"FriendsFrameBroadcastInputMiddle",		
 	}
 
+	S:HandleEditBox(ChannelFrameDaughterFrameChannelName)
+	S:HandleEditBox(ChannelFrameDaughterFrameChannelPassword)
 	FriendsFrameInset:StripTextures()
 	WhoFrameListInset:StripTextures()
 	WhoFrameEditBoxInset:StripTextures()
@@ -234,6 +230,12 @@ local function LoadSkin()
 	FriendsTabHeaderSoRButtonIcon:SetTexCoord(unpack(E.TexCoords))
 	FriendsTabHeaderSoRButtonIcon:SetInside()
 	FriendsTabHeaderSoRButton:Point('TOPRIGHT', FriendsTabHeader, 'TOPRIGHT', -8, -56)
+
+	FriendsTabHeaderRecruitAFriendButton:SetTemplate('Default')
+	FriendsTabHeaderRecruitAFriendButton:StyleButton()
+	FriendsTabHeaderRecruitAFriendButtonIcon:SetDrawLayer("OVERLAY")
+	FriendsTabHeaderRecruitAFriendButtonIcon:SetTexCoord(unpack(E.TexCoords))
+	FriendsTabHeaderRecruitAFriendButtonIcon:SetInside()
 	
 	S:HandleScrollBar(FriendsFrameIgnoreScrollFrameScrollBar, 4)
 	S:HandleScrollBar(FriendsFramePendingScrollFrameScrollBar, 4)
@@ -252,6 +254,14 @@ local function LoadSkin()
 	ScrollOfResurrectionFrameNoteFrame:SetTemplate()
 	ScrollOfResurrectionFrameTargetEditBox:SetTemplate()
 	ScrollOfResurrectionFrame:SetTemplate('Transparent')
+
+	RecruitAFriendFrame:StripTextures()
+	RecruitAFriendFrame:SetTemplate("Transparent")
+	S:HandleCloseButton(RecruitAFriendFrameCloseButton)
+	S:HandleButton(RecruitAFriendFrameSendButton)
+	S:HandleEditBox(RecruitAFriendNameEditBox)
+	RecruitAFriendNoteFrame:StripTextures()
+	S:HandleEditBox(RecruitAFriendNoteFrame)
 end
 
 S:RegisterSkin('ElvUI', LoadSkin)

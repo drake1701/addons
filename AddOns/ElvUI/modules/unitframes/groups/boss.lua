@@ -19,7 +19,13 @@ function UF:Construct_BossFrames(frame)
 	frame.Buffs = self:Construct_Buffs(frame)
 	
 	frame.Debuffs = self:Construct_Debuffs(frame)
-	
+	frame.DebuffHighlight = self:Construct_DebuffHighlight(frame)
+	frame.TargetGlow = UF:Construct_TargetGlow(frame)
+	tinsert(frame.__elements, UF.UpdateTargetGlow)
+	frame:RegisterEvent('PLAYER_TARGET_CHANGED', UF.UpdateTargetGlow)
+	frame:RegisterEvent('PLAYER_ENTERING_WORLD', UF.UpdateTargetGlow)
+	frame:RegisterEvent('GROUP_ROSTER_UPDATE', UF.UpdateTargetGlow)
+
 	frame.Castbar = self:Construct_Castbar(frame, 'RIGHT')
 	frame.RaidIcon = UF:Construct_RaidIcon(frame)
 	frame.AltPowerBar = self:Construct_AltPowerBar(frame)
@@ -45,7 +51,7 @@ function UF:Update_BossFrames(frame, db)
 	local INDEX = frame.index
 	local UNIT_WIDTH = db.width
 	local UNIT_HEIGHT = db.height
-	
+	local SHADOW_SPACING = E.PixelMode and 3 or 4
 	local USE_POWERBAR = db.power.enable
 	local USE_MINI_POWERBAR = db.power.width == 'spaced' and USE_POWERBAR
 	local USE_INSET_POWERBAR = db.power.width == 'inset' and USE_POWERBAR
@@ -168,19 +174,23 @@ function UF:Update_BossFrames(frame, db)
 				power:Point("BOTTOMRIGHT", frame.Health, "BOTTOMRIGHT", -POWERBAR_OFFSET, -POWERBAR_OFFSET)
 				power:SetFrameStrata("LOW")
 				power:SetFrameLevel(2)
+				power.value:SetParent(frame.RaisedElementParent)
 			elseif USE_MINI_POWERBAR then
 				power:Width(POWERBAR_WIDTH - BORDER*2)
 				power:Height(POWERBAR_HEIGHT - BORDER*2)
 				power:Point("LEFT", frame, "BOTTOMLEFT", (BORDER*2 + 4), BORDER + (POWERBAR_HEIGHT/2))
 				power:SetFrameStrata("MEDIUM")
 				power:SetFrameLevel(frame:GetFrameLevel() + 3)
+				power.value:SetParent(power)
 			elseif USE_INSET_POWERBAR then
 				power:Height(POWERBAR_HEIGHT - BORDER*2)
 				power:Point("BOTTOMLEFT", frame.Health, "BOTTOMLEFT", BORDER + (BORDER*2), BORDER + (BORDER*2))
 				power:Point("BOTTOMRIGHT", frame.Health, "BOTTOMRIGHT", -(BORDER + (BORDER*2)), BORDER + (BORDER*2))
 				power:SetFrameStrata("MEDIUM")
-				power:SetFrameLevel(frame:GetFrameLevel() + 3)						
+				power:SetFrameLevel(frame:GetFrameLevel() + 3)	
+				power.value:SetParent(power)					
 			else
+				power.value:SetParent(frame.RaisedElementParent)
 				power:Point("TOPLEFT", frame.Health.backdrop, "BOTTOMLEFT", BORDER, -(E.PixelMode and 0 or (BORDER + SPACING)))
 				power:Point("BOTTOMRIGHT", frame, "BOTTOMRIGHT", -(BORDER + PORTRAIT_WIDTH), BORDER)
 			end
@@ -238,6 +248,30 @@ function UF:Update_BossFrames(frame, db)
 		end
 	end
 
+	--Target Glow
+	do
+		local tGlow = frame.TargetGlow
+		tGlow:ClearAllPoints()
+		
+		tGlow:Point("TOPLEFT", -SHADOW_SPACING, SHADOW_SPACING)
+		tGlow:Point("TOPRIGHT", SHADOW_SPACING, SHADOW_SPACING)
+		
+		if USE_MINI_POWERBAR then
+			tGlow:Point("BOTTOMLEFT", -SHADOW_SPACING, -SHADOW_SPACING + (POWERBAR_HEIGHT/2))
+			tGlow:Point("BOTTOMRIGHT", SHADOW_SPACING, -SHADOW_SPACING + (POWERBAR_HEIGHT/2))		
+		else
+			tGlow:Point("BOTTOMLEFT", -SHADOW_SPACING, -SHADOW_SPACING)
+			tGlow:Point("BOTTOMRIGHT", SHADOW_SPACING, -SHADOW_SPACING)
+		end
+		
+		if USE_POWERBAR_OFFSET then
+			tGlow:Point("TOPLEFT", -SHADOW_SPACING+POWERBAR_OFFSET, SHADOW_SPACING)
+			tGlow:Point("TOPRIGHT", SHADOW_SPACING, SHADOW_SPACING)
+			tGlow:Point("BOTTOMLEFT", -SHADOW_SPACING+POWERBAR_OFFSET, -SHADOW_SPACING+POWERBAR_OFFSET)
+			tGlow:Point("BOTTOMRIGHT", SHADOW_SPACING, -SHADOW_SPACING+POWERBAR_OFFSET)				
+		end				
+	end		
+
 	--Auras Disable/Enable
 	--Only do if both debuffs and buffs aren't being used.
 	do
@@ -286,6 +320,7 @@ function UF:Update_BossFrames(frame, db)
 
 		if db.buffs.enable then			
 			buffs:Show()
+			UF:UpdateAuraIconSettings(buffs)
 		else
 			buffs:Hide()
 		end
@@ -321,6 +356,7 @@ function UF:Update_BossFrames(frame, db)
 
 		if db.debuffs.enable then			
 			debuffs:Show()
+			UF:UpdateAuraIconSettings(debuffs)
 		else
 			debuffs:Hide()
 		end
@@ -329,7 +365,7 @@ function UF:Update_BossFrames(frame, db)
 	--Castbar
 	do
 		local castbar = frame.Castbar
-		castbar:Width(db.castbar.width - (E.PixelMode and BORDER or (BORDER * 2)))
+		castbar:Width(db.castbar.width - (BORDER * 2))
 		castbar:Height(db.castbar.height)
 		
 		--Icon
@@ -415,6 +451,20 @@ function UF:Update_BossFrames(frame, db)
 			altpower:Hide()
 		end
 	end
+
+	--Debuff Highlight
+	do
+		local dbh = frame.DebuffHighlight
+		if E.db.unitframe.debuffHighlighting then
+			if not frame:IsElementEnabled('DebuffHighlight') then
+				frame:EnableElement('DebuffHighlight')
+			end
+		else
+			if frame:IsElementEnabled('DebuffHighlight') then
+				frame:DisableElement('DebuffHighlight')
+			end		
+		end
+	end	
 	
 	if db.customTexts then
 		local customFont = UF.LSM:Fetch("font", UF.db.font)
@@ -433,7 +483,7 @@ function UF:Update_BossFrames(frame, db)
 			frame:Tag(frame[objectName], objectDB.text_format or '')
 			frame[objectName]:SetJustifyH(objectDB.justifyH or 'CENTER')
 			frame[objectName]:ClearAllPoints()
-			frame[objectName]:SetPoint(objectDB.justifyH or 'CENTER', frame, 'CENTER', objectDB.xOffset, objectDB.yOffset)
+			frame[objectName]:SetPoint(objectDB.justifyH or 'CENTER', frame, objectDB.justifyH or 'CENTER', objectDB.xOffset, objectDB.yOffset)
 		end
 	end
 	
@@ -484,10 +534,10 @@ function UF:Update_BossFrames(frame, db)
 		UF:ToggleTransparentStatusBar(false, frame.Power, frame.Power.bg, true)
 	end			
 	
-	UF:ToggleTransparentStatusBar(UF.db.colors.transparentHealth, frame.Health, frame.Health.bg)
+	UF:ToggleTransparentStatusBar(UF.db.colors.transparentHealth, frame.Health, frame.Health.bg, true)
 	UF:ToggleTransparentStatusBar(UF.db.colors.transparentPower, frame.Power, frame.Power.bg)		
 	
 	frame:UpdateAllElements()
 end
 
-UF['unitgroupstoload']['boss'] = MAX_BOSS_FRAMES
+UF['unitgroupstoload']['boss'] = {MAX_BOSS_FRAMES}

@@ -3,10 +3,10 @@
 Core.lua
 Core functions for Collectinator
 ************************************************************************
-File date: 2013-04-20T18:25:58Z
-File hash: 92fb5f7
-Project hash: d1ccde1
-Project version: 2.0.2
+File date: 2014-10-19T23:20:49Z
+File hash: 50791b6
+Project hash: 7dcae1d
+Project version: 2.0.12
 ************************************************************************
 Please see http://www.wowace.com/addons/collectinator/ for more information.
 ************************************************************************
@@ -47,9 +47,10 @@ local L = LibStub("AceLocale-3.0"):GetLocale(private.addon_name)
 local Toast = LibStub("LibToast-1.0")
 local LPJ = LibStub("LibPetJournal-2.0")
 
-local debugger = _G.tekDebug and _G.tekDebug:GetFrame(private.addon_name)
+local debugger -- Only defined if needed.
 
 private.build_num = select(2, _G.GetBuildInfo())
+private.TextDump = LibStub("LibTextDump-1.0"):New(private.addon_name)
 
 -- Global Frame Variables
 addon.optionsFrame = {}
@@ -57,19 +58,23 @@ addon.optionsFrame = {}
 -------------------------------------------------------------------------------
 -- Debugger.
 -------------------------------------------------------------------------------
-function addon:Debug(...)
+local function CreateDebugFrame()
 	if debugger then
-		local text = string.format(...)
-		debugger:AddMessage(text)
-
-		--[===[@debug@
-		Toast:Spawn("Collectinator_DebugToast", text)
-		--@end-debug@]===]
-	else
-		--[===[@debug@
-		self:Printf(...)
-		--@end-debug@]===]
+		return
 	end
+	debugger = LibStub("LibTextDump-1.0"):New(("%s Debug Output"):format(private.addon_name), 640, 480)
+end
+
+function addon:Debug(...)
+	if not debugger then
+		CreateDebugFrame()
+	end
+	local text = string.format(...)
+	debugger:AddLine(text)
+
+	--[===[@debug@
+	Toast:Spawn("Collectinator_DebugToast", text)
+	--@end-debug@]===]
 end
 
 Toast:Register("Collectinator_DebugToast", function(toast, ...)
@@ -225,6 +230,7 @@ function addon:OnInitialize()
 					expansion2 = true,
 					expansion3 = true,
 					expansion4 = true,
+					expansion5 = true,
 				},
 				-------------------------------------------------------------------------------
 				-- Quality Filters
@@ -304,6 +310,12 @@ function addon:OnInitialize()
 					netherwing = true,
 					brawlers = true,
 					pandacommon3 = true,
+					shaohao = true,
+					draenorcommon1 = true,
+					draenorcommon2 = true,
+					draenorcommon3 = true,
+					steamwheedle = true,
+					arakkoa = true,
 				},
 				-- Populated later via CONSTANTS
 				item = {
@@ -425,6 +437,7 @@ function addon:OnInitialize()
 	COLLECTION_INIT_FUNCS = {
 		CRITTER = addon.InitCritters,
 		MOUNT = addon.InitMounts,
+		TOY = addon.InitToys,
 	}
 
 	-------------------------------------------------------------------------------
@@ -438,7 +451,7 @@ function addon:OnInitialize()
 		end
 		local name, tooltip_unit = self:GetUnit()
 
-		if not tooltip_unit then
+		if not tooltip_unit or not _G.UnitGUID(tooltip_unit) then
 			return
 		end
 		local id_num = private.MobGUIDToIDNum(_G.UnitGUID(tooltip_unit))
@@ -493,47 +506,56 @@ end
 -------------------------------------------------------------------------------
 -- Logic Functions
 -------------------------------------------------------------------------------
-
-do
-	-- Code snippet stolen from GearGuage by Torhal and butchered by Ackis
-	local function StrSplit(input)
-		if not input then
-			return nil, nil
+local SUBCOMMAND_FUNCS = {
+	debug = function()
+		if not debugger then
+			CreateDebugFrame()
 		end
-		local arg1, arg2, var1
 
-		arg1, var1 = input:match("^([^%s]+)%s*(.*)$")
-		arg1 = (arg1 and arg1:lower() or input:lower())
-
-		if var1 then
-			local var2
-			arg2, var2 = var1:match("^([^%s]+)%s*(.*)$")
-			arg2 = (arg2 and arg2:lower() or var1:lower())
+		if debugger:Lines() == 0 then
+			debugger:AddLine("Nothing to report.")
+			debugger:Display()
+			debugger:Clear()
+			return
 		end
-		return arg1, arg2
+		debugger:Display()
+	end,
+	--[===[@debug@
+	dump = function(arg1, arg2)
+		local func = private.DUMP_COMMANDS[arg1]
+
+		if func then
+			func(arg2)
+		else
+			addon:Print("Unknown dump command:")
+
+			for command in pairs(private.DUMP_COMMANDS) do
+				addon:Print(command)
+			end
+		end
+	end,
+	--@end-debug@]===]
+}
+
+function addon:ChatCommand(input)
+	local arg1, arg2, arg3 = self:GetArgs(input, 3)
+
+	if arg1 then
+		arg1 = arg1:trim():lower()
 	end
 
-	-- Determines what to do when the slash command is called.
-	function addon:ChatCommand(input)
-		local arg1, arg2 = StrSplit(input)
-
-		-- Open About panel if there's no parameters or if we do /col about
-		if not arg1 or (arg1 and arg1:trim() == "") then
-			_G.InterfaceOptionsFrame_OpenToCategory(self.optionsFrame)
-		elseif arg1 == L["About"]:lower() then
-			if self.optionsFrame["About"] then
-				_G.InterfaceOptionsFrame_OpenToCategory(self.optionsFrame["About"])
-			else
-				_G.InterfaceOptionsFrame_OpenToCategory(self.optionsFrame)
-			end
-		elseif arg1 == L["Profile"]:lower() then
-			_G.InterfaceOptionsFrame_OpenToCategory(self.optionsFrame["Profiles"])
+	-- Open About panel if there's no parameters or if we do /col about
+	if not arg1 or (arg1 and arg1:trim() == "") then
+		_G.InterfaceOptionsFrame_OpenToCategory(self.optionsFrame)
+	else
+		local func = SUBCOMMAND_FUNCS[arg1]
+		if func then
+			func(arg2, arg3)
 		else
-			-- What happens when we get here?
+
 			LibStub("AceConfigCmd-3.0"):HandleCommand("col", "Collectinator", arg1)
 		end
 	end
-
 end
 
 do
@@ -576,35 +598,34 @@ do
 
 	local COLLECTABLE_SCAN_FUNCS = {
 		[private.COLLECTION_TYPE_IDS.MOUNT] = function(collectable_type, mounts)
-			local num_mounts = _G.GetNumCompanions(collectable_type)
+			local num_mounts = _G.C_MountJournal.GetNumMounts()
 
 			local mount_names = {}
 			local mount_ids = {}
-			local mount_sources = {}
-
-			for spell_id, mount in pairs(mounts) do
-				local mount_name, _, icon = _G.GetSpellInfo(spell_id)
-				mount:SetName(mount_name)
-				mount:SetIcon(icon)
-			end
 
 			for index = 1, num_mounts do
-				local mount_id = select(3, _G.GetCompanionInfo("MOUNT", index))
+				local mount_name, mount_id, icon, is_active, is_usable, source_type, is_favorite, is_faction_specific, faction, hide_on_char, is_collected = _G.C_MountJournal.GetMountInfo(index)
 				local mount = mounts[mount_id]
 
 				if mount then
-					mount:AddState("KNOWN")
-				elseif not mount_names[mount_id] then
-					mount_names[mount_id] = _G.GetSpellInfo(mount_id) or _G.UNKNOWN
+					mount:SetIcon(icon)
+					mount:SetName(mount_name)
+					if is_collected then
+						mount:AddState("KNOWN")
+					end
+				elseif not hide_on_char and not mount_names[mount_id] then
+					mount_names[mount_id] = mount_name or _G.UNKNOWN
 					mount_ids[#mount_ids + 1] = mount_id
 				end
 			end
 			table.sort(mount_ids)
 
+			--[===[@debug@
+			private.TextDump:Clear()
 			for index = 1, #mount_ids do
 				local mount_id = mount_ids[index]
 				private.TextDump:AddLine(("-- %s -- %d"):format(mount_names[mount_id], mount_id))
-				private.TextDump:AddLine(("mount = AddMount(%d, V.MOP, Q.COMMON)\n"):format(mount_id))
+				private.TextDump:AddLine(("mount = AddMount(%d, V.WOD, Q.COMMON)\n"):format(mount_id))
 			end
 			local dump_lines = private.TextDump:Lines()
 
@@ -612,13 +633,62 @@ do
 				private.TextDump:InsertLine(1, ("Untracked: %d\n"):format(dump_lines / 2))
 				private.TextDump:Display()
 			end
+		--@end-debug@]===]
 		end,
 		[private.COLLECTION_TYPE_IDS.CRITTER] = function(collectable_type, critters)
-		-- We're doing nothing here for the moment since all of this is handled when the PetJournal is updated.
-		--			for pet_id, pet in pairs(critters) do
-		--			end
+		private.UpdatePetList()
 		end,
-	}
+		[private.COLLECTION_TYPE_IDS.TOY] = function(collectable_type, toys)
+			local num_toys = _G.C_ToyBox.GetNumTotalDisplayedToys()
+			local toy_ids = {}
+			local toy_item_ids = {}
+			local toy_names = {}
+
+			for index = 1, num_toys  do
+				local toy_id = _G.C_ToyBox.GetToyFromIndex(index)
+
+				if toy_id > -1 then
+					local itemID, toyName, icon = _G.C_ToyBox.GetToyInfo(toy_id)
+					local toy = toys[toy_id]
+
+					if toy then
+						toy:SetIcon(icon)
+						toy:SetItemID(itemID)
+						toy:SetName(toyName)
+
+						if _G.PlayerHasToy(toy_id) then
+							toy:AddState("KNOWN")
+						end
+					else
+						toy_ids[#toy_ids + 1] = toy_id
+						toy_item_ids[toy_id] = itemID
+						toy_names[toy_id] = toyName or _G.UNKNOWN
+					end
+				end
+			end
+			table.sort(toy_ids)
+
+			--[===[@debug@
+			private.TextDump:Clear()
+			for index = 1, #toy_ids do
+				local toy_id = toy_ids[index]
+				private.TextDump:AddLine(("-- %s -- %d"):format(toy_names[toy_id], toy_id))
+				private.TextDump:AddLine(("toy = AddToy(%d, V.WOD, Q.COMMON)\n"):format(toy_id))
+
+				if toy_item_ids[toy_id] then
+					private.TextDump:AddLine(("toy:SetItemID(%d)"):format(toy_item_ids[toy_id]))
+				end
+			end
+			local dump_lines = private.TextDump:Lines()
+
+			if dump_lines > 0 then
+				private.TextDump:InsertLine(1, ("Untracked: %d\n"):format(dump_lines / 2))
+				private.TextDump:Display()
+			end
+		--@end-debug@]===]
+		end,
+
+		}
 
 	-- Causes a scan of the relevant collectable type to be conducted. Function called when the scan button is clicked.
 	-- Parses Collections and displays output
@@ -640,7 +710,7 @@ do
 		end
 		local search_box = _G.PetJournalSearchBox
 		search_box:ClearFocus()
-		search_box:SetText(_G.SEARCH)
+		search_box:SetText("")
 		_G.PetJournal_OnSearchTextChanged(search_box)
 
 		COLLECTABLE_SCAN_FUNCS[current_panel](collectable_type, collectables)

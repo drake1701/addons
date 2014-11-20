@@ -87,12 +87,15 @@ local function LoadSkin()
 		"UIOptions", 
 		"Keybindings", 
 		"Macros",
+		"AddOns",
+		"WhatsNew",
 		"Ratings",
-		"AddOns", 
+		"Addons", 
 		"Logout", 
 		"Quit", 
 		"Continue", 
 		"MacOptions",
+		"Store",
 		"Help"
 	}
 	
@@ -269,10 +272,37 @@ local function LoadSkin()
 		MacOptionsFrameDefaults:SetHeight(22)
 
 	end
+
+	--PVP QUEUE FRAME
+	PVPReadyDialog:StripTextures()
+	PVPReadyDialog:SetTemplate("Transparent")
+	S:HandleButton(PVPReadyDialogEnterBattleButton)
+	S:HandleButton(PVPReadyDialogLeaveQueueButton)
+	S:HandleCloseButton(PVPReadyDialogCloseButton)
+	PVPReadyDialogRoleIcon.texture:SetTexture("Interface\\LFGFrame\\UI-LFG-ICONS-ROLEBACKGROUNDS")
+	PVPReadyDialogRoleIcon.texture:SetAlpha(0.5)
+
+	hooksecurefunc("PVPReadyDialog_Display", function(self, index, displayName, isRated, queueType, gameType, role)
+		if role == "DAMAGER" then
+			PVPReadyDialogRoleIcon.texture:SetTexCoord(LFDQueueFrameRoleButtonDPS.background:GetTexCoord())
+		elseif role == "TANK" then
+			PVPReadyDialogRoleIcon.texture:SetTexCoord(LFDQueueFrameRoleButtonTank.background:GetTexCoord())
+		elseif role == "HEALER" then
+			PVPReadyDialogRoleIcon.texture:SetTexCoord(LFDQueueFrameRoleButtonHealer.background:GetTexCoord())
+		end
+
+		if queueType == "ARENA" then
+			self:SetHeight(100)
+		end
+
+		self.background:Hide()
+	end)	
 	
+
 	OpacityFrame:StripTextures()
 	OpacityFrame:SetTemplate("Transparent")	
-	WatchFrameCollapseExpandButton:StripTextures()
+	
+	--[[WatchFrameCollapseExpandButton:StripTextures()
 	S:HandleCloseButton(WatchFrameCollapseExpandButton)
 	WatchFrameCollapseExpandButton:Size(30)
 	WatchFrameCollapseExpandButton.text:SetText('-')
@@ -284,7 +314,7 @@ local function LoadSkin()
 	
 	hooksecurefunc('WatchFrame_Collapse', function()
 		WatchFrameCollapseExpandButton.text:SetText('+')
-	end)	
+	end)]]
 	
 	--Chat Config
 	local StripAllTextures = {
@@ -314,7 +344,7 @@ local function LoadSkin()
 	for _, object in pairs(StripAllTextures) do
 		_G[object]:StripTextures()
 	end
-			
+	
 	ChatConfigFrame:SetTemplate("Transparent")
 	ChatConfigBackgroundFrame:SetTemplate("Transparent")
 	ChatConfigCategoryFrame:SetTemplate("Transparent")
@@ -586,7 +616,7 @@ local function LoadSkin()
 		end
 	end)	
 	
-	GuildInviteFrame:StripTextures()
+	--[[GuildInviteFrame:StripTextures()
 	GuildInviteFrame:SetTemplate('Transparent')
 	GuildInviteFrameLevel:StripTextures()
 	GuildInviteFrameLevel:ClearAllPoints()
@@ -597,9 +627,9 @@ local function LoadSkin()
 	GuildInviteFrame:HookScript("OnEvent", function()
 		GuildInviteFrame:Height(225)
 	end)
-	GuildInviteFrameWarningText:Kill()
+	GuildInviteFrameWarningText:Kill()]]
 	
-	local function SkinWatchFrameItems()
+	--[[local function SkinWatchFrameItems()
 		for i=1, WATCHFRAME_NUM_ITEMS do
 			local button = _G["WatchFrameItem"..i]
 			if not button.skinned then
@@ -609,16 +639,17 @@ local function LoadSkin()
 				_G["WatchFrameItem"..i.."NormalTexture"]:SetAlpha(0)
 				_G["WatchFrameItem"..i.."IconTexture"]:SetInside()
 				_G["WatchFrameItem"..i.."IconTexture"]:SetTexCoord(unpack(E.TexCoords))
+				E:RegisterCooldown(_G["WatchFrameItem"..i.."Cooldown"])
 				button.skinned = true
 			end
 		end	
 	end
 	
-	WatchFrame:HookScript("OnEvent", SkinWatchFrameItems)
+	WatchFrame:HookScript("OnEvent", SkinWatchFrameItems)]]
 	
 	BattleTagInviteFrame:StripTextures()
 	BattleTagInviteFrame:SetTemplate('Transparent')
-	S:HandleEditBox(BattleTagInviteFrameScrollFrame)
+	--S:HandleEditBox(BattleTagInviteFrameScrollFrame)
 	for i=1, BattleTagInviteFrame:GetNumChildren() do
 		local child = select(i, BattleTagInviteFrame:GetChildren())
 		if child:GetObjectType() == 'Button' then
@@ -672,6 +703,7 @@ local function LoadSkin()
     VideoOptionsFrameDefaults:SetPoint("TOPLEFT",VideoOptionsFrameCategoryFrame,"BOTTOMLEFT",-1,-5)
     InterfaceOptionsFrameDefaults:SetPoint("TOPLEFT",InterfaceOptionsFrameCategories,"BOTTOMLEFT",-1,-5)
     InterfaceOptionsFrameCancel:SetPoint("TOPRIGHT",InterfaceOptionsFramePanelContainer,"BOTTOMRIGHT",0,-6)
+
     local interfacecheckbox = {
         -- Controls
         "ControlsPanelBlockChatChannelInvites",
@@ -684,12 +716,13 @@ local function LoadSkin()
         "ControlsPanelAutoLootCorpse",
         "ControlsPanelInteractOnLeftClick",
         "ControlsPanelAutoOpenLootHistory",
+        "ControlsPanelReverseCleanUpBags",
+        "ControlsPanelReverseNewLoot",
         -- Combat
         "CombatPanelEnemyCastBarsOnOnlyTargetNameplates",
         "CombatPanelEnemyCastBarsNameplateSpellNames",
         "CombatPanelAttackOnAssist",
         "CombatPanelStopAutoAttack",
-        "CombatPanelNameplateClassColors",
         "CombatPanelTargetOfTarget",
         "CombatPanelShowSpellAlerts",
         "CombatPanelReducedLagTolerance",
@@ -703,20 +736,14 @@ local function LoadSkin()
         "DisplayPanelShowHelm",
         "DisplayPanelShowAggroPercentage",
         "DisplayPanelPlayAggroSounds",
-        "DisplayPanelDetailedLootInfo",
         "DisplayPanelShowSpellPointsAvg",
-        "DisplayPanelemphasizeMySpellEffects",
         "DisplayPanelShowFreeBagSpace",
         "DisplayPanelCinematicSubtitles",
         "DisplayPanelRotateMinimap",
-        "DisplayPanelScreenEdgeFlash",
         "DisplayPanelShowAccountAchievments",
         --Objectives
         "ObjectivesPanelAutoQuestTracking",
-        "ObjectivesPanelAutoQuestProgress",
-        "ObjectivesPanelMapQuestDifficulty",
-        "ObjectivesPanelAdvancedWorldMap",
-        "ObjectivesPanelWatchFrameWidth",
+        "ObjectivesPanelMapFade",
         -- Social
         "SocialPanelProfanityFilter",
         "SocialPanelSpamFilter",
@@ -733,6 +760,7 @@ local function LoadSkin()
         "ActionBarsPanelBottomRight",
         "ActionBarsPanelRight",
         "ActionBarsPanelRightTwo",
+        "ActionBarsPanelCountdownCooldowns",
         -- Names
         "NamesPanelMyName",
         "NamesPanelFriendlyPlayerNames",
@@ -755,11 +783,16 @@ local function LoadSkin()
         "NamesPanelUnitNameplatesEnemies",
         "NamesPanelUnitNameplatesEnemyGuardians",
         "NamesPanelUnitNameplatesEnemyTotems",
+        "NamesPanelMinus",
+        "NamesPanelUnitNameplatesEnemyMinus",
+
         -- Combat Text
         "CombatTextPanelTargetDamage",
         "CombatTextPanelPeriodicDamage",
         "CombatTextPanelPetDamage",
         "CombatTextPanelHealing",
+        "CombatTextPanelHealingAbsorbTarget",
+        "CombatTextPanelHealingAbsorbSelf",
         "CombatTextPanelTargetEffects",
         "CombatTextPanelOtherTargetEffects",
         "CombatTextPanelEnableFCT",
@@ -775,8 +808,8 @@ local function LoadSkin()
         "CombatTextPanelPeriodicEnergyGains",
         "CombatTextPanelHonorGains",
         "CombatTextPanelAuras",
+        "CombatTextPanelPetBattle",
         -- Buffs & Debuffs
-        "BuffsPanelBuffDurations",
         "BuffsPanelDispellableDebuffs",
         "BuffsPanelCastableBuffs",
         "BuffsPanelConsolidateBuffs",
@@ -792,9 +825,7 @@ local function LoadSkin()
         "MousePanelWoWMouse",
         -- Help
         "HelpPanelShowTutorials",
-        "HelpPanelLoadingScreenTips",
         "HelpPanelEnhancedTooltips",
-        "HelpPanelBeginnerTooltips",
         "HelpPanelShowLuaErrors",
         "HelpPanelColorblindMode",
         "HelpPanelMovePad",
@@ -810,10 +841,8 @@ local function LoadSkin()
         "StatusTextPanelParty",
         "StatusTextPanelTarget",
         "StatusTextPanelAlternateResource",
-        "StatusTextPanelPercentages",
         "StatusTextPanelXP",
         -- Unit Frames
-        "UnitFramePanelPartyBackground",
         "UnitFramePanelPartyPets",
         "UnitFramePanelArenaEnemyFrames",
         "UnitFramePanelArenaEnemyCastBar",
@@ -827,6 +856,8 @@ local function LoadSkin()
         local icheckbox = _G["InterfaceOptions"..interfacecheckbox[i]]
         if icheckbox then
             S:HandleCheckBox(icheckbox)
+         else
+         	print(interfacecheckbox[i])
         end
     end
     local interfacedropdown ={
@@ -842,8 +873,9 @@ local function LoadSkin()
 	  "CombatPanelLossOfControlDisarmDropDown",
 	  "CombatPanelLossOfControlRootDropDown",
         -- Display
-        "DisplayPanelAggroWarningDisplay",
-        "DisplayPanelWorldPVPObjectiveDisplay",
+        "DisplayPanelOutlineDropDown",
+        --Objectives
+        "ObjectivesPanelQuestSorting",
         -- Social
         "SocialPanelChatStyle",
         "SocialPanelWhisperMode",
@@ -857,6 +889,7 @@ local function LoadSkin()
         "NamesPanelUnitNameplatesMotionDropDown",
         -- Combat Text
         "CombatTextPanelFCTDropDown",
+        "CombatTextPanelTargetModeDropDown",
         -- Camera
         "CameraPanelStyleDropDown",
         -- Mouse
@@ -874,10 +907,15 @@ local function LoadSkin()
     end
     S:HandleButton(InterfaceOptionsHelpPanelResetTutorials)
     local optioncheckbox = {
+    	-- Display
+    	"Display_RaidSettingsEnabledCheckBox",
         -- Advanced
         "Advanced_MaxFPSCheckBox",
         "Advanced_MaxFPSBKCheckBox",
         "Advanced_UseUIScale",
+        "Advanced_ShowHDModels",
+        --Network
+        "NetworkOptionsPanelAdvancedCombatLogging",
         -- Audio
         "AudioOptionsSoundPanelEnableSound",
         "AudioOptionsSoundPanelSoundEffects",
@@ -908,12 +946,12 @@ local function LoadSkin()
     end
     local optiondropdown = {
         -- Graphics
-        "Graphics_DisplayModeDropDown",
-        "Graphics_ResolutionDropDown",
-        "Graphics_RefreshDropDown",
-        "Graphics_PrimaryMonitorDropDown",
-        "Graphics_MultiSampleDropDown",
-        "Graphics_VerticalSyncDropDown",
+        "Display_DisplayModeDropDown",
+        "Display_ResolutionDropDown",
+        "Display_RefreshDropDown",
+        "Display_PrimaryMonitorDropDown",
+        "Display_AntiAliasingDropDown",
+        "Display_VerticalSyncDropDown",
         "Graphics_TextureResolutionDropDown",
         "Graphics_FilteringDropDown",
         "Graphics_ProjectedTexturesDropDown",
@@ -925,6 +963,21 @@ local function LoadSkin()
         "Graphics_SunshaftsDropDown",
         "Graphics_ParticleDensityDropDown",
         "Graphics_SSAODropDown",
+        "Graphics_RefractionDropDown",
+
+        "RaidGraphics_TextureResolutionDropDown",
+        "RaidGraphics_FilteringDropDown",
+        "RaidGraphics_ProjectedTexturesDropDown",
+        "RaidGraphics_ViewDistanceDropDown",
+        "RaidGraphics_EnvironmentalDetailDropDown",
+        "RaidGraphics_GroundClutterDropDown",
+        "RaidGraphics_ShadowsDropDown",
+        "RaidGraphics_LiquidDetailDropDown",
+        "RaidGraphics_SunshaftsDropDown",
+        "RaidGraphics_ParticleDensityDropDown",
+        "RaidGraphics_SSAODropDown",
+        "RaidGraphics_RefractionDropDown",        
+
         -- Advanced
         "Advanced_BufferingDropDown",
         "Advanced_LagDropDown",
@@ -962,6 +1015,8 @@ local function LoadSkin()
     AudioOptionsVoicePanelChatMode1KeyBindingButton:Point("CENTER", AudioOptionsVoicePanelBinding, "CENTER", 0, -10)
     S:HandleCheckBox(CompactUnitFrameProfilesRaidStylePartyFrames)
     S:HandleButton(CompactUnitFrameProfilesGeneralOptionsFrameResetPositionButton)
+    GraphicsButton:StripTextures()
+    RaidButton:StripTextures()
     local raidcheckbox = {
         "KeepGroupsTogether",
         "DisplayIncomingHeals",
@@ -995,10 +1050,10 @@ local function LoadSkin()
 	
 	local sliders = {
 		"Graphics_Quality",
+		"RaidGraphics_Quality",
 		"Advanced_UIScaleSlider",
 		"Advanced_MaxFPSSlider",
 		"Advanced_MaxFPSBKSlider",
-		"AudioOptionsSoundPanelSoundQuality",
 		"AudioOptionsSoundPanelMasterVolume",
 		"AudioOptionsSoundPanelSoundVolume",
 		"AudioOptionsSoundPanelMusicVolume",
@@ -1008,6 +1063,7 @@ local function LoadSkin()
 		"AudioOptionsVoicePanelSoundFade",
 		"AudioOptionsVoicePanelMusicFade",
 		"AudioOptionsVoicePanelAmbienceFade",
+		"AudioOptionsSoundPanelDialogVolume",
 		"InterfaceOptionsCombatPanelSpellAlertOpacitySlider",
 		"InterfaceOptionsCombatPanelMaxSpellStartRecoveryOffset",
 		"InterfaceOptionsBattlenetPanelToastDurationSlider",
@@ -1018,6 +1074,7 @@ local function LoadSkin()
 		"OpacityFrameSlider",
 	}
 	Graphics_RightQuality:Kill()
+	RaidGraphics_RightQuality:Kill()
 	for _, slider in pairs(sliders) do
 		S:HandleSliderFrame(_G[slider])
 	end
@@ -1072,7 +1129,29 @@ local function LoadSkin()
 	SideDressUpFrame.BGTopLeft:Hide()
 	SideDressUpFrame.BGBottomLeft:Hide()
 	S:HandleButton(SideDressUpModelResetButton)
-	SideDressUpFrame:SetTemplate("Transparent")	
+	SideDressUpFrame:SetTemplate("Transparent")
+
+	--Addon List
+	AddonList:StripTextures()
+	AddonList:SetTemplate("Transparent")
+	AddonListInset:StripTextures()	
+
+	S:HandleButton(AddonListEnableAllButton, true)
+	S:HandleButton(AddonListDisableAllButton, true)
+	S:HandleButton(AddonListOkayButton, true)
+	S:HandleButton(AddonListCancelButton, true)
+	
+	S:HandleScrollBar(AddonListScrollFrameScrollBar, 5)
+
+	S:HandleCheckBox(AddonListForceLoad)
+	AddonListForceLoad:SetSize(26, 26)
+	S:HandleDropDownBox(AddonCharacterDropDown)
+
+	S:HandleCloseButton(AddonListCloseButton)
+
+	for i=1, MAX_ADDONS_DISPLAYED do
+		S:HandleCheckBox(_G["AddonListEntry"..i.."Enabled"])
+	end
 end
 
 S:RegisterSkin('ElvUI', LoadSkin)

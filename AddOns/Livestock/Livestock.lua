@@ -29,7 +29,7 @@ local defaults = {
 	dismisspetonmount = 0, -- dismiss any critter out when mounting or birdforming
 	restrictautosummon = 0, -- restrict autosummoning to only occur when not PVP flagged
 	ignorepvprestrictionininstances = 0, -- ignore the PVP restriction in an instance
-	safeflying = 1, -- enable /disable the ability to dismount yourself in the air when calling a Livestock mounting function
+	safeflying = 1, -- enable / disable the ability to dismount yourself in the air when calling a Livestock mounting function
 	dismissonstealth = 0, -- enable / disable the automatic dismissal of vanity pets when you cast Stealth, Vanish, Feign Death, Shadowmeld, or Invisibility
 	PVPdismiss = 0, -- restrict the above setting to work only when your PVP flag is enabled
 	mountinstealth = 0, -- enable / disable the ability for Livestock mounting to break stealth effects
@@ -42,17 +42,17 @@ local defaults = {
 	indooraspects = 0, -- Smart Mounting casts AotC / AotP when inside
 	movingaspects = 0, -- Smart Mounting casts AotC / AotP when outside and moving
 	groupaspects = 0, -- Smart Mounting casts AotC when in a group
-	hawkaspects = 0, -- Smart Mounting casts AotH when cancelling AotC / AotP
-	mountaspects = 0, -- Smart Mounting casts AotH when mounting
+	mountaspects = 0, -- Smart Mounting cancels AotC / AotP when mounting
 	slowfall = 0, -- Smart Mounting casts Slow Fall / Levitate while falling and not in combat
 	useweights = 0, -- Whether or not Smart Mounting should use weighted summons
 	moonkin = 0, -- Cast Moonkin Form when dismounting from Flight Form (balance druids)
 	newpet = 0, -- New companion pets are disabled by default
 	newmount = 0, -- New mounts are disabled by default
+	flyland = 0, -- Flying mounts are disabled on land by default
 	waterstrider = 0, -- Use Azure Water Strider on water when you can't fly
 	waterstrider2 = 0, -- Use Azure Water Strider while underwater
 	zenflight = 0, -- Smart Mounting casts Zen Flight when moving (outdoors, out of combat)
-	version = 1.6, -- MoP updates
+	version = 2.1, -- WoD updates (remove opposite faction mounts)
 	}
 	
 LIVESTOCK_VERSION = GetAddOnMetadata("Livestock", "Version")
@@ -99,12 +99,12 @@ local stringstable = { -- strings to be localized in the GUI.  This table is ind
 	["LivestockSmartPreferencesFrameIndoorHunterAspectsText"] = L.LIVESTOCK_FONTSTRING_INDOORHUNTERASPECTSLABEL,
 	["LivestockSmartPreferencesFrameMovingHunterAspectsText"] = L.LIVESTOCK_FONTSTRING_MOVINGHUNTERASPECTSLABEL,
 	["LivestockSmartPreferencesFrameGroupHunterAspectsText"] = L.LIVESTOCK_FONTSTRING_GROUPHUNTERASPECTSLABEL,
-	["LivestockSmartPreferencesFrameHawkHunterAspectsText"] = L.LIVESTOCK_FONTSTRING_HAWKHUNTERASPECTSLABEL,
 	["LivestockSmartPreferencesFrameMountHunterAspectsText"] = L.LIVESTOCK_FONTSTRING_MOUNTHUNTERASPECTSLABEL,
 	["LivestockSmartPreferencesFrameSlowFallWhileFallingText"] = L.LIVESTOCK_FONTSTRING_SLOWFALLLABEL,
 	["LivestockSmartPreferencesFrameMoonkinText"] = L.LIVESTOCK_FONTSTRING_MOONKINLABEL,
 	["LivestockPetPreferencesFrameNewPetText"] = L.LIVESTOCK_FONTSTRING_NEWPETLABEL,
 	["LivestockSmartPreferencesFrameNewMountText"] = L.LIVESTOCK_FONTSTRING_NEWMOUNTLABEL,
+	["LivestockSmartPreferencesFrameFlyLandText"] = L.LIVESTOCK_FONTSTRING_FLYLANDLABEL,
 	["LivestockSmartPreferencesFrameWaterStriderText"] = L.LIVESTOCK_FONTSTRING_WATERSTRIDERLABEL,
 	["LivestockSmartPreferencesFrameWaterStrider2Text"] = L.LIVESTOCK_FONTSTRING_WATERSTRIDER2LABEL,
 	["LivestockSmartPreferencesFrameZenFlightText"] = L.LIVESTOCK_FONTSTRING_ZENFLIGHTLABEL,
@@ -120,8 +120,6 @@ local restrictSummonForTheseBuffs = { -- buffs that, when present, should preven
 	L.LIVESTOCK_SPELL_FOOD,
 	L.LIVESTOCK_SPELL_DRINK,
 	L.LIVESTOCK_SPELL_HAUNTED,
-	L.LIVESTOCK_SPELL_FLIGHTFORM,
-	L.LIVESTOCK_SPELL_SWIFTFLIGHTFORM,
 	L.LIVESTOCK_SPELL_TWILIGHTSERPENT,
 	L.LIVESTOCK_SPELL_RUBYHARE,
 	L.LIVESTOCK_SPELL_SAPPHIREOWL,
@@ -264,7 +262,7 @@ function Livestock.CompanionEvent(self, event, ...)
 				end
 			elseif spell == L.LIVESTOCK_SPELL_CAMOUFLAGE or spell == L.LIVESTOCK_SPELL_INVISIBILITY then
 				self:RegisterEvent("UNIT_AURA")				
-			elseif (spell == L.LIVESTOCK_SPELL_FLIGHTFORM or spell == L.LIVESTOCK_SPELL_SWIFTFLIGHTFORM) and LivestockSettings.dismisspetonmount == 1 then
+			elseif spell == L.LIVESTOCK_SPELL_TRAVELFORM or spell == L.LIVESTOCK_SPELL_FLIGHTFORM and LivestockSettings.dismisspetonmount == 1 then
 				Livestock.DismissCritter()
 			end
 		end
@@ -404,11 +402,15 @@ function Livestock.BuildMenu(kind) -- type is a string, either "CRITTER", "LAND"
 		buttonplusoffset = button + FauxScrollFrame_GetOffset(scrollframe);
 
 		if buttonplusoffset <= (mounts or critters) then
-			local name, creatureID, _
+			local name, petID, creatureID, index, _
 			if kind == "CRITTER" then
-				_, _, _, _, _, _, _, name, _, _, creatureID = C_PetJournal.GetPetInfoByIndex(critterstable[buttonplusoffset])
+				index = critterstable[buttonplusoffset]
+				petID, _, _, _, _, _, _, name = C_PetJournal.GetPetInfoByIndex(index)
+				_, _, _, _, _, creatureID = C_PetJournal.GetPetInfoByPetID(petID)
 			elseif kind == "LAND" or kind == "FLYING" or kind == "WATER" then
-				creatureID, name = GetCompanionInfo("MOUNT", mountstable[buttonplusoffset])
+				index = mountstable[buttonplusoffset]
+				name = C_MountJournal.GetMountInfo(index)
+				creatureID = C_MountJournal.GetMountInfoExtra(index)
 			end -- get the ID and name of the companion for the button by mapping the position of the button in the menus(s) to the index of the companion
 
 			if name and creatureID then
@@ -445,12 +447,13 @@ function Livestock.BuildMenu(kind) -- type is a string, either "CRITTER", "LAND"
 				if mounts then 
 					which = "MOUNT"
 					index = mountstable[buttonplusoffset]
-					creatureID, creatureName, spellID = GetCompanionInfo(which, index)
+					creatureName, spellID = C_MountJournal.GetMountInfo(index)
+					creatureID = C_MountJournal.GetMountInfoExtra(index)
 					DEFAULT_CHAT_FRAME:AddMessage("Max "..kind.." "..which.." is " .. (mounts or "nil"))
 				else
 					which = "CRITTER"
 					index = critterstable[buttonplusoffset]
-					spellID, _, _, _, _, _, _, creatureName, _, _, creatureID = C_PetJournal.GetPetInfoByIndex(critterstable[buttonplusoffset])
+					spellID, _, _, _, _, _, _, creatureName, _, _, creatureID = C_PetJournal.GetPetInfoByIndex(index)
 					DEFAULT_CHAT_FRAME:AddMessage("Max "..which.." is " .. (critters or "nil"))
 				end
 				DEFAULT_CHAT_FRAME:AddMessage(string.format("Error for "..which.." %u at menu build, ID: %s, name: %s, spellID: %s", index, (creatureID or "nil"), (creatureName or "nil"), (spellID or "nil")))
@@ -517,6 +520,7 @@ function Livestock.RestoreUI(self, elapsed)
 	["LivestockPetPreferencesFrameToggleDismissOnStealthPVPOnly"] = LivestockSettings.PVPdismiss,
 	["LivestockPetPreferencesFrameNewPet"] = LivestockSettings.newpet,
 	["LivestockSmartPreferencesFrameNewMount"] = LivestockSettings.newmount,
+	["LivestockSmartPreferencesFrameFlyLand"] = LivestockSettings.flyland,
 	["LivestockSmartPreferencesFrameToggleDruidLogic"] = LivestockSettings.druidlogic,
 	["LivestockSmartPreferencesFrameToggleWorgenLogic"] = LivestockSettings.worgenlogic,
 	["LivestockSmartPreferencesFrameToggleSafeFlying"] = LivestockSettings.safeflying,
@@ -528,7 +532,6 @@ function Livestock.RestoreUI(self, elapsed)
 	["LivestockSmartPreferencesFrameIndoorHunterAspects"] = LivestockSettings.indooraspects,
 	["LivestockSmartPreferencesFrameMovingHunterAspects"] = LivestockSettings.movingaspects,
 	["LivestockSmartPreferencesFrameGroupHunterAspects"] = LivestockSettings.groupaspects,
-	["LivestockSmartPreferencesFrameHawkHunterAspects"] = LivestockSettings.hawkaspects,
 	["LivestockSmartPreferencesFrameMountHunterAspects"] = LivestockSettings.mountaspects,
 	["LivestockSmartPreferencesFrameSlowFallWhileFalling"] = LivestockSettings.slowfall,
 	["LivestockSmartPreferencesFrameMoonkin"] = LivestockSettings.moonkin,
@@ -574,7 +577,6 @@ function Livestock.RestoreUI(self, elapsed)
 		LivestockSmartPreferencesFrameIndoorHunterAspectsText:SetTextColor(0.4, 0.4, 0.4)
 		LivestockSmartPreferencesFrameMovingHunterAspectsText:SetTextColor(0.4, 0.4, 0.4)
 		LivestockSmartPreferencesFrameGroupHunterAspectsText:SetTextColor(0.4, 0.4, 0.4)
-		LivestockSmartPreferencesFrameHawkHunterAspectsText:SetTextColor(0.4, 0.4, 0.4)
 		LivestockSmartPreferencesFrameMountHunterAspectsText:SetTextColor(0.4, 0.4, 0.4)
 	end
 	
@@ -732,7 +734,7 @@ function Livestock.MenuButtonOnDoubleClick(self)
 		if companionType == "CRITTER" then
 			C_PetJournal.SummonPetByGUID(petID)
 		else
-			CallCompanion("MOUNT", index)
+			C_MountJournal.Summon(index)
 		end
 	end
 	Livestock.MenuButtonOnClick(self, "LeftButton")
@@ -744,7 +746,7 @@ function Livestock.MenuButtonOnEnter(self) -- code for mousing over a menu butto
 	if strsub(which, 1, 6) == "toggle" then -- if this is a toggle button, when we mouseover, we should show the 3D model if the viewer is visible
 		local id = self.critterID -- the id of the creature was associated with the button when the menu was built
 		if LivestockModel:IsVisible() then
-			LivestockModel:SetCreature(id)
+			LivestockModel:SetDisplayInfo(id)
 			LivestockModel.angle = 0.71
 		end
 	end
@@ -793,7 +795,7 @@ function Livestock.SpinSliderChanged(self) -- easter egg text to show up when yo
 		Livestock.HideDropdowns() -- hide the menus or else the cursor ends up going into one of them which changes the model
 		eastereggtext = true
 		LivestockEasterEgg:Show()
-		LivestockEasterEgg:SetText(sayings[random(#sayings)])
+		LivestockEasterEgg:SetText(sayings[fastrandom(#sayings)])
 	elseif self:GetValue() < 0.623 then
 		LivestockEasterEgg:Hide()
 		eastereggtext = nil
@@ -832,7 +834,7 @@ function Livestock.CreateStateMaps(self)
 --	Smart mounting depends on 6 variables - mounted status, indoors/outdoors status, combat status, flyable/noflyable status, and two user settings that are relevant for druids only.
 --	The first four can be handled with a state map, and while they have 16 possible combinations, there are really only 6 relevant outcomes for Smart Mounting from these combinations.  The following states are handled by the "smartmap" state:
 
---	7:  In Flight Form:  Druids in flight form need to check against the safe flight setting to see if they should be canceling their flight form.
+--	7:  Flying:  Druids in flight form need to check against the safe flight setting to see if they should be canceling their flight form.
 --	6:  Swimming:  Swimming takes precedence over all other settings.  Druids use Aquatic Form in this case, and shaman can select to use Water Walking.
 --	1:  Indoors.  Should do nothing unless the player is a druid and wants to turn into a cat (or a hunter and wants to use aspect of the pact)
 --	2:  Mounted:  Should dismount.  This will get checked later against the safe flight setting to see if the player is flying and shouldn't dismount.
@@ -843,21 +845,16 @@ function Livestock.CreateStateMaps(self)
 --	To handle the form canceling, there is also a "form" map which tracks the druid's current form.  (Non-druids change forms as well but these form changes don't affect their ability to CallCompanion() )
 
 --	These attributes are set at runtime to transfer settings and localization strings from tables where they can't be accessed in the secure handler to attributes of the secure button where they can be.
---	Note that druid forms may change, as feral druids only have 5 forms and others can have 6.  "form5" and "form6" attempt to figure out which forms are actually present to be able to cancel them effectively.
 
 	self:SetAttribute("catform", LivestockSettings.smartcatform)
 	self:SetAttribute("druidlogic", LivestockSettings.druidlogic)
 	self:SetAttribute("worgenlogic", LivestockSettings.worgenlogic)
 	self:SetAttribute("playerclass", select(2, UnitClass("player")))
-	self:SetAttribute("flightspell", GetSpellInfo(L.LIVESTOCK_SPELL_SWIFTFLIGHTFORM) or GetSpellInfo(L.LIVESTOCK_SPELL_FLIGHTFORM) or "nil")
 	self:SetAttribute("bearspell", GetSpellInfo(L.LIVESTOCK_SPELL_BEARFORM))
-	self:SetAttribute("form5", GetSpellInfo(L.LIVESTOCK_SPELL_TREEOFLIFE) or GetSpellInfo(L.LIVESTOCK_SPELL_MOONKINFORM) or GetSpellInfo(L.LIVESTOCK_SPELL_SWIFTFLIGHTFORM) or GetSpellInfo(L.LIVESTOCK_SPELL_FLIGHTFORM) or "nil")
-	self:SetAttribute("form6", ( GetSpellInfo(L.LIVESTOCK_SPELL_TREEOFLIFE) or GetSpellInfo(L.LIVESTOCK_SPELL_MOONKINFORM) ) and (GetSpellInfo(L.LIVESTOCK_SPELL_SWIFTFLIGHTFORM) or GetSpellInfo(L.LIVESTOCK_SPELL_FLIGHTFORM)))
-	self:SetAttribute("sealspell", L.LIVESTOCK_SPELL_AQUATICFORM)
 	self:SetAttribute("catspell", L.LIVESTOCK_SPELL_CATFORM)
 	self:SetAttribute("travelspell", L.LIVESTOCK_SPELL_TRAVELFORM)
+	self:SetAttribute("flightspell", L.LIVESTOCK_SPELL_FLIGHTFORM)
 	self:SetAttribute("wolfspell", L.LIVESTOCK_SPELL_GHOSTWOLF)
-	self:SetAttribute("moonkinspell", L.LIVESTOCK_SPELL_MOONKINFORM)
 	self:SetAttribute("waterwalking", (class == "SHAMAN" and L.LIVESTOCK_SPELL_WATERWALKING) or (class == "PRIEST" and L.LIVESTOCK_SPELL_LEVITATE) or (class == "DEATHKNIGHT" and L.LIVESTOCK_SPELL_PATHOFFROST))
 	self:SetAttribute("aotc", L.LIVESTOCK_SPELL_CHEETAH)
 	self:SetAttribute("aotp", GetSpellInfo(L.LIVESTOCK_SPELL_PACK) and L.LIVESTOCK_SPELL_PACK)
@@ -869,9 +866,7 @@ function Livestock.CreateStateMaps(self)
 	self:SetAttribute("movingform", LivestockSettings.movingform)
 	self:SetAttribute("movingaspects", LivestockSettings.movingaspects)
 	self:SetAttribute("groupaspects", LivestockSettings.groupaspects)
-	self:SetAttribute("hawkaspects", LivestockSettings.hawkaspects)
 	self:SetAttribute("mountaspects", LivestockSettings.mountaspects)
-	self:SetAttribute("moonkin", LivestockSettings.moonkin)
 	self:SetAttribute("zenflight", LivestockSettings.zenflight)
 	
 --	Wrap the following script to occur when the attribute of the ComboButton changes.  This will happen whenever the user toggles a setting, changes forms, or adjusts their indoor/outdoor, swimming, combat, flyable, or mounted status.
@@ -879,7 +874,7 @@ function Livestock.CreateStateMaps(self)
 --	When druids change forms, the state is updated again with the same information, but the updated form info is taken into account.  This allows for smart mounting to effectively cancel the form that was just cast because the type is usually set to cast the form spell that was just cast.
 
 	SecureHandlerWrapScript(self, "OnAttributeChanged", self, [[
-	local class, catform, druidlogic, bearspell, flightspell, sealspell, catspell, travelspell, wolfspell, worgenlogic = self:GetAttribute("playerclass"), self:GetAttribute("catform"), self:GetAttribute("druidlogic"), self:GetAttribute("bearspell"), self:GetAttribute("flightspell"), self:GetAttribute("sealspell"), self:GetAttribute("catspell"), self:GetAttribute("travelspell"), self:GetAttribute("wolfspell"), self:GetAttribute("worgenlogic")
+	local class, catform, druidlogic, bearspell, catspell, travelspell, flightspell, wolfspell, worgenlogic = self:GetAttribute("playerclass"), self:GetAttribute("catform"), self:GetAttribute("druidlogic"), self:GetAttribute("bearspell"), self:GetAttribute("catspell"), self:GetAttribute("travelspell"), self:GetAttribute("flightspell"), self:GetAttribute("wolfspell"), self:GetAttribute("worgenlogic")
 	local waterwalkingspell = self:GetAttribute("waterwalking")
 	local waterwalkingtoggle = self:GetAttribute("waterwalkingtoggle")
 	local combatformstoggle = self:GetAttribute("combatformstoggle")
@@ -889,15 +884,12 @@ function Livestock.CreateStateMaps(self)
 	local movingform = self:GetAttribute("movingform")
 	local movingaspects = self:GetAttribute("movingaspects")
 	local groupaspects = self:GetAttribute("groupaspects")
-	local hawkaspects = self:GetAttribute("hawkaspects")
 	local mountaspects = self:GetAttribute("mountaspects")
-	local moonkinspell = self:GetAttribute("moonkinspell")
-	local moonkin = self:GetAttribute("moonkin")
 	local zenflight = self:GetAttribute("zenflight")
 	
 	if name == "state-form" or name == "catform" or name == "druidlogic" or name == "worgenlogic" or name == "waterwalkingtoggle" or name == "combatformstoggle" or name == "indooraspects" 
-	   or name == "safeflying" or name == "mountinstealth" or name == "movingform" or name == "movingaspects" or name == "groupaspects" or name == "hawkaspects" or name == "mountaspects" 
-	   or name == "moonkin" or name == "zenflight" then
+	   or name == "safeflying" or name == "mountinstealth" or name == "movingform" or name == "movingaspects" or name == "groupaspects" or name == "mountaspects"
+	   or name == "zenflight" then
 		self:SetAttribute("state-smartmap",self:GetAttribute("state-smartmap"))
 		
 	elseif name == "state-smartmap" then
@@ -934,28 +926,12 @@ function Livestock.CreateStateMaps(self)
 			end
 			self:SetAttribute("mounttype", nil)
 		elseif value == 4 or value == 5 then
-			if class == "DRUID" then
-				local spell
-				if GetShapeshiftForm() == 1 then
-					spell = bearspell
-				elseif GetShapeshiftForm() == 3 then
-					spell = catspell
-				elseif GetShapeshiftForm() == 4 then
-					spell = travelspell
-				elseif GetShapeshiftForm() == 5 then
-					spell = self:GetAttribute("form5")
-				elseif GetShapeshiftForm() == 6 then
-					spell = self:GetAttribute("form6")
-				end
-				if spell and spell ~= moonkinspell then
-					self:SetAttribute("type", "spell")
-					self:SetAttribute("spell", spell)
-				end
-			end
+
 		elseif value == 6 then
 			if class == "DRUID" then
 				self:SetAttribute("type", "spell")
-				self:SetAttribute("spell", sealspell)
+				self:SetAttribute("spell", travelspell)
+				self:SetAttribute("mounttype", nil)
 			elseif tonumber(waterwalkingtoggle) == 1 and (class == "SHAMAN" or class == "PRIEST" or class == "DEATHKNIGHT") then
 				self:SetAttribute("type", "spell")
 				self:SetAttribute("spell", waterwalkingspell)
@@ -966,24 +942,21 @@ function Livestock.CreateStateMaps(self)
 				self:SetAttribute("mounttype", nil)
 			end
 		elseif value == 7 then
-			if class == "DRUID" and safeflying == 1 then
+			if safeflying == 1 then
 				self:SetAttribute("type", nil)
 				self:SetAttribute("spell", nil)
-			elseif class == "DRUID" then
-				self:SetAttribute("type", "spell")
-				if moonkin == 1 then
-					self:SetAttribute("spell", moonkinspell)
-				else
-					self:SetAttribute("spell", flightspell)
-				end
-			end
+			elseif IsMounted() then
+				self:SetAttribute("type", "macro")
+				self:SetAttribute("macrotext", "/run Livestock.Dismount()")
+				self:SetAttribute("mounttype", nil)
+ 			end
 		end
 	end
 	
 	]])
 
-	RegisterStateDriver(self, "smartmap", "[form:6] 7; [swimming] 6; [indoors, nomounted] 1; [noindoors, mounted] 2; [combat, noindoors, nomounted] 3; [nocombat, noindoors, nomounted, flyable] 4; [nocombat, noindoors, nomounted, noflyable] 5")
-	RegisterStateDriver(self, "form", "[form:1] 1; [form:2] 2; [form:3] 3; [form:4] 4; [form:5] 5; [form:6] 6; 0")
+	RegisterStateDriver(self, "smartmap", "[flying] 7; [swimming] 6; [indoors, nomounted] 1; [noindoors, mounted] 2; [combat, noindoors, nomounted] 3; [nocombat, noindoors, nomounted, flyable] 4; [nocombat, noindoors, nomounted, noflyable] 5")
+	RegisterStateDriver(self, "form", "[form:1] 1; [form:2] 2; [form:3] 3; [form:4] 4; 0")
 end
 
 function Livestock.RenumberCompanions()
@@ -1039,79 +1012,130 @@ end
 
 function Livestock.RenumberMounts()
 	Livestock.RecycleTable(mountstable)
+	local myFaction = nil
+	if UnitFactionGroup("player") == "Alliance" then
+		myFaction = 1
+	elseif UnitFactionGroup("player") == "Horde" then
+		myFaction = 0
+	end
 
-	for i = 1, GetNumCompanions("MOUNT") do
-		local _, name, spellID, _, _, mountFlags = GetCompanionInfo("MOUNT",i)
-		if name and not LivestockSettings.Mounts[name] then -- if the name is valid and we don't have SV data for it, we need to make it
-			local name2 = strconcat(name, "-")
-			LivestockSettings.Mounts[name] = { -- save the index and set the default show value to on
-				show = 1,
-				index = i,
-				spellID = spellID,
-				mountFlags = mountFlags,
-			}
-			if LivestockSettings.newmount == 1 then
-				LivestockSettings.Mounts[name].show = 0
+	for i = 1, C_MountJournal.GetNumMounts() do
+		local name, spellID, _, _, _, _, _, isFactionSpecific, faction, hideOnChar, isCollected = C_MountJournal.GetMountInfo(i)
+		local _, _, _, _, mountType = C_MountJournal.GetMountInfoExtra(i)
+		local factionMatch = false
+		if isFactionSpecific and myFaction then
+			if myFaction == faction then
+				factionMatch = true
 			end
-			mountstable[name] = true
-			print(format(L.LIVESTOCK_INTERFACE_ADD, name))
-			
-			--[[ mountFlags explanation
-				Ground 0x01
-				Fly 0x02
-				Float 0x04
-				Underwater 0x08
-				Jump 0x10
-				
-				Flying mounts = 7
-				Water mounts = 12
-				Sandstone Drake = 15
-				Multi-purpose that can't swim = 23 (Red Flying Cloud and possibly others)
-				Ground mounts = 29 (includes swimming turtles)
-				Multi-purpose = 31
-			]]
+		end
 
-			if mountFlags == 7 or mountFlags == 15 then -- flying mount
-				LivestockSettings.Mounts[name].type = "flying"
-			elseif mountFlags == 31 or mountFlags == 23 then -- variable
-				LivestockSettings.Mounts[name].type = "flying"
-				LivestockSettings.Mounts[name2] = { 
+		if isCollected and not hideOnChar and (not isFactionSpecific or (isFactionSpecific and factionMatch)) then		
+			if name and not LivestockSettings.Mounts[name] then -- if the name is valid and we don't have SV data for it, we need to make it
+				local name2 = strconcat(name, "-")
+				LivestockSettings.Mounts[name] = { -- save the index and set the default show value to on
 					show = 1,
 					index = i,
-					type = "land",
 					spellID = spellID,
-					mountFlags = mountFlags,
+					mountType = mountType,
 				}
 				if LivestockSettings.newmount == 1 then
-					LivestockSettings.Mounts[name2].show = 0
+					LivestockSettings.Mounts[name].show = 0
 				end
-				mountstable[name2] = true
-			elseif mountFlags == 12 then -- water
-				LivestockSettings.Mounts[name].type = "water"
-			elseif mountFlags == 29 then -- otherwise, a land mount
-				LivestockSettings.Mounts[name].type = "land"
-				-- swimming turtle exception
-				if spellID == 30174 or spellID == 64731 then
+				mountstable[name] = true
+				print(format(L.LIVESTOCK_INTERFACE_ADD, name))
+
+				--[[ mountFlags explanation
+					Ground 0x01
+					Fly 0x02
+					Float 0x04
+					Underwater 0x08
+					Jump 0x10
+
+					Flying mounts = 7
+					Water mounts = 12
+					Sandstone Drake = 15
+					Multi-purpose that can't swim = 23 (Red Flying Cloud and possibly others)
+					Ground mounts = 29 (includes swimming turtles)
+					Multi-purpose = 31
+
+				if mountFlags == 7 or mountFlags == 15 then -- flying mount
+					LivestockSettings.Mounts[name].type = "flying"
+				elseif mountFlags == 31 or mountFlags == 23 then -- variable
+					LivestockSettings.Mounts[name].type = "flying"
+					LivestockSettings.Mounts[name2] = { 
+						show = 1,
+						index = i,
+						type = "land",
+						spellID = spellID,
+						mountFlags = mountFlags,
+					}
+					if LivestockSettings.newmount == 1 then
+						LivestockSettings.Mounts[name2].show = 0
+					end
+					mountstable[name2] = true
+				elseif mountFlags == 12 then -- water
 					LivestockSettings.Mounts[name].type = "water"
+				elseif mountFlags == 29 then -- otherwise, a land mount
+					LivestockSettings.Mounts[name].type = "land"
+					-- swimming turtle exception
+					if spellID == 30174 or spellID == 64731 then
+						LivestockSettings.Mounts[name].type = "water"
+					end
+				]]
+				
+				if mountType == 247 or mountType == 248 then -- flying mount
+					LivestockSettings.Mounts[name].type = "flying"
+					if LivestockSettings.flyland == 1 then
+						LivestockSettings.Mounts[name2] = { 
+							show = 1,
+							index = i,
+							type = "land",
+							spellID = spellID,
+							mountType = mountType,
+						}
+						if LivestockSettings.newmount == 1 then
+							LivestockSettings.Mounts[name2].show = 0
+						end
+						mountstable[name2] = true
+					end
+				elseif mountType == 230 or mountType == 241 or mountType == 269 then -- land mount
+					LivestockSettings.Mounts[name].type = "land"
+				elseif mountType == 231 or mountType == 232 or mountType == 254 then -- water
+					LivestockSettings.Mounts[name].type = "water"
+				else
+					print(format(L.LIVESTOCK_INTERFACE_UNKNOWN, name, mountType))
+				end
+			elseif name then -- if we do have SV data for it, update the index
+				local name2 = strconcat(name, "-")
+				LivestockSettings.Mounts[name].index = i
+				LivestockSettings.Mounts[name].spellID = spellID
+				LivestockSettings.Mounts[name].mountType = mountType
+				mountstable[name] = true
+				if LivestockSettings.flyland == 1 and (mountType == 247 or mountType == 248) then
+					if name2 and not LivestockSettings.Mounts[name2] then
+						LivestockSettings.Mounts[name2] = { 
+							show = 1,
+							index = i,
+							type = "land",
+							spellID = spellID,
+							mountType = mountType,
+						}
+						if LivestockSettings.newmount == 1 then
+							LivestockSettings.Mounts[name2].show = 0
+						end
+						mountstable[name2] = true
+						print(format(L.LIVESTOCK_INTERFACE_ADD, name2))
+					elseif name2 then
+						LivestockSettings.Mounts[name2].index = i
+						LivestockSettings.Mounts[name2].spellID = spellID
+						LivestockSettings.Mounts[name2].mountType = mountType
+						mountstable[name2] = true
+					end
 				end
 			else
-				print(format(L.LIVESTOCK_INTERFACE_UNKNOWN, name, mountFlags))
+				mountfail = true
+				return
 			end
-		elseif name then -- if we do have SV data for it, update the index
-			local name2 = strconcat(name, "-")
-			LivestockSettings.Mounts[name].index = i
-			LivestockSettings.Mounts[name].spellID = spellID
-			LivestockSettings.Mounts[name].mountFlags = mountFlags
-			mountstable[name] = true
-			if LivestockSettings.Mounts[name2] then
-				LivestockSettings.Mounts[name2].index = i
-				LivestockSettings.Mounts[name2].spellID = spellID
-				LivestockSettings.Mounts[name2].mountFlags = mountFlags
-				mountstable[name2] = true
-			end
-		else
-			mountfail = true
-			return
 		end
 	end
 
@@ -1129,19 +1153,26 @@ function Livestock.LandOrFlying() -- since [flyable] has been fixed, check for f
 
 	SetMapToCurrentZone() -- make sure that the map accurately reflects the zone you're in
 	local continent = GetCurrentMapContinent()
-	local flightForm = GetSpellInfo(L.LIVESTOCK_SPELL_SWIFTFLIGHTFORM) or GetSpellInfo(L.LIVESTOCK_SPELL_FLIGHTFORM)
-	local _, _, _, expertRiding, _, _, _, _, _, _, _, _, wasEarnedByMe = GetAchievementInfo(890) -- Expert Riding achievement
+	local expertRiding = IsUsableSpell(L.LIVESTOCK_SPELL_EXPERTRIDING) -- Expert Riding
+	local artisanRiding = IsUsableSpell(L.LIVESTOCK_SPELL_ARTISANRIDING) -- Artisan Riding
+	local masterRiding = IsUsableSpell(L.LIVESTOCK_SPELL_MASTERRIDING) -- Master Riding
 	local CWF = IsUsableSpell(L.LIVESTOCK_SPELL_COLDWEATHER) -- Cold Weather Flying
 	local mflying = IsUsableSpell(L.LIVESTOCK_SPELL_FLIGHTMASTER) -- Flight Master's License
 	local pandaFlying = IsUsableSpell(L.LIVESTOCK_SPELL_WISDOMWINDS) -- Wisdom of the Four Winds
 
-	if continent == L.LIVESTOCK_CONTINENT_OUTLAND then -- if we're in Outland
-		if ((expertRiding and wasEarnedByMe) or flightForm) and IsFlyableArea() then
+	if continent == 1 or continent == 2 or continent == 5 then -- if we're in Kalimdor, Eastern Kingdoms or the Maelstrom
+		if IsFlyableArea() and mflying then -- have flight master's license and in flyable area
+			return "FLYING"
+		else
+			return "LAND" -- anywhere else we should get a land mount.
+		end
+	elseif continent == 3 then -- if we're in Outland
+		if (expertRiding or artisanRiding or masterRiding) and IsFlyableArea() then
 			return "FLYING"
 		else
 			return "LAND"
 		end
-	elseif continent == L.LIVESTOCK_CONTINENT_NORTHREND then -- if we're in Northrend
+	elseif continent == 4 then -- if we're in Northrend
 		if IsFlyableArea() then
 			local zone = GetZoneText() -- Check the zone
 			if not CWF then -- no CWF means no flying
@@ -1152,18 +1183,20 @@ function Livestock.LandOrFlying() -- since [flyable] has been fixed, check for f
 		else
 			return "LAND"
 		end
-	elseif continent == L.LIVESTOCK_CONTINENT_PANDARIA then -- if we're in Pandaria
+	elseif continent == 6 then -- if we're in Pandaria
 		if IsFlyableArea() and pandaFlying then
 			return "FLYING"
 		else
 			return "LAND"
 		end
-	else -- we are in azeroth
-		if IsFlyableArea() and mflying then -- have flight master's license and in flyable area
-			return "FLYING"
-		else
+	elseif continent == 7 then -- if we're in Draenor
+--		if IsFlyableArea() then
+--			return "FLYING"
+--		else
 			return "LAND" -- anywhere else we should get a land mount.
-		end
+--		end
+	else
+		return "LAND" -- anywhere else we should get a land mount.
 	end
 end
 
@@ -1201,13 +1234,8 @@ function Livestock.SmartPreClick(self)
 	if state == 1 then
 		if class == "HUNTER" then
 			if LivestockSettings.indooraspects == 1 then
-				local spellName = UnitBuff("player", (GetNumGroupMembers() ~= 0 and LivestockSettings.groupaspects == 0 and GetSpellInfo(L.LIVESTOCK_SPELL_PACK) and L.LIVESTOCK_SPELL_PACK) or L.LIVESTOCK_SPELL_CHEETAH, nil );
 				self:SetAttribute("type", "spell")
-				if spellName and LivestockSettings.hawkaspects == 1 then
-					self:SetAttribute("spell", (GetSpellInfo(L.LIVESTOCK_SPELL_IRON_HAWK) and L.LIVESTOCK_SPELL_IRON_HAWK) or L.LIVESTOCK_SPELL_HAWK)
-				else
-					self:SetAttribute("spell", (GetNumGroupMembers() ~= 0 and LivestockSettings.groupaspects == 0 and GetSpellInfo(L.LIVESTOCK_SPELL_PACK) and L.LIVESTOCK_SPELL_PACK) or L.LIVESTOCK_SPELL_CHEETAH)
-				end
+				self:SetAttribute("spell", (GetNumGroupMembers() ~= 0 and LivestockSettings.groupaspects == 0 and GetSpellInfo(L.LIVESTOCK_SPELL_PACK) and L.LIVESTOCK_SPELL_PACK) or L.LIVESTOCK_SPELL_CHEETAH)
 				self.mounttype = nil
 			end
 		elseif class == "SHAMAN" then
@@ -1221,9 +1249,12 @@ function Livestock.SmartPreClick(self)
 	elseif state == 2 then --  if mounted, clear out any mounted attributes and return, which will lead to a dismount (in the Click handler) and nothing in the PostClick.  Druids go to flight form if they have it.
 		self.mounttype = nil
 		if class == "DRUID" and not InCombatLockdown() and Livestock.LandOrFlying() == "FLYING" and LivestockSettings.druidlogic == 1 then
-			if GetSpellInfo(L.LIVESTOCK_SPELL_SWIFTFLIGHTFORM) or GetSpellInfo(L.LIVESTOCK_SPELL_FLIGHTFORM) then
+			if GetSpellInfo(L.LIVESTOCK_SPELL_FLIGHTFORM) then
 				self:SetAttribute("type", "spell")
-				self:SetAttribute("spell", L.LIVESTOCK_SPELL_SWIFTFLIGHTFORM or L.LIVESTOCK_SPELL_FLIGHTFORM)
+				self:SetAttribute("spell", L.LIVESTOCK_SPELL_FLIGHTFORM)
+			elseif GetSpellInfo(L.LIVESTOCK_SPELL_TRAVELFORM) then
+				self:SetAttribute("type", "spell")
+				self:SetAttribute("spell", L.LIVESTOCK_SPELL_TRAVELFORM)
 			end
 		end
 		return
@@ -1233,13 +1264,8 @@ function Livestock.SmartPreClick(self)
 			self.mounttype = Livestock.LandOrFlying()
 		
 			if LivestockSettings.movingaspects == 1 and GetUnitSpeed("player") ~= 0 then
-				local spellName = UnitBuff("player", (GetNumGroupMembers() ~= 0 and LivestockSettings.groupaspects == 0 and GetSpellInfo(L.LIVESTOCK_SPELL_PACK) and L.LIVESTOCK_SPELL_PACK) or L.LIVESTOCK_SPELL_CHEETAH, nil );
 				self:SetAttribute("type", "spell")
-				if spellName and LivestockSettings.hawkaspects == 1 then
-					self:SetAttribute("spell", (GetSpellInfo(L.LIVESTOCK_SPELL_IRON_HAWK) and L.LIVESTOCK_SPELL_IRON_HAWK) or L.LIVESTOCK_SPELL_HAWK)
-				else
-					self:SetAttribute("spell", (GetNumGroupMembers() ~= 0 and LivestockSettings.groupaspects == 0 and GetSpellInfo(L.LIVESTOCK_SPELL_PACK) and L.LIVESTOCK_SPELL_PACK) or L.LIVESTOCK_SPELL_CHEETAH)
-				end
+				self:SetAttribute("spell", (GetNumGroupMembers() ~= 0 and LivestockSettings.groupaspects == 0 and GetSpellInfo(L.LIVESTOCK_SPELL_PACK) and L.LIVESTOCK_SPELL_PACK) or L.LIVESTOCK_SPELL_CHEETAH)
 				self.mounttype = nil
 			end
 		
@@ -1261,19 +1287,14 @@ function Livestock.SmartPreClick(self)
 		self.mounttype = Livestock.LandOrFlying()
 		
 		if LivestockSettings.movingaspects == 1 and GetUnitSpeed("player") ~= 0 then
-			local spellName = UnitBuff("player", (GetNumGroupMembers() ~= 0 and LivestockSettings.groupaspects == 0 and GetSpellInfo(L.LIVESTOCK_SPELL_PACK) and L.LIVESTOCK_SPELL_PACK) or L.LIVESTOCK_SPELL_CHEETAH, nil );
 			self:SetAttribute("type", "spell")
-			if spellName and LivestockSettings.hawkaspects == 1 then
-				self:SetAttribute("spell", (GetSpellInfo(L.LIVESTOCK_SPELL_IRON_HAWK) and L.LIVESTOCK_SPELL_IRON_HAWK) or L.LIVESTOCK_SPELL_HAWK)
-			else
-				self:SetAttribute("spell", (GetNumGroupMembers() ~= 0 and LivestockSettings.groupaspects == 0 and GetSpellInfo(L.LIVESTOCK_SPELL_PACK) and L.LIVESTOCK_SPELL_PACK) or L.LIVESTOCK_SPELL_CHEETAH)
-			end
+			self:SetAttribute("spell", (GetNumGroupMembers() ~= 0 and LivestockSettings.groupaspects == 0 and GetSpellInfo(L.LIVESTOCK_SPELL_PACK) and L.LIVESTOCK_SPELL_PACK) or L.LIVESTOCK_SPELL_CHEETAH)
 			self.mounttype = nil
 		elseif LivestockSettings.mountaspects == 1 then
-			local spellName = UnitBuff("player", (GetSpellInfo(L.LIVESTOCK_SPELL_IRON_HAWK) and L.LIVESTOCK_SPELL_IRON_HAWK) or L.LIVESTOCK_SPELL_HAWK, nil );
-			if not spellName then
+			local spellName = UnitBuff("player", (GetNumGroupMembers() ~= 0 and LivestockSettings.groupaspects == 0 and GetSpellInfo(L.LIVESTOCK_SPELL_PACK) and L.LIVESTOCK_SPELL_PACK) or L.LIVESTOCK_SPELL_CHEETAH, nil );
+			if spellName then
 				self:SetAttribute("type", "spell")
-				self:SetAttribute("spell", (GetSpellInfo(L.LIVESTOCK_SPELL_IRON_HAWK) and L.LIVESTOCK_SPELL_IRON_HAWK) or L.LIVESTOCK_SPELL_HAWK)
+				self:SetAttribute("spell", spellName)
 			end
 		end
 		
@@ -1300,20 +1321,24 @@ function Livestock.SmartPreClick(self)
 		end
 
 		if class == "DRUID" then
-			if LivestockSettings.movingform == 1 and GetUnitSpeed("player") ~= 0 then
-				if self.mounttype == "LAND" or (self.mounttype == "FLYING" and LivestockSettings.druidlogic == 0) then
+			if LivestockSettings.movingform == 1 and GetUnitSpeed("player") ~= 0 or (LivestockSettings.druidlogic == 1 and self.mounttype == "FLYING") then
+				local spellName = UnitBuff("player", (GetSpellInfo(L.LIVESTOCK_SPELL_FLIGHTFORM) and L.LIVESTOCK_SPELL_FLIGHTFORM) or (GetSpellInfo(L.LIVESTOCK_SPELL_TRAVELFORM) and L.LIVESTOCK_SPELL_TRAVELFORM), nil );
+				if spellName and LivestockSettings.moonkin == 1 and GetSpellInfo(L.LIVESTOCK_SPELL_MOONKINFORM) then
 					self:SetAttribute("type", "spell")
-					self:SetAttribute("spell", L.LIVESTOCK_SPELL_TRAVELFORM)
+					self:SetAttribute("spell", L.LIVESTOCK_SPELL_MOONKINFORM)
+					self.mounttype = nil
+				else
+					self:SetAttribute("type", "spell")
+					self:SetAttribute("spell", (GetSpellInfo(L.LIVESTOCK_SPELL_FLIGHTFORM) and L.LIVESTOCK_SPELL_FLIGHTFORM) or (GetSpellInfo(L.LIVESTOCK_SPELL_TRAVELFORM) and L.LIVESTOCK_SPELL_TRAVELFORM) or L.LIVESTOCK_SPELL_CATFORM)
 					self.mounttype = nil
 					self.clearmovingform = true
-					return
 				end
-			end
-
-			if LivestockSettings.druidlogic == 1 and self.mounttype == "FLYING" then
-				self:SetAttribute("type", "spell")
-				self:SetAttribute("spell", GetSpellInfo(L.LIVESTOCK_SPELL_SWIFTFLIGHTFORM) or L.LIVESTOCK_SPELL_FLIGHTFORM)
-				self.mounttype = nil
+			else
+				if UnitBuff("player", L.LIVESTOCK_SPELL_MOONKINFORM) then
+				else
+					self:SetAttribute("type", "macro")
+					self:SetAttribute("macrotext", "/cancelform")
+				end
 			end
 		end
 
@@ -1327,41 +1352,58 @@ function Livestock.SmartPreClick(self)
 		self.mounttype = Livestock.LandOrFlying()
 		if LivestockSettings.movingform == 1 and GetUnitSpeed("player") ~= 0 then
 			self:SetAttribute("type", "spell")
-			self:SetAttribute("spell", (class == "SHAMAN" and L.LIVESTOCK_SPELL_GHOSTWOLF) or L.LIVESTOCK_SPELL_TRAVELFORM)
+			self:SetAttribute("spell", (class == "SHAMAN" and L.LIVESTOCK_SPELL_GHOSTWOLF) or (GetSpellInfo(L.LIVESTOCK_SPELL_TRAVELFORM) and L.LIVESTOCK_SPELL_TRAVELFORM) or L.LIVESTOCK_SPELL_CATFORM)
 			self.mounttype = nil
 			self.clearmovingform = true
 		elseif LivestockSettings.movingaspects == 1 and GetUnitSpeed("player") ~= 0 then
-			local spellName = UnitBuff("player", (GetNumGroupMembers() ~= 0 and LivestockSettings.groupaspects == 0 and GetSpellInfo(L.LIVESTOCK_SPELL_PACK) and L.LIVESTOCK_SPELL_PACK) or L.LIVESTOCK_SPELL_CHEETAH, nil );
 			self:SetAttribute("type", "spell")
-			if spellName and LivestockSettings.hawkaspects == 1 then
-				self:SetAttribute("spell", (GetSpellInfo(L.LIVESTOCK_SPELL_IRON_HAWK) and L.LIVESTOCK_SPELL_IRON_HAWK) or L.LIVESTOCK_SPELL_HAWK)
-			else
-				self:SetAttribute("spell", (GetNumGroupMembers() ~= 0 and LivestockSettings.groupaspects == 0 and GetSpellInfo(L.LIVESTOCK_SPELL_PACK) and L.LIVESTOCK_SPELL_PACK) or L.LIVESTOCK_SPELL_CHEETAH)
-			end
+			self:SetAttribute("spell", (GetNumGroupMembers() ~= 0 and LivestockSettings.groupaspects == 0 and GetSpellInfo(L.LIVESTOCK_SPELL_PACK) and L.LIVESTOCK_SPELL_PACK) or L.LIVESTOCK_SPELL_CHEETAH)
 			self.mounttype = nil
 		elseif LivestockSettings.mountaspects == 1 then
-			local spellName = UnitBuff("player", (GetSpellInfo(L.LIVESTOCK_SPELL_IRON_HAWK) and L.LIVESTOCK_SPELL_IRON_HAWK) or L.LIVESTOCK_SPELL_HAWK, nil );
-			if not spellName then
+			local spellName = UnitBuff("player", (GetNumGroupMembers() ~= 0 and LivestockSettings.groupaspects == 0 and GetSpellInfo(L.LIVESTOCK_SPELL_PACK) and L.LIVESTOCK_SPELL_PACK) or L.LIVESTOCK_SPELL_CHEETAH, nil );
+			if spellName then
 				self:SetAttribute("type", "spell")
-				self:SetAttribute("spell", (GetSpellInfo(L.LIVESTOCK_SPELL_IRON_HAWK) and L.LIVESTOCK_SPELL_IRON_HAWK) or L.LIVESTOCK_SPELL_HAWK)
+				self:SetAttribute("spell", spellName)
 			end
 		elseif race == "Worgen" and LivestockSettings.worgenlogic == 1 then
 			self:SetAttribute("type", "spell")
 			self:SetAttribute("spell", L.LIVESTOCK_SPELL_RUNNINGWILD)
 			self.mounttype = nil
+		elseif class == "DRUID" then
+			if UnitBuff("player", L.LIVESTOCK_SPELL_MOONKINFORM) then
+			else
+				self:SetAttribute("type", "macro")
+				self:SetAttribute("macrotext", "/cancelform")
+			end
 		end
 		return
 		
 	elseif state == 6 then -- swimming
-		self.mounttype = "WATER"
-	
-	elseif state == 7 then -- flight form
-		if LivestockSettings.moonkin == 1 and LivestockSettings.safeflying == 0 then
-			self:SetAttribute("type", "spell")
-			self:SetAttribute("spell", L.LIVESTOCK_SPELL_MOONKINFORM)
-			self.mounttype = nil
+		if class ~= "DRUID" then
+			self.mounttype = "WATER"
 		end
-	
+	elseif state == 7 then -- flying
+		self.mounttype = "FLYING"
+		if class == "DRUID" and not InCombatLockdown() and LivestockSettings.safeflying == 0 then
+			self.mounttype = nil
+			local spellName = UnitBuff("player", (GetSpellInfo(L.LIVESTOCK_SPELL_FLIGHTFORM) and L.LIVESTOCK_SPELL_FLIGHTFORM) or (GetSpellInfo(L.LIVESTOCK_SPELL_TRAVELFORM) and L.LIVESTOCK_SPELL_TRAVELFORM), nil );
+			if LivestockSettings.moonkin == 1 and spellName and GetSpellInfo(L.LIVESTOCK_SPELL_MOONKINFORM) then
+				self:SetAttribute("type", "spell")
+				self:SetAttribute("spell", L.LIVESTOCK_SPELL_MOONKINFORM)
+			else
+				if UnitBuff("player", L.LIVESTOCK_SPELL_MOONKINFORM) then
+				else
+					if GetSpellInfo(L.LIVESTOCK_SPELL_FLIGHTFORM) then
+						self:SetAttribute("type", "spell")
+						self:SetAttribute("spell", L.LIVESTOCK_SPELL_FLIGHTFORM)
+					elseif GetSpellInfo(L.LIVESTOCK_SPELL_TRAVELFORM) then
+						self:SetAttribute("type", "spell")
+						self:SetAttribute("spell", L.LIVESTOCK_SPELL_TRAVELFORM)
+					end
+				end
+			end
+		end
+		return
 	end
 end
 
@@ -1449,10 +1491,11 @@ function Livestock.NonSmartPreClick(self)
 		repeat
 			buffs = buffs + 1
 			name = UnitBuff("player", buffs)
-		until not name or name == L.LIVESTOCK_SPELL_BEARFORM or name == L.LIVESTOCK_SPELL_CATFORM or name == L.LIVESTOCK_SPELL_TRAVELFORM or name == L.LIVESTOCK_SPELL_TREEOFLIFE or name == L.LIVESTOCK_SPELL_FLIGHTFORM or name == L.LIVESTOCK_SPELL_SWIFTFLIGHTFORM
+		until not name or name == L.LIVESTOCK_SPELL_BEARFORM or name == L.LIVESTOCK_SPELL_CATFORM or name == L.LIVESTOCK_SPELL_TRAVELFORM or name == L.LIVESTOCK_SPELL_TREEOFLIFE or name == L.LIVESTOCK_SPELL_FLIGHTFORM 
 		if name then -- name will be the name of the form at this point
-			self:SetAttribute("type","spell")
-			self:SetAttribute("spell",name) -- by casting the spell that we had on in the first place, we effectively remove the spell.
+			self:SetAttribute("type", "macro")
+			self:SetAttribute("macrotext", "/cancelform")
+			self:SetAttribute("mounttype", nil)
 		end
 	end
 
@@ -1546,7 +1589,7 @@ function Livestock.PickCritter()
 	if #temp == 0 and shown ~= 1 then -- if there are no critters in the list AND the number of critters selected isn't 1, then there must be 0 critters selected.  Prompt user to select some.
 		print(L.LIVESTOCK_INTERFACE_NOCRITTERSCHECKED)
 	elseif #temp ~= 0 then -- otherwise, there are some critters in the list.
-		currentcritter = temp[random(#temp)] -- set the newest critter to be one of the random indices among those in the temp table.
+		currentcritter = temp[fastrandom(#temp)] -- set the newest critter to be one of the random indices among those in the temp table.
 		C_PetJournal.SummonPetByGUID(currentcritter) -- call the critter
 	end
 end
@@ -1586,10 +1629,10 @@ function Livestock.PickLandMount()
 	end
 	
 	if LivestockSettings.Zones[GetSubZoneText()] and LivestockSettings.Zones[GetSubZoneText()]["mount"] then
-		CallCompanion("MOUNT", LivestockSettings.Mounts[LivestockSettings.Zones[GetSubZoneText()]["mount"]].index)
+		C_MountJournal.Summon(LivestockSettings.Mounts[LivestockSettings.Zones[GetSubZoneText()]["mount"]].index)
 		return
 	elseif LivestockSettings.Zones[GetZoneText()] and LivestockSettings.Zones[GetZoneText()]["mount"] then
-		CallCompanion("MOUNT", LivestockSettings.Mounts[LivestockSettings.Zones[GetZoneText()]["mount"]].index)
+		C_MountJournal.Summon(LivestockSettings.Mounts[LivestockSettings.Zones[GetZoneText()]["mount"]].index)
 		return
 	end
 
@@ -1623,19 +1666,19 @@ function Livestock.PickLandMount()
 	end
 	
 	if (debug) then
-		local number = temp[random(#temp)]
-		local _, name, spellID, _, _, mountFlags = GetCompanionInfo("MOUNT",number)
-		print(format("MOUNT: land mount is '%s', index '%s', mountFlags '%s'", name, number, mountFlags))
-		CallCompanion("MOUNT",number) -- call a random mount
+		local number = temp[fastrandom(#temp)]
+		local name = C_MountJournal.GetMountInfo(number)
+		local _, _, _, _, mountType = C_MountJournal.GetMountInfoExtra(number)
+		print(format("MOUNT: land mount is '%s', index '%s', mountType '%s'", name, number, mountType))
+		C_MountJournal.Summon(number)
 	else
-		CallCompanion("MOUNT",temp[random(#temp)]) -- call a random mount
+		C_MountJournal.Summon(temp[fastrandom(#temp)])
 	end
 end
 
 function Livestock.PickFlyingMount(breath)
 	local engineeringLevel = Livestock.GetProfSkillLevel(L.LIVESTOCK_SKILL_ENGR)
 	local tailoringLevel = Livestock.GetProfSkillLevel(L.LIVESTOCK_SKILL_TAILOR)
-	local serpentFlying = IsUsableSpell(L.LIVESTOCK_SPELL_CLOUDSERPENT) -- Cloud Serpent Riding
 
 	if IsFlying() and LivestockSettings.safeflying == 1 then -- if we're already flying, don't do anything; if we're not and mounted, we're on the ground on a flying mount so dismount instead of summoning another mount
 		return
@@ -1648,10 +1691,10 @@ function Livestock.PickFlyingMount(breath)
 	end
 	
 	if LivestockSettings.Zones[GetSubZoneText()] and LivestockSettings.Zones[GetSubZoneText()]["mount"] then
-		CallCompanion("MOUNT", LivestockSettings.Mounts[LivestockSettings.Zones[GetSubZoneText()]["mount"]].index)
+		C_MountJournal.Summon(LivestockSettings.Mounts[LivestockSettings.Zones[GetSubZoneText()]["mount"]].index)
 		return
 	elseif LivestockSettings.Zones[GetZoneText()] and LivestockSettings.Zones[GetZoneText()]["mount"] then
-		CallCompanion("MOUNT", LivestockSettings.Mounts[LivestockSettings.Zones[GetZoneText()]["mount"]].index)
+		C_MountJournal.Summon(LivestockSettings.Mounts[LivestockSettings.Zones[GetZoneText()]["mount"]].index)
 		return
 	end
 	
@@ -1668,21 +1711,6 @@ function Livestock.PickFlyingMount(breath)
 				-- don't try to use the Flying Machine
 			elseif LivestockSettings.Mounts[k].spellID == 44151 and engineeringLevel < 375 then
 				-- don't try to use the Turbo-Charged Flying Machine
-			elseif (LivestockSettings.Mounts[k].spellID == 127170 or
-				LivestockSettings.Mounts[k].spellID == 123992 or
-				LivestockSettings.Mounts[k].spellID == 127156 or
-				LivestockSettings.Mounts[k].spellID == 123993 or
-				LivestockSettings.Mounts[k].spellID == 127169 or
-				LivestockSettings.Mounts[k].spellID == 127161 or
-				LivestockSettings.Mounts[k].spellID == 127164 or
-				LivestockSettings.Mounts[k].spellID == 127165 or
-				LivestockSettings.Mounts[k].spellID == 127158 or
-				LivestockSettings.Mounts[k].spellID == 113199 or
-				LivestockSettings.Mounts[k].spellID == 127154 or
-				LivestockSettings.Mounts[k].spellID == 129918 or
-				LivestockSettings.Mounts[k].spellID == 124408 or
-				LivestockSettings.Mounts[k].spellID == 132036) and not serpentFlying then
-				-- don't try to use the cloud serpent mounts
 			else
 				if breath == true then
 					if LivestockSettings.Mounts[k].mountFlags == 31 then
@@ -1701,12 +1729,13 @@ function Livestock.PickFlyingMount(breath)
 	end
 	
 	if (debug) then
-		local number = temp[random(#temp)]
-		local _, name, spellID, _, _, mountFlags = GetCompanionInfo("MOUNT",number)
-		print(format("MOUNT: flying mount is '%s', index '%s', mountFlags '%s'", name, number, mountFlags))
-		CallCompanion("MOUNT",number) -- call a random mount
+		local number = temp[fastrandom(#temp)]
+		local name = C_MountJournal.GetMountInfo(number)
+		local _, _, _, _, mountType = C_MountJournal.GetMountInfoExtra(number)
+		print(format("MOUNT: flying mount is '%s', index '%s', mountType '%s'", name, number, mountType))
+		C_MountJournal.Summon(number)
 	else
-		CallCompanion("MOUNT",temp[random(#temp)]) -- call a random mount
+		C_MountJournal.Summon(temp[fastrandom(#temp)])
 	end
 end
 
@@ -1723,10 +1752,10 @@ function Livestock.PickWaterMount()
 	end
 	
 	if LivestockSettings.Zones[GetSubZoneText()] and LivestockSettings.Zones[GetSubZoneText()]["mount"] then
-		CallCompanion("MOUNT", LivestockSettings.Mounts[LivestockSettings.Zones[GetSubZoneText()]["mount"]].index)
+		C_MountJournal.Summon(LivestockSettings.Mounts[LivestockSettings.Zones[GetSubZoneText()]["mount"]].index)
 		return
 	elseif LivestockSettings.Zones[GetZoneText()] and LivestockSettings.Zones[GetZoneText()]["mount"] then
-		CallCompanion("MOUNT", LivestockSettings.Mounts[LivestockSettings.Zones[GetZoneText()]["mount"]].index)
+		C_MountJournal.Summon(LivestockSettings.Mounts[LivestockSettings.Zones[GetZoneText()]["mount"]].index)
 		return
 	end
 
@@ -1779,12 +1808,13 @@ function Livestock.PickWaterMount()
 	end
 	
 	if (debug) then
-		local number = temp[random(#temp)]
-		local _, name, spellID, _, _, mountFlags = GetCompanionInfo("MOUNT",number)
-		print(format("MOUNT: water mount is '%s', index '%s', mountFlags '%s'", name, number, mountFlags))
-		CallCompanion("MOUNT",number) -- call a random mount
+		local number = temp[fastrandom(#temp)]
+		local name = C_MountJournal.GetMountInfo(number)
+		local _, _, _, _, mountType = C_MountJournal.GetMountInfoExtra(number)
+		print(format("MOUNT: water mount is '%s', index '%s', mountType '%s'", name, number, mountType))
+		C_MountJournal.Summon(number)
 	else
-		CallCompanion("MOUNT",temp[random(#temp)]) -- call a random mount
+		C_MountJournal.Summon(temp[fastrandom(#temp)])
 	end
 end
 

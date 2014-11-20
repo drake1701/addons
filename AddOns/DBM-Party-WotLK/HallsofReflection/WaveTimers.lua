@@ -1,7 +1,7 @@
 local mod = DBM:NewMod("HoRWaveTimer", "DBM-Party-WotLK", 16)
 local L = mod:GetLocalizedStrings()
 
-mod:SetRevision(("$Revision: 7 $"):sub(12, -3))
+mod:SetRevision(("$Revision: 157 $"):sub(12, -3))
 mod:SetCreatureID(30658)
 mod:SetZone()
 
@@ -9,6 +9,7 @@ mod:RegisterEvents(
 	"UPDATE_WORLD_STATES",
 	"UNIT_DIED"
 )
+mod.noStatistics = true
 
 local warnNewWaveSoon	= mod:NewAnnounce("WarnNewWaveSoon", 2)
 local warnNewWave		= mod:NewAnnounce("WarnNewWave", 3)
@@ -22,6 +23,7 @@ mod:RemoveOption("SpeedKillTimer")
 
 local lastWave = 0
 local FalricDead = false
+local falric = EJ_GetEncounterInfo(601)
 
 function mod:UPDATE_WORLD_STATES(args)
 	local text = select(4, GetWorldStateUIInfo(1))
@@ -60,7 +62,7 @@ function mod:UPDATE_WORLD_STATES(args)
 end
 
 function mod:UNIT_DIED(args)
-	if args.sourceName == L.Falric then
+	if args.sourceName == falric then
 		timerNextWave:Start(60)
 		warnNewWaveSoon:Schedule(50)
 		FalricDead = true

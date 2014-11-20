@@ -1,3 +1,5 @@
+local CollectMe = LibStub("AceAddon-3.0"):GetAddon("CollectMe")
+
 CollectMe.Macro = CollectMe:NewModule("Macro")
 
 function CollectMe.Macro:OnEnable()
@@ -5,11 +7,16 @@ function CollectMe.Macro:OnEnable()
 end
 
 function CollectMe.Macro:UpdateMacros()
-    self:InitMacro("CollectMeRC", "INV_PET_BABYBLIZZARDBEAR", '/script CollectMe.Macro:Companion();')
-    if CollectMe.CLASS == "DRUID" then
-        self:InitMacro("CollectMeRM", "ABILITY_MOUNT_BIGBLIZZARDBEAR", '/cancelform\n/script CollectMe.Macro:Mount();')
-    else
-        self:InitMacro("CollectMeRM", "ABILITY_MOUNT_BIGBLIZZARDBEAR", '/script CollectMe.Macro:Mount();')
+    local options = CollectMe.db.profile.macro;
+    if options.companion == true then
+        self:InitMacro("CollectMeRC", "INV_PET_BABYBLIZZARDBEAR", '/cm rc')
+    end
+    if options.mount == true then
+        if CollectMe.CLASS == "DRUID" and options.nostance then
+            self:InitMacro("CollectMeRM", "ABILITY_MOUNT_BIGBLIZZARDBEAR", '/cancelform [nostance:5]\n/cm rm')
+        else
+            self:InitMacro("CollectMeRM", "ABILITY_MOUNT_BIGBLIZZARDBEAR", '/cm rm')
+        end
     end
 end
 

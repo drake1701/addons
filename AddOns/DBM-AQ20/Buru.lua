@@ -1,7 +1,7 @@
 local mod	= DBM:NewMod("Buru", "DBM-AQ20", 1)
 local L		= mod:GetLocalizedStrings()
 
-mod:SetRevision(("$Revision: 477 $"):sub(12, -3))
+mod:SetRevision(("$Revision: 513 $"):sub(12, -3))
 mod:SetCreatureID(15370)
 mod:SetModelID(15654)
 mod:RegisterCombat("combat")
@@ -34,7 +34,7 @@ end
 function mod:SPELL_AURA_APPLIED(args)
 	if args.spellId == 96 then
 		local amount = args.amount or 1
-		WarnDismember:Show(args.spellName, args.destName, amount)
+		WarnDismember:Show(args.destName, amount)
 		timerDismember:Start(args.destName)
 		if amount >= 5 and args:IsPlayer() then
 			specWarnDismember:Show(amount)
@@ -44,8 +44,8 @@ end
 mod.SPELL_AURA_APPLIED_DOSE = mod.SPELL_AURA_APPLIED
 
 function mod:CHAT_MSG_MONSTER_EMOTE(msg, _, _, _, target)
-	if not msg.find(L.PursueEmote) then return end
-	local target = DBM:GetFullNameByShortName(target)
+	if not msg:find(L.PursueEmote) then return end
+	local target = DBM:GetUnitFullName(target)
 	if not target then return end
 	if target then
 		warnPursue:Show(target)

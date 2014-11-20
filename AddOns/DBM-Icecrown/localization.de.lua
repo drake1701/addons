@@ -1,82 +1,6 @@
 ﻿if GetLocale() ~= "deDE" then return end
 local L
 
----------------------------
---  Trash - Lower Spire  --
----------------------------
-L = DBM:GetModLocalization("LowerSpireTrash")
-
-L:SetGeneralLocalization{
-	name = "Trash der Unteren Spitze"
-}
-
-L:SetWarningLocalization{
-	SpecWarnTrap		= "Falle aktiviert! - Todesgeweihter Wächter freigesetzt" --creatureid 37007
-}
-
-L:SetOptionLocalization{
-	SpecWarnTrap		= "Spezialwarnung für Fallenaktivierung"
-}
-
-L:SetMiscLocalization{
-	WarderTrap1		= "Wer... ist da?",
-	WarderTrap2		= "Ich erwache...",
-	WarderTrap3		= "Das Sanktum des Meisters wurde entweiht!"
-}
-
----------------------------
---  Trash - Plagueworks  --
----------------------------
-L = DBM:GetModLocalization("PlagueworksTrash")
-
-L:SetGeneralLocalization{
-	name = "Trash der Seuchenwerke"
-}
-
-L:SetWarningLocalization{
-	SpecWarnTrap	= "Falle aktiviert! - Rachsüchtige Fleischernter kommen" --creatureid 37038
-}
-
-L:SetOptionLocalization{
-	SpecWarnTrap	= "Spezialwarnung für Fallenaktivierung"
-}
-
-L:SetMiscLocalization{
-	FleshreaperTrap1		= "Schnell, überfallen wir sie von hinten!",
-	FleshreaperTrap2		= "Ihr könnt uns nicht entkommen.",
-	FleshreaperTrap3		= "Die Lebenden? Hier?!"
-}
-
----------------------------
---  Trash - Crimson Hall  --
----------------------------
-L = DBM:GetModLocalization("CrimsonHallTrash")
-
-L:SetGeneralLocalization{
-	name = "Trash der Blutroten Halle"
-}
-
----------------------------
---  Trash - Frostwing Hall  --
----------------------------
-L = DBM:GetModLocalization("FrostwingHallTrash")
-
-L:SetGeneralLocalization{
-	name = "Trash der Frostschwingenhallen"
-}
-
-L:SetWarningLocalization{
-	SpecWarnGosaEvent	= "Sindragosa-Spießrutenlauf gestartet!"
-}
-
-L:SetOptionLocalization{
-	SpecWarnGosaEvent	= "Spezialwarnung für Sindragosa-Spießrutenlauf"
-}
-
-L:SetMiscLocalization{
-	SindragosaEvent		= "Ihr dürft Euch der Frostkönigin nicht nähern! Schnell, haltet sie auf!"
-}
-
 ----------------------
 --  Lord Marrowgar  --
 ----------------------
@@ -84,14 +8,6 @@ L = DBM:GetModLocalization("LordMarrowgar")
 
 L:SetGeneralLocalization{
 	name = "Lord Mark'gar"
-}
-
-L:SetTimerLocalization{
-	AchievementBoned	= "Zeit zum Befreien"
-}
-
-L:SetOptionLocalization{
-	AchievementBoned	= "Zeige Timer für Erfolg 'Entknöchert'"
 }
 
 -------------------------
@@ -108,13 +24,13 @@ L:SetTimerLocalization{
 }
 
 L:SetWarningLocalization{
-	WarnReanimating				= "Add-Wiederbelebung",			-- Reanimating an adherent or fanatic
+	WarnReanimating				= "Add-Wiederbelebung",
 	WarnAddsSoon				= "Neue Adds bald"
 }
 
 L:SetOptionLocalization{
 	WarnAddsSoon				= "Zeige Vorwarnung für erscheinende Adds",
-	WarnReanimating				= "Zeige Warnung, wenn ein Add wiederbelebt wird",	-- Reanimated Adherent/Fanatic spawning
+	WarnReanimating				= "Zeige Warnung, wenn ein Add wiederbelebt wird",
 	TimerAdds					= "Zeige Zeit bis neue Adds erscheinen",
 	ShieldHealthFrame			= "Zeige Lebensanzeige mit einem Balken für $spell:70842"
 }
@@ -140,25 +56,23 @@ L:SetWarningLocalization{
 }
 
 L:SetOptionLocalization{
-	TimerCombatStart	= "Zeige Zeit bis Kampfbeginn",
 	WarnAddsSoon		= "Zeige Vorwarnung für erscheinende Adds",
 	TimerAdds			= "Zeige Zeit bis neue Adds erscheinen"
 }
 
 L:SetTimerLocalization{
-	TimerCombatStart	= "Kampfbeginn",
 	TimerAdds			= "Neue Adds"
 }
 
 L:SetMiscLocalization{
 	PullAlliance	= "Alle Maschinen auf Volldampf! Unser Schicksal erwartet uns!",
-	KillAlliance	= "Sagt nicht, ich hätte Euch nicht gewarnt, Ihr Schurken! Vorwärts, Brüder und Schwestern!",
 	PullHorde		= "Erhebt Euch, Söhne und Töchter der Horde! Wir ziehen gegen einen verhassten Feind in die Schlacht! LOK'TAR OGAR!",
-	KillHorde		= "Die Allianz wankt. Vorwärts zum Lichkönig!",
 	AddsAlliance	= "Häscher, Unteroffiziere, Angriff!",
 	AddsHorde		= "Soldaten! Zum Angriff!",
 	MageAlliance	= "Der Rumpf ist beschädigt! Holt einen Kampfmagier, der die Kanonen ausschaltet!", --needs to be verified (video-captured alliance translation)
-	MageHorde		= "Die Außenhaut ist beschädigt! Holt einen Zauberer, der die Kanonen ausschaltet!"
+	MageHorde		= "Die Außenhaut ist beschädigt! Holt einen Zauberer, der die Kanonen ausschaltet!",
+	Hammer 			= "Orgrims Hammer",
+	Skybreaker		= "Die Himmelsbrecher"
 }
 
 -----------------------------
@@ -170,19 +84,13 @@ L:SetGeneralLocalization{
 	name = "Todesbringer Saurfang"
 }
 
-L:SetTimerLocalization{
-	TimerCombatStart		= "Kampfbeginn"
-}
-
 L:SetOptionLocalization{
-	TimerCombatStart		= "Zeige Zeit bis Kampfbeginn",
 	RangeFrame				= "Zeige Abstandsfenster (12m)",
 	RunePowerFrame			= "Zeige Lebensanzeige und einen Balken für $spell:72371",
 	BeastIcons				= "Setze Zeichen auf Blutbestien"
 }
 
 L:SetMiscLocalization{
-	RunePower			= "Blutmacht",
 	PullAlliance		= "Mit jedem Krieger der Horde, den Ihr getötet habt, mit jedem dieser Allianzhunde, der fiel, wuchsen die Armeen des Lichkönigs. Selbst in diesem Moment erwecken die Val'kyr Eure Gefallenen als Diener der Geißel.",
 	PullHorde			= "Kor'kron, Aufbruch! Champions, gebt Acht. Die Geißel ist..."
 }
@@ -218,19 +126,19 @@ L:SetGeneralLocalization{
 
 L:SetWarningLocalization{
 	WarnOozeSpawn				= "Kleiner Schlamm erscheint",
-	SpecWarnLittleOoze			= "Kleiner Schlamm greift dich an - Lauf weg!"--creatureid 36897
+	SpecWarnLittleOoze			= "Kleiner Schlamm greift dich an - Lauf weg!"
 }
 
 L:SetOptionLocalization{
 	WarnOozeSpawn				= "Zeige Warnung für Erscheinen eines Kleinen Schlamm",
-	SpecWarnLittleOoze			= "Spezialwarnung, wenn du von einem Kleinen Schlamm angegriffen wirst",--creatureid 36897
+	SpecWarnLittleOoze			= "Spezialwarnung, wenn du von einem Kleinen Schlamm angegriffen wirst",
 	RangeFrame					= "Zeige Abstandsfenster (8m)",
 	TankArrow					= "Zeige DBM-Pfeil zum Kiter von 'Großer Schlamm'" 
 }
 
 L:SetMiscLocalization{
-	YellSlimePipes1	= "Gute Nachricht, Freunde! Die Giftschleim-Rohre sind repariert!",	-- Professor Putricide
-	YellSlimePipes2	= "Gute Nachricht, Freunde! Der Schleim fließt wieder!"	-- Professor Putricide
+	YellSlimePipes1	= "Gute Nachricht, Freunde! Die Giftschleim-Rohre sind repariert!",
+	YellSlimePipes2	= "Gute Nachricht, Freunde! Der Schleim fließt wieder!"
 }
 
 ---------------------------
@@ -266,8 +174,8 @@ L:SetTimerLocalization{
 }
 
 L:SetOptionLocalization{
-	WarnTargetSwitch		= "Zeige Warnung für Zielwechsel",-- Warn when another Prince needs to be damaged
-	WarnTargetSwitchSoon	= "Zeige Vorwarnung für Zielwechsel",-- Every ~47 secs, you have to dps a different Prince
+	WarnTargetSwitch		= "Zeige Warnung für Zielwechsel",
+	WarnTargetSwitchSoon	= "Zeige Vorwarnung für Zielwechsel",
 	TimerTargetSwitch		= "Zeige Zeit bis Zielwechsel",
 	ActivePrinceIcon		= "Setze Zeichen auf den machterfüllten Prinzen (Totenkopf)",
 	RangeFrame				= "Zeige Abstandsfenster (12m)",
@@ -314,6 +222,7 @@ L:SetWarningLocalization{
 
 L:SetTimerLocalization{
 	TimerPortalsOpen		= "Portale offen",
+	TimerPortalsClose		= "Portale geschlossen",
 	TimerBlazingSkeleton	= "Nächstes Loderndes Skelett",
 	TimerAbom				= "Nächste Monstrosität"
 }
@@ -322,13 +231,12 @@ L:SetOptionLocalization{
 	SetIconOnBlazingSkeleton	= "Setze Zeichen auf Loderndes Skelett (Totenkopf)",
 	WarnPortalOpen				= "Zeige Warnung, wenn Alptraumportale geöffnet sind",
 	TimerPortalsOpen			= "Zeige Zeit bis Alptraumportale geöffnet sind",
+	TimerPortalsClose			= "Zeige Zeit bis Alptraumportale geschlossen sind",
 	TimerBlazingSkeleton		= "Zeige Zeit bis nächstes Loderndes Skelett erscheint",
 	TimerAbom					= "Zeige Zeit bis nächste Gefräßige Monstrosität erscheint (experimentell)"
 }
 
 L:SetMiscLocalization{
-	YellPull		= "Eindringlinge im Inneren Sanktum! Beschleunigt die Vernichtung des grünen Drachen! Bewahrt nur Knochen und Sehnen für die Wiederbelebung auf!",
-	YellKill		= "ICH BIN GEHEILT! Ysera, erlaubt mir, diese üblen Kreaturen zu beseitigen",
 	YellPortals		= "Ich habe ein Portal in den Traum geöffnet. Darin liegt Eure Erlösung, Helden..."
 }
 
@@ -341,15 +249,15 @@ L:SetGeneralLocalization{
 	name = "Sindragosa"
 }
 
+L:SetWarningLocalization{
+	WarnAirphase			= "Luftphase",
+	WarnGroundphaseSoon		= "Sindragosa landet bald"
+}
+
 L:SetTimerLocalization{
 	TimerNextAirphase		= "Nächste Luftphase",
 	TimerNextGroundphase	= "Nächste Bodenphase",
 	AchievementMystic		= "Ablaufzeit für Mystischer Puffer"
-}
-
-L:SetWarningLocalization{
-	WarnAirphase			= "Luftphase",
-	WarnGroundphaseSoon		= "Sindragosa landet bald"
 }
 
 L:SetOptionLocalization{
@@ -390,14 +298,12 @@ L:SetWarningLocalization{
 }
 
 L:SetTimerLocalization{
-	TimerCombatStart	= "Kampfbeginn",
 	TimerRoleplay		= "Rollenspiel",
 	PhaseTransition		= "Phasenübergang",
 	TimerNecroticPlagueCleanse = "Nekrotische Seuche reinigen"
 }
 
 L:SetOptionLocalization{
-	TimerCombatStart		= "Zeige Zeit bis Kampfbeginn",
 	TimerRoleplay			= "Dauer des Rollenspiels (bei 10%) anzeigen",
 	WarnNecroticPlagueJump	= "Verkünde Sprungziele von $spell:70337",
 	TimerNecroticPlagueCleanse	= "Zeige Timer zum Reinigen von $spell:70337 vor dem ersten Tick",
@@ -407,7 +313,7 @@ L:SetOptionLocalization{
 	ValkyrIcon				= "Setze Zeichen auf Schattenwächterinnen der Val'kyr",
 	AnnounceValkGrabs		= "Verkünde Griffziele der Schattenwächterinnen der Val'kyr im SZ-Chat (benötigt aktivierte Mitteilungen und Leiter-/Assistentenstatus)",
 	SpecWarnValkyrLow		= "Spezialwarnung, wenn eine Schattenwächterin der Val'kyr unter 55% Lebenspunkte ist",
-	AnnouncePlagueStack		= "Verkünde $spell:70337 Stapel an den Schlachtzug (ab 10 Stapel, danach alle 5 Stapel) (nur als Leiter/Assistent)",
+	AnnouncePlagueStack		= "Verkünde $spell:70337 Stapel an den Schlachtzug (ab 10 Stapel, danach alle 5 Stapel) (nur als Leiter/Assistent)"
 }
 
 L:SetMiscLocalization{
@@ -417,4 +323,35 @@ L:SetMiscLocalization{
 	ValkGrabbed				= "Schattenwächterin der Val'kyr hat %s gegriffen",
 	PlagueStackWarning		= "Warnung: %s hat %d Stapel von Nekrotischer Seuche",
 	AchievementCompleted	= ">> ERFOLG FERTIG: %s hat %d Stapel von Nekrotischer Seuche <<"
+}
+
+-------------
+--  Trash  --
+-------------
+L = DBM:GetModLocalization("ICCTrash")
+
+L:SetGeneralLocalization{
+	name = "Trash der Eiskronenzitadelle"
+}
+
+L:SetWarningLocalization{
+	SpecWarnTrapL		= "Falle aktiviert! - Todesgeweihter Wächter freigesetzt",
+	SpecWarnTrapP		= "Falle aktiviert! - Rachsüchtige Fleischernter kommen",
+	SpecWarnGosaEvent	= "Sindragosa-Spießrutenlauf gestartet!"
+}
+
+L:SetOptionLocalization{
+	SpecWarnTrapL		= "Spezialwarnung für Fallenaktivierung (Todesgeweihter Wächter)",
+	SpecWarnTrapP		= "Spezialwarnung für Fallenaktivierung (Rachsüchtige Fleischernter)",
+	SpecWarnGosaEvent	= "Spezialwarnung für Sindragosa-Spießrutenlauf"
+}
+
+L:SetMiscLocalization{
+	WarderTrap1			= "Wer... ist da?",
+	WarderTrap2			= "Ich erwache...",
+	WarderTrap3			= "Das Sanktum des Meisters wurde entweiht!",
+	FleshreaperTrap1	= "Schnell, überfallen wir sie von hinten!",
+	FleshreaperTrap2	= "Ihr könnt uns nicht entkommen.",
+	FleshreaperTrap3	= "Die Lebenden? Hier?!",
+	SindragosaEvent		= "Ihr dürft Euch der Frostkönigin nicht nähern! Schnell, haltet sie auf!"
 }

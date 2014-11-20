@@ -1,4 +1,4 @@
-﻿-- Author      : RisM
+-- Author      : RisM
 -- Create Date : 6/28/2009 4:02:20 PM
 
 local SpeakinSpell = LibStub("AceAddon-3.0"):GetAddon("SpeakinSpell")
@@ -89,6 +89,7 @@ function SpeakinSpell:RegisterAllEvents()
 	self:RegisterEvent("PLAYER_LEVEL_UP")
 	self:RegisterEvent("RESURRECT_REQUEST")
 	self:RegisterEvent("TRADE_SHOW")
+   --self:RegisterEvent("UPDATE_MOUSEOVER_UNIT")
 end
 
 
@@ -391,6 +392,9 @@ SpeakinSpell.CombatLogEvents = {
 		-- white hits with a ranged attack, such as a hunter's bow, or a mage's wand, etc.
 		SpeakinSpell:RANGE_DAMAGE( timestamp, eventtype, srcGUID, srcName, srcFlags, dstGUID, dstName, dstFlags, ...) 
 	end,
+  -- hoping this will pick up channeled summon events. 
+   ["SPELL_SUMMON"] = function(  timestamp, eventtype, srcGUID, srcName, srcFlags, dstGUID, dstName, dstFlags, ...)
+   end,
 --	["SPELL_MISSED"] = function(  timestamp, eventtype, srcGUID, srcName, srcFlags, dstGUID, dstName, dstFlags, ...)
 		-- Special ability misses, is blocked, absorbed, parried, etc,
 --		SpeakinSpell:SPELL_MISSED( timestamp, eventtype, srcGUID, srcName, srcFlags, dstGUID, dstName, dstFlags, ...) 
@@ -399,6 +403,7 @@ SpeakinSpell.CombatLogEvents = {
 
 function SpeakinSpell:COMBAT_LOG_EVENT_UNFILTERED(_,timestamp, eventtype, hideCaster, srcGUID, srcName, srcFlags, srcFlags2, dstGUID, dstName, dstFlags, dstFlags2, ...)
 	--self:DebugMsg("COMBAT_LOG_EVENT_UNFILTERED",tostring(eventtype))
+   --print ("COMBAT_LOG_EVENT_UNFILTERED",tostring(eventtype))
 	
 	local func = SpeakinSpell.CombatLogEvents[eventtype]
 	if func then
@@ -1554,4 +1559,9 @@ function SpeakinSpell:TRADE_SHOW()
 		name = L["Open Trade Window"],
 	}
 	self:OnSpeechEvent( DetectedEventStub )
+   
 end
+
+ function SpeakinSpell:UPDATE_MOUSEOVER_UNIT()
+     print (UnitGUID("mouseover"));
+ end

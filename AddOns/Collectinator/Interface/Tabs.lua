@@ -24,139 +24,143 @@ local ORDERED_COLLECTIONS = private.ORDERED_COLLECTIONS
 
 local A = private.ACQUIRE_TYPES
 
+local frame_meta = { __index = _G.CreateFrame("Button") }
+local tab_prototype = _G.setmetatable({}, frame_meta)
+local tab_meta = { __index = tab_prototype }
+
 -------------------------------------------------------------------------------
--- Upvalues
+-- Imports.
 -------------------------------------------------------------------------------
-local AcquireTable = private.AcquireTable
 local SetTextColor = private.SetTextColor
+local CreateListEntry = private.CreateListEntry
+
+
+-------------------------------------------------------------------------------
+-- Helpers
+-------------------------------------------------------------------------------
+local function Tab_OnClick(self, button, down)
+	local id_num = self:GetID()
+	local MainPanel = addon.Frame
+
+	for index in ipairs(MainPanel.tabs) do
+		local tab = MainPanel.tabs[index]
+
+		if index == id_num then
+			self:ToFront()
+		else
+			tab:ToBack()
+		end
+	end
+	addon.db.profile.current_tab = id_num
+	MainPanel.current_tab = MainPanel.tabs[id_num]
+
+	MainPanel.list_frame:Update(nil, false)
+	_G.PlaySound("igCharacterInfoTab")
+end
+
+local function CreateTab(id_num, text, ...)
+	local tab = _G.setmetatable(_G.CreateFrame("Button", nil, addon.Frame), tab_meta)
+
+	tab:SetID(id_num)
+	tab:SetHeight(32)
+	tab:SetPoint(...)
+	tab:SetFrameLevel(tab:GetFrameLevel() + 4)
+
+	tab.left = tab:CreateTexture(nil, "BORDER")
+	tab.left:SetSize(20, 32)
+
+	tab.right = tab:CreateTexture(nil, "BORDER")
+	tab.right:SetSize(20, 32)
+	tab.right:SetPoint("TOP", tab.left)
+	tab.right:SetPoint("RIGHT", tab)
+
+	tab.middle = tab:CreateTexture(nil, "BORDER")
+	tab.middle:SetHeight(32)
+	tab.middle:SetPoint("LEFT", tab.left, "RIGHT")
+	tab.middle:SetPoint("RIGHT", tab.right, "LEFT")
+
+	tab:SetHighlightTexture([[Interface\PaperDollInfoFrame\UI-Character-Tab-Highlight]], "ADD")
+
+	local tab_highlight = tab:GetHighlightTexture()
+	tab_highlight:ClearAllPoints()
+	tab_highlight:SetPoint("TOPLEFT", tab, "TOPLEFT", 8, 1)
+	tab_highlight:SetPoint("BOTTOMRIGHT", tab, "BOTTOMRIGHT", -8, 1)
+
+	tab:SetDisabledFontObject(_G.GameFontHighlightSmall)
+	tab:SetHighlightFontObject(_G.GameFontHighlightSmall)
+	tab:SetNormalFontObject(_G.GameFontNormalSmall)
+
+	tab:SetText(text)
+	tab:SetWidth(40 + tab:GetFontString():GetStringWidth())
+
+	tab:ToBack()
+
+	tab:SetScript("OnClick", Tab_OnClick)
+
+	return tab
+end
+
+-------------------------------------------------------------------------------
+-- Tab methods.
+-------------------------------------------------------------------------------
+function tab_prototype:ToFront()
+	self.left:ClearAllPoints()
+	self.left:SetPoint("BOTTOMLEFT")
+
+	self.left:SetTexture("Interface\\PaperDollInfoFrame\\UI-Character-ActiveTab")
+	self.left:SetTexCoord(0, 0.15625, 0, 0.546875)
+
+	self.middle:SetTexture("Interface\\PaperDollInfoFrame\\UI-Character-ActiveTab")
+	self.middle:SetTexCoord(0.15625, 0.84375, 0, 0.546875)
+
+	self.right:SetTexture("Interface\\PaperDollInfoFrame\\UI-Character-ActiveTab")
+	self.right:SetTexCoord(0.84375, 1, 0, 0.546875)
+
+	self:Disable()
+end
+
+function tab_prototype:ToBack()
+	self.left:ClearAllPoints()
+	self.left:SetPoint("TOPLEFT")
+
+	self.left:SetTexture("Interface\\PaperDollInfoFrame\\UI-Character-InactiveTab")
+	self.left:SetTexCoord(0, 0.15625, 0, 1)
+
+	self.middle:SetTexture("Interface\\PaperDollInfoFrame\\UI-Character-InactiveTab")
+	self.middle:SetTexCoord(0.15625, 0.84375, 0, 1)
+
+	self.right:SetTexture("Interface\\PaperDollInfoFrame\\UI-Character-InactiveTab")
+	self.right:SetTexCoord(0.84375, 1, 0, 1)
+
+	self:Enable()
+end
+
+function tab_prototype:SaveListEntryState(entry, expanded)
+	local field = ORDERED_COLLECTIONS[addon.Frame.current_collectable_type] .. " expanded"
+
+	if entry.acquire_id then
+		self[field][private.ACQUIRE_NAMES[entry.acquire_id]] = expanded or nil
+	end
+
+	if entry.location_id then
+		self[field][entry.location_id] = expanded or nil
+	end
+
+	if entry.recipe then
+		self[field][entry.recipe] = expanded or nil
+	end
+end
+
+function tab_prototype:ScrollValue(collectable_type)
+	return self["collection_" .. collectable_type .. "_scroll_value"]
+end
+
+function tab_prototype:SetScrollValue(collectable_type, value)
+	self["collection_" .. collectable_type .. "_scroll_value"] = value
+end
 
 function private.InitializeTabs()
 	local MainPanel = addon.Frame
-	local ListFrame = MainPanel.list_frame
-
-	local function Tab_Enable(self)
-		self.left:ClearAllPoints()
-		self.left:SetPoint("BOTTOMLEFT")
-
-		self.left:SetTexture("Interface\\PaperDollInfoFrame\\UI-Character-ActiveTab")
-		self.left:SetTexCoord(0, 0.15625, 0, 0.546875)
-
-		self.middle:SetTexture("Interface\\PaperDollInfoFrame\\UI-Character-ActiveTab")
-		self.middle:SetTexCoord(0.15625, 0.84375, 0, 0.546875)
-
-		self.right:SetTexture("Interface\\PaperDollInfoFrame\\UI-Character-ActiveTab")
-		self.right:SetTexCoord(0.84375, 1, 0, 0.546875)
-
-		self:Disable()
-	end
-
-	local function Tab_Disable(self)
-		self.left:ClearAllPoints()
-		self.left:SetPoint("TOPLEFT")
-
-		self.left:SetTexture("Interface\\PaperDollInfoFrame\\UI-Character-InactiveTab")
-		self.left:SetTexCoord(0, 0.15625, 0, 1)
-
-		self.middle:SetTexture("Interface\\PaperDollInfoFrame\\UI-Character-InactiveTab")
-		self.middle:SetTexCoord(0.15625, 0.84375, 0, 1)
-
-		self.right:SetTexture("Interface\\PaperDollInfoFrame\\UI-Character-InactiveTab")
-		self.right:SetTexCoord(0.84375, 1, 0, 1)
-
-		self:Enable()
-	end
-
-	local function Tab_SetText(self, ...)
-		local text = self.Real_SetText(self, ...)
-		self:SetWidth(40 + self:GetFontString():GetStringWidth())
-
-		return ...
-	end
-
-	local function Tab_OnClick(self, button, down)
-		local id_num = self:GetID()
-
-		for index in ipairs(MainPanel.tabs) do
-			local tab = MainPanel.tabs[index]
-
-			if index == id_num then
-				self:ToFront()
-			else
-				tab:ToBack()
-			end
-		end
-		addon.db.profile.current_tab = id_num
-		MainPanel.current_tab = id_num
-
-		ListFrame:Update(nil, false)
-		_G.PlaySound("igCharacterInfoTab")
-	end
-
-	-- Expands or collapses a list entry in the current active tab.
-	local function Tab_ModifyEntry(self, entry, expanded)
-		local member = ORDERED_COLLECTIONS[MainPanel.current_collectable_type] .. " expanded"
-
-		if entry.acquire_id then
-			self[member][private.ACQUIRE_NAMES[entry.acquire_id]] = expanded or nil
-		end
-
-		if entry.location_id then
-			self[member][entry.location_id] = expanded or nil
-		end
-
-		if entry.collectable then
-			self[member][entry.collectable] = expanded or nil
-		end
-	end
-
-	local function CreateTab(id_num, text, ...)
-		local tab = _G.CreateFrame("Button", nil, MainPanel)
-
-		tab:SetID(id_num)
-		tab:SetHeight(32)
-		tab:SetPoint(...)
-		tab:SetFrameLevel(tab:GetFrameLevel() + 4)
-
-		tab.left = tab:CreateTexture(nil, "BORDER")
-		tab.left:SetWidth(20)
-		tab.left:SetHeight(32)
-
-		tab.right = tab:CreateTexture(nil, "BORDER")
-		tab.right:SetWidth(20)
-		tab.right:SetHeight(32)
-		tab.right:SetPoint("TOP", tab.left)
-		tab.right:SetPoint("RIGHT", tab)
-
-		tab.middle = tab:CreateTexture(nil, "BORDER")
-		tab.middle:SetHeight(32)
-		tab.middle:SetPoint("LEFT", tab.left, "RIGHT")
-		tab.middle:SetPoint("RIGHT", tab.right, "LEFT")
-
-		tab:SetHighlightTexture("Interface\\PaperDollInfoFrame\\UI-Character-Tab-Highlight", "ADD")
-
-		local tab_highlight = tab:GetHighlightTexture()
-		tab_highlight:ClearAllPoints()
-		tab_highlight:SetPoint("TOPLEFT", tab, "TOPLEFT", 8, 1)
-		tab_highlight:SetPoint("BOTTOMRIGHT", tab, "BOTTOMRIGHT", -8, 1)
-
-		tab:SetDisabledFontObject(_G.GameFontHighlightSmall)
-		tab:SetHighlightFontObject(_G.GameFontHighlightSmall)
-		tab:SetNormalFontObject(_G.GameFontNormalSmall)
-		tab.Real_SetText = tab.SetText
-
-		tab.SetText = Tab_SetText
-		tab:SetText(text)
-
-		tab.ToFront = Tab_Enable
-		tab.ToBack = Tab_Disable
-		tab.ModifyEntry = Tab_ModifyEntry
-
-		tab:ToBack()
-
-		tab:SetScript("OnClick", Tab_OnClick)
-
-		return tab
-	end
 
 	local AcquisitionTab = CreateTab(1, L["Acquisition"], "TOPLEFT", MainPanel, "BOTTOMLEFT", 4, 81)
 	local CollectablesTab = CreateTab(2, _G.COMPANIONS, "LEFT", AcquisitionTab, "RIGHT", -14, 0)
@@ -199,6 +203,8 @@ function private.InitializeTabs()
 		local collectable_count = 0
 		local insert_index = 1
 
+		CollectablesTab:UpdateLabel(collectable_type)
+
 		table.wipe(collectable_registry)
 		table.wipe(sorted_acquires)
 
@@ -235,16 +241,18 @@ function private.InitializeTabs()
 			end
 
 			if count > 0 then
-				local entry = AcquireTable()
-
 				local acquire_str = private.ACQUIRE_STRINGS[acquire_type]:lower():gsub("_", "")
 				local color_code = private.CATEGORY_COLORS[acquire_str] or "ffffff"
 				local is_expanded = self[collectable_type .. " expanded"][private.ACQUIRE_NAMES[acquire_type]]
 
-				entry.text = ("%s (%d)"):format(SetTextColor(color_code, private.ACQUIRE_NAMES[acquire_type]), count)
-				entry.acquire_id = acquire_type
+				local entry = CreateListEntry("header")
+				entry:SetAcquireID(acquire_type)
+				entry:SetText("%s (%d)",
+					SetTextColor(color_code, private.ACQUIRE_NAMES[acquire_type]),
+					count
+				)
 
-				insert_index = ListFrame:InsertEntry(entry, nil, insert_index, "header", is_expanded or expand_mode, is_expanded or expand_mode)
+				insert_index = MainPanel.list_frame:InsertEntry(entry, insert_index, is_expanded or expand_mode, is_expanded or expand_mode)
 			else
 				self[collectable_type .. " expanded"][private.ACQUIRE_NAMES[acquire_type]] = nil
 			end
@@ -267,6 +275,8 @@ function private.InitializeTabs()
 		local collectable_type = ORDERED_COLLECTIONS[MainPanel.current_collectable_type]
 		local collectable_count = 0
 		local insert_index = 1
+
+		CollectablesTab:UpdateLabel(collectable_type)
 
 		table.wipe(collectable_registry)
 		table.wipe(sorted_locations)
@@ -344,19 +354,25 @@ function private.InitializeTabs()
 			end
 
 			if count > 0 then
-				local is_expanded = self[collectable_type .. " expanded"][loc_name]
-				local entry = AcquireTable()
+				local entry = CreateListEntry("header")
 
 				if loc_name == _G.GetRealZoneText() then
-					entry.text = ("%s (%d)"):format(SetTextColor(private.BASIC_COLORS["green"], loc_name), count)
-					entry.emphasized = true
+					entry:Emphasize(true)
+					entry:SetText("%s (%d)",
+						SetTextColor(private.BASIC_COLORS["green"], loc_name),
+						count
+					)
 				else
-					entry.text = ("%s (%d)"):format(SetTextColor(private.CATEGORY_COLORS["location"], loc_name), count)
-					entry.emphasized = nil
+					entry:Emphasize(false)
+					entry:SetText("%s (%d)",
+						SetTextColor(private.CATEGORY_COLORS["location"], loc_name),
+						count
+					)
 				end
-				entry.location_id = loc_name
+				entry:SetLocationID(loc_name)
 
-				insert_index = ListFrame:InsertEntry(entry, nil, insert_index, "header", is_expanded or expand_mode, is_expanded or expand_mode)
+				local is_expanded = self[collectable_type .. " expanded"][loc_name]
+				insert_index = MainPanel.list_frame:InsertEntry(entry, insert_index, is_expanded or expand_mode, is_expanded or expand_mode)
 			else
 				self[collectable_type .. " expanded"][loc_name] = nil
 			end
@@ -364,10 +380,17 @@ function private.InitializeTabs()
 		return collectable_count
 	end
 
+	local COLLECTABLE_TYPE_LABELS = {
+		CRITTER = _G.PET_JOURNAL,
+		MOUNT = _G.MOUNTS,
+		TOY = _G.TOY_BOX,
+	}
+
 	function CollectablesTab:Initialize(expand_mode)
 		local collectable_type = ORDERED_COLLECTIONS[MainPanel.current_collectable_type]
 		local collectables = private.collectable_list[collectable_type]
 
+		self:UpdateLabel(collectable_type)
 		self[collectable_type .. " expanded"] = self[collectable_type .. " expanded"] or {}
 
 		private.SortCollectables(collectables, collectable_type)
@@ -380,19 +403,23 @@ function private.InitializeTabs()
 			local collectable = collectables[sorted_collectables[i]]
 
 			if collectable and collectable:HasState("VISIBLE") and MainPanel.search_editbox:MatchesCollectable(collectable) then
-				local is_expanded = self[collectable_type .. " expanded"][collectable]
-				local entry = AcquireTable()
-				entry.text = collectable:GetDisplayName()
-				entry.collectable = collectable
+				local entry = CreateListEntry("header", nil, collectable)
+				entry:SetText(collectable:GetDisplayName())
 
 				collectable_count = collectable_count + 1
 
-				insert_index = ListFrame:InsertEntry(entry, nil, insert_index, "header", is_expanded or expand_mode, is_expanded or expand_mode)
-			else
+				local is_expanded = self[collectable_type .. " expanded"][collectable]
+				insert_index = MainPanel.list_frame:InsertEntry(entry, insert_index, is_expanded or expand_mode, is_expanded or expand_mode)
+			elseif collectable then
 				self[collectable_type .. " expanded"][collectable] = nil
 			end
 		end
 		return collectable_count
+	end
+
+	function CollectablesTab:UpdateLabel(collectable_type)
+		self:SetText(COLLECTABLE_TYPE_LABELS[collectable_type])
+		self:SetWidth(40 + self:GetFontString():GetStringWidth())
 	end
 
 	MainPanel.tabs = {

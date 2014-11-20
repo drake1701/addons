@@ -1,3 +1,5 @@
+local CollectMe = LibStub("AceAddon-3.0"):GetAddon("CollectMe")
+
 CollectMe.Tooltip = CollectMe:NewModule("Tooltip", "AceHook-3.0")
 
 function CollectMe.Tooltip:OnInitialize()
@@ -14,7 +16,7 @@ function CollectMe.Tooltip:TooltipHook(tooltip)
     if (tooltip and tooltip.GetUnit) then
         local _, unit = tooltip:GetUnit()
         if (unit and UnitIsWildBattlePet(unit)) then
-            local creature_id = tonumber(strsub(UnitGUID(unit), 7, 10), 16)
+            local creature_id = tonumber(select(6,strsplit("-",UnitGUID(unit))),10)
             local line
             for i,v in ipairs(CollectMe.CompanionDB:Get()) do
                 if(creature_id == v.creature_id) then
