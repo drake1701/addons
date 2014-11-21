@@ -1,4 +1,4 @@
-﻿## Interface: 50001
+## Interface: 60000
 ## Author: Arith Hsu
 ## Title: |cFF00FF00[Quest]|rFastQuest Classic
 ## Title-zhTW: |cFF00FF00[任務]|rFastQuest Classic

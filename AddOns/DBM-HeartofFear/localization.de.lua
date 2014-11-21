@@ -31,10 +31,6 @@ L:SetMiscLocalization({
 ------------
 L= DBM:GetModLocalization(744)
 
-L:SetOptionLocalization({
-	UnseenStrikeArrow	= "Zeige DBM-Pfeil, wenn jemand von $spell:122949 betroffen ist"
-})
-
 -------------------------------
 -- Garalon --
 -------------------------------
@@ -95,7 +91,7 @@ L:SetOptionLocalization({
 	specwarnAmberExplosionOther	= "Spezialwarnung zum Unterbrechen der $spell:122398 unkontrollierter Mutierter Konstrukte",
 	timerAmberExplosionAMCD		= "Zeige Zeit bis nächste $spell:122402 der Bernmonstrosität",
 	InfoFrame					= "Zeige Infofenster für Willen der Spieler",
-	FixNameplates				= "Automatische Deaktivierung störender Namensplaketten als Konstrukt\n(wird nach dem Kampfende auf die vorherige Einstellung zurückgesetzt)"
+	FixNameplates				= "Automatische Deaktivierung störender Namensplaketten als Konstrukt<br/>(wird nach dem Kampfende auf die vorherige Einstellung zurückgesetzt)"
 })
 
 L:SetMiscLocalization({
@@ -108,7 +104,7 @@ L:SetMiscLocalization({
 L= DBM:GetModLocalization(743)
 
 L:SetWarningLocalization({
-	warnAmberTrap		= "Bernfallenbau: %d/5",
+	warnAmberTrap		= "Bernfallenbau: %d/5"
 })
 
 L:SetOptionLocalization({

@@ -31,10 +31,6 @@ L:SetMiscLocalization({
 ------------
 L= DBM:GetModLocalization(744)
 
-L:SetOptionLocalization({
-	UnseenStrikeArrow	= "Показывать стрелку DBM, когда на ком-то $spell:122949"
-})
-
 -------------------------------
 -- Garalon --
 -------------------------------
@@ -95,7 +91,7 @@ L:SetOptionLocalization({
 	specwarnAmberExplosionOther	= "Спец-предупреждение для прерывания $spell:122398 у Мутировавшего организма",
 	timerAmberExplosionAMCD		= "Отсчет времени до следующего $spell:122402 у Янтарного чудовища",
 	InfoFrame					= "Информационное окно для игроков с низким уровнем силы воли",
-	FixNameplates				= "Автоматически отключать мешающие полоски здоровья, когда вы\nв мутировавшем организме (восстанавливает настройку после выхода из боя)"
+	FixNameplates				= "Автоматически отключать мешающие полоски здоровья, когда вы<br/>в мутировавшем организме (восстанавливает настройку после выхода из боя)"
 })
 
 L:SetMiscLocalization({
@@ -108,7 +104,7 @@ L:SetMiscLocalization({
 L= DBM:GetModLocalization(743)
 
 L:SetWarningLocalization({
-	warnAmberTrap	= "Прогресс создания ловушки: (%d/5)",
+	warnAmberTrap	= "Прогресс создания ловушки: (%d/5)"
 })
 
 L:SetOptionLocalization({

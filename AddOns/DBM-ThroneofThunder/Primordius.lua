@@ -1,20 +1,20 @@
 local mod	= DBM:NewMod(820, "DBM-ThroneofThunder", nil, 362)
 local L		= mod:GetLocalizedStrings()
 
-mod:SetRevision(("$Revision: 9923 $"):sub(12, -3))
+mod:SetRevision(("$Revision: 2 $"):sub(12, -3))
 mod:SetCreatureID(69017)--69070 Viscous Horror, 69069 good ooze, 70579 bad ooze (patched out of game, :\)
-mod:SetQuestID(32751)
+mod:SetEncounterID(1574)
 mod:SetZone()
 mod:SetUsedIcons(8, 7, 6, 5, 4, 3, 2, 1)--Although if you have 8 viscous horrors up, you are probably doing fight wrong.
 
 mod:RegisterCombat("combat")
 
 mod:RegisterEventsInCombat(
-	"SPELL_CAST_START",
-	"SPELL_CAST_SUCCESS",
-	"SPELL_AURA_APPLIED",
-	"SPELL_AURA_APPLIED_DOSE",
-	"SPELL_AURA_REMOVED",
+	"SPELL_CAST_START 136216",
+	"SPELL_CAST_SUCCESS 136037",
+	"SPELL_AURA_APPLIED 136050 137000 136215 136246 136225 136228 136245 136218 140546",
+	"SPELL_AURA_APPLIED_DOSE 136050 137000",
+	"SPELL_AURA_REMOVED 136050 136215 136246 136225 136245 136218 140546",
 	"UNIT_AURA player",
 	"UNIT_DIED"
 )
@@ -61,6 +61,7 @@ local badCount = 0
 local bigOozeCount = 0
 local bigOozeAlive = 0
 local bigOozeGUIDS = {}
+local UnitDebuff = UnitDebuff
 
 local function BigOoze()
 	bigOozeCount = bigOozeCount + 1
@@ -80,8 +81,8 @@ end
 
 function mod:PLAYER_TARGET_CHANGED()
 	local guid = UnitGUID("target")
-	if guid and (bit.band(guid:sub(1, 5), 0x00F) == 3 or bit.band(guid:sub(1, 5), 0x00F) == 5) then
-		local cId = tonumber(guid:sub(6, 10), 16)
+	if guid and self:IsCreatureGUID(guid) then
+		local cId = self:GetCIDFromGUID(guid)
 		if cId == 69070 and not bigOozeGUIDS[guid] and not UnitIsDead("target") then
 			local icon = 9 - bigOozeAlive--Start with skull for big ooze then subtrack from it based on number of oozes up to choose an unused icon
 			bigOozeGUIDS[guid] = true--NOW we add this ooze to the table now that we're done counting old ones
@@ -94,8 +95,8 @@ end
 
 function mod:UPDATE_MOUSEOVER_UNIT()
 	local guid = UnitGUID("mouseover")
-	if guid and (bit.band(guid:sub(1, 5), 0x00F) == 3 or bit.band(guid:sub(1, 5), 0x00F) == 5) then
-		local cId = tonumber(guid:sub(6, 10), 16)
+	if guid and self:IsCreatureGUID(guid) then
+		local cId = self:GetCIDFromGUID(guid)
 		if cId == 69070 and not bigOozeGUIDS[guid] and not UnitIsDead("mouseover") then
 			local icon = 9 - bigOozeAlive--Start with skull for big ooze then subtrack from it based on number of oozes up to choose an unused icon
 			bigOozeGUIDS[guid] = true--NOW we add this ooze to the table now that we're done counting old ones
@@ -116,7 +117,7 @@ function mod:OnCombatStart(delay)
 	bigOozeAlive = 0
 	table.wipe(bigOozeGUIDS)
 	berserkTimer:Start(-delay)
-	if self:IsDifficulty("heroic10", "heroic25") then
+	if self:IsHeroic() then
 		timerViscousHorrorCD:Start(11.5-delay, 1)
 		self:Schedule(11.5, BigOoze)
 	end
@@ -130,7 +131,8 @@ function mod:OnCombatEnd()
 end
 
 function mod:SPELL_CAST_START(args)
-	if args.spellId == 136216 then
+	local spellId = args.spellId
+	if spellId == 136216 then
 		warnCausticGas:Show()
 		specWarnCausticGas:Show()
 		timerCausticGasCD:Start()
@@ -138,7 +140,8 @@ function mod:SPELL_CAST_START(args)
 end
 
 function mod:SPELL_CAST_SUCCESS(args)
-	if args.spellId == 136037 then
+	local spellId = args.spellId
+	if spellId == 136037 then
 		warnPrimordialStrike:Show()
 		if metabolicBoost then--Only issue is updating current bar when he gains buff in between CDs, it does seem to affect it to a degree
 			timerPrimordialStrikeCD:Start(20)
@@ -149,63 +152,66 @@ function mod:SPELL_CAST_SUCCESS(args)
 end
 
 function mod:SPELL_AURA_APPLIED(args)
-	if args.spellId == 136050 then
+	local spellId = args.spellId
+	if spellId == 136050 then
 		warnMalformedBlood:Show(args.destName, args.amount or 1)
 		timerMalformedBlood:Start(args.destName)
-	elseif args.spellId == 137000 then
+	elseif spellId == 137000 then
 		warnBlackBlood:Show(args.destName, args.amount or 1)
 		timerBlackBlood:Start(args.destName)
-	elseif args.spellId == 136215 then
+	elseif spellId == 136215 then
 		warnGasBladder:Show(args.destName)
-	elseif args.spellId == 136246 then
+	elseif spellId == 136246 then
 		postulesActive = true
 		warnEruptingPustules:Show(args.destName)
-		if self:IsDifficulty("heroic10", "heroic25") then
+		if self:IsHeroic() then
 			specWarnEruptingPustules:Show(args.destName)
 		end
 		if self.Options.RangeFrame and not acidSpinesActive then--Check if acidSpinesActive is active, if they are, we should already have range 5 up
 			DBM.RangeCheck:Show(3)
 		end
-	elseif args.spellId == 136225 then
+	elseif spellId == 136225 then
 		warnPathogenGlands:Show(args.destName)
-	elseif args.spellId == 136228 then
+	elseif spellId == 136228 then
 		warnVolatilePathogen:Show(args.destName)
 		timerVolatilePathogenCD:Start()
 		if args:IsPlayer() then
 			specWarnVolatilePathogen:Show()
 		end
-	elseif args.spellId == 136245 then
+	elseif spellId == 136245 then
 		metabolicBoost = true
 		warnMetabolicBoost:Show(args.destName)
-	elseif args.spellId == 136210 then
+	elseif spellId == 136210 then
 		warnVentralSacs:Show(args.destName)
-	elseif args.spellId == 136218 then
+	elseif spellId == 136218 then
 		acidSpinesActive = true
 		if self.Options.RangeFrame then
 			DBM.RangeCheck:Show(5)
 		end
-	elseif args.spellId == 140546 and args:IsPlayer() then
+	elseif spellId == 140546 and args:IsPlayer() then
 		specWarnFullyMutated:Show()
-		timerFullyMutated:Start()
+		local _, _, _, _, _, _, expires = UnitDebuff("player", args.spellName)
+		timerFullyMutated:Start(expires-GetTime())
 	end
 end
 mod.SPELL_AURA_APPLIED_DOSE = mod.SPELL_AURA_APPLIED
 
 function mod:SPELL_AURA_REMOVED(args)
-	if args.spellId == 136050 then
+	local spellId = args.spellId
+	if spellId == 136050 then
 		timerMalformedBlood:Cancel(args.destName)
-	elseif args.spellId == 136215 then
+	elseif spellId == 136215 then
 		timerCausticGasCD:Cancel()
-	elseif args.spellId == 136246 then
+	elseif spellId == 136246 then
 		postulesActive = false
 		if self.Options.RangeFrame and not acidSpinesActive then--Check if acidSpinesActive is active, if they are, leave range frame alone
 			DBM.RangeCheck:Hide()
 		end
-	elseif args.spellId == 136225 then
+	elseif spellId == 136225 then
 		timerVolatilePathogenCD:Cancel()
-	elseif args.spellId == 136245 then
+	elseif spellId == 136245 then
 		metabolicBoost = false
-	elseif args.spellId == 136218 then
+	elseif spellId == 136218 then
 		acidSpinesActive = false
 		if self.Options.RangeFrame then
 			if postulesActive then
@@ -214,7 +220,7 @@ function mod:SPELL_AURA_REMOVED(args)
 				DBM.RangeCheck:Hide()
 			end
 		end
-	elseif args.spellId == 140546 and args:IsPlayer() then
+	elseif spellId == 140546 and args:IsPlayer() then
 		timerFullyMutated:Cancel()--Can be dispeled
 		specWarnFullyMutatedFaded:Show(args.spellName)
 	end

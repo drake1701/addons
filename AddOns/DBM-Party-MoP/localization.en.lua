@@ -103,7 +103,7 @@ L:SetMiscLocalization({
 L= DBM:GetModLocalization(685)
 
 L:SetMiscLocalization({
-	Kill		= "So long has violence lurks in your heart...I will return...",
+	Kill		= "So long has violence lurks in your heart...I will return..."
 })
 
 -----------------------
@@ -227,16 +227,19 @@ L= DBM:GetModLocalization(663)
 L= DBM:GetModLocalization(665)
 
 L:SetWarningLocalization({
-	SpecWarnGetBoned	= "Get Bone Armor"
+	SpecWarnGetBoned	= "Get Bone Armor",
+	SpecWarnDoctor		= "The doctor is in!"
 })
 
 L:SetOptionLocalization({
 	SpecWarnGetBoned	= "Show special warning when you are missing $spell:113996 debuff",
+	SpecWarnDoctor		= "Show special warning when if Doctor Theolen Krastinov spawns",
 	InfoFrame			= "Show info frame for players not affected by $spell:113996"
 })
 
 L:SetMiscLocalization({
-	PlayerDebuffs	= "No Bone Armor"
+	PlayerDebuffs	= "No Bone Armor",
+	TheolenSpawn	= "The doctor is in!"
 })
 
 -----------------------
@@ -289,7 +292,7 @@ L= DBM:GetModLocalization(688)
 L= DBM:GetModLocalization(671)
 
 L:SetOptionLocalization({
-	KickArrow	= "Show DBM arrow when $spell:114487 is near you",
+	KickArrow	= "Show DBM arrow when $spell:114487 is near you"
 })
 
 -----------------------

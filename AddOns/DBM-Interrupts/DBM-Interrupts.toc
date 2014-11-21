@@ -1,4 +1,4 @@
-## Interface: 50400
+## Interface: 60000
 ## Title: DBM-Interrupts
 ## Version: 5.4.7
 ## Author: Tristan Maxson

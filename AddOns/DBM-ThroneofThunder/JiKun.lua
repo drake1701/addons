@@ -1,9 +1,9 @@
 local mod	= DBM:NewMod(828, "DBM-ThroneofThunder", nil, 362)
 local L		= mod:GetLocalizedStrings()
 
-mod:SetRevision(("$Revision: 9790 $"):sub(12, -3))
+mod:SetRevision(("$Revision: 2 $"):sub(12, -3))
 mod:SetCreatureID(69712)
-mod:SetQuestID(32749)
+mod:SetEncounterID(1573)
 mod:SetZone()
 
 mod:RegisterCombat("combat")
@@ -11,9 +11,9 @@ mod:RegisterCombat("combat")
 mod:RegisterEventsInCombat(
 	"UNIT_SPELLCAST_CHANNEL_START boss1",
 	"UNIT_SPELLCAST_START boss1",
-	"SPELL_AURA_APPLIED",
-	"SPELL_AURA_APPLIED_DOSE",
-	"SPELL_AURA_REMOVED",
+	"SPELL_AURA_APPLIED 134366 133755 140741 140571",
+	"SPELL_AURA_APPLIED_DOSE 134366 140741",
+	"SPELL_AURA_REMOVED 134366 133755 140741 140571",
 	"CHAT_MSG_RAID_BOSS_EMOTE",
 	"CHAT_MSG_MONSTER_EMOTE"
 )
@@ -24,11 +24,12 @@ local warnFlock				= mod:NewAnnounce("warnFlock", 3, 15746)--Some random egg ico
 local warnTalonRake			= mod:NewStackAnnounce(134366, 3, nil, mod:IsTank() or mod:IsHealer())
 local warnDowndraft			= mod:NewSpellAnnounce(134370, 3)
 local warnFeedYoung			= mod:NewSpellAnnounce(137528, 3)--No Cd because it variable based on triggering from eggs, it's cast when one of young call out and this varies too much
+local warnPrimalNutriment	= mod:NewCountAnnounce(140741, 1)
 
 local specWarnQuills		= mod:NewSpecialWarningSpell(134380, nil, nil, nil, 2)
 local specWarnFlock			= mod:NewSpecialWarning("specWarnFlock", false)--For those assigned in egg/bird killing group to enable on their own (and tank on heroic)
-local specWarnTalonRake		= mod:NewSpecialWarningStack(134366, mod:IsTank(), 2)--Might change to 2 if blizz fixes timing issues with it
-local specWarnTalonRakeOther= mod:NewSpecialWarningTarget(134366, mod:IsTank())
+local specWarnTalonRake		= mod:NewSpecialWarningStack(134366, nil, 2)--Might change to 2 if blizz fixes timing issues with it
+local specWarnTalonRakeOther= mod:NewSpecialWarningTaunt(134366)
 local specWarnDowndraft		= mod:NewSpecialWarningSpell(134370, nil, nil, nil, 2)
 local specWarnFeedYoung		= mod:NewSpecialWarningSpell(137528)
 local specWarnBigBird		= mod:NewSpecialWarning("specWarnBigBird", mod:IsTank())
@@ -40,12 +41,13 @@ local timerQuills			= mod:NewBuffActiveTimer(10, 134380)
 local timerQuillsCD			= mod:NewCDCountTimer(62.5, 134380)--variable because he has two other channeled abilities with different cds, so this is cast every 62.5-67 seconds usually after channel of some other spell ends
 local timerFlockCD	 		= mod:NewTimer(30, "timerFlockCD", 15746)
 local timerFeedYoungCD	 	= mod:NewCDTimer(30, 137528)--30-40 seconds (always 30 unless delayed by other channeled spells)
-local timerTalonRakeCD		= mod:NewCDTimer(20, 134366, mod:IsTank() or mod:IsHealer())--20-30 second variation
-local timerTalonRake		= mod:NewTargetTimer(60, 134366, mod:IsTank() or mod:IsHealer())
+local timerTalonRakeCD		= mod:NewCDTimer(20, 134366, nil, mod:IsTank() or mod:IsHealer())--20-30 second variation
+local timerTalonRake		= mod:NewTargetTimer(60, 134366, nil, mod:IsTank() or mod:IsHealer())
 local timerDowndraft		= mod:NewBuffActiveTimer(10, 134370)
 local timerDowndraftCD		= mod:NewCDTimer(97, 134370)
 local timerFlight			= mod:NewBuffFadesTimer(10, 133755)
 local timerPrimalNutriment	= mod:NewBuffFadesTimer(30, 140741)
+local timerLessons			= mod:NewBuffFadesTimer(60, 140571, nil, false)
 
 mod:AddBoolOption("RangeFrame", mod:IsRanged())
 mod:AddDropdownOption("ShowNestArrows", {"Never", "Northeast", "Southeast", "Southwest", "West", "Northwest", "Guardians"}, "Never", "misc")
@@ -72,8 +74,8 @@ function mod:OnCombatStart(delay)
 	end
 	if self.Options.SpecWarn138319move then--specWarnFeedPool is turned on, since it's off by default, no reasont to register high CPU events unless user turns it on
 		self:RegisterShortTermEvents(
-			"SPELL_PERIODIC_DAMAGE",
-			"SPELL_PERIODIC_MISSED"
+			"SPELL_PERIODIC_DAMAGE 138319",
+			"SPELL_PERIODIC_MISSED 138319"
 		)
 	end
 end
@@ -86,7 +88,8 @@ function mod:OnCombatEnd()
 end
 
 function mod:SPELL_AURA_APPLIED(args)
-	if args.spellId == 134366 then
+	local spellId = args.spellId
+	if spellId == 134366 then
 		local amount = args.amount or 1
 		warnTalonRake:Show(args.destName, amount)
 		timerTalonRake:Start(args.destName)
@@ -100,17 +103,27 @@ function mod:SPELL_AURA_APPLIED(args)
 				specWarnTalonRakeOther:Show(args.destName)
 			end
 		end
-	elseif args.spellId == 133755 and args:IsPlayer() then
+	elseif spellId == 133755 and args:IsPlayer() then
 		timerFlight:Start()
-	elseif args.spellId == 140741 and args:IsPlayer() then
+	elseif spellId == 140741 and args:IsPlayer() then
+		warnPrimalNutriment:Show(args.amount or 1)
 		timerPrimalNutriment:Start()
+	elseif spellId == 140571 and args:IsPlayer() then
+		timerLessons:Start()
 	end
 end
 mod.SPELL_AURA_APPLIED_DOSE = mod.SPELL_AURA_APPLIED
 
 function mod:SPELL_AURA_REMOVED(args)
-	if args.spellId == 134366 then
+	local spellId = args.spellId
+	if spellId == 134366 then
 		timerTalonRake:Cancel(args.destName)
+	elseif spellId == 133755 and args:IsPlayer() then
+		timerFlight:Cancel()
+	elseif spellId == 140741 and args:IsPlayer() then
+		timerPrimalNutriment:Cancel()
+	elseif spellId == 140571 and args:IsPlayer() then
+		timerLessons:Cancel()
 	end
 end
 
@@ -148,7 +161,7 @@ function mod:UNIT_SPELLCAST_START(uId, _, _, _, spellId)
 		warnDowndraft:Show()
 		specWarnDowndraft:Show()
 		timerDowndraft:Start()
-		if self:IsDifficulty("heroic10", "heroic25") then
+		if self:IsHeroic() then
 			timerDowndraftCD:Start(93)
 		else
 			timerDowndraftCD:Start()--Todo, confirm they didn't just change normal to 90 as well. in my normal logs this had a 110 second cd on normal
@@ -257,7 +270,7 @@ local function GetNestPositions(flockC)
 end
 
 function mod:CHAT_MSG_MONSTER_EMOTE(msg, _, _, _, target)
-	if (msg:find(L.eggsHatchL) or msg:find(L.eggsHatchU)) and self:AntiSpam(5, 2) then
+	if msg:find(L.eggsHatch) and self:AntiSpam(5, 2) then
 		flockCount = flockCount + 1--Now flock set number instead of nest number (for LFR it's both)
 		local flockCountText = tostring(flockCount)
 		local currentDirection, currentLocation = GetNestPositions(flockCount)
@@ -285,27 +298,27 @@ function mod:CHAT_MSG_MONSTER_EMOTE(msg, _, _, _, target)
 			elseif flockCount ==  2 then
 				specWarnBigBird:Show(L.Lower.." ("..L.SouthEast..")")
 				if self.Options.ShowNestArrows == "Guardians" then
-					DBM.Arrow:ShowRunTo(nestCoords[2][1]/100, nestCoords[2][2]/100, 3, 10)
+					DBM.Arrow:ShowRunTo(nestCoords[2][1], nestCoords[2][2], 3, 10, true)
 				end
 			elseif flockCount ==  5 then
 				specWarnBigBird:Show(L.Lower.." ("..L.NorthWest..")")
 				if self.Options.ShowNestArrows == "Guardians" then
-					DBM.Arrow:ShowRunTo(nestCoords[5][1]/100, nestCoords[5][2]/100, 3, 10)
+					DBM.Arrow:ShowRunTo(nestCoords[5][1], nestCoords[5][2], 3, 10, true)
 				end
 			elseif flockCount ==  8 then
 				specWarnBigBird:Show(L.Upper.." ("..L.NorthWest..")")
 				if self.Options.ShowNestArrows == "Guardians" then
-					DBM.Arrow:ShowRunTo(nestCoords[10][1]/100, nestCoords[10][2]/100, 3, 10)
+					DBM.Arrow:ShowRunTo(nestCoords[10][1], nestCoords[10][2], 3, 10, true)
 				end
 			elseif flockCount == 11 then
 				specWarnBigBird:Show(L.Upper.." ("..L.SouthEast..")")
 				if self.Options.ShowNestArrows == "Guardians" then
-					DBM.Arrow:ShowRunTo(nestCoords[7][1]/100, nestCoords[7][2]/100, 3, 10)
+					DBM.Arrow:ShowRunTo(nestCoords[7][1], nestCoords[7][2], 3, 10, true)
 				end
 			elseif flockCount == 14 then
 				specWarnBigBird:Show(L.Lower.." ("..L.SouthWest..")")
 				if self.Options.ShowNestArrows == "Guardians" then
-					DBM.Arrow:ShowRunTo(nestCoords[3][1]/100, nestCoords[3][2]/100, 3, 10)
+					DBM.Arrow:ShowRunTo(nestCoords[3][1], nestCoords[3][2], 3, 10, true)
 				end
 			--Reports of birds in next two nests but not precise locations
 			elseif flockCount == 17 then specWarnBigBird:Show(L.Lower.." ("..DBM_CORE_UNKNOWN..")")
@@ -319,39 +332,39 @@ function mod:CHAT_MSG_MONSTER_EMOTE(msg, _, _, _, target)
 			else--Since we know persons location, in addition to arrows, we can fire specWarnFlock for only the nests they have chosen arrows for.
 				--Lower Nests
 				if currentLocation:find(L.ArrowLower.." "..L.NorthEast) and self.Options.ShowNestArrows == "Northeast" then
-					DBM.Arrow:ShowRunTo(nestCoords[1][1]/100, nestCoords[1][2]/100, 3, 10)
+					DBM.Arrow:ShowRunTo(nestCoords[1][1], nestCoords[1][2], 3, 10, true)
 					specWarnFlock:Show(currentDirection, flockName, flockCountText.." ("..currentLocation..")")
 				elseif currentLocation:find(L.ArrowLower.." "..L.SouthEast) and self.Options.ShowNestArrows == "Southeast" then
-					DBM.Arrow:ShowRunTo(nestCoords[2][1]/100, nestCoords[2][2]/100, 3, 10)
+					DBM.Arrow:ShowRunTo(nestCoords[2][1], nestCoords[2][2], 3, 10, true)
 					specWarnFlock:Show(currentDirection, flockName, flockCountText.." ("..currentLocation..")")
 				elseif currentLocation:find(L.ArrowLower.." "..L.SouthWest) and self.Options.ShowNestArrows == "Southwest" then
-					DBM.Arrow:ShowRunTo(nestCoords[3][1]/100, nestCoords[3][2]/100, 3, 10)
+					DBM.Arrow:ShowRunTo(nestCoords[3][1], nestCoords[3][2], 3, 10, true)
 					specWarnFlock:Show(currentDirection, flockName, flockCountText.." ("..currentLocation..")")
 				elseif currentLocation:find(L.ArrowLower.." "..L.West) and self.Options.ShowNestArrows == "West" then
-					DBM.Arrow:ShowRunTo(nestCoords[4][1]/100, nestCoords[4][2]/100, 3, 10)
+					DBM.Arrow:ShowRunTo(nestCoords[4][1], nestCoords[4][2], 3, 10, true)
 					specWarnFlock:Show(currentDirection, flockName, flockCountText.." ("..currentLocation..")")
 				elseif currentLocation:find(L.ArrowLower.." "..L.NorthWest) and self.Options.ShowNestArrows == "Northwest" then
-					DBM.Arrow:ShowRunTo(nestCoords[5][1]/100, nestCoords[5][2]/100, 3, 10)
+					DBM.Arrow:ShowRunTo(nestCoords[5][1], nestCoords[5][2], 3, 10, true)
 					specWarnFlock:Show(currentDirection, flockName, flockCountText.." ("..currentLocation..")")
 				--Upper Nests
 				elseif currentLocation:find(L.ArrowUpper.." "..L.NorthEast) and self.Options.ShowNestArrows == "Northeast" then
-					DBM.Arrow:ShowRunTo(nestCoords[6][1]/100, nestCoords[6][2]/100, 3, 10)
+					DBM.Arrow:ShowRunTo(nestCoords[6][1], nestCoords[6][2], 3, 10, true)
 					specWarnFlock:Show(currentDirection, flockName, flockCountText.." ("..currentLocation..")")
 				elseif currentLocation:find(L.ArrowUpper.." "..L.SouthEast) and self.Options.ShowNestArrows == "Southeast" then
-					DBM.Arrow:ShowRunTo(nestCoords[7][1]/100, nestCoords[7][2]/100, 3, 10)
+					DBM.Arrow:ShowRunTo(nestCoords[7][1], nestCoords[7][2], 3, 10, true)
 					specWarnFlock:Show(currentDirection, flockName, flockCountText.." ("..currentLocation..")")
 				elseif (currentLocation:find(L.Middle10) or currentLocation:find(L.ArrowUpper.." "..L.SouthWest)) and self.Options.ShowNestArrows == "Southwest" then
 					if self:IsDifficulty("normal25", "heroic25") then
-						DBM.Arrow:ShowRunTo(nestCoords[8][1]/100, nestCoords[8][2]/100, 3, 10)
+						DBM.Arrow:ShowRunTo(nestCoords[8][1], nestCoords[8][2], 3, 10, true)
 					else
-						DBM.Arrow:ShowRunTo(nestCoords[9][1]/100, nestCoords[9][2]/100, 3, 10)
+						DBM.Arrow:ShowRunTo(nestCoords[9][1], nestCoords[9][2], 3, 10, true)
 					end
 					specWarnFlock:Show(currentDirection, flockName, flockCountText.." ("..currentLocation..")")
 				elseif currentLocation:find(L.Middle25) and self.Options.ShowNestArrows == "West" then
-					DBM.Arrow:ShowRunTo(nestCoords[9][1]/100, nestCoords[9][2]/100, 3, 10)
+					DBM.Arrow:ShowRunTo(nestCoords[9][1], nestCoords[9][2], 3, 10, true)
 					specWarnFlock:Show(currentDirection, flockName, flockCountText.." ("..currentLocation..")")
 				elseif currentLocation:find(L.ArrowUpper.." "..L.NorthWest) and self.Options.ShowNestArrows == "Northwest" then
-					DBM.Arrow:ShowRunTo(nestCoords[10][1]/100, nestCoords[10][2]/100, 3, 10)
+					DBM.Arrow:ShowRunTo(nestCoords[10][1], nestCoords[10][2], 3, 10, true)
 					specWarnFlock:Show(currentDirection, flockName, flockCountText.." ("..currentLocation..")")
 				end
 			end

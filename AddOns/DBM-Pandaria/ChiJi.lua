@@ -1,109 +1,83 @@
-if GetBuildInfo() ~= "5.4.0" then return end
-local mod	= DBM:NewMod(857, "DBM-Pandaria", nil, 322)
+local mod	= DBM:NewMod(857, "DBM-Pandaria", nil, 322, 1)
 local L		= mod:GetLocalizedStrings()
 
-mod:SetRevision(("$Revision: 9881 $"):sub(12, -3))
-mod:SetCreatureID(71953)
---mod:SetQuestID(32519)
+mod:SetRevision(("$Revision: 3 $"):sub(12, -3))
+mod:SetCreatureID(71952)
+mod:SetReCombatTime(20)
 mod:SetZone()
-mod:SetUsedIcons(1)
 
-mod:RegisterCombat("combat")
+mod:RegisterCombat("combat_yell", L.Pull)
+mod:RegisterKill("yell", L.Victory)
 
 mod:RegisterEventsInCombat(
-	"SPELL_CAST_START",
-	"SPELL_CAST_SUCCESS",
-	"SPELL_AURA_APPLIED",
-	"SPELL_AURA_REMOVED"
-)
-
-mod:RegisterEvents(
-	"CHAT_MSG_MONSTER_YELL"
+	"SPELL_CAST_START 144468 144471 144470 144473 144461",
+	"UNIT_SPELLCAST_SUCCEEDED target focus"
 )
 
 local warnInspiringSong			= mod:NewSpellAnnounce(144468, 3)
 local warnBeaconOfHope			= mod:NewTargetAnnounce(144473, 1)
+local warnFirestorm				= mod:NewSpellAnnounce(144461, 2, nil, false)
 local warnBlazingSong			= mod:NewSpellAnnounce(144471, 4)
-local warnCraneRush				= mod:NewSpellAnnounce(144470, 3)--Health based, 66% and 33% (maybe register UNIT_HEALTH and give soon warning?)
+local warnCraneRush				= mod:NewSpellAnnounce(144470, 3, nil, not mod:IsMelee())--Health based, 66% and 33% (off by default for melee because they won't hit melee unless they are bad and standing too far out
 
 local specWarnInspiringSong		= mod:NewSpecialWarningInterrupt(144468)
-local specWarnBeaconOfHope		= mod:NewSpecialWarningYou(144473)
-local yellBeaconOfHope			= mod:NewYell(144473)
-local specWarnBeaconOfHopeOther	= mod:NewSpecialWarningTarget(144473)
+local specWarnBeaconOfHope		= mod:NewSpecialWarningMoveTo(144473)
+local yellBeacon				= mod:NewYell(144473)
 local specWarnBlazingSong		= mod:NewSpecialWarningSpell(144471, nil, nil, nil, 3)
-local specWarnCraneRush			= mod:NewSpecialWarningSpell(144470, nil, nil, nil, 2)--Add range frame for spreading?
+local specWarnCraneRush			= mod:NewSpecialWarningSpell(144470, nil, nil, nil, 2)
 
---local timerInspiringSongCD	= mod:NewCDTimer(26, 144468)
---local timerBeaconOfhopeCD		= mod:NewCDTimer(25, 144473)
-local timerBlazingSong			= mod:NewCastTimer(5, 144471)--Possibly redundant, if it's always after beacon of hope
+local timerInspiringSongCD		= mod:NewCDTimer(30, 144468)--30-50sec variation?
+local timerBlazingSong			= mod:NewBuffActiveTimer(15, 144471)
 
-mod:AddBoolOption("SetIconOnBeacon", true)
-mod:AddBoolOption("BeaconArrow")
+mod:AddReadyCheckOption(33117, false)
 
---local yellTriggered = false
-
-function mod:OnCombatStart(delay)
---[[	if yellTriggered then--We know for sure this is an actual pull and not diving into in progress
-		timerInspiringSongCD:Start(15-delay)
-		timerBeaconOfhopeCD:Start(20-delay)
-		timerBlazingSongCD:Start(40-delay)
-	end-]]
+function mod:BeaconTarget(targetname, uId)
+	if not targetname then return end
+	warnBeaconOfHope:Show(targetname)
+	if targetname == UnitName("player") and not self:IsTanking(uId) then--Never targets tanks
+		yellBeacon:Yell()
+	else
+		specWarnBeaconOfHope:Show(targetname)
+	end
 end
 
-function mod:OnCombatEnd()
---	yellTriggered = false
-	if self.Options.BeaconArrow then
-		DBM.Arrow:Hide()
+function mod:OnCombatStart(delay, yellTriggered)
+	if yellTriggered then--We know for sure this is an actual pull and not diving into in progress
+		timerInspiringSongCD:Start(20-delay)
 	end
 end
 
 function mod:SPELL_CAST_START(args)
-	if args.spellId == 144468 then
+	local spellId = args.spellId
+	if spellId == 144468 then
 		warnInspiringSong:Show()
-		specWarnInspiringSong:Show()
---		timerInspiringSongCD:Start()
-	elseif args.spellId == 144471 then
+		specWarnInspiringSong:Show(args.sourceName)
+		timerInspiringSongCD:Start()
+	elseif spellId == 144471 then
 		warnBlazingSong:Show()
 		specWarnBlazingSong:Show()
 		timerBlazingSong:Start()
-	elseif args.spellId == 144470 then
+	elseif spellId == 144470 then
 		warnCraneRush:Show()
 		specWarnCraneRush:Show()
+	elseif spellId == 144473 then
+		warnBeaconOfHope:Show()
+		specWarnBeaconOfHope:Show()
+		self:BossTargetScanner(71952, "BeaconTarget", 0.1, 20)
+	elseif spellId == 144461 then
+		warnFirestorm:Show()
 	end
 end
 
-function mod:SPELL_AURA_APPLIED(args)
-	if args.spellId == 144473 then
-		warnBeaconOfHope:Show(args.destName)
---		timerBeaconOfhopeCD:Start()
-		if args:IsPlayer() then
-			specWarnBeaconOfHope:Show()
-			yellBeaconOfHope:Yell()
-		else
-			specWarnBeaconOfHopeOther:Show(args.destName)
-			if self.Options.BeaconArrow then
-				DBM.Arrow:ShowRunTo(args.destName, 3, 3, 5)
-			end
-		end
-		if self.Options.SetIconOnBeacon then
-			self:SetIcon(args.destName, 1)
-		end
+--This method works without local and doesn't fail with curse of tongues. However, it requires at least ONE person in raid targeting boss to be running dbm (which SHOULD be most of the time)
+function mod:UNIT_SPELLCAST_SUCCEEDED(uId, _, _, _, spellId)
+	if spellId == 148318 or spellId == 148317 or spellId == 149304 and self:AntiSpam(3, 2) then--use all 3 because i'm not sure which ones fire on repeat kills
+		self:SendSync("Victory")
 	end
 end
 
-function mod:SPELL_AURA_REMOVED(args)
-	if args.spellId == 144473 and self.Options.SetIconOnBeacon then
-		self:SetIcon(args.destName, 0)
+function mod:OnSync(msg)
+	if msg == "Victory" and self:IsInCombat() then
+		DBM:EndCombat(self)
 	end
 end
-
---[[
-function mod:CHAT_MSG_MONSTER_YELL(msg)
-	if msg == L.Pull and not self:IsInCombat() then
-		if self:GetCIDFromGUID(UnitGUID("target")) == 71953 or self:GetCIDFromGUID(UnitGUID("targettarget")) == 71953 then--Whole zone gets yell, so lets not engage combat off yell unless he is our target (or the target of our target for healers)
-			yellTriggered = true
-			DBM:StartCombat(self, 0)
-		end
-	end
-end--]]
-

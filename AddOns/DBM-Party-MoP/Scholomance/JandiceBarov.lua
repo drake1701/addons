@@ -1,8 +1,9 @@
 local mod	= DBM:NewMod(663, "DBM-Party-MoP", 7, 246)
 local L		= mod:GetLocalizedStrings()
 
-mod:SetRevision(("$Revision: 9656 $"):sub(12, -3))
+mod:SetRevision(("$Revision: 22 $"):sub(12, -3))
 mod:SetCreatureID(59184)--59220 seem to be her mirror images
+mod:SetEncounterID(1427)
 mod:SetZone()
 
 mod:RegisterCombat("combat")
@@ -20,7 +21,7 @@ local warnWhirlofIllusion		= mod:NewSpellAnnounce(113808, 4)
 local specWarnWondrousRapdity	= mod:NewSpecialWarningMove(114062, mod:IsTank())--Frontal cone fixate attack, easily dodged (in fact if you don't, i imagine it'll wreck you on heroic)
 
 local timerWondrousRapidity		= mod:NewBuffFadesTimer(7.5, 114062)
-local timerWondrousRapidityCD	= mod:NewNextTimer(14, 114062)
+local timerWondrousRapidityCD	= mod:NewCDTimer(14, 114062)
 local timerGravityFlux			= mod:NewCDTimer(12, 114059) -- needs more review.
 
 function mod:GravityFluxTarget()

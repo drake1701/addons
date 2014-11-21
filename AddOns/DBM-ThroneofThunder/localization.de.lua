@@ -71,7 +71,6 @@ L:SetWarningLocalization({
 L:SetOptionLocalization({
 	specWarnCrystalShell	= "Spezialwarnung, falls dir der $spell:137633 Buff fehlt",
 	InfoFrame				= "Zeige Infofenster für Spieler ohne $spell:137633<br/>mit mehr als 90% Lebenspunkten",
-	SetIconOnTurtles		= "Setze Zeichen auf $journal:7129",
 	ClearIconOnTurtles		= "Entferne Zeichen von $journal:7129 im Zustand $spell:133971",
 	AnnounceCooldowns		= "Zähle akustisch die Anzahl der $spell:134920 Wirkungen<br/>(für \"Raid-Cooldowns\")"
 })
@@ -132,8 +131,7 @@ L:SetOptionLocalization({
 })
 
 L:SetMiscLocalization({
-	eggsHatchL		= "Die Eier in einem der unteren Nester beginnen, aufzubrechen!",
-	eggsHatchU		= "Die Eier in einem der oberen Nester beginnen, aufzubrechen!",
+	eggsHatch		= "Nester beginnen, aufzubrechen!",
 	Upper			= "Oben",
 	Lower			= "Unten",
 	UpperAndLower	= "Oben & Unten",
@@ -168,7 +166,7 @@ L:SetOptionLocalization({
 	specWarnFogRevealed			= "Spezialwarnung, wenn ein Nebel offenbart wird",
 	ArrowOnBeam					= "Zeige DBM-Pfeil während $journal:6882 zur Anzeige der Ausweichrichtung",
 	InfoFrame					= "Zeige Infofenster für $spell:133795 Stapel",
-	SetParticle					= "Grafikeinstellung 'Partikeldichte' automatisch auf 'Niedrig' setzen\n(wird nach dem Kampfende auf die vorherige Einstellung zurückgesetzt)"
+	SetParticle					= "Grafikeinstellung 'Partikeldichte' automatisch auf 'Niedrig' setzen<br/>(wird nach dem Kampfende auf die vorherige Einstellung zurückgesetzt)"
 })
 
 L:SetMiscLocalization({
@@ -181,7 +179,7 @@ L:SetMiscLocalization({
 L= DBM:GetModLocalization(820)
 
 L:SetWarningLocalization({
-	warnDebuffCount				= "Mutationen: %d/5 gute, %d schlechte",
+	warnDebuffCount				= "Mutationen: %d/5 gute, %d schlechte"
 })
 
 L:SetOptionLocalization({
@@ -216,7 +214,7 @@ L:SetWarningLocalization({
 })
 
 L:SetOptionLocalization({
-	RangeFrame				= "Zeige dynamisches Abstandsfenster (10m)\n(mit Indikator für zuviele Spieler in Reichweite)",
+	RangeFrame				= "Zeige dynamisches Abstandsfenster (10m)<br/>(mit Indikator für zuviele Spieler in Reichweite)",
 	InfoFrame				= "Zeige Infofenster für Spieler mit $spell:136193"
 })
 
@@ -271,14 +269,17 @@ L:SetMiscLocalization({
 ------------
 L= DBM:GetModLocalization(831)
 
+L:SetWarningLocalization({
+	specWarnUnstablVitaJump		= "Instabile Vita ist auf dich übergesprungen!"
+})
+
 L:SetOptionLocalization({
-	SetIconsOnVita		= "Setze Zeichen auf den Spieler mit dem Debuff $spell:138297 und den am weitesten davon entfernten Spieler",
-	InfoFrame			= "Zeige Infofenster für Spieler ohne $spell:138372 (ausgenommen Tanks)"
+	specWarnUnstablVitaJump	= "Spezialwarnung, wenn $spell:138297 auf dich überspringt",
+	SetIconsOnVita			= "Setze Zeichen auf den Spieler mit dem Debuff $spell:138297 und den am weitesten davon entfernten Spieler"
 })
 
 L:SetMiscLocalization({
-	Defeat			= "Wait! I am... I am not your enemy.",--translate (trigger)
-	NoSensitivity	= "No Sensitivity"--translate (trigger)
+	Defeat						= "Wartet!"--needs to be verified (video-captured translation)
 })
 
 -------------

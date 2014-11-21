@@ -1,18 +1,19 @@
 local mod	= DBM:NewMod(744, "DBM-HeartofFear", nil, 330)
 local L		= mod:GetLocalizedStrings()
 
-mod:SetRevision(("$Revision: 9668 $"):sub(12, -3))
+mod:SetRevision(("$Revision: 2 $"):sub(12, -3))
 mod:SetCreatureID(62543)
+mod:SetEncounterID(1504)
 mod:SetZone()
 
 mod:RegisterCombat("combat")
 
 mod:RegisterEventsInCombat(
-	"SPELL_AURA_APPLIED",
-	"SPELL_AURA_APPLIED_DOSE",
-	"SPELL_AURA_REMOVED",
-	"SPELL_CAST_START",
-	"SPELL_CAST_SUCCESS",
+	"SPELL_AURA_APPLIED 123474 123471",
+	"SPELL_AURA_APPLIED_DOSE 123474 123471",
+	"SPELL_AURA_REMOVED 123474",
+	"SPELL_CAST_START 125310",
+	"SPELL_CAST_SUCCESS 123474 123175",
 	"CHAT_MSG_RAID_BOSS_EMOTE",
 	"UNIT_SPELLCAST_SUCCEEDED boss1"
 )
@@ -26,10 +27,10 @@ local warnBladeTempest					= mod:NewCastAnnounce(125310, 4)--Phase 1 heroic
 local warnStormUnleashed				= mod:NewSpellAnnounce(123815, 3)--Phase 2
 
 local specWarnUnseenStrike				= mod:NewSpecialWarningYou(122949)
-local specWarnUnseenStrikeOther			= mod:NewSpecialWarningTarget(122949)--Everyone needs to know this, and run to this person.
+local specWarnUnseenStrikeOther			= mod:NewSpecialWarningMoveTo(122949)--Everyone needs to know this, and run to this person.
 local yellUnseenStrike					= mod:NewYell(122949)
-local specWarnOverwhelmingAssault		= mod:NewSpecialWarningStack(123474, mod:IsTank(), 2)
-local specWarnOverwhelmingAssaultOther	= mod:NewSpecialWarningTarget(123474, mod:IsTank())
+local specWarnOverwhelmingAssault		= mod:NewSpecialWarningStack(123474, nil, 2)
+local specWarnOverwhelmingAssaultOther	= mod:NewSpecialWarningTaunt(123474)
 local specWarnBladeTempest				= mod:NewSpecialWarningRun(125310, true)
 local specWarnStormUnleashed			= mod:NewSpecialWarningSpell(123814, nil, nil, nil, true)
 
@@ -65,7 +66,7 @@ function mod:OnCombatStart(delay)
 	if not self:IsDifficulty("lfr25") then
 		berserkTimer:Start(-delay)
 	end
-	if self:IsDifficulty("heroic10", "heroic25") then
+	if self:IsHeroic() then
 		timerBladeTempestCD:Start(-delay)
 		countdownTempest:Start(-delay)
 	end
@@ -84,21 +85,24 @@ function mod:OnCombatEnd()
 end
 
 function mod:SPELL_AURA_APPLIED(args)
-	if args.spellId == 123474 then
-		warnOverwhelmingAssault:Show(args.destName, args.amount or 1)
+	local spellId = args.spellId
+	if spellId == 123474 then
+		local amount = args.amount or 1
+		warnOverwhelmingAssault:Show(args.destName, amount)
 		timerOverwhelmingAssault:Start(args.destName)
 		if args:IsPlayer() then
-			if (args.amount or 1) >= 2 then
-				specWarnOverwhelmingAssault:Show(args.amount)
+			if amount >= 2 then
+				specWarnOverwhelmingAssault:Show(amount)
 			end
 		else
-			if (args.amount or 1) >= 1 and not UnitDebuff("player", GetSpellInfo(123474)) and not UnitIsDeadOrGhost("player") then--Other tank has at least one stack and you have none
+			if amount >= 1 and not UnitDebuff("player", GetSpellInfo(123474)) and not UnitIsDeadOrGhost("player") then--Other tank has at least one stack and you have none
 				specWarnOverwhelmingAssaultOther:Show(args.destName)--So nudge you to taunt it off other tank already.
 			end
 		end
-	elseif args.spellId == 123471 then
-		if phase2 and (args.amount or 1) % 3 == 0 or not phase2 then
-			warnIntensify:Show(args.destName, args.amount or 1)
+	elseif spellId == 123471 then
+		local amount = args.amount or 1
+		if phase2 and amount % 3 == 0 or not phase2 then
+			warnIntensify:Show(args.destName, amount)
 		end
 		timerIntensifyCD:Start(intensifyCD)
 	end
@@ -106,13 +110,15 @@ end
 mod.SPELL_AURA_APPLIED_DOSE = mod.SPELL_AURA_APPLIED
 
 function mod:SPELL_AURA_REMOVED(args)
-	if args.spellId == 123474 then
+	local spellId = args.spellId
+	if spellId == 123474 then
 		timerOverwhelmingAssault:Cancel(args.destName)
 	end
 end
 
 function mod:SPELL_CAST_START(args)
-	if args.spellId == 125310 then
+	local spellId = args.spellId
+	if spellId == 125310 then
 		warnBladeTempest:Show()
 		specWarnBladeTempest:Show()
 		soundBladeTempest:Play()
@@ -123,9 +129,10 @@ function mod:SPELL_CAST_START(args)
 end
 
 function mod:SPELL_CAST_SUCCESS(args)
-	if args.spellId == 123474 then
+	local spellId = args.spellId
+	if spellId == 123474 then
 		timerOverwhelmingAssaultCD:Start()--Start CD here, since this might miss.
-	elseif args.spellId == 123175 then
+	elseif spellId == 123175 then
 		warnWindStep:Show(args.destName)
 		if self:IsDifficulty("lfr25") then
 			timerWindStepCD:Start(30)
@@ -137,7 +144,7 @@ end
 
 function mod:CHAT_MSG_RAID_BOSS_EMOTE(msg, _, _, _, target)
 	if msg:find("spell:122949") then--Does not show in combat log except for after it hits. IT does fire a UNIT_SPELLCAST event but has no target info. You can get target 1 sec faster with UNIT_AURA but it's more cpu and not worth the trivial gain IMO
-		local target = DBM:GetFullNameByShortName(target)
+		local target = DBM:GetUnitFullName(target)
 		warnUnseenStrike:Show(target)
 		timerUnseenStrike:Start()
 		timerUnseenStrikeCD:Start()

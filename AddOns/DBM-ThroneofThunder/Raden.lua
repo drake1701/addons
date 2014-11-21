@@ -1,23 +1,24 @@
 local mod	= DBM:NewMod(831, "DBM-ThroneofThunder", nil, 362)
 local L		= mod:GetLocalizedStrings()
 
-mod:SetRevision(("$Revision: 9946 $"):sub(12, -3))
+mod:SetRevision(("$Revision: 2 $"):sub(12, -3))
 mod:SetCreatureID(69473)--69888
-mod:SetQuestID(32753)
+mod:SetEncounterID(1580, 1581)
 mod:SetZone()
 mod:SetUsedIcons(2, 1)
 
 mod:RegisterCombat("combat")
-mod:RegisterKill("yell_regex", L.Defeat)--Does not die, just yells
 
 mod:RegisterEventsInCombat(
-	"SPELL_CAST_START",
-	"SPELL_CAST_SUCCESS",
-	"SPELL_AURA_APPLIED",
-	"SPELL_AURA_REMOVED",
+	"SPELL_CAST_START 138338 138339 138321",
+	"SPELL_CAST_SUCCESS 138333 138334",
+	"SPELL_AURA_APPLIED 138331 138332 139318 138372 138288 138297 138308",
+	"SPELL_AURA_REMOVED 138297 138308",
 	"UNIT_SPELLCAST_SUCCEEDED boss1",
-	"UNIT_POWER_FREQUENT boss1"
+	"UNIT_POWER_FREQUENT boss1",
+	"CHAT_MSG_MONSTER_YELL"
 )
+mod.onlyHeroic = true
 
 --Anima
 local warnAnima					= mod:NewSpellAnnounce(138331, 2)--Switched to anima phase
@@ -27,7 +28,6 @@ local warnSanguineHorror		= mod:NewCountAnnounce(138338, 3, nil, not mod:IsHeale
 --Vita
 local warnVita					= mod:NewSpellAnnounce(138332, 2)--Switched to vita phase
 local warnFatalStrike			= mod:NewSpellAnnounce(138334, 4, nil, mod:IsTank() or mod:IsHealer())--Tank (think thrash, like sha. Gains buff, uses on next melee attack)
-local warnVitaSoakerSoon		= mod:NewAnnounce("warnVitaSoakerSoon", 2, 138297)
 local warnUnstableVita			= mod:NewTargetAnnounce(138297, 4)
 local warnCracklingStalker		= mod:NewCountAnnounce(138339, 3, nil, not mod:IsHealer())--Adds
 --General
@@ -45,9 +45,8 @@ local yellUnstableAnima			= mod:NewYell(138288, nil, false)
 local specWarnFatalStrike		= mod:NewSpecialWarningSpell(138334, mod:IsTank(), nil, nil, 3)
 local specWarnCracklingStalker	= mod:NewSpecialWarningSwitch(138339, mod:IsRangedDps() or mod:IsTank())
 local specWarnVitaSensitive		= mod:NewSpecialWarningYou(138372)
-local specWarnVitaSoaker		= mod:NewSpecialWarning("specWarnVitaSoaker")
 local specWarnUnstablVita		= mod:NewSpecialWarningYou(138297, nil, nil, nil, 3)
-local specWarnUnstablVitaJump	= mod:NewSpecialWarningYou(138308, nil, nil, nil, 1)
+local specWarnUnstablVitaJump	= mod:NewSpecialWarning("specWarnUnstablVitaJump", nil, nil, nil, 1)
 local yellUnstableVita			= mod:NewYell(138297, nil, false)
 --General
 local specWarnCreation			= mod:NewSpecialWarningSpell(138321, mod:IsDps())
@@ -68,7 +67,7 @@ local countdownUnstableVita		= mod:NewCountdownFades(11, 138297)
 local countdownCreation			= mod:NewCountdown(32.5, 138321, nil, nil, nil, nil, true)
 
 mod:AddBoolOption("SetIconsOnVita", false)--Both the vita target and furthest from vita target
-mod:AddBoolOption("InfoFrame")
+local ShowedBigWigsmessage		= mod:NewSpellAnnounce("ShowedBigWigsmessage", 1, nil, false, false)--Dummy option
 
 local creationCount = 0
 local stalkerCount = 0
@@ -77,8 +76,6 @@ local lastStalker = 0
 local playerWithVita = nil
 local furthestDistancePlayer = nil
 local lastfurthestDistancePlayer = nil
-local lastPlayerOne = nil
-local lastPlayerTwo = nil
 local playerName = UnitName("player")
 local vitaName = GetSpellInfo(138332)
 local animaName = GetSpellInfo(138331)
@@ -105,53 +102,28 @@ function mod:checkVitaDistance()
 	self:ScheduleMethod(1, "checkVitaDistance")
 end
 
-local function infoFrameChanged(players)
-	if players[1] == playerName and playerName ~= lastPlayerOne then
-		specWarnVitaSoaker:Show()
-	elseif players[2] == playerName and playerName ~= lastPlayerTwo then
-		warnVitaSoakerSoon:Show()
-	end
-	lastPlayerOne = players[1]
-	lastPlayerTwo = players[2]
-end
-
 function mod:OnCombatStart(delay)
 	creationCount = 0
 	stalkerCount = 0
 	horrorCount = 0
-	lastPlayerOne = nil
-	lastPlayerTwo = nil
 	timerCreationCD:Start(11-delay, 1)
 	countdownCreation:Start(11-delay)
-	if self.Options.InfoFrame then
-		DBM.InfoFrame:SetHeader(L.NoSensitivity)
-		DBM.InfoFrame:Show(10, "reverseplayerbaddebuff", 138372, nil, nil, nil, true, true)
-		DBM.InfoFrame:RegisterCallback(infoFrameChanged)
-	elseif self.Options[specWarnVitaSoaker.option or ""] or self.Options[warnVitaSoakerSoon.option or ""] then
-		self:AddMsg(L.VitaSoakerOptionConflict)
-	end
-
-end
-
-function mod:OnCombatEnd()
-	if self.Options.InfoFrame then
-		DBM.InfoFrame:Hide()
-	end
 end
 
 function mod:SPELL_CAST_START(args)
-	if args.spellId == 138338 then
+	local spellId = args.spellId
+	if spellId == 138338 then
 		horrorCount = horrorCount + 1
 		warnSanguineHorror:Show(horrorCount)
 		specWarnSanguineHorror:Show()
 --		timerSanguineHorrorCD:Start(nil, horrorCount+1)
-	elseif args.spellId == 138339 then
+	elseif spellId == 138339 then
 		lastStalker = GetTime()
 		stalkerCount = stalkerCount + 1
 		warnCracklingStalker:Show(stalkerCount)
 		specWarnCracklingStalker:Show()
 		timerCracklingStalkerCD:Start(nil, stalkerCount+1)
-	elseif args.spellId == 138321 then
+	elseif spellId == 138321 then
 		creationCount = creationCount + 1
 		warnCreation:Show(creationCount)
 		specWarnCreation:Show()
@@ -161,17 +133,19 @@ function mod:SPELL_CAST_START(args)
 end
 
 function mod:SPELL_CAST_SUCCESS(args)
-	if args.spellId == 138333 then
+	local spellId = args.spellId
+	if spellId == 138333 then
 		warnMurderousStrike:Show()
 		timerMurderousStrikeCD:Start()
-	elseif args.spellId == 138334 then
+	elseif spellId == 138334 then
 		warnFatalStrike:Show()
 		timerFatalStrikeCD:Start()
 	end
 end
 
 function mod:SPELL_AURA_APPLIED(args)
-	if args.spellId == 138331 then--Anima Phase
+	local spellId = args.spellId
+	if spellId == 138331 then--Anima Phase
 		local radenPower = UnitPower("boss1")
 		radenPower = radenPower / 3
 		horrorCount = 0
@@ -180,7 +154,7 @@ function mod:SPELL_AURA_APPLIED(args)
 		timerMurderousStrikeCD:Start(33-radenPower)
 		--timerSanguineHorrorCD:Start(nil, 1)
 		warnAnima:Show()
-	elseif args.spellId == 138332 then--Vita Phase
+	elseif spellId == 138332 then--Vita Phase
 		local radenPower = UnitPower("boss1")
 		radenPower = radenPower / 10
 		local stalkerupdate = nil
@@ -195,15 +169,15 @@ function mod:SPELL_AURA_APPLIED(args)
 		--timerSanguineHorrorCD:Cancel()
 		timerCracklingStalkerCD:Start(stalkerupdate, 1)
 		timerFatalStrikeCD:Start(10-radenPower)
-	elseif args.spellId == 139318 then--Anima Sensitivity
+	elseif spellId == 139318 then--Anima Sensitivity
 		if args:IsPlayer() then
 			specWarnAninaSensitive:Show()
 		end
-	elseif args.spellId == 138372 then--Vita Sensitivity
+	elseif spellId == 138372 then--Vita Sensitivity
 		if args:IsPlayer() then
 			specWarnVitaSensitive:Show()
 		end
-	elseif args.spellId == 138288 then--Unstable Anima
+	elseif spellId == 138288 then--Unstable Anima
 		warnUnstableAnima:Show(args.destName)
 		if args:IsPlayer() then
 			specWarnUnstableAnima:Show()
@@ -223,7 +197,7 @@ function mod:SPELL_AURA_APPLIED(args)
 			self:ScheduleMethod(8, "checkVitaDistance")--4 seconds before
 		end
 		if args:IsPlayer() then
-			if args.spellId == 138297 then
+			if spellId == 138297 then
 				specWarnUnstablVita:Show()
 			else
 				specWarnUnstablVitaJump:Show()
@@ -244,6 +218,7 @@ end
 "<31.9 01:50:23> [CLEU] SPELL_AURA_APPLIED#false#0x0300000007B5931A#Takeaseat#1297#0#0x0300000007764949#Ryukou#1300#0#138308#Unstable Vita#8#DEBUFF", -- [3769]--Code may break if it doesn't but i've seen no indicatino this should happen
 --]]
 function mod:SPELL_AURA_REMOVED(args)
+	local spellId = args.spellId
 	if args:IsSpellID(138297, 138308) and self.Options.SetIconsOnVita then--Unstable Vita
 		self:UnscheduleMethod("checkVitaDistance")
 		playerWithVita = nil
@@ -269,17 +244,20 @@ function mod:UNIT_SPELLCAST_SUCCEEDED(uId, _, _, _, spellId)
 		timerCreationCD:Cancel()
 		countdownCreation:Cancel()
 		timerCallEssenceCD:Start()
-		if self.Options.InfoFrame then
-			DBM.InfoFrame:Hide()
-		end
 	end
 end
 
 function mod:UNIT_POWER_FREQUENT(uId)
 	local power = UnitPower(uId)
-	if power == 90 and UnitBuff(uId, vitaName) and self:AntiSpam(3, 1) then
+	if power == 80 and UnitBuff(uId, vitaName) and self:AntiSpam(3, 1) then
 		specWarnFatalStrike:Show()
-	elseif power == 96 and UnitBuff(uId, animaName) and self:AntiSpam(3, 2) then
+	elseif power == 95 and UnitBuff(uId, animaName) and self:AntiSpam(3, 2) then
 		specWarnMurderousStrike:Show()
+	end
+end
+
+function mod:CHAT_MSG_MONSTER_YELL(msg)
+	if msg == L.Defeat or msg:find(L.Defeat) then
+		DBM:EndCombat(self)
 	end
 end
