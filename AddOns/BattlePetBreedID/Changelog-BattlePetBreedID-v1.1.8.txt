@@ -1,0 +1,9 @@
+2014-11-21  MMOSimca  <MMOSimca@gmail.com>
+
+[a74eebc8e9fe] [v1.1.8]
+* PetData.lua:
+
+Updated breeds for obtainable pets Crazy Carrot, Mechanical Axebeak, Nightshade Sproutling, Molten Corgi, Ore Eater, Lanticore Spawnling, Hatespark the Tiny, Mechanical Scorpid, Eye of Observation, and Swamplighter Firefly.
+Updated breeds for tamer pets Blingtron 4999b, Protectron 022481, and Protectron 011803.
+
+

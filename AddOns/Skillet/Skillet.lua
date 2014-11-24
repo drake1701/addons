@@ -20,9 +20,9 @@ along with this program.  If not, see <http://www.gnu.org/licenses/>.
 
 ]]--
 
-local MAJOR_VERSION = "2.65"
-local MINOR_VERSION = ("$Revision: 393 $"):match("%d+") or 1
-local DATE = string.gsub("$Date: 2014-11-16 02:51:51 +0000 (Sun, 16 Nov 2014) $", "^.-(%d%d%d%d%-%d%d%-%d%d).-$", "%1")
+local MAJOR_VERSION = "2.66"
+local MINOR_VERSION = ("$Revision: 401 $"):match("%d+") or 1
+local DATE = string.gsub("$Date: 2014-11-21 19:10:18 +0000 (Fri, 21 Nov 2014) $", "^.-(%d%d%d%d%-%d%d%-%d%d).-$", "%1")
 
 Skillet = LibStub("AceAddon-3.0"):NewAddon("Skillet", "AceConsole-3.0", "AceEvent-3.0", "AceHook-3.0", "AceTimer-3.0")
 Skillet.title   = "Skillet"
@@ -953,18 +953,39 @@ function Skillet:SkilletShow()
 	end
 	self.currentTrade = self.tradeSkillIDsByName[(GetTradeSkillLine())] or 2656      -- smelting caveat
 	self:InitializeDatabase(self.currentPlayer)
-	if self:IsSupportedTradeskill(self.currentTrade) then
-		self:InventoryScan()
-		self.tradeSkillOpen = true
-		DA.DEBUG(1,"SkilletShow: "..self.currentTrade)
-		self.selectedSkill = nil
-		self.dataScanned = false
-		self:ScheduleTimer("SkilletShowWindow", 0.5)
-	else
-		self:HideAllWindows()
-		self:BlizzardTradeSkillFrame_Show()
-		Skillet.TSMPlugin.TSMShow()
+	
+	local showBlizzUI = false
+	
+	-- workaround for enchant illusions which are only supported in the Blizzard UI
+	if self.currentTrade == 7411 then
+		local numSkills = GetNumTradeSkills()
+		for i = 1, numSkills, 1 do
+			local _, skillType = GetTradeSkillInfo(i);			
+			if skillType ~= "header" and skillType ~= "subheader" then
+				if GetTradeSkillRecipeLink(i) == nil then
+					showBlizzUI = true
+				end		
+			end
+		end
 	end
+	if showBlizzUI then
+			self:HideAllWindows()
+			self:BlizzardTradeSkillFrame_Show()	
+	else
+		if self:IsSupportedTradeskill(self.currentTrade) then
+			self:InventoryScan()
+			self.tradeSkillOpen = true
+			DA.DEBUG(1,"SkilletShow: "..self.currentTrade)
+			self.selectedSkill = nil
+			self.dataScanned = false
+			self:ScheduleTimer("SkilletShowWindow", 0.5)
+		else
+			self:HideAllWindows()
+			self:BlizzardTradeSkillFrame_Show()
+			Skillet.TSMPlugin.TSMShow()
+		end	
+	end
+
 end
 
 function Skillet:SkilletShowWindow()

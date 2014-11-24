@@ -23,13 +23,13 @@ if NonLatinLocales[GetLocale()] == true then font = STANDARD_TEXT_FONT end
 -- Default Style
 ---------------------------------------------
 local Theme = {}
-local DefaultStyle = {}
+local StyleDefault = {}
 
-DefaultStyle.highlight = {
+StyleDefault.highlight = {
 	texture =					ArtworkPath.."Neon_Highlight",
 }
 
-DefaultStyle.healthborder = {
+StyleDefault.healthborder = {
 	texture		 =				ArtworkPath.."Neon_HealthOverlay",
 	width = 128,
 	_width = 128,
@@ -38,7 +38,7 @@ DefaultStyle.healthborder = {
 	show = true,
 }
 
-DefaultStyle.healthbar = {
+StyleDefault.healthbar = {
 	texture =					 ArtworkPath.."Neon_Bar",
 	backdrop =					 ArtworkPath.."Neon_Bar_Backdrop",
 	width = 102,
@@ -48,7 +48,7 @@ DefaultStyle.healthbar = {
 	y = VerticalAdjustment,
 }
 
-DefaultStyle.castborder = {
+StyleDefault.castborder = {
 	--texture =					ArtworkPath.."Cast_Normal",
 	texture =					ArtworkPath.."Neon_CastOverlay",
 	width = 128,
@@ -58,7 +58,7 @@ DefaultStyle.castborder = {
 	show = true,
 }
 
-DefaultStyle.castnostop = {
+StyleDefault.castnostop = {
 	--texture =					ArtworkPath.."Cast_Shield",
 	texture =					ArtworkPath.."Neon_CastOverlayNoInt",
 	width = 128,
@@ -69,7 +69,7 @@ DefaultStyle.castnostop = {
 }
 
 
-DefaultStyle.castbar = {
+StyleDefault.castbar = {
 	texture =					 ArtworkPath.."Neon_Bar",
 	width = 100,
 	height = 32,
@@ -79,7 +79,7 @@ DefaultStyle.castbar = {
 	orientation = "HORIZONTAL",
 }
 
-DefaultStyle.spellicon = {
+StyleDefault.spellicon = {
 	width = 16,
 	height = 18,
 	x = CastBarHorizontalAdjustment+48,
@@ -89,7 +89,7 @@ DefaultStyle.spellicon = {
 	coords = {left = 0.15,right = .85,top = 0.15,bottom = .85}, 		-- Does nothing, at the moment
 }
 
-DefaultStyle.spelltext = {
+StyleDefault.spelltext = {
 	typeface = font,
 	size = fontsize,
 	width = 150,
@@ -106,7 +106,7 @@ DefaultStyle.spelltext = {
 
 --]]
 
-DefaultStyle.threatborder = {
+StyleDefault.threatborder = {
 	texture =				ArtworkPath.."Neon_AggroOverlayWhite",
 	width = 256,
 	_width = 256,
@@ -117,7 +117,7 @@ DefaultStyle.threatborder = {
 }
 
 
-DefaultStyle.target = {
+StyleDefault.target = {
 	texture = "Interface\\Addons\\TidyPlates_Neon\\Neon_Select",
 	width = 128,
 	_width = 128,
@@ -128,7 +128,7 @@ DefaultStyle.target = {
 	show = true,
 }
 
-DefaultStyle.raidicon = {
+StyleDefault.raidicon = {
 	width = 22,
 	height = 22,
 	x = -64,
@@ -139,7 +139,7 @@ DefaultStyle.raidicon = {
 }
 
 -- [[
-DefaultStyle.eliteicon = {
+StyleDefault.eliteicon = {
 	texture = ArtworkPath.."Neon_EliteStar",
 	width = 13,
 	height = 13,
@@ -151,7 +151,7 @@ DefaultStyle.eliteicon = {
 --]]
 
 --[[
-DefaultStyle.eliteicon = {
+StyleDefault.eliteicon = {
 	texture = ArtworkPath.."Neon_EliteIcon",
 	width = 17,
 	height = 17,
@@ -163,7 +163,7 @@ DefaultStyle.eliteicon = {
 --]]
 
 --[[
-DefaultStyle.eliteicon = {
+StyleDefault.eliteicon = {
 	texture		 =				ArtworkPath.."Neon_HealthOverlayElite",
 	width = 128,
 	height = 32,
@@ -173,7 +173,7 @@ DefaultStyle.eliteicon = {
 }
 --]]
 
-DefaultStyle.skullicon = {
+StyleDefault.skullicon = {
 	texture = ArtworkPath.."Skull_Icon_White",
 	width = 14,
 	height = 14,
@@ -184,7 +184,7 @@ DefaultStyle.skullicon = {
 }
 
 
-DefaultStyle.name = {
+StyleDefault.name = {
 	typeface = font,
 	size = fontsize,
 	width = 200,
@@ -198,7 +198,7 @@ DefaultStyle.name = {
 	flags = "NONE",
 }
 
-DefaultStyle.level = {
+StyleDefault.level = {
 	typeface = font,
 	size = fontsize-1,
 	width = 22,
@@ -215,7 +215,7 @@ DefaultStyle.level = {
 	show = false,
 }
 
-DefaultStyle.customart = {
+StyleDefault.customart = {
 	width = 14,
 	height = 14,
 	x = -44,
@@ -224,7 +224,7 @@ DefaultStyle.customart = {
 	--show = true,
 }
 
-DefaultStyle.customtext = {
+StyleDefault.customtext = {
 	typeface = font,
 	size = 11,
 	width = 150,
@@ -239,14 +239,14 @@ DefaultStyle.customtext = {
 	show = true,
 }
 
-DefaultStyle.frame = {
+StyleDefault.frame = {
 	y = 0,
 }
 
 local CopyTable = TidyPlatesUtility.copyTable
 
 -- No Bar
-local StyleTextOnly = CopyTable(DefaultStyle)
+local StyleTextOnly = CopyTable(StyleDefault)
 StyleTextOnly.threatborder.texture = EmptyTexture
 
 -- Just testing
@@ -289,7 +289,7 @@ StyleTextOnly.raidicon.y = VerticalAdjustment - 25
 
 --[[
 -- Styles
-local DefaultNoAura = CopyTable(DefaultStyle)
+local DefaultNoAura = CopyTable(StyleDefault)
 local TextNoAura = CopyTable(StyleTextOnly)
 local TextNoDescription = CopyTable(StyleTextOnly)
 
@@ -313,7 +313,7 @@ TextNoDescription.raidicon.y = VerticalAdjustment - 22
 --]]
 
 -- Active Styles
-Theme["Default"] = DefaultStyle
+Theme["Default"] = StyleDefault
 Theme["NameOnly"] = StyleTextOnly
 
 --[[
@@ -336,64 +336,17 @@ WidgetConfig.DebuffWidget = { anchor = "CENTER" , x = 15 ,y = VerticalAdjustment
 	WidgetConfig.DebuffWidgetPlus = { anchor = "CENTER" , x = 15 ,y = VerticalAdjustment + 24 }
 --end
 
-local DamageThemeName = "Neon/|cFFFF4400Damage"
+WidgetConfig._meta = true		-- tells the parser to ignore this table; ie. don't convert to "style" template
+Theme.WidgetConfig = WidgetConfig
 local ThemeName = "Neon"
 
 ---------------------------------------------
 -- Tidy Plates Hub Integration
 ---------------------------------------------
-
 TidyPlatesThemeList[ThemeName] = Theme
+TidyPlatesHubFunctions.ApplyHubFunctions(Theme)
 
-local LocalVars = TidyPlatesHubDamageVariables
 
-local ApplyThemeCustomization = TidyPlatesHubFunctions.ApplyThemeCustomization
-
-local function ApplyDamageCustomization()
-	ApplyThemeCustomization(Theme)
-end
-
-local function OnInitialize(plate)
-	TidyPlatesHubFunctions.OnInitializeWidgets(plate, WidgetConfig)
-end
-
-local function ApplyProfile(profileName)
-	TidyPlatesHubFunctions.UseVariables(profileName)
-end
-
-local function OnActivateTheme(themeTable, profileName)
-		--print("NeonDamage", themeTable, other)
-		if Theme == themeTable then
-			--LocalVars = TidyPlatesHubFunctions:UseDamageVariables()
-			--ApplyDamageCustomization()
-			--print("OnActivateTheme", profileName)
-			ApplyProfile(profileName)
-			ApplyThemeCustomization(Theme)
-		end
-end
-
-Theme.SetNameColor = TidyPlatesHubFunctions.SetNameColor
-Theme.SetScale = TidyPlatesHubFunctions.SetScale
-Theme.SetAlpha = TidyPlatesHubFunctions.SetAlpha
-Theme.SetHealthbarColor = TidyPlatesHubFunctions.SetHealthbarColor
-Theme.SetThreatColor = TidyPlatesHubFunctions.SetThreatColor
-Theme.SetCastbarColor = TidyPlatesHubFunctions.SetCastbarColor
-Theme.OnUpdate = TidyPlatesHubFunctions.OnUpdate
-Theme.OnContextUpdate = TidyPlatesHubFunctions.OnContextUpdate
-Theme.ShowConfigPanel = ShowTidyPlatesHubDamagePanel
-Theme.SetStyle = TidyPlatesHubFunctions.SetStyleBinary
-Theme.SetCustomText = TidyPlatesHubFunctions.SetCustomTextBinary
-Theme.OnInitialize = OnInitialize		-- Need to provide widget positions
-Theme.OnActivateTheme = OnActivateTheme -- called by Tidy Plates Core, Theme Loader
-
-local function OnApplyCustomization()
-	ApplyThemeCustomization(Theme)
-end
-
-Theme.OnApplyThemeCustomization = OnApplyCustomization -- Called By Hub Panel
---Theme.OnApplyThemeCustomization = ApplyDamageCustomization -- Called By Hub Panel
-
-Theme.OnChangeProfile = ApplyProfile
 
 
 

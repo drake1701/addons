@@ -811,6 +811,13 @@ Change Log:
 		- Added WoD spells for Bloodmaul Slag Mines
 		- Added WoD spells for Iron Docks
 		- Added WoD spells for Auchindoun
+	v4.35.4
+		- Added WoD spells for Draenor (world)
+		- Added WoD spells for Shadowmoon Burial Grounds
+		- Added WoD spells for Skyreach
+		- Added WoD spells for Upper Blackrock Spire
+		- Added WoD spells for Grimrail Depot
+		- Added WoD spells for the Everbloom
 		
 ]]--
 GTFO = {
@@ -828,8 +835,8 @@ GTFO = {
 		IgnoreOptions = { };
 		TrivialDamagePercent = 2; -- Minimum % of HP lost required for an alert to be trivial
 	};
-	Version = "4.35.3"; -- Version number (text format)
-	VersionNumber = 43503; -- Numeric version number for checking out-of-date clients
+	Version = "4.35.4"; -- Version number (text format)
+	VersionNumber = 43504; -- Numeric version number for checking out-of-date clients
 	DataLogging = nil; -- Indicate whether or not the addon needs to run the datalogging function (for hooking)
 	DataCode = "4"; -- Saved Variable versioning, change this value to force a reset to default
 	CanTank = nil; -- The active character is capable of tanking

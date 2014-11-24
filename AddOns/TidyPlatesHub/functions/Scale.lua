@@ -105,7 +105,7 @@ end
 
 --local ScaleFunctionsTank = { DummyFunction, ScaleFunctionByElite, ScaleFunctionByTarget, ScaleFunctionByThreatLow, ScaleFunctionByActiveDebuffs, ScaleFunctionByEnemy, ScaleFunctionByNPC, ScaleFunctionByRaidIcon, ScaleFunctionByThreatAutoDetect}
 
-local ScaleFunctionsUniversal = { DummyFunction, ScaleFunctionByElite, ScaleFunctionByThreat,
+local ScaleFunctionsUniversal = { DummyFunction, ScaleFunctionByThreat, ScaleFunctionByElite,
 		ScaleFunctionByEnemy,ScaleFunctionByNPC, ScaleFunctionByRaidIcon,
 		ScaleFunctionByEnemyHealer, ScaleFunctionByLowHealth, ScaleFunctionByBoss}
 
@@ -134,7 +134,7 @@ local function ScaleDelegate(...)
 		if (LocalVars.FilterScaleLock or (not unit.isTarget)) and UnitFilter(unit) then scale = LocalVars.ScaleFiltered
 		else
 			local func = ScaleFunctionsUniversal[LocalVars.ScaleSpotlightMode] or DummyFunction
-			scale = func(...)
+			if func then scale = func(...) end
 		end
 	end
 

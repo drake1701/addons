@@ -514,3 +514,29 @@ HubDamageConfigFrame = DamagePanel
 
 --]]
 
+
+StaticPopupDialogs["TIDYPLATESHUB_RESETCHECK"] = {
+  text = "Tidy Plates Hub: Your current settings are outdated...",
+  button1 = "Reset + Reload UI",
+  button2 = "Ignore",
+
+  OnAccept = function()
+  		-- print()
+  end,
+
+  OnCancel = function()
+  		-- print()
+  end,
+
+  timeout = 0,
+  whileDead = true,
+  hideOnEscape = true,
+  preferredIndex = 3,  -- avoid some UI taint, see http://www.wowace.com/announcements/how-to-avoid-some-ui-taint/
+}
+
+--StaticPopup_Show ("TIDYPLATESHUB_RESETCHECK")
+--StaticPopup_Hide ("EXAMPLE_HELLOWORLD")
+
+
+
+

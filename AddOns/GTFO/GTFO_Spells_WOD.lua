@@ -46,6 +46,91 @@ GTFO.SpellID["158238"] = {
 	sound = 1;
 };
 
+GTFO.SpellID["176623"] = {
+	--desc = "Sulfuric Acid Pool";
+	sound = 1;
+};
+
+GTFO.SpellID["176623"] = {
+	--desc = "Sulfur Cloud";
+	sound = 1;
+};
+
+GTFO.SpellID["171040"] = {
+	--desc = "Smoldering Charge (Crate Lord Igneous)";
+	sound = 1;
+};
+
+GTFO.SpellID["171177"] = {
+	--desc = "Immolating Embers (Charl Doomwing)";
+	sound = 1;
+};
+
+GTFO.SpellID["175933"] = {
+	--desc = "Fel Comet (Mongrethod)";
+	sound = 1;
+};
+
+GTFO.SpellID["176573"] = {
+	--desc = "Fel Firestorm (Mongrethod)";
+	sound = 1;
+};
+
+GTFO.SpellID["159980"] = {
+	--desc = "Fel Firebomb";
+	sound = 1;
+};
+
+GTFO.SpellID["168352"] = {
+	--desc = "Flame Crash (Gorebound Demonguard)";
+	sound = 1;
+};
+
+GTFO.SpellID["171581"] = {
+	--desc = "Firestorm Breath (Venombarb)";
+	sound = 1;
+};
+
+GTFO.SpellID["172763"] = {
+	--desc = "Firestorm Breath (Venombarb)";
+	sound = 1;
+};
+
+GTFO.SpellID["147493"] = {
+	--desc = "Blade Flurry (Shattered Hand Flayer)";
+	sound = 1;
+};
+
+GTFO.SpellID["158103"] = {
+	--desc = "Electrified Cloud (Sun-Talon Oberyx)";
+	sound = 1;
+};
+
+GTFO.SpellID["158537"] = {
+	--desc = "Toxic Pool (Darkhide Leaper)";
+	sound = 1;
+};
+
+GTFO.SpellID["173210"] = {
+	--desc = "Fel Firebomb (Vorpil Ribcleaver)";
+	sound = 1;
+};
+
+GTFO.SpellID["173210"] = {
+	--desc = "Noxious Bomb (Fervid Adherent)";
+	sound = 1;
+};
+
+GTFO.SpellID["165823"] = {
+	--desc = "Incinerator (The Burninator)";
+	sound = 1;
+};
+
+GTFO.SpellID["173210"] = {
+	--desc = "Fel Flames (Tezzakel)";
+	sound = 1;
+};
+
 --TODO: Acid Breath (Drov the Ruiner) - avoidable?
 --TODO: Noxious Spit (Tarlna the Ageless) - pool
 
@@ -149,6 +234,17 @@ GTFO.SpellID["167038"] = {
 	--desc = "Slag Tanker";
 	applicationOnly = true;
 	sound = 1;
+};
+
+GTFO.SpellID["176039"] = {
+	--desc = "Flametongue (Iron Infantry)";
+	sound = 1;
+};
+
+GTFO.SpellID["176147"] = {
+	--desc = "Ignite (Grom'kar Gunner)";
+	sound = 1;
+	applicationOnly = true;
 };
 
 GTFO.SpellID["166340"] = {
@@ -268,6 +364,12 @@ GTFO.SpellID["153070"] = {
 GTFO.SpellID["153501"] = {
 	--desc = "Void Blast (Nhallish)";
 	sound = 1;
+	tankSound = 0;
+};
+
+GTFO.SpellID["152800"] = {
+	--desc = "Void Vortex (Nhallish)";
+	sound = 1;
 };
 
 GTFO.SpellID["153692"] = {
@@ -368,13 +470,41 @@ GTFO.SpellID["162097"] = {
 	sound = 1;
 };
 
+GTFO.SpellID["155325"] = {
+	--desc = "Fire Pool (Emberscale Adolescent)";
+	sound = 1;
+};
+
+GTFO.SpellID["157420"] = {
+	--desc = "Fiery Trail (Son of the Beast)";
+	negatingDebuffSpellID = 157428; -- Terrifying Roar
+	sound = 1;
+};
+
 GTFO.SpellID["155057"] = {
 	--desc = "Magma Pool (Ragewing)";
 	sound = 1;
 };
 
--- TODO: Black Iron Cyclone (Warlord Zaela)
+GTFO.SpellID["155728"] = {
+	--desc = "Black Iron Cyclone (Warlord Zaela)";
+	sound = 1;
+};
 
+GTFO.SpellID["166041"] = {
+	--desc = "Burning Breath (Warlord Zaela)";
+	sound = 1;
+};
+
+GTFO.SpellID["166730"] = {
+	--desc = "Burning Bridge (Warlord Zaela)";
+	sound = 1;
+};
+
+GTFO.SpellID["162939"] = {
+	--desc = "Flame Spit (Emberscale Ironflight)";
+	sound = 1;
+};
 
 -- *********************
 -- * Blackrock Foundry *

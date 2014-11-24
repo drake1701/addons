@@ -1045,11 +1045,6 @@ function Skillet:internal_UpdateTradeSkillWindow()
 				if showAlts then
 					countWidth = countWidth + 20
 				end
---[[
-				-- check for Altoholic, then show the count of the item currently owned that the recipe will produce
-				if showOwned and Altoholic then
-					local numowned = (Altoholic:GetItemCount(recipe.itemID) or 0)
-]]--
 				-- show the count of the item currently owned that the recipe will produce
 				if showOwned then
 					local numowned = (self.db.realm.auctionData[Skillet.currentPlayer][recipe.itemID] or 0) + GetItemCount(recipe.itemID,true)
@@ -1468,10 +1463,13 @@ function Skillet:UpdateDetailsWindow(skillIndex)
 			end
 		end
 		-- Whether or not it is in cooldown.
+		local _, _, _, _, _, _, _, _, _, _, _, displayAsUnavailable, unavailableString = GetTradeSkillInfo(skillIndex);
 		local cooldown = 0
 		cooldown = (skill.cooldown or 0) - time()
 		if cooldown > 0 then
 			SkilletSkillCooldown:SetText(COOLDOWN_REMAINING.." "..SecondsToTime(cooldown))
+		elseif displayAsUnavailable then
+			SkilletSkillCooldown:SetText(unavailableString)
 		else
 			SkilletSkillCooldown:SetText("")
 		end
@@ -2377,9 +2375,7 @@ function Skillet:InventoryFilterButtons_Show()
 	SkilletInventoryFilterVendor:Show()
 	SkilletInventoryFilterBank:Show()
 	SkilletInventoryFilterAlts:Show()
-	if Altoholic then 
-		SkilletInventoryFilterOwned:Show()
-	end
+	SkilletInventoryFilterOwned:Show()
 end
 
 function Skillet:InventoryFilterButtons_Hide()

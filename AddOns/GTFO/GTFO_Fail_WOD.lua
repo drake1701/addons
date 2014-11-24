@@ -50,6 +50,21 @@ GTFO.SpellID["172337"] = {
 	sound = 3;
 };
 
+GTFO.SpellID["175114"] = {
+	--desc = "Personal Explosives (Betsi Boombasket)";
+	sound = 3;
+};
+
+GTFO.SpellID["165951"] = {
+	--desc = "Shrapnel (The Burninator)";
+	sound = 3;
+};
+
+GTFO.SpellID["166139"] = {
+	--desc = "Blazing Radiance (Roakk the Zealot)";
+	sound = 3;
+};
+
 --TODO: Colossal Slam (Drov the Ruiner) - non-tank fail for front-cone damage
 --TODO: Rumbling Goren (Drov the Ruiner) - non-tank fail?
 --TODO: Colossal Blow (Tarlna the Ageless) - avoidable by tanks too?
@@ -186,8 +201,7 @@ GTFO.SpellID["153232"] = {
 GTFO.SpellID["164686"] = {
 	--desc = "Dark Eclipse (Sadana Bloodfury)";
 	sound = 3;
-	--negatingDebuffSpellID = ???; -- White rune debuff
-	test = true;
+	negatingDebuffSpellID = 162652; -- Lunar Purity
 };
 
 GTFO.SpellID["153395"] = {
@@ -214,9 +228,26 @@ GTFO.SpellID["153563"] = {
 	sound = 3;
 };
 
+GTFO.SpellID["154132"] = {
+	--desc = "Smash (Araknath)";
+	sound = 3;
+};
+
 -- *****************
 -- * The Everbloom *
 -- *****************
+
+GTFO.SpellID["172588"] = {
+	--desc = "Vile Breath (Melded Berserker)";
+	sound = 3;
+	tankSound = 0;
+};
+
+GTFO.SpellID["169714"] = {
+	--desc = "Gasp (Gnarlroot)";
+	sound = 3;
+	tankSound = 0;
+};
 
 GTFO.SpellID["165093"] = {
 	--desc = "Virulent Gasp (Verdant Mandragora)";
@@ -229,10 +260,15 @@ GTFO.SpellID["164294"] = {
 	sound = 3;
 };
 
+GTFO.SpellID["169424"] = {
+	--desc = "Triple Attack (Twisted Abomination)";
+	sound = 3;
+	tankSound = 0;
+};
+
 GTFO.SpellID["175997"] = {
 	--desc = "Noxious Eruption (Dulhu)";
 	sound = 3;
-	test = true; -- Avoidable?
 };
 
 GTFO.SpellID["169850"] = {
@@ -243,6 +279,12 @@ GTFO.SpellID["169850"] = {
 GTFO.SpellID["166492"] = {
 	--desc = "Firebloom (Archmage Sol)";
 	sound = 3;
+};
+
+GTFO.SpellID["170411"] = {
+	--desc = "Spore Breath (Infested Venomfang)";
+	sound = 3;
+	tankSound = 0;
 };
 
 GTFO.SpellID["172643"] = {
@@ -309,7 +351,10 @@ GTFO.SpellID["155031"] = {
 	applicationOnly = true;	
 };
 
--- TODO: Burning Breath (Emberscale Ironflight)
+GTFO.SpellID["165954"] = {
+	--desc = "Shockwave (Black Iron Rageguard)";
+	sound = 3;
+};
 
 -- *********************
 -- * Blackrock Foundry *

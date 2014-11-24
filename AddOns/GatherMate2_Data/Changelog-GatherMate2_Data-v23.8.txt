@@ -1,0 +1,39 @@
+------------------------------------------------------------------------
+r386 | kagaro | 2014-11-23 07:04:59 +0000 (Sun, 23 Nov 2014) | 1 line
+Changed paths:
+   A /tags/v23.8 (from /trunk:385)
+
+GatherMate2_Data: Data update
+------------------------------------------------------------------------
+r385 | kagaro | 2014-11-23 07:04:55 +0000 (Sun, 23 Nov 2014) | 1 line
+Changed paths:
+   M /trunk/HerbalismData.lua
+   M /trunk/MiningData.lua
+   M /trunk/TreasureData.lua
+
+GatherMate2_Data: Data update
+------------------------------------------------------------------------
+r383 | kagaro | 2014-11-16 07:04:23 +0000 (Sun, 16 Nov 2014) | 1 line
+Changed paths:
+   M /trunk/HerbalismData.lua
+   M /trunk/MiningData.lua
+   M /trunk/TreasureData.lua
+
+GatherMate2_Data: Data update
+------------------------------------------------------------------------
+r380 | kagaro | 2014-11-02 07:03:20 +0000 (Sun, 02 Nov 2014) | 1 line
+Changed paths:
+   M /trunk/HerbalismData.lua
+   M /trunk/MiningData.lua
+   M /trunk/TreasureData.lua
+
+GatherMate2_Data: Data update
+------------------------------------------------------------------------
+r378 | kagaro | 2014-10-26 06:03:06 +0000 (Sun, 26 Oct 2014) | 1 line
+Changed paths:
+   M /trunk/HerbalismData.lua
+   M /trunk/MiningData.lua
+   M /trunk/TreasureData.lua
+
+GatherMate2_Data: Data update
+------------------------------------------------------------------------

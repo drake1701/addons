@@ -109,7 +109,7 @@ local function LoadTheme(incomingtheme)
 
 	local theme, style, stylename, newvalue, propertyname, oldvalue
 
-	-- Sends a notification to all available themes, if possible.
+	-- Sends a reset notification to all available themes, if possible.
 	for themename, themetable in pairs(TidyPlatesThemeList) do
 		if themetable.OnActivateTheme then themetable.OnActivateTheme(nil, nil) end
 	end
@@ -126,7 +126,11 @@ local function LoadTheme(incomingtheme)
 		if theme.SetStyle and type(theme.SetStyle) == "function" then
 			-- Multi-Style Theme
 			for stylename, style in pairs(theme) do
-				if type(style) == "table" then theme[stylename] = mergetable(TidyPlates.Template, style) end
+				if type(style) == "table" and style._meta then						-- _meta tag skips parsing
+					theme[stylename] = copytable(style)
+				elseif type(style) == "table" then									-- merge style with template style
+					theme[stylename] = mergetable(TidyPlates.Template, style)		-- ie. fill in the blanks
+				end
 			end
 		else
 			-- Single-Style Theme

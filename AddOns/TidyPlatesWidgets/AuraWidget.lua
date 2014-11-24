@@ -800,12 +800,18 @@ local function UpdateIconGrid(frame, guid)
 		end
 
 
-
+		-------------------------
 		-- Debuff Cache Format
-		-- DebuffCache[i] = {'spellid', 'name', 'expiration', 'stacks', 'caster', 'duration', 'texture', 'type', 'reaction', 'priority', 'r', 'g', 'b'}
-		-- How to use: You have control over the DebuffCache before it's sorted and displayed, particularly by adding and removing items.
+		--[[
+		DebuffCache[i] = {'spellid', 'name', 'expiration', 'stacks', 'caster', 'duration', 'texture', 'type', 'reaction', 'priority', 'r', 'g', 'b'}
+		How to use: You have control over the DebuffCache before it's sorted and displayed, particularly by adding and removing items.
+		--]]
 
-		--[[ Personal Aura Tracker: For displaying the presence of an aura on your character via target's aura widget...
+
+		--[[
+		-------------------------
+		-- Personal Aura Tracker: For displaying the presence of an aura on your character via target's aura widget...
+
 		local PersonalAuraList = {"Rejuvenation"}
 
 		if frame.unit.isTarget then --  and InCombatLockdown()

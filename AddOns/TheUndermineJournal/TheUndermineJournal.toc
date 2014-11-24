@@ -1,8 +1,8 @@
 ## Interface: 60000
 ## Title: The Undermine Journal
-## Notes: Sun, July 21|nUSA-Stormrage
-## Version: 2.3
+## Notes: Sat, November 22
+## Version: 3.0.20141122
+MarketData-US.lua
+MarketData-EU.lua
 TheUndermineJournal.lua
-SpellToItem.lua
-MarketData.lua
-GEMarketData.lua
+
