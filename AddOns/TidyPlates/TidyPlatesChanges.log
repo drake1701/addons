@@ -17,8 +17,8 @@ Here are some of the bigger changes:
 		...Some settings have been pruned!
 
 * NEON is the only theme that has been updated in Beta1
-* QUATRE will be available after Beta3
-* GREY will be available after Beta5
+* QUATRE will be available in Beta2
+* GREY will be available in Beta3
 
 * Hub Revamp / Phase 1
 	1. Removed theme copies; ie. "Damage" and "Tank"
@@ -34,18 +34,6 @@ Here are some of the bigger changes:
 I sincerely apologize for any inconvenience these changes may cause.
 Think of this: Changes mean that this addon is being actively developed
 and maintained, rather than withering.
-
---------------------------------------
-6.16.Beta4:
---------------------------------------
-* Themes: Migrated Quatre, Grey, and Graphite to the new system
-* Hub/Themes: New function definition process, makes it easier to add themes
-* Numerous bug fixes..  Can't remember.  Been leveling my druid.  Sleep; Need more of.
-
---------------------------------------
-6.16.Beta3:
---------------------------------------
-* Hub/Aura Widget: Fixed an issue which would prevent your auras from showing up (Previous configuration conflict)
 
 --------------------------------------
 6.16.Beta3:

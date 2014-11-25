@@ -1,7 +1,7 @@
 ## Interface: 60000
 ## Title: The Undermine Journal
-## Notes: Sat, November 22
-## Version: 3.0.20141122
+## Notes: Tue, November 25
+## Version: 3.0.20141125
 MarketData-US.lua
 MarketData-EU.lua
 TheUndermineJournal.lua

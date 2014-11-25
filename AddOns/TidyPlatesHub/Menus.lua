@@ -138,8 +138,8 @@ TidyPlatesHubMenus.AuraWidgetModes = {
 
 TidyPlatesHubMenus.ScaleModes = {
 				{ text = L("None"), notCheckable = 1 } ,
-				{ text = L("By Threat"), notCheckable = 1 } ,
 				{ text = L("On Elite Units"), notCheckable = 1 } ,
+				{ text = L("By Threat"), notCheckable = 1 } ,
 				{ text = L("On Enemy Units"), notCheckable = 1 } ,
 				{ text = L("On NPCs"), notCheckable = 1 } ,
 				{ text = L("On Raid Targets"), notCheckable = 1 } ,

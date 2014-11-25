@@ -206,9 +206,7 @@ local function UseTankVariables()
 end
 --]]
 
-local function UseVariables(profileName)
-
-	local suffix = profileName or "Damage"
+local function UseVariables(suffix)
 	if suffix then
 
 		local objectName = "HubPanelSettings"..suffix
@@ -254,11 +252,11 @@ end
 
 local function ApplyCustomBarSize(style)
 	-- Store Default Sizes
-	style.threatborder._width = style.threatborder._width or style.threatborder.width or 1
-	style.healthborder._width = style.healthborder._width or style.healthborder.width or 1
-	style.target._width = style.target._width or style.target.width or 1
-	style.healthbar._width = style.healthbar._width or style.healthbar.width or 1
-	style.eliteicon._x = style.eliteicon._x or style.eliteicon.x or 0
+	style.threatborder._width = style.threatborder._width or style.threatborder.width
+	style.healthborder._width = style.healthborder._width or style.healthborder.width
+	style.target._width = style.target._width or style.target.width
+	style.healthbar._width = style.healthbar._width or style.healthbar.width
+	style.eliteicon._x = style.eliteicon._x or style.eliteicon.x
 
 	-- Alter Widths
 	style.threatborder.width = style.threatborder._width * (LocalVars.FrameBarWidth or 1)
@@ -280,9 +278,6 @@ end
 
 
 local function ApplyThemeCustomization(theme)
-
-	if not theme then return end
-
 	ReactionColors.FRIENDLY.NPC = LocalVars.ColorFriendlyNPC
 	ReactionColors.FRIENDLY.PLAYER = LocalVars.ColorFriendlyPlayer
 	ReactionColors.HOSTILE.NPC = LocalVars.ColorHostileNPC
@@ -305,49 +300,6 @@ local function ApplyThemeCustomization(theme)
 	RaidClassColors = CUSTOM_CLASS_COLORS or RAID_CLASS_COLORS
 end
 
-
--- From Neon.lua...
-local LocalVars = TidyPlatesHubDamageVariables
-
-local function OnInitialize(plate, theme)
-	if theme and theme.WidgetConfig then
-		TidyPlatesHubFunctions.OnInitializeWidgets(plate, theme.WidgetConfig)
-	end
-end
-
-local function OnActivateTheme(themeTable, profileName)
-		--print("NeonDamage", themeTable, other)
-		if Theme == themeTable then
-			--LocalVars = TidyPlatesHubFunctions:UseDamageVariables()
-			--ApplyDamageCustomization()
-			--print("OnActivateTheme", profileName)
-			TidyPlatesHubFunctions.UseVariables(profileName)
-			ApplyThemeCustomization(Theme)
-		end
-end
-
--- Quickly add functions to a Theme
-local function ApplyHubFunctions(theme)
-	theme.SetNameColor = TidyPlatesHubFunctions.SetNameColor
-	theme.SetScale = TidyPlatesHubFunctions.SetScale
-	theme.SetAlpha = TidyPlatesHubFunctions.SetAlpha
-	theme.SetHealthbarColor = TidyPlatesHubFunctions.SetHealthbarColor
-	theme.SetThreatColor = TidyPlatesHubFunctions.SetThreatColor
-	theme.SetCastbarColor = TidyPlatesHubFunctions.SetCastbarColor
-	theme.OnUpdate = TidyPlatesHubFunctions.OnUpdate
-	theme.OnContextUpdate = TidyPlatesHubFunctions.OnContextUpdate
-	theme.ShowConfigPanel = ShowTidyPlatesHubDamagePanel
-	theme.SetStyle = TidyPlatesHubFunctions.SetStyleBinary
-	theme.SetCustomText = TidyPlatesHubFunctions.SetCustomTextBinary
-	theme.OnInitialize = OnInitialize		-- Need to provide widget positions
-	theme.OnActivateTheme = OnActivateTheme -- called by Tidy Plates Core, Theme Loader
-	--theme.OnApplyThemeCustomization = OnApplyCustomization -- Called By Hub Panel
-	theme.OnApplyThemeCustomization = TidyPlatesHubFunctions.ApplyThemeCustomization
-	theme.OnChangeProfile = TidyPlatesHubFunctions.UseVariables
-
-	return theme
-end
-
 ---------------------------------------------
 -- Function List
 ---------------------------------------------
@@ -361,8 +313,6 @@ TidyPlatesHubFunctions.EnableWatchers = EnableWatchers
 TidyPlatesHubFunctions.ApplyFontCustomization = ApplyFontCustomization
 TidyPlatesHubFunctions.ApplyStyleCustomization = ApplyStyleCustomization
 TidyPlatesHubFunctions.ApplyThemeCustomization = ApplyThemeCustomization
-
-TidyPlatesHubFunctions.ApplyHubFunctions = ApplyHubFunctions
 
 
 

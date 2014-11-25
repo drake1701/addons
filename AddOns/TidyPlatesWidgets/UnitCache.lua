@@ -32,18 +32,17 @@ local inInstance
 
 
 -- GameTooltipScanner
-local ScannerName = "TidyPlatesScanningTooltip"
+local ScannerName = "TPUnitScan"
 local TooltipScanner = CreateFrame( "GameTooltip", ScannerName , nil, "GameTooltipTemplate" ); -- Tooltip name cannot be nil
 TooltipScanner:SetOwner( WorldFrame, "ANCHOR_NONE" );
-
--- Do I even need this line?
---[[
 TooltipScanner:AddFontStrings(
     TooltipScanner:CreateFontString( "$parentTextLeft1", nil, "GameTooltipText" ),
     TooltipScanner:CreateFontString( "$parentTextRight1", nil, "GameTooltipText" ) );
+--[[
+ TooltipScanner:ClearLines()
+ TooltipScanner:SetX(arguments)
 --]]
 
---  local right = _G[ScannerName.."TextRight"..i]:GetText()
 
 
 
@@ -154,7 +153,7 @@ end
 function UnitCacheMonitorFrameEvents.UPDATE_MOUSEOVER_UNIT(self, ...)
 
 	-- Bypass caching while in an instance
-	if inInstance or (not UnitExists("mouseover")) then return end
+	if inInstance then return end
 
 	-- Vars
 	local name, class, realm, description, unitadded
@@ -189,10 +188,7 @@ function UnitCacheMonitorFrameEvents.UPDATE_MOUSEOVER_UNIT(self, ...)
 		TooltipScanner:ClearLines()
  		TooltipScanner:SetUnit("mouseover")
 
- 		local TooltipTextLeft1 = _G[ScannerName.."TextLeft1"]
- 		local TooltipTextLeft2 = _G[ScannerName.."TextLeft2"]
-
- 		name = TooltipTextLeft1:GetText()
+ 		name = TPUnitScanTextLeft1:GetText()
  		class = "NPC"
 
 		if name then name = gsub( gsub( (name), "|c........", "" ), "|r", "" ) else return end	-- Strip color escape sequences: "|c"
@@ -201,7 +197,7 @@ function UnitCacheMonitorFrameEvents.UPDATE_MOUSEOVER_UNIT(self, ...)
 
 		-- Tooltip Format Priority:  Faction, Description, Level
 		--local toolTip2, toolTip3 = TPUnitScanTextLeft2:GetText(), TPUnitScanTextLeft3:GetText()
-		local toolTipText = TooltipTextLeft2:GetText() or "UNKNOWN"
+		local toolTipText = TPUnitScanTextLeft2:GetText() or "UNKNOWN"
 
 		-- Old Faction Filtering
 		--if ReputationStringList[toolTip2] then description = toolTip3 -- Check to see if the first line is a Faction
