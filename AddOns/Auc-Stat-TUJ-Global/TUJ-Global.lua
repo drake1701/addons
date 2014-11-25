@@ -84,18 +84,18 @@ function lib.GetPriceArray(hyperlink, serverKey)
 	wipe(priceArray)
 
 	-- Required entries for GetMarketPrice().
-	priceArray.price = tujData.gemarketmedian
+	priceArray.price = tujData.globalMedian
 	-- (Poorly) approximate "seen" with the current AH quantity.
 	priceArray.seen = tujData.quantity
 
 	priceArray.market = tujData.market
 	priceArray.quantity = tujData.quantity
-	priceArray.reagentprice = tujData.reagentprice
-	priceArray.marketaverage = tujData.marketaverage
-	priceArray.marketstddev = tujData.marketstddev
-	priceArray.gemarketmedian = tujData.gemarketmedian
-	priceArray.gemarketaverage = tujData.gemarketaverage
-	priceArray.gemarketstddev = tujData.gemarketstddev
+	priceArray.reagentprice = 0
+	priceArray.marketaverage = tujData.globalMean
+	priceArray.marketstddev = tujData.stddev
+	priceArray.gemarketmedian = tujData.globalMedian
+	priceArray.gemarketaverage = tujData.globalMean
+	priceArray.gemarketstddev = tujData.globalStdDev
 
 	return priceArray
 end
