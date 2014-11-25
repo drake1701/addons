@@ -22,8 +22,8 @@ local defaults = {
 	showflying = 0, -- show or hide the Flying Mounts button
 	showsmart = 0, -- show or hide the Smart Mounts button
 	scale = 1, --  scale of the Livestock buttons
-	druidlogic = 0, -- enable / disable including Flight Forms in Smart Mount behavior (for druids only)
-	worgenlogic = 0, -- enable / disable including Running Wild in Smart Mount behavior (worgens only)
+	druidlogic = 1, -- enable / disable including Flight Forms in Smart Mount behavior (for druids only)
+	worgenlogic = 1, -- enable / disable including Running Wild in Smart Mount behavior (worgens only)
 	summononmove = 0, -- enable / disable automatic summoning whenever movement is initiated
 	summonfaveonmove = 0, -- change the above setting to summon the favorite pet instead of a random pet
 	dismisspetonmount = 0, -- dismiss any critter out when mounting or birdforming
@@ -33,7 +33,7 @@ local defaults = {
 	dismissonstealth = 0, -- enable / disable the automatic dismissal of vanity pets when you cast Stealth, Vanish, Feign Death, Shadowmeld, or Invisibility
 	PVPdismiss = 0, -- restrict the above setting to work only when your PVP flag is enabled
 	mountinstealth = 0, -- enable / disable the ability for Livestock mounting to break stealth effects
-	smartcatform = 0, -- enable / disable turning into Cat Form indoors when using Smart Mounting (for druids only)
+	smartcatform = 1, -- enable / disable turning into Cat Form indoors when using Smart Mounting (for druids only)
 	favoritepet = 0, -- index for a user-defined favorite pet
 	waterwalking = 0, -- for shamans to use Water Walking when underwater or not
 	combatforms = 1, -- whether or not combat should switch Smart Mounting for shamans / druids
@@ -216,7 +216,7 @@ function Livestock.OnEvent(self, event, arg1)
 		hooksecurefunc("TurnRightStart", Livestock.MoveSummon) -- turning right
 		hooksecurefunc("ToggleAutoRun", Livestock.MoveSummon) -- auto-run
 		hooksecurefunc("TurnOrActionStart", Livestock.MoveSummon) -- right-click
-		hooksecurefunc("CameraOrSelectOrMoveStart", Livestock.MoveSummon) -- left-click
+		hooksecurefunc("SelectOrMoveStart", Livestock.MoveSummon) -- left-click
 		
 		Livestock.companionFrame:RegisterEvent("COMPANION_LEARNED")
 		Livestock.companionFrame:RegisterEvent("PET_JOURNAL_PET_DELETED")
