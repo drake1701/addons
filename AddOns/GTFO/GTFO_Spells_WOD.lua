@@ -131,6 +131,17 @@ GTFO.SpellID["173210"] = {
 	sound = 1;
 };
 
+GTFO.SpellID["173968"] = {
+	--desc = "Vile Poison (Gruesome Torturer)";
+	applicationOnly = true;
+	sound = 1;
+};
+
+GTFO.SpellID["166002"] = {
+	--desc = "Disintegration";
+	sound = 1;
+};
+
 --TODO: Acid Breath (Drov the Ruiner) - avoidable?
 --TODO: Noxious Spit (Tarlna the Ageless) - pool
 
@@ -236,6 +247,11 @@ GTFO.SpellID["167038"] = {
 	sound = 1;
 };
 
+GTFO.SpellID["176033"] = {
+	--desc = "Flametongue (Iron Infantry)";
+	sound = 1;
+};
+
 GTFO.SpellID["176039"] = {
 	--desc = "Flametongue (Iron Infantry)";
 	sound = 1;
@@ -263,6 +279,31 @@ GTFO.SpellID["161588"] = {
 	applicationOnly = true;
 	sound = 1;
 };
+
+GTFO.SpellID["156303"] = {
+	--desc = "Shrapnel Blast (Grom'kar Gunner)";
+	sound = 1;
+	tankSound = 2;
+};
+
+GTFO.SpellID["156303"] = {
+	--desc = "Suppressive Fire (Nitrogg Thundertower)";
+	sound = 2;
+	test = true;
+	-- TODO: Friendly fire sound when not targetted
+};
+
+GTFO.SpellID["163741"] = {
+	--desc = "Blackrock Mortar (Nitrogg Thundertower)";
+	sound = 1;
+	tankSound = 2;
+};
+
+GTFO.SpellID["166570"] = {
+	--desc = "Slag Blast (Nitrogg Thundertower)";
+	sound = 1;
+};
+
 
 -- **************
 -- * Iron Docks *
@@ -382,6 +423,10 @@ GTFO.SpellID["154469"] = {
 	sound = 1;
 };
 
+GTFO.SpellID["159034"] = {
+	--desc = "Wrathstorm (Shaddum)";
+	sound = 1;
+};
 
 -- ************
 -- * Skyreach *
@@ -503,6 +548,11 @@ GTFO.SpellID["166730"] = {
 
 GTFO.SpellID["162939"] = {
 	--desc = "Flame Spit (Emberscale Ironflight)";
+	sound = 1;
+};
+
+GTFO.SpellID["154764"] = {
+	--desc = "Earthpounder (Black Iron Earthshaker)";
 	sound = 1;
 };
 

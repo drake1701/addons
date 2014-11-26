@@ -10,6 +10,11 @@ Author: Zensunim of Malygos
 -- * Draenor *
 -- ***********
 
+GTFO.SpellID["167929"] = {
+	--desc = "Snap Shut (Iron Trap)";
+	sound = 3;
+};
+
 GTFO.SpellID["158834"] = {
 	--desc = "Acid Burst (Acidback)";
 	sound = 3;
@@ -62,6 +67,36 @@ GTFO.SpellID["165951"] = {
 
 GTFO.SpellID["166139"] = {
 	--desc = "Blazing Radiance (Roakk the Zealot)";
+	sound = 3;
+};
+
+GTFO.SpellID["167929"] = {
+	--desc = "Ground Smash (Hulking Brute)";
+	sound = 3;
+};
+
+GTFO.SpellID["167929"] = {
+	--desc = "Ground Smash (Hulking Brute)";
+	sound = 3;
+};
+
+GTFO.SpellID["175574"] = {
+	--desc = "Rain of Spears (Hunter Blacktooth)";
+	sound = 3;
+};
+
+GTFO.SpellID["174910"] = {
+	--desc = "Unstable Slag Mine";
+	sound = 3;
+};
+
+GTFO.SpellID["177876"] = {
+	--desc = "Artillery Barrage";
+	sound = 3;
+};
+
+GTFO.SpellID["154571"] = {
+	--desc = "Exploding Mushroom (Leeching Mushroom)";
 	sound = 3;
 };
 
@@ -162,6 +197,16 @@ GTFO.SpellID["166404"] = {
 	sound = 3;
 };
 
+GTFO.SpellID["162065"] = {
+	--desc = "Freezing Snare (Skylord Tovra)";
+	sound = 3;
+};
+
+GTFO.SpellID["162057"] = {
+	--desc = "Spinning Spear (Skylord Tovra)";
+	sound = 3;
+};
+
 -- **************
 -- * Iron Docks *
 -- **************
@@ -219,6 +264,17 @@ GTFO.SpellID["154442"] = {
 	sound = 3;
 };
 
+GTFO.SpellID["159035"] = {
+	--desc = "Wrathcleave (Shaddum)";
+	sound = 3;
+	tankSound = 0;
+};
+
+GTFO.SpellID["157002"] = {
+	--desc = "Chaos Wave (Teron'gor)";
+	sound = 3;
+};
+
 -- ************
 -- * Skyreach *
 -- ************
@@ -266,6 +322,11 @@ GTFO.SpellID["169424"] = {
 	tankSound = 0;
 };
 
+GTFO.SpellID["169445"] = {
+	--desc = "Noxious Eruption (Twisted Abomination)";
+	sound = 3;
+};
+
 GTFO.SpellID["175997"] = {
 	--desc = "Noxious Eruption (Dulhu)";
 	sound = 3;
@@ -278,6 +339,11 @@ GTFO.SpellID["169850"] = {
 
 GTFO.SpellID["166492"] = {
 	--desc = "Firebloom (Archmage Sol)";
+	sound = 3;
+};
+
+GTFO.SpellID["170016"] = {
+	--desc = "Glowbulb Pollen (Archmage Sol)";
 	sound = 3;
 };
 
