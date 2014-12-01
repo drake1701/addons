@@ -433,6 +433,11 @@ TukuiConfig["enUS"] = {
 			["Desc"] = "Derp",
 		},
 		
+		["Highlight"] = {
+			["Name"] = "Highlight",
+			["Desc"] = "Highlight your current focus/target",
+		},
+		
 		["MaxUnitPerColumn"] = {
 			["Name"] = "Raid members per column",
 			["Desc"] = "Change the max number of raid members per column",
@@ -665,6 +670,11 @@ TukuiConfig["enUS"] = {
 		["BossAuras"] = {
 			["Name"] = "Boss Frames Auras",
 			["Desc"] = "Display debuffs on boss frames",
+		},
+		
+		["BossAltPowerText"] = {
+			["Name"] = "Boss AltPower Text",
+			["Desc"] = "Display boss altpower text values on altpower bar",
 		},
 		
 		["Font"] = {

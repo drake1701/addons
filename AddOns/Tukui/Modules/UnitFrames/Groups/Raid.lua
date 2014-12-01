@@ -228,7 +228,22 @@ function TukuiUnitFrames:Raid()
 	end
 	
 	local Threat = Health:CreateTexture(nil, "OVERLAY")
-	Threat.Override = TukuiUnitFrames.UpdateThreat	
+	Threat.Override = TukuiUnitFrames.UpdateThreat
+	
+	if C.Raid.Highlight then
+		local Highlight = CreateFrame("Frame", nil, self)
+		Highlight:SetPoint("TOPLEFT", self, "TOPLEFT")
+		Highlight:SetPoint("BOTTOMRIGHT", self, "BOTTOMRIGHT")
+		Highlight:SetBackdrop(TukuiUnitFrames.HighlightBorder)
+		Highlight:SetFrameLevel(0)
+		Highlight:Hide()
+		
+		self:RegisterEvent("PLAYER_TARGET_CHANGED", TukuiUnitFrames.Highlight)
+		self:RegisterEvent("RAID_ROSTER_UPDATE", TukuiUnitFrames.Highlight)
+		self:RegisterEvent("PLAYER_FOCUS_CHANGED", TukuiUnitFrames.Highlight)
+		
+		self.Highlight = Highlight
+	end
 	
 	self:Tag(Name, "[Tukui:GetNameColor][Tukui:NameShort]")
 	self.Health.bg = Health.Background

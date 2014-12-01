@@ -25,7 +25,7 @@ TidyPlatesHubDefaults = {
 	-- Headline
 	---------------------------------------
 	StyleEnemyMode = 1,
-	StyleFriendlyMode = 1,
+	StyleFriendlyMode = 2,
 
 	HeadlineEnemyColor = 4,
 	HeadlineFriendlyColor = 4,
@@ -37,13 +37,10 @@ TidyPlatesHubDefaults = {
 	OpacityNonTarget = .5,
 	--OpacitySpotlightMode = 1,
 
-
-
-
-	EnemyAlphaSpotlightMode = 1,
+	EnemyAlphaSpotlightMode = 2,
 	FriendlyAlphaSpotlightMode = 1,
 
-	OpacitySpotlight = 1,
+	OpacitySpotlight = .85,
 	OpacityFullNoTarget = true,				-- Use full opacity when No Target
 
 	--OpacityFullSpell = false,				-- Deprecated 6.13
@@ -78,14 +75,14 @@ TidyPlatesHubDefaults = {
 	OpacityFilterFriendlyNPC = false,
 	OpacityFilterInactive = false,
 	OpacityFilterMini = false,
-	OpacityFilterList = "Fanged Pit Viper",
+	OpacityFilterList = "Fanged Pit Viper\nLiberated Karabor Prisoner",
 	OpacityFilterLookup = {},
 
 	-- Scale
 	---------------------------------------
 	ScaleStandard = 1,
 	ScaleSpotlight = 1.2,
-	ScaleSpotlightMode = 4,
+	ScaleSpotlightMode = 2,
 	ScaleIgnoreNeutralUnits = false,
 	ScaleIgnoreNonEliteUnits = false,
 	ScaleIgnoreInactive = false,
@@ -186,7 +183,7 @@ TidyPlatesHubDefaults = {
 	---------------------------------------
 	WidgetsDebuff = true,
 	WidgetsDebuffStyle = 1,
-	WidgetsAuraMode = 1,
+	--WidgetsAuraMode = 1,
 	WidgetsMyDebuff = true,
 	WidgetsMyBuff = false,
 	WidgetsDebuffTrackList = "My Rake\nMy Rip\nMy Moonfire\nAll 339\nMy Regrowth\nMy Rejuvenation\nNot Facepalm Bolt",

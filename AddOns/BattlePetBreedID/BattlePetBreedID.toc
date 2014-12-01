@@ -2,12 +2,12 @@
 ## Title: Battle Pet BreedID
 ## Author: Simca@Malfurion and Hugh@Burning Blade
 ## Notes: Battle Pet BreedID displays the BreedID of pets in your journal, in battle, in chat links, and in AH tooltips.
-## Version: v1.1.9
-## X-Date: 2014-11-26T13:04:58Z
+## Version: v1.1.10
+## X-Date: 2014-11-29T03:39:36Z
 ## X-Category: Pet Battles
 ## X-Localizations: enUS
 ## SavedVariables: BPBID_Options
-## X-Curse-Packaged-Version: v1.1.9
+## X-Curse-Packaged-Version: v1.1.10
 ## X-Curse-Project-Name: Battle Pet BreedID
 ## X-Curse-Project-ID: battle_pet_breedid
 ## X-Curse-Repository-ID: wow/battle_pet_breedid/mainline

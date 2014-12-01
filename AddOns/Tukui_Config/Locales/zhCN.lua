@@ -435,6 +435,11 @@ TukuiConfig["zhCN"] = {
 			["Desc"] = "Derp",
 		},
 		
+		["Highlight"] = {
+			["Name"] = "Highlight",
+			["Desc"] = "Highlight your current focus/target",
+		},
+		
 		["MaxUnitPerColumn"] = {
 			["Name"] = "每列团队成员",
 			["Desc"] = "修改每列团队成员的最大数",
@@ -667,6 +672,11 @@ TukuiConfig["zhCN"] = {
 		["BossAuras"] = {
 			["Name"] = "首领框架光环",
 			["Desc"] = "在首领框架上显示buff和debuff",
+		},
+		
+		["BossAltPowerText"] = {
+			["Name"] = "Boss AltPower Text",
+			["Desc"] = "Display boss altpower text values on altpower bar",
 		},
 		
 		["Font"] = {

@@ -1,0 +1,13 @@
+tag v1.0.7
+3424bc5ee81d57db64eba7197b3d1816ccf1779d
+Kevin Ballard <kevin@sb.org>
+2014-11-30 01:51:23 -0800
+
+Tagging as v1.0.7
+
+
+--------------------
+
+Kevin Ballard:
+	- Bump TOC for WoD
+	After a quick test it appears to still be functioning just fine.

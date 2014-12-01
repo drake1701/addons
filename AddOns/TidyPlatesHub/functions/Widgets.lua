@@ -430,10 +430,10 @@ end
 
 local function OnContextUpdateDelegate(plate, unit)
 	local Widgets = plate.widgets
-	if LocalVars.WidgetsComboPoints then Widgets.ComboWidget:UpdateContext(unit) end
+	if LocalVars.WidgetsComboPoints and Widgets.ComboWidget then Widgets.ComboWidget:UpdateContext(unit) end
 	-- if (LocalVars.WidgetsThreatIndicatorMode == 1) and LocalVars.WidgetsThreatIndicator then Widgets.ThreatLineWidget:UpdateContext(unit) end		-- Tug-O-Threat
-	if LocalVars.WidgetsThreatIndicator then Widgets.ThreatLineWidget:UpdateContext(unit) end		-- Tug-O-Threat
-	if LocalVars.WidgetsDebuff then Widgets.DebuffWidget:UpdateContext(unit) end
+	if LocalVars.WidgetsThreatIndicator and Widgets.ThreatLineWidget then Widgets.ThreatLineWidget:UpdateContext(unit) end		-- Tug-O-Threat
+	if LocalVars.WidgetsDebuff and Widgets.DebuffWidget then Widgets.DebuffWidget:UpdateContext(unit) end
 
 	if LocalVars.WidgetsEnableExternal and TidyPlatesGlobal_OnContextUpdate then TidyPlatesGlobal_OnContextUpdate(plate, unit) end
 end
@@ -462,9 +462,13 @@ local function OnVariableChange(vars)
 		TidyPlatesWidgets.SetAuraFilter(DebuffFilter)
 	else TidyPlatesWidgets:DisableAuraWatcher() end
 
+--[[
 	if LocalVars.WidgetsAuraMode == 3 then
-		TidyPlatesWidgets.SetAuraPrefilter(Prefilter)
+		TidyPlatesWidgets.SetAuraPrefilter(Prefilter)		-- Filter out some unecessary stuff
 	else TidyPlatesWidgets.SetAuraPrefilter(nil) end
+	--]]
+
+	TidyPlatesWidgets.SetAuraPrefilter(nil)		-- Cache everything..
 end
 HubData.RegisterCallback(OnVariableChange)
 

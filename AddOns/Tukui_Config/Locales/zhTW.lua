@@ -435,6 +435,12 @@ TukuiConfig["zhTW"] = {
 			["Name"] = "顯示寵物",
 			["Desc"] = "Derp",
 		},
+		
+		["Highlight"] = {
+			["Name"] = "Highlight",
+			["Desc"] = "Highlight your current focus/target",
+		},
+		
 		["HealBar"] = {
 			["Name"] = "治療提示",
 			["Desc"] = "顯示即將到來的治療與吸收",
@@ -652,6 +658,11 @@ TukuiConfig["zhTW"] = {
 		["BossAuras"] = {
 			["Name"] = "首領光環",
 			["Desc"] = "在首領頭像顯示增益和減益效果",
+		},
+		
+		["BossAltPowerText"] = {
+			["Name"] = "Boss AltPower Text",
+			["Desc"] = "Display boss altpower text values on altpower bar",
 		},
 		
 		["Font"] = {

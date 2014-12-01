@@ -474,7 +474,7 @@ do
 		regions.highlight:Hide()
 
 		-- Widgets/Extensions
-		if activetheme.OnInitialize then activetheme.OnInitialize(extended) end
+		if activetheme.OnInitialize then activetheme.OnInitialize(extended, activetheme) end
 
 		-- Initial Data Gather
 		-- 6.12.Beta3: Disabled initial Data Gather because certain units are showing up with Target Alpha on the first cycle.
