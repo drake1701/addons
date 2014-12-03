@@ -81,8 +81,10 @@ end
 
 -- By Threat (Auto Detect)
 local function AlphaFunctionByThreat(unit)
-		if (LocalVars.ThreatMode == THREATMODE_AUTO and IsTankingAuraActive())
-			or LocalVars.ThreatMode == THREATMODE_TANK then
+		if unit.reaction == "NEUTRAL" and unit.threatValue < 2 then return AlphaFunctionByThreatHigh(unit) end
+
+		if (LocalVars.ThreatMode == "Auto" and IsTankingAuraActive())
+			or LocalVars.ThreatMode == "Tank" then
 				return AlphaFunctionByThreatLow(unit)	-- tank mode
 		else return AlphaFunctionByThreatHigh(unit) end
 end
@@ -99,36 +101,31 @@ local function AlphaFunctionByPlayers(unit)
 end
 
 
-local AlphaFunctionsEnemy = { 	DummyFunction,
-	AlphaFunctionByThreat, AlphaFunctionByLowHealth,
-	AlphaFunctionByNPC, AlphaFunctionByActiveAuras,
-	AlphaFunctionByEnemyHealer, AlphaFunctionByActive,
-}
 
--- [[
-local AlphaFunctionsFriendly = {DummyFunction,
-	AlphaFunctionByLowHealth, AlphaFunctionGroupMembers,
-	AlphaFunctionByPlayers,  AlphaFunctionByActive,
-}
+--  Hub functions
+local AddHubFunction = TidyPlatesHubHelpers.AddHubFunction
 
---]]
+local AlphaFunctionsEnemy = {}
+
+TidyPlatesHubDefaults.EnemyAlphaSpotlightMode = "ByThreat"			-- Sets the default function
+AddHubFunction(AlphaFunctionsEnemy, TidyPlatesHubMenus.EnemyOpacityModes, DummyFunction, "None", "None")
+AddHubFunction(AlphaFunctionsEnemy, TidyPlatesHubMenus.EnemyOpacityModes, AlphaFunctionByThreat, "By Threat", "ByThreat")
+AddHubFunction(AlphaFunctionsEnemy, TidyPlatesHubMenus.EnemyOpacityModes, AlphaFunctionByLowHealth, "On Low-Health Units", "OnLowHealth")
+AddHubFunction(AlphaFunctionsEnemy, TidyPlatesHubMenus.EnemyOpacityModes, AlphaFunctionByNPC, "On NPC", "OnNPC")
+AddHubFunction(AlphaFunctionsEnemy, TidyPlatesHubMenus.EnemyOpacityModes, AlphaFunctionByActiveAuras, "On Active Auras", "OnActiveAura")
+AddHubFunction(AlphaFunctionsEnemy, TidyPlatesHubMenus.EnemyOpacityModes, AlphaFunctionByEnemyHealer, "On Enemy Healers", "OnEnemyHealer")
+AddHubFunction(AlphaFunctionsEnemy, TidyPlatesHubMenus.EnemyOpacityModes, AlphaFunctionByActive, "On Active/Damaged Units", "OnActiveUnits")
 
 
---[[
 local AlphaFunctionsFriendly = {}
 
-local function AddMenuItem(menuSet, itemText, funcSet, func)
-	menuSet[#menuSet+1] = { text = itemText, notCheckable = 1, }
+TidyPlatesHubDefaults.FriendlyAlphaSpotlightMode = "None"			-- Sets the default function
+AddHubFunction(AlphaFunctionsFriendly, TidyPlatesHubMenus.FriendlyOpacityModes, DummyFunction, "None", "NONE")
+AddHubFunction(AlphaFunctionsFriendly, TidyPlatesHubMenus.FriendlyOpacityModes, AlphaFunctionByLowHealth, "On Low-Health Units", "OnLowHealth")
+AddHubFunction(AlphaFunctionsFriendly, TidyPlatesHubMenus.FriendlyOpacityModes, AlphaFunctionGroupMembers, "On Group Members", "OnGroupMembers")
+AddHubFunction(AlphaFunctionsFriendly, TidyPlatesHubMenus.FriendlyOpacityModes, AlphaFunctionByPlayers, "OnPlayers", "OnPlayers")
+AddHubFunction(AlphaFunctionsFriendly, TidyPlatesHubMenus.FriendlyOpacityModes, AlphaFunctionByActive, "On Active/Damaged Units", "OnActiveUnits")
 
-	funcSet[#funcSet + 1] = func
-end
-
-AddMenuItem(TidyPlatesHubMenus.FriendlyOpacityModes, "None", AlphaFunctionsFriendly, DummyFunction)
-AddMenuItem(TidyPlatesHubMenus.FriendlyOpacityModes, "Low Health", AlphaFunctionsFriendly, AlphaFunctionByLowHealth)
-AddMenuItem(TidyPlatesHubMenus.FriendlyOpacityModes, "Group Members", AlphaFunctionsFriendly, AlphaFunctionGroupMembers)
-AddMenuItem(TidyPlatesHubMenus.FriendlyOpacityModes, "Players", AlphaFunctionsFriendly, AlphaFunctionByPlayers)
-AddMenuItem(TidyPlatesHubMenus.FriendlyOpacityModes, "Active/Damaged Units (Exp)", AlphaFunctionsFriendly, AlphaFunctionByActive)
---]]
 
 
 -- Alpha Functions Listed by Role order: Damage, Tank, Heal
@@ -162,9 +159,9 @@ local function AlphaDelegate(...)
 			local func = DummyFunction
 
 			if unit.reaction == "FRIENDLY" then
-				func = AlphaFunctionsFriendly[LocalVars.FriendlyAlphaSpotlightMode] or func
+				func = AlphaFunctionsFriendly[LocalVars.FriendlyAlphaSpotlightMode or TidyPlatesHubDefaults.FriendlyAlphaSpotlightMode] or func
 			else
-				func = AlphaFunctionsEnemy[LocalVars.EnemyAlphaSpotlightMode] or func
+				func = AlphaFunctionsEnemy[LocalVars.EnemyAlphaSpotlightMode or TidyPlatesHubDefaults.EnemyAlphaSpotlightMode] or func
 			end
 
 			alpha = func(...)

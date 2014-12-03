@@ -1,12 +1,12 @@
-	
-	
-	
+
+
+
 ------------------------------
 -- Target Tracker
 ------------------------------
 
-local TrackedUnits = {}					-- Tracked Enemy Units
-local TrackedUnitTargets = {}			-- Enemy Unit Targets
+local TrackedUnits = {}					-- Tracked Enemy Units (Returns UnitID)
+local TrackedUnitTargetGUID = {}		-- Enemy Unit Targets (Returns GUID of the Unit's Targets)
 local TrackedUnitTargetHistory = {}		-- Previously determined Target (to determine if changes happened)
 local TargetWatcher
 local GetGroupInfo = TidyPlatesUtility.GetGroupInfo
@@ -15,9 +15,11 @@ local inRaid = false
 local RecentDamageTime = {}
 local RecentDamageTarget = {}
 
+local TANK_ROLE, DPS_ROLE = 2, 1
+
 local function CombatLogWatcher(...)
 	local timestamp, combatevent, sourceGUID, destGUID, destName, destFlags, destRaidFlag, auraType, spellid, spellname, stackCount = GetCombatEventResults(...)
-	
+
 	if combatevent == "SWING_DAMAGE" and (TrackedUnits[sourceGUID] == nil) then
 		-- if the destination swing targets a group member, store the GUID and the Time in the Table
 		local unitid = TidyPlatesUtility.GroupMembers.GUID[destGUID]
@@ -25,7 +27,7 @@ local function CombatLogWatcher(...)
 			RecentDamageTime[sourceGUID] = GetTime()
 			RecentDamageTarget[sourceGUID] = destGUID
 			TidyPlates:Update()
-		end		
+		end
 	end
 end
 
@@ -38,57 +40,70 @@ end
 
 local function TargetWatcherEvents(frame, event, ...)
 	if not UnitInRaid("player") then return end
-	
+
 	if (event == "COMBAT_LOG_EVENT_UNFILTERED") then
 		CombatLogWatcher(...)
 		return
 	end
-	
+
 	local widget, plate
 	local target, unitid, guid
 	local changes = false
 	local groupSize = tonumber(GetNumGroupMembers())
 	TrackedUnits = wipe(TrackedUnits)
-	
+
 	-- Store target history
-	for guid, target in pairs(TrackedUnitTargets) do
+	for guid, target in pairs(TrackedUnitTargetGUID) do
 		TrackedUnitTargetHistory[guid] = target
-		TrackedUnitTargets[guid] = nil
+		TrackedUnitTargetGUID[guid] = nil
 	end
-	
+
 	-- Reset the Tracking List
 	for guid in pairs(TrackedUnits) do TrackedUnits[guid] = nil end
-	
+
 	-- Build a list of Trackable targets (via target, focus, and raid members)
+
+	-- Add Target to Tracked Units List
 	guid = UnitGUID("target")
 	if guid then TrackedUnits[guid] = "target" end
 
+	-- Add Focus to Tracked Units List
 	guid = UnitGUID("focus")
 	if guid then TrackedUnits[guid] = "focus" end
-	
-	
+
+	-- Add Group TargetOfs to Tracked Units List
 	if groupSize then
 		for index = 1, groupSize do
 			unitid = "raid"..index.."target"
 			guid = UnitGUID(unitid)
 			if guid then TrackedUnits[guid] = unitid end
 		end
-		
+
 		-- Build a list of the target's targets and check for changes
 		for guid, unitid in pairs(TrackedUnits) do
-			if unitid then 
-				TrackedUnitTargets[guid] = UnitGUID(unitid.."target")
-				if TrackedUnitTargets[guid] ~= TrackedUnitTargetHistory[guid] then changes = true end
+			if unitid then
+				local targetofUnitid = unitid.."target"
+				TrackedUnitTargetGUID[guid] = UnitGUID(targetofUnitid)
+
+
+				-- Is there some way to determine if the target is an NPC?
+				--[[
+				if "Black Ox Statue" = UnitName(targetofUnitid) then
+					TankGUIDs[guid] = TrackedUnitTargetGUID[guid]
+				end
+				--]]
+
+				if TrackedUnitTargetGUID[guid] ~= TrackedUnitTargetHistory[guid] then changes = true end
 			end
 		end
 	end
-	
+
 	if event == "PLAYER_REGEN_ENABLED" then
 		wipe(RecentDamageTime)
 	end
-	
+
 	-- Call for indicator Update, if needed
-	if changes then 
+	if changes then
 		TidyPlates:Update()			-- To Do: Make a better update hook: either update specific GUIDs or update only indicators
 	end
 end
@@ -97,47 +112,71 @@ end
 ---------------
 -- Tank Monitor
 ---------------
-local TankNames = {}
-local TankGUIDs = {}
+local TankGUIDs = {}		-- Store the GUIDs of all active tanks
 local TankWatcher
 
+local function IsTankedByAnotherTank(unit)
+	local targetGuid, targetName
+	local guid = unit.guid
+
+	if unit.isTarget then
+		targetGuid = UnitGUID("targettarget")				-- Nameplate is a target
+		--targetName = UnitName("targettarget")
+	elseif unit.isMouseover then
+		targetGuid = UnitGUID("mouseovertarget")		-- Nameplate is a mouseover
+		--targetName = UnitName("mouseovertarget")
+	elseif guid then
+		targetGuid = TrackedUnitTargetGUID[guid] or GetRecentDamageTarget(guid)	-- Nameplate is arbitrary (hopefully it's been moused during its life)
+		--targetName = UnitName(
+	end
+
+	-- Suggested Change: If the unit is NOT attacking a non-tank, return false.  So, everything that is not a player character is OK to be attacked.
+	-- Suggested Change: Create a new function, "AttackingSquishy(unit)"?
+	-- Suggested Change:
+	--[[
+	TankGUIDs should be altered to GroupRoleByGUID
+	TankGUIDs = {}
+		nil = Unknown
+		1 = Healer/DPS
+		2 = Tank
+	--]]
 
 --[[
 
+	/run print(GetTotemInfo(1))
+	= true Black Ox Statue 407749 900 Interface\Icons\monk_ability_summonoxstatue
+
+--]]
+
+	-- ie. If the evaluated unit's  target is equal to one of the tanks, then it's tanked
+	if targetGuid and TankGUIDs[targetGuid] == TANK_ROLE then	-- If the mob is tanked by an actual tank...
+		return true
+
+	-- Experimental...
+	elseif targetGuid and not TankGUIDs[targetGuid] then		-- If the mob is attacking something outside your group...
+		return true
+	end
+end
+
+--[[
 	- Druid: Bear form					SpellID: 5487		-- UnitAura
 	- Paladin: Righteous Fury			SpellID: 25780
 	- Warrior: Defensive stance			SpellID: 71			-- GetShapeshiftFormID(), 18
 	- Death Knight: Blood Presence		SpellID: 48263
-	
-	- Monk: 
-
+	- Monk:
 --]]
-
-
-
-local function IsTankedByAnotherTank(unit)
-	local targetGUID
-	if unit.guid then
-		if unit.isTarget then targetGUID = UnitGUID("targettarget")				-- Nameplate is a target
-		elseif unit.isMouseover then targetGUID = UnitGUID("mouseovertarget")		-- Nameplate is a mouseover
-		else targetGUID = TrackedUnitTargets[unit.guid] or GetRecentDamageTarget(guid) end
-
-		if targetGUID and TankGUIDs[targetGUID] then return true end
-	end
-	return false
-end
 
 local TankAuras = {
 	["5487"] = true, 		-- Druid: Bear Form
 	["25780"] = true, 		-- Paladin: Righteous Fury
-	-- ["71"] = true, 
+	-- ["71"] = true,
 	["48263"] = true, 		-- DK: Blood
 	["115069"] = true, 		-- Monk: Stance of the Sturdy Ox
 }
 
 local TankStances = {
 	["18"] = true,			-- Warrior: Defensive Stance
-	--["23"] = true,		-- Monk: Defensive Stance				
+	--["23"] = true,		-- Monk: Defensive Stance
 	--["5"] = true,			-- Druid: Bear Form
 }
 
@@ -149,7 +188,7 @@ local function CheckPlayerAuras()
 	-- Check Auras
 	for i = 1, 40 do
 		name, _, _, _, _, _, _, _, _, _, spellID = UnitBuff("player", i)	-- 11th
-		if TankAuras[tostring(spellID)] then 
+		if TankAuras[tostring(spellID)] then
 			tankAura = true
 		end
 	end
@@ -157,56 +196,50 @@ local function CheckPlayerAuras()
 	if GetShapeshiftFormID() == 18 then -- Defensive Stance (Warrior)
 		tankAura = true
 	end
-	
+
 	if GetShapeshiftFormID() == 23 then -- Stance of the Sturdy Ox (Monk)
 		tankAura = true
 	end
-	
+
 	if TidyPlatesWidgets.IsTankingAuraActive ~= tankAura then
 		TidyPlatesWidgets.IsTankingAuraActive = tankAura
 		TidyPlates:RequestDelegateUpdate()
 	end
 end
 
-local function TestPartAssignments()
-			local party = "party1"
-			
-			local isAssigned = GetPartyAssignment("MAINTANK", party) or ("TANK" == UnitGroupRolesAssigned(party))
-			
-			if isAssigned then TankNames[UnitName(party)] = true 
-			else TankNames[UnitName(party)] = nil end
-end
-
 local function CheckAssignments()
-	
+
+	-- If we detect the ox statue, add it to this list:
+	-- local oxGuid = UnitGUID(ox)
+	-- TankGUIDs[oxGuid] = true
+
+
 	if UnitInRaid("player") then
 		local index
 		inRaid = true
 		local groupType, groupSize = GetGroupInfo()
-		
+
 		for index = 1, groupSize do
 			local raidid = "raid"..tostring(index)
-			
+
 			if not UnitIsUnit("player", raidid) then		-- Skip over the Player
-				local isAssigned = GetPartyAssignment("MAINTANK", raidid) or ("TANK" == UnitGroupRolesAssigned(raidid))
-				
-				if isAssigned then 
-					TankNames[UnitName(raidid)] = true 
-					TankGUIDs[UnitGUID(raidid)] = true
-				else 
-					TankNames[UnitName(raidid)] = nil 
-					TankGUIDs[UnitGUID(raidid)] = nil
+				local isTank = GetPartyAssignment("MAINTANK", raidid) or ("TANK" == UnitGroupRolesAssigned(raidid))
+
+				if isTank then
+					TankGUIDs[UnitGUID(raidid)] = TANK_ROLE		-- Tank = 2
+				else
+					TankGUIDs[UnitGUID(raidid)] = DPS_ROLE		-- DPS = 1
 				end
+
 			end
-		end			
-	else 
+		end
+	else
 		inRaid = false
-		TankNames = wipe(TankNames)
 		TankGUIDs = wipe(TankGUIDs)
-		if HasPetUI("player") and UnitName("pet") then 
-			TankNames[UnitName("pet")] = true  			-- Adds your pet to the list (for you, only)
-		end	
-	end	
+		if HasPetUI("player") and UnitName("pet") then
+			TankGUIDs[UnitGUID("pet")] = TANK_ROLE
+		end
+	end
 end
 
 local function TankWatcherEvents(frame, event, ...)
@@ -219,7 +252,7 @@ local function TankWatcherEvents(frame, event, ...)
 	CheckAssignments()
 	CheckPlayerAuras()
 end
-	
+
 
 local function QueueUpdate()
 	TankWatcher:SetScript("OnUpdate", TankWatcherEvents)
@@ -237,7 +270,7 @@ local function EnableTankWatch()
 	TargetWatcher:RegisterEvent("COMBAT_LOG_EVENT_UNFILTERED")
 	TargetWatcher:SetScript("OnEvent", TargetWatcherEvents)
 	TargetWatcherEvents()
-	
+
 	-- Party Tanks
 	if not TankWatcher then TankWatcher = CreateFrame("Frame") end
 	TankWatcher:RegisterEvent("GROUP_ROSTER_UPDATE")
@@ -250,14 +283,14 @@ local function EnableTankWatch()
 	QueueUpdate()
 end
 
-local function DisableTankWatch() 
+local function DisableTankWatch()
 	-- Target-Of Watcher
 	if TargetWatcher then
 		TargetWatcher:SetScript("OnEvent", nil)
 		TargetWatcher:UnregisterAllEvents()
 		TargetWatcher = nil
 	end
-	
+
 	-- Party Tanks
 	if TankWatcher then
 		TankWatcher:SetScript("OnEvent", nil)
@@ -271,5 +304,4 @@ TidyPlatesWidgets.DisableTankWatch = DisableTankWatch
 TidyPlatesWidgets.IsTankedByAnotherTank = IsTankedByAnotherTank
 --TidyPlatesWidgets.GetRecentDamageTarget = GetRecentDamageTarget
 
-	
-	
+

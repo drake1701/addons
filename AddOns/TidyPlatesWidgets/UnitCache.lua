@@ -119,6 +119,90 @@ end
 --]]
 
 
+
+local function CacheUnitByID(unitid)
+
+	-- Bypass caching while in an instance
+	if inInstance or (not UnitExists(unitid)) then return end
+
+	-- Vars
+	local name, class, realm, description, unitadded
+
+	-- Player
+	------------------------------------
+	if UnitIsPlayer( unitid ) then
+
+		local RealmRelationship = UnitRealmRelationship(unitid)
+		if RealmRelationship == LE_REALM_RELATION_COALESCED then
+			-- Foreign units
+			name = UnitName(unitid)..FOREIGN_SERVER_LABEL  	-- " (*)"
+		else
+			-- Local units
+			name = UnitName(unitid)
+		end
+
+		description = GetGuildInfo(unitid)
+		class = select(2, UnitClass(unitid))
+
+		-- Check for alterations
+		if TidyPlatesWidgetData.UnitGuild[name] ~= description or TidyPlatesWidgetData.UnitClass[name] ~= class then
+			unitadded = true
+		end
+
+	-- NPC
+	------------------------------------
+	else
+		TooltipScanner:ClearLines()
+ 		TooltipScanner:SetUnit(unitid)
+
+ 		local TooltipTextLeft1 = _G[ScannerName.."TextLeft1"]
+ 		local TooltipTextLeft2 = _G[ScannerName.."TextLeft2"]
+
+ 		name = TooltipTextLeft1:GetText()
+ 		class = "NPC"
+
+		if name then name = gsub( gsub( (name), "|c........", "" ), "|r", "" ) else return end	-- Strip color escape sequences: "|c"
+		if name ~= UnitName(unitid) then return end	-- Avoid caching information for the wrong unit
+		if UnitPlayerControlled(unitid) then return end	-- Avoid caching pet names
+
+		-- Tooltip Format Priority:  Faction, Description, Level
+		--local toolTip2, toolTip3 = TPUnitScanTextLeft2:GetText(), TPUnitScanTextLeft3:GetText()
+		local toolTipText = TooltipTextLeft2:GetText() or "UNKNOWN"
+
+		if string.match(toolTipText, UNIT_LEVEL_TEMPLATE) then	-- If the description line is a "Level", use the next line
+			description = nil
+		else
+			description = toolTipText
+		end
+
+		if TidyPlatesWidgetData.UnitGuild[name] ~= description then
+			unitadded = true
+		end
+	end
+
+	-- Time Code, etc.
+	------------------------------------
+	local dateTable = date("*t")
+
+	-- Store Timecode
+	if name then
+		TidyPlatesWidgetData.UnitLastSeen[name] = ((dateTable.year - 2006) * 365) + dateTable.yday
+	end
+
+	-- For temporary cache
+	LocalClass[name] = class
+	LocalGuild[name] = description
+
+	-- For saved cache
+	if unitadded then
+		TidyPlatesWidgetData.UnitClass[name] = class
+		TidyPlatesWidgetData.UnitGuild[name] = description
+
+		TidyPlates:RequestDelegateUpdate()
+	end
+end
+
+
 local InstanceTypes = {
 	["none"] = 1,
 	["party"] = 2,
@@ -150,107 +234,15 @@ function UnitCacheMonitorFrameEvents.PLAYER_ENTERING_WORLD()
 end
 
 
+function UnitCacheMonitorFrameEvents.PLAYER_TARGET_CHANGED(self, ...)
+	CacheUnitByID("target")
+end
+
 
 function UnitCacheMonitorFrameEvents.UPDATE_MOUSEOVER_UNIT(self, ...)
-
-	-- Bypass caching while in an instance
-	if inInstance or (not UnitExists("mouseover")) then return end
-
-	-- Vars
-	local name, class, realm, description, unitadded
-
-	local d = date("*t")
-
-	-- Player
-	------------------------------------
-
-	if UnitIsPlayer( "mouseover" ) then
-		--print(UnitName("mouseover"), UnitRealmRelationship("mouseover"))
-		local RealmRelationship = UnitRealmRelationship("mouseover")
-		if RealmRelationship == LE_REALM_RELATION_COALESCED then
-			-- Foreign units
-			name = UnitName("mouseover")..FOREIGN_SERVER_LABEL  	-- " (*)"
-		else
-			-- Local units
-			name = UnitName("mouseover")
-		end
-
-		description = GetGuildInfo("mouseover")
-		class = select(2, UnitClass("mouseover"))
-
-		-- Check for alterations
-		if TidyPlatesWidgetData.UnitGuild[name] ~= description or TidyPlatesWidgetData.UnitClass[name] ~= class then
-			unitadded = true
-		end
-
-	-- NPC
-	------------------------------------
-	else
-		TooltipScanner:ClearLines()
- 		TooltipScanner:SetUnit("mouseover")
-
- 		local TooltipTextLeft1 = _G[ScannerName.."TextLeft1"]
- 		local TooltipTextLeft2 = _G[ScannerName.."TextLeft2"]
-
- 		name = TooltipTextLeft1:GetText()
- 		class = "NPC"
-
-		if name then name = gsub( gsub( (name), "|c........", "" ), "|r", "" ) else return end	-- Strip color escape sequences: "|c"
-		if name ~= UnitName("mouseover") then return end	-- Avoid caching information for the wrong unit
-		if UnitPlayerControlled("mouseover") then return end	-- Avoid caching pet names
-
-		-- Tooltip Format Priority:  Faction, Description, Level
-		--local toolTip2, toolTip3 = TPUnitScanTextLeft2:GetText(), TPUnitScanTextLeft3:GetText()
-		local toolTipText = TooltipTextLeft2:GetText() or "UNKNOWN"
-
-		-- Old Faction Filtering
-		--if ReputationStringList[toolTip2] then description = toolTip3 -- Check to see if the first line is a Faction
-		--else description = toolTip2 end
-
-		--UNIT_LEVEL_TEMPLATE = "Level %d";
-		if string.match(toolTipText, UNIT_LEVEL_TEMPLATE) then	-- If the description line is a "Level", use the next line
-			description = nil
-		else
-			description = toolTipText
-		end
-
-
-		--print(name, class, description)
-
-		if TidyPlatesWidgetData.UnitGuild[name] ~= description then
-			unitadded = true
-		end
-
-
-		--[[
-		-- Old Level Filter Code
-		if description then
-			local l, r = strsplit( " ", description )
-			if l == "Level" or tonumber(r) or r == "??" then description = nil end		-- If the description is a level, don't store it
-		end
-		--]]
-
-	-- END NPC
-	end
-
-	-- Store Timecode
-	if name then
-		TidyPlatesWidgetData.UnitLastSeen[name] = ((d.year - 2006) * 365) + d.yday
-	end
-
-	-- For temporary cache
-	LocalClass[name] = class
-	LocalGuild[name] = description
-
-	-- For saved cache
-	if unitadded then
-		TidyPlatesWidgetData.UnitClass[name] = class
-		TidyPlatesWidgetData.UnitGuild[name] = description
-
-		TidyPlates:RequestDelegateUpdate()
-	end
-
+	CacheUnitByID("mouseover")
 end
+
 
 function UnitCacheMonitorFrameEvents.GUILD_ROSTER_UPDATE(self, ...)
 	--
@@ -258,6 +250,7 @@ function UnitCacheMonitorFrameEvents.GUILD_ROSTER_UPDATE(self, ...)
 	UpdateGuildCache()
 	TidyPlates:RequestDelegateUpdate()
 end
+
 
 function UnitCacheMonitorFrameEvents.FRIENDLIST_UPDATE(self, ...)
 	--

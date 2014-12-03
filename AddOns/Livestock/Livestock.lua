@@ -22,8 +22,8 @@ local defaults = {
 	showflying = 0, -- show or hide the Flying Mounts button
 	showsmart = 0, -- show or hide the Smart Mounts button
 	scale = 1, --  scale of the Livestock buttons
-	druidlogic = 1, -- enable / disable including Flight Forms in Smart Mount behavior (for druids only)
-	worgenlogic = 1, -- enable / disable including Running Wild in Smart Mount behavior (worgens only)
+	druidlogic = 0, -- enable / disable including Flight Forms in Smart Mount behavior (for druids only)
+	worgenlogic = 0, -- enable / disable including Running Wild in Smart Mount behavior (worgens only)
 	summononmove = 0, -- enable / disable automatic summoning whenever movement is initiated
 	summonfaveonmove = 0, -- change the above setting to summon the favorite pet instead of a random pet
 	dismisspetonmount = 0, -- dismiss any critter out when mounting or birdforming
@@ -33,7 +33,7 @@ local defaults = {
 	dismissonstealth = 0, -- enable / disable the automatic dismissal of vanity pets when you cast Stealth, Vanish, Feign Death, Shadowmeld, or Invisibility
 	PVPdismiss = 0, -- restrict the above setting to work only when your PVP flag is enabled
 	mountinstealth = 0, -- enable / disable the ability for Livestock mounting to break stealth effects
-	smartcatform = 1, -- enable / disable turning into Cat Form indoors when using Smart Mounting (for druids only)
+	smartcatform = 0, -- enable / disable turning into Cat Form indoors when using Smart Mounting (for druids only)
 	favoritepet = 0, -- index for a user-defined favorite pet
 	waterwalking = 0, -- for shamans to use Water Walking when underwater or not
 	combatforms = 1, -- whether or not combat should switch Smart Mounting for shamans / druids
@@ -216,7 +216,7 @@ function Livestock.OnEvent(self, event, arg1)
 		hooksecurefunc("TurnRightStart", Livestock.MoveSummon) -- turning right
 		hooksecurefunc("ToggleAutoRun", Livestock.MoveSummon) -- auto-run
 		hooksecurefunc("TurnOrActionStart", Livestock.MoveSummon) -- right-click
-		hooksecurefunc("SelectOrMoveStart", Livestock.MoveSummon) -- left-click
+		hooksecurefunc("CameraOrSelectOrMoveStart", Livestock.MoveSummon) -- left-click
 		
 		Livestock.companionFrame:RegisterEvent("COMPANION_LEARNED")
 		Livestock.companionFrame:RegisterEvent("PET_JOURNAL_PET_DELETED")
@@ -287,12 +287,18 @@ function Livestock.CompanionEvent(self, event, ...)
 		return
 	elseif event == "UI_INFO_MESSAGE" then
 		if ... == "Legion Gateway Destroyed (Complete)" then
-			donotsummon = nil
+			donotsummon = false
 		end
 		return
 	elseif event == "UNIT_ENTERED_VEHICLE" then
 		if unit == "player" and LivestockSettings.dismisspetonmount == 1 then
 			Livestock.DismissCritter()
+		end
+	elseif event == "BARBER_SHOP_OPEN" then
+		donotsummon = true
+	elseif event == "BARBER_SHOP_CLOSE" then
+		if LivestockSettings.summononmove == 1 then
+			donotsummon = false
 		end
 	end
 end
@@ -617,7 +623,7 @@ function Livestock.RestoreUI(self, elapsed)
 	end
 	
 	if LivestockSettings.summononmove == 1 then
-		donotsummon = nil
+		donotsummon = false
 	end
 
 	self:Hide()
@@ -775,7 +781,7 @@ function Livestock.ClickedAutoSummon()
 		LivestockPetPreferencesFrameRestrictAutoSummonOnRaidText:SetTextColor(1, 1, 1)
 		LivestockPetPreferencesFrameDismissPetOnMount:Enable()
 		LivestockPetPreferencesFrameDismissPetOnMountText:SetTextColor(1, 1, 1)
-		donotsummon = nil
+		donotsummon = false
 	end
 end
 
@@ -928,11 +934,7 @@ function Livestock.CreateStateMaps(self)
 		elseif value == 4 or value == 5 then
 
 		elseif value == 6 then
-			if class == "DRUID" then
-				self:SetAttribute("type", "spell")
-				self:SetAttribute("spell", travelspell)
-				self:SetAttribute("mounttype", nil)
-			elseif tonumber(waterwalkingtoggle) == 1 and (class == "SHAMAN" or class == "PRIEST" or class == "DEATHKNIGHT") then
+			if tonumber(waterwalkingtoggle) == 1 and (class == "SHAMAN" or class == "PRIEST" or class == "DEATHKNIGHT") then
 				self:SetAttribute("type", "spell")
 				self:SetAttribute("spell", waterwalkingspell)
 				self:SetAttribute("unit", "player")
@@ -1291,7 +1293,7 @@ function Livestock.SmartPreClick(self)
 			self:SetAttribute("spell", (GetNumGroupMembers() ~= 0 and LivestockSettings.groupaspects == 0 and GetSpellInfo(L.LIVESTOCK_SPELL_PACK) and L.LIVESTOCK_SPELL_PACK) or L.LIVESTOCK_SPELL_CHEETAH)
 			self.mounttype = nil
 		elseif LivestockSettings.mountaspects == 1 then
-			local spellName = UnitBuff("player", (GetNumGroupMembers() ~= 0 and LivestockSettings.groupaspects == 0 and GetSpellInfo(L.LIVESTOCK_SPELL_PACK) and L.LIVESTOCK_SPELL_PACK) or L.LIVESTOCK_SPELL_CHEETAH, nil );
+			local spellName = UnitBuff("player", (GetNumGroupMembers() ~= 0 and LivestockSettings.groupaspects == 0 and GetSpellInfo(L.LIVESTOCK_SPELL_PACK) and L.LIVESTOCK_SPELL_PACK) or L.LIVESTOCK_SPELL_CHEETAH, nil);
 			if spellName then
 				self:SetAttribute("type", "spell")
 				self:SetAttribute("spell", spellName)
@@ -1322,8 +1324,7 @@ function Livestock.SmartPreClick(self)
 
 		if class == "DRUID" then
 			if LivestockSettings.movingform == 1 and GetUnitSpeed("player") ~= 0 or (LivestockSettings.druidlogic == 1 and self.mounttype == "FLYING") then
-				local spellName = UnitBuff("player", (GetSpellInfo(L.LIVESTOCK_SPELL_FLIGHTFORM) and L.LIVESTOCK_SPELL_FLIGHTFORM) or (GetSpellInfo(L.LIVESTOCK_SPELL_TRAVELFORM) and L.LIVESTOCK_SPELL_TRAVELFORM), nil );
-				if spellName and LivestockSettings.moonkin == 1 and GetSpellInfo(L.LIVESTOCK_SPELL_MOONKINFORM) then
+				if (UnitBuff("player", L.LIVESTOCK_SPELL_TRAVELFORM, nil) or UnitBuff("player", L.LIVESTOCK_SPELL_FLIGHTFORM, nil)) and LivestockSettings.moonkin == 1 and GetSpellInfo(L.LIVESTOCK_SPELL_MOONKINFORM) then
 					self:SetAttribute("type", "spell")
 					self:SetAttribute("spell", L.LIVESTOCK_SPELL_MOONKINFORM)
 					self.mounttype = nil
@@ -1334,7 +1335,7 @@ function Livestock.SmartPreClick(self)
 					self.clearmovingform = true
 				end
 			else
-				if UnitBuff("player", L.LIVESTOCK_SPELL_MOONKINFORM) then
+				if UnitBuff("player", L.LIVESTOCK_SPELL_MOONKINFORM, nil) then
 				else
 					self:SetAttribute("type", "macro")
 					self:SetAttribute("macrotext", "/cancelform")
@@ -1351,16 +1352,22 @@ function Livestock.SmartPreClick(self)
 	elseif state == 5 then -- if in a land area, set the button to mount a land mount or possibly cast an instant travel form spell
 		self.mounttype = Livestock.LandOrFlying()
 		if LivestockSettings.movingform == 1 and GetUnitSpeed("player") ~= 0 then
-			self:SetAttribute("type", "spell")
-			self:SetAttribute("spell", (class == "SHAMAN" and L.LIVESTOCK_SPELL_GHOSTWOLF) or (GetSpellInfo(L.LIVESTOCK_SPELL_TRAVELFORM) and L.LIVESTOCK_SPELL_TRAVELFORM) or L.LIVESTOCK_SPELL_CATFORM)
-			self.mounttype = nil
-			self.clearmovingform = true
+			if UnitBuff("player", L.LIVESTOCK_SPELL_TRAVELFORM, nil) and LivestockSettings.moonkin == 1 and GetSpellInfo(L.LIVESTOCK_SPELL_MOONKINFORM) then
+				self:SetAttribute("type", "spell")
+				self:SetAttribute("spell", L.LIVESTOCK_SPELL_MOONKINFORM)
+				self.mounttype = nil
+			else
+				self:SetAttribute("type", "spell")
+				self:SetAttribute("spell", (class == "SHAMAN" and L.LIVESTOCK_SPELL_GHOSTWOLF) or (GetSpellInfo(L.LIVESTOCK_SPELL_TRAVELFORM) and L.LIVESTOCK_SPELL_TRAVELFORM) or L.LIVESTOCK_SPELL_CATFORM)
+				self.mounttype = nil
+				self.clearmovingform = true
+			end
 		elseif LivestockSettings.movingaspects == 1 and GetUnitSpeed("player") ~= 0 then
 			self:SetAttribute("type", "spell")
 			self:SetAttribute("spell", (GetNumGroupMembers() ~= 0 and LivestockSettings.groupaspects == 0 and GetSpellInfo(L.LIVESTOCK_SPELL_PACK) and L.LIVESTOCK_SPELL_PACK) or L.LIVESTOCK_SPELL_CHEETAH)
 			self.mounttype = nil
 		elseif LivestockSettings.mountaspects == 1 then
-			local spellName = UnitBuff("player", (GetNumGroupMembers() ~= 0 and LivestockSettings.groupaspects == 0 and GetSpellInfo(L.LIVESTOCK_SPELL_PACK) and L.LIVESTOCK_SPELL_PACK) or L.LIVESTOCK_SPELL_CHEETAH, nil );
+			local spellName = UnitBuff("player", (GetNumGroupMembers() ~= 0 and LivestockSettings.groupaspects == 0 and GetSpellInfo(L.LIVESTOCK_SPELL_PACK) and L.LIVESTOCK_SPELL_PACK) or L.LIVESTOCK_SPELL_CHEETAH, nil);
 			if spellName then
 				self:SetAttribute("type", "spell")
 				self:SetAttribute("spell", spellName)
@@ -1370,7 +1377,7 @@ function Livestock.SmartPreClick(self)
 			self:SetAttribute("spell", L.LIVESTOCK_SPELL_RUNNINGWILD)
 			self.mounttype = nil
 		elseif class == "DRUID" then
-			if UnitBuff("player", L.LIVESTOCK_SPELL_MOONKINFORM) then
+			if UnitBuff("player", L.LIVESTOCK_SPELL_MOONKINFORM, nil) then
 			else
 				self:SetAttribute("type", "macro")
 				self:SetAttribute("macrotext", "/cancelform")
@@ -1379,19 +1386,24 @@ function Livestock.SmartPreClick(self)
 		return
 		
 	elseif state == 6 then -- swimming
-		if class ~= "DRUID" then
+		if class == "DRUID" and GetUnitSpeed("player") ~= 0 and GetSpellInfo(L.LIVESTOCK_SPELL_TRAVELFORM) then
+			self:SetAttribute("type", "spell")
+			self:SetAttribute("spell", L.LIVESTOCK_SPELL_TRAVELFORM)
+			self.mounttype = nil
+			self.clearmovingform = true
+		else
 			self.mounttype = "WATER"
 		end
 	elseif state == 7 then -- flying
 		self.mounttype = "FLYING"
 		if class == "DRUID" and not InCombatLockdown() and LivestockSettings.safeflying == 0 then
 			self.mounttype = nil
-			local spellName = UnitBuff("player", (GetSpellInfo(L.LIVESTOCK_SPELL_FLIGHTFORM) and L.LIVESTOCK_SPELL_FLIGHTFORM) or (GetSpellInfo(L.LIVESTOCK_SPELL_TRAVELFORM) and L.LIVESTOCK_SPELL_TRAVELFORM), nil );
+			local spellName = UnitBuff("player", (GetSpellInfo(L.LIVESTOCK_SPELL_FLIGHTFORM) and L.LIVESTOCK_SPELL_FLIGHTFORM) or (GetSpellInfo(L.LIVESTOCK_SPELL_TRAVELFORM) and L.LIVESTOCK_SPELL_TRAVELFORM), nil);
 			if LivestockSettings.moonkin == 1 and spellName and GetSpellInfo(L.LIVESTOCK_SPELL_MOONKINFORM) then
 				self:SetAttribute("type", "spell")
 				self:SetAttribute("spell", L.LIVESTOCK_SPELL_MOONKINFORM)
 			else
-				if UnitBuff("player", L.LIVESTOCK_SPELL_MOONKINFORM) then
+				if UnitBuff("player", L.LIVESTOCK_SPELL_MOONKINFORM, nil) then
 				else
 					if GetSpellInfo(L.LIVESTOCK_SPELL_FLIGHTFORM) then
 						self:SetAttribute("type", "spell")
@@ -1713,7 +1725,7 @@ function Livestock.PickFlyingMount(breath)
 				-- don't try to use the Turbo-Charged Flying Machine
 			else
 				if breath == true then
-					if LivestockSettings.Mounts[k].mountFlags == 31 then
+					if LivestockSettings.Mounts[k].mountType == 248 then -- flying mount
 						tinsert(temp, LivestockSettings.Mounts[k].index)
 					end
 				else
@@ -1772,7 +1784,7 @@ function Livestock.PickWaterMount()
 		end
 	end
 
-	local spellName = UnitBuff("player", L.LIVESTOCK_SPELL_SEALEGS, nil )
+	local spellName = UnitBuff("player", L.LIVESTOCK_SPELL_SEALEGS, nil)
 
 	if (spellName) then
 		for k in pairs(LivestockSettings.Mounts) do -- see if we have the Abyssal Seahorse
@@ -1803,7 +1815,11 @@ function Livestock.PickWaterMount()
 	end
 	
 	if #temp == 0 then -- if no mounts are selected, choose a flying mount that can swim instead
-		Livestock.PickFlyingMount(breath)
+		if Livestock.LandOrFlying() == "FLYING" then
+			Livestock.PickFlyingMount(breath)
+		else
+			Livestock.PickLandMount()
+		end
 		return
 	end
 	
@@ -1839,7 +1855,7 @@ end
 function Livestock.MoveSummon() -- idea and code provided by Mikhael of Doomhammer on the WoWInterface forums, modified by Scott Snowman (author).  Checks to see if you have a vanity pet out, and if you don't, it summons one (or your favorite).  Used as a hook on movement functions.
 	local numPets, numOwned = C_PetJournal.GetNumPets()
 
-	if LivestockSettings.summononmove == 0 or donotsummon or UnitChannelInfo("player") or UnitCastingInfo("player") or IsFalling() or Recompense.CheckBuffsAgainstTable(restrictSummonForTheseBuffs) or Recompense.CheckEquipmentAgainstTable(restrictSummonForThisEquipment) then
+	if LivestockSettings.summononmove == 0 or donotsummon or UnitChannelInfo("player") or UnitCastingInfo("player") or IsFalling() or UnitInVehicle("player") or Recompense.CheckBuffsAgainstTable(restrictSummonForTheseBuffs) or Recompense.CheckEquipmentAgainstTable(restrictSummonForThisEquipment) then
 		return -- return if the flag to not summon is checked, if you're channeling or casting, or if you have a buff on you that indicates you're in a situation where you shouldn't be summoning.
 	else
 		if LivestockSettings.restrictautosummon == 1 and UnitIsPVP("player") == 1 then -- if the setting to ignore summoning when flagged is set, then check for PVP status.
@@ -2071,6 +2087,8 @@ Livestock.companionFrame:RegisterEvent("UNIT_SPELLCAST_SUCCEEDED")
 Livestock.companionFrame:RegisterEvent("UNIT_SPELLCAST_SENT")
 Livestock.companionFrame:RegisterEvent("UNIT_ENTERED_VEHICLE")
 Livestock.companionFrame:RegisterEvent("UI_INFO_MESSAGE")
+Livestock.companionFrame:RegisterEvent("BARBER_SHOP_OPEN")
+Livestock.companionFrame:RegisterEvent("BARBER_SHOP_CLOSE")
 --Livestock.companionFrame:RegisterEvent("PET_JOURNAL_LIST_UPDATE")
 Livestock.companionFrame:SetScript("OnEvent", Livestock.CompanionEvent)
 

@@ -1,3 +1,14 @@
+Version 2.2.7
+
+- Restrict autosummon pets while in vehicles to prevent issues with vehicle buttons
+
+Version 2.2.6
+
+- Will once again summon flying mounts underwater in flying zones
+- Fixed issue with pet auto-summons and barbershops
+- Druids now only summon travel form underwater if they are moving
+- Moonkin form now supported when canceling travel form (while moving)
+
 Version 2.2.5
 
 - Fixed macro errors (re-create macros or assign an icon to fix issue)

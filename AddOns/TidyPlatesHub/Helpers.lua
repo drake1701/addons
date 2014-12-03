@@ -90,8 +90,15 @@ local function ConvertDebuffListTable(source, target, order)
 
 end
 
+local function AddHubFunction(functionTable, menuTable, functionPointer, functionDescription, functionKey )
+	if functionTable then
+		functionTable[functionKey or (#functionTable+1)] = functionPointer
+	end
 
-
+	if menuTable then
+		menuTable[#menuTable+1] = { text = functionDescription, value = functionKey }
+	end
+end
 
 TidyPlatesHubHelpers = {}
 TidyPlatesHubHelpers.CallForStyleUpdate = CallForStyleUpdate
@@ -101,6 +108,7 @@ TidyPlatesHubHelpers.GetSavedVariables = GetSavedVariables
 TidyPlatesHubHelpers.ListToTable = ListToTable
 TidyPlatesHubHelpers.ConvertStringToTable = ConvertStringToTable
 TidyPlatesHubHelpers.ConvertDebuffListTable = ConvertDebuffListTable
+TidyPlatesHubHelpers.AddHubFunction = AddHubFunction
 
 --[[
 local CallForStyleUpdate = TidyPlatesHubHelpers.CallForStyleUpdate

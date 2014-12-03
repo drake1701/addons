@@ -16,11 +16,13 @@ local IsTankingAuraActive = HubData.Functions.IsTankingAuraActive
 local InCombatLockdown = InCombatLockdown
 local GetFriendlyClass = HubData.Functions.GetFriendlyClass
 local GetEnemyClass = HubData.Functions.GetEnemyClass
-local StyleDelegate = TidyPlatesHubFunctions.SetMultistyle
+local StyleDelegate = TidyPlatesHubFunctions.SetStyleNamed
 local ColorFunctionByHealth = HubData.Functions.ColorFunctionByHealth
 local CachedUnitDescription = TidyPlatesUtility.CachedUnitDescription
 local CachedUnitGuild = TidyPlatesUtility.CachedUnitGuild
 local CachedUnitClass = TidyPlatesUtility.CachedUnitClass
+
+local AddHubFunction = TidyPlatesHubHelpers.AddHubFunction
 
 local function DummyFunction() end
 
@@ -273,32 +275,27 @@ local function HealthFunctionCustom(unit)
 	StatusTextCenterColor = true,
 	StatusTextRightColor = true,
 
-
-	TidyPlatesHubModes.CustomTextModes = {
-				{ text = L("None") },
-				{ text = L("Percent Health")} ,
-				{ text = L("Exact health"),},
-				{ text = L("Health Deficit"),} ,
-				{ text = L("Rounded Health"),},
-				{ text = L("Target-of-Target"),},
-				{ text = L("Target Power"),},
-				{ text = L("Arena ID"),},
-				{ text = L("Level"),},
 	--]]
 end
 
-local HealthTextModeFunctions = {
-	HealthFunctionNone,
-	HealthFunctionPercent,
-	HealthFunctionExact,
-	HealthFunctionApprox,
-	HealthFunctionDeficit,
-	HealthFunctionTotal,
-	HealthFunctionTargetOf,
-	HealthFunctionLevel,
-	HealthFunctionLevelHealth,
-	HealthFunctionArenaID,
-}
+local HealthTextModeFunctions = {}
+
+
+
+TidyPlatesHubDefaults.ColorFriendlyStatusTextMode = "HealthFunctionNone"
+TidyPlatesHubDefaults.ColorEnemyStatusTextMode = "HealthFunctionNone"
+
+AddHubFunction(HealthTextModeFunctions, TidyPlatesHubMenus.TextModes, HealthFunctionNone, "None", "HealthFunctionNone")
+AddHubFunction(HealthTextModeFunctions, TidyPlatesHubMenus.TextModes, HealthFunctionPercent, "Percent Health", "HealthFunctionPercent")
+AddHubFunction(HealthTextModeFunctions, TidyPlatesHubMenus.TextModes, HealthFunctionExact, "Exact Health", "HealthFunctionExact")
+AddHubFunction(HealthTextModeFunctions, TidyPlatesHubMenus.TextModes, HealthFunctionApprox, "Approximate Health", "HealthFunctionApprox")
+AddHubFunction(HealthTextModeFunctions, TidyPlatesHubMenus.TextModes, HealthFunctionDeficit, "Health Deficit", "HealthFunctionDeficit")
+AddHubFunction(HealthTextModeFunctions, TidyPlatesHubMenus.TextModes, HealthFunctionTotal, "Health Total & Percent", "HealthFunctionTotal")
+AddHubFunction(HealthTextModeFunctions, TidyPlatesHubMenus.TextModes, HealthFunctionTargetOf, "Target Of", "HealthFunctionTargetOf")
+AddHubFunction(HealthTextModeFunctions, TidyPlatesHubMenus.TextModes, HealthFunctionLevel, "Level", "HealthFunctionLevel")
+AddHubFunction(HealthTextModeFunctions, TidyPlatesHubMenus.TextModes, HealthFunctionLevelHealth, "Level and Approx Health", "HealthFunctionLevelHealth")
+AddHubFunction(HealthTextModeFunctions, TidyPlatesHubMenus.TextModes, HealthFunctionArenaID, "Arena ID, Health, and Power", "HealthFunctionArenaID")
+
 
 local function HealthTextDelegate(unit)
 
@@ -341,7 +338,7 @@ local function TextRoleGuildLevel(unit)
 	if unit.type == "NPC" then
 		description = CachedUnitDescription(unit.name)
 
-		if not description and unit.reaction ~= "FRIENDLY" then
+		if not description then --  and unit.reaction ~= "FRIENDLY" then
 			description =  GetLevelDescription(unit)
 			r, g, b = unit.levelcolorRed, unit.levelcolorGreen, unit.levelcolorBlue
 		end
@@ -396,29 +393,42 @@ function TextAll(unit)
 end
 
 
+local EnemyNameSubtextFunctions = {}
+TidyPlatesHubMenus.EnemyNameSubtextModes = {}
+TidyPlatesHubDefaults.HeadlineEnemySubtext = "RoleGuildLevel"
+TidyPlatesHubDefaults.HeadlineFriendlySubtext = "RoleGuildLevel"
+AddHubFunction(EnemyNameSubtextFunctions, TidyPlatesHubMenus.EnemyNameSubtextModes, DummyFunction, "None", "None")
+AddHubFunction(EnemyNameSubtextFunctions, TidyPlatesHubMenus.EnemyNameSubtextModes, TextHealthPercentColored, "Percent Health", "PercentHealth")
+AddHubFunction(EnemyNameSubtextFunctions, TidyPlatesHubMenus.EnemyNameSubtextModes, TextRoleGuildLevel, "Role, Guild or Level", "RoleGuildLevel")
+AddHubFunction(EnemyNameSubtextFunctions, TidyPlatesHubMenus.EnemyNameSubtextModes, TextRoleGuild, "Role or Guild", "RoleGuild")
+AddHubFunction(EnemyNameSubtextFunctions, TidyPlatesHubMenus.EnemyNameSubtextModes, TextNPCRole, "NPC Role", "Role")
+AddHubFunction(EnemyNameSubtextFunctions, TidyPlatesHubMenus.EnemyNameSubtextModes, TextLevelColored, "Level", "Level")
+AddHubFunction(EnemyNameSubtextFunctions, TidyPlatesHubMenus.EnemyNameSubtextModes, TextAll, "Role, Guild, Level or Health Percent", "RoleGuildLevelHealth")
 
-local TextPlateFieldFunctions = {
-	-- None
-	DummyFunction,
-	-- Health Text
-	TextHealthPercentColored,
-	-- Role, Guild or Level
-	TextRoleGuildLevel,
-	-- Role or Guild
-	TextRoleGuild,
-	-- NPC Role
-	TextNPCRole,
-	-- Level
-	TextLevelColored,
-	-- Level or Health
-	TextAll,
-}
-
+--[[
+local FriendlyNameSubtextFunctions = {}
+TidyPlatesHubMenus.FriendlyNameSubtextModes = {}
+TidyPlatesHubDefaults.HeadlineFriendlySubtext = "None"
+AddHubFunction(FriendlyNameSubtextFunctions, TidyPlatesHubMenus.FriendlyNameSubtextModes, DummyFunction, "None", "None")
+AddHubFunction(FriendlyNameSubtextFunctions, TidyPlatesHubMenus.FriendlyNameSubtextModes, TextHealthPercentColored, "Percent Health", "PercentHealth")
+AddHubFunction(FriendlyNameSubtextFunctions, TidyPlatesHubMenus.FriendlyNameSubtextModes, TextRoleGuildLevel, "Role, Guild or Level", "RoleGuildLevel")
+AddHubFunction(FriendlyNameSubtextFunctions, TidyPlatesHubMenus.FriendlyNameSubtextModes, TextRoleGuild, "Role or Guild", "RoleGuild")
+AddHubFunction(FriendlyNameSubtextFunctions, TidyPlatesHubMenus.FriendlyNameSubtextModes, TextNPCRole, "NPC Role", "Role")
+AddHubFunction(FriendlyNameSubtextFunctions, TidyPlatesHubMenus.FriendlyNameSubtextModes, TextLevelColored, "Level", "Level")
+AddHubFunction(FriendlyNameSubtextFunctions, TidyPlatesHubMenus.FriendlyNameSubtextModes, TextAll, "Role, Guild, Level or Health Percent", "RoleGuildLevelHealth")
+--]]
 
 local function CustomTextBinaryDelegate(unit)
 	--if unit.style == "NameOnly" then
-	if StyleDelegate(unit) == 2 then
-		local func = TextPlateFieldFunctions[LocalVars.TextPlateFieldMode] or DummyFunction
+
+	if StyleDelegate(unit) == "NameOnly" then
+		local func
+		if unit.reaction == "FRIENDLY" then
+			func = EnemyNameSubtextFunctions[LocalVars.HeadlineFriendlySubtext or 0] or DummyFunction
+		else
+			func = EnemyNameSubtextFunctions[LocalVars.HeadlineEnemySubtext or 0] or DummyFunction
+		end
+
 		return func(unit)
 	end
 	return HealthTextDelegate(unit)

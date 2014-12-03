@@ -7,7 +7,6 @@
 ## SavedVariables: TidyPlatesHubCache, TidyPlatesHubGlobal
 ## SavedVariablesPerCharacter: TidyPlatesHubSettings
 
-Menus.lua
 Defaults.lua
 Helpers.lua
 Templates.lua

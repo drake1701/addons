@@ -21,7 +21,7 @@ local artwidth = 90
 local barwidth = 90
 local borderheight = 16
 local barheight = 16
-local widthfactor = .85
+local widthfactor = 1 -- .85
 local heightfactor = 1.2
 
 local StyleDefault = {}
@@ -71,13 +71,15 @@ StyleDefault.highlight = {
 }
 
 StyleDefault.threatborder = {
-	--texture = path.."Graphite2_ThreatGlow",
-	texture = EmptyTexture,
-	width = artwidth*widthfactor*1.2,
-	height = borderheight*heightfactor,
+	texture = path.."ThreatBorderSingleDot",
+	--texture = path.."ThreatBorderDoubleDot",
+	--texture = EmptyTexture,
+	width = artwidth*widthfactor*2,
+	height = borderheight*heightfactor*2,
 	x = 0,
 	y = 0,
 	anchor = "CENTER",
+	show = true
 }
 
 StyleDefault.castbar = {

@@ -67,14 +67,14 @@ end
 HubData.Functions.GetFriendlyClass = GetFriendlyClass
 HubData.Functions.GetEnemyClass = GetEnemyClass
 
+-- Define the Menu for Threat Modes
+TidyPlatesHubDefaults.ThreatMode = "Auto"
+TidyPlatesHubMenus.ThreatModes = {
+					{ text = "Auto (Color Swap)", value = "Auto",} ,
+					{ text = "Tank", value = "Tank",} ,
+					{ text = "DPS/Healer", value = "DPS",} ,
+					}
 
-
-------------------------------------------------------------------------------------
-
-local MiniMobScale = .7
-local THREATMODE_AUTO = 1
-local THREATMODE_TANK = 2
-local THREATMODE_DPS  = 3
 
 --local NormalGrey = {r = .5, g = .5, b = .5, a = .3}
 --local EliteGrey = {r = .8, g = .7, b = .4, a = .5}

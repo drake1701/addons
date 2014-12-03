@@ -4,6 +4,26 @@ local divider = "Interface\\Addons\\TidyPlatesHub\\shared\\ThinBlackLine"
 local PanelHelpers = TidyPlatesUtility.PanelHelpers 		-- PanelTools
 local DropdownFrame = CreateFrame("Frame", "TidyPlatesHubCategoryFrame", UIParent, "UIDropDownMenuTemplate" )
 local L = TidyPlatesHub_GetLocalizedString
+
+-- Menu Templates
+TidyPlatesHubMenus = TidyPlatesHubMenus or {}
+
+TidyPlatesHubMenus.ScaleModes = {}
+TidyPlatesHubMenus.EnemyOpacityModes = {}
+TidyPlatesHubMenus.FriendlyOpacityModes = {}
+TidyPlatesHubMenus.EnemyBarModes = {}
+TidyPlatesHubMenus.FriendlyBarModes = {}
+TidyPlatesHubMenus.StyleModes = {}
+TidyPlatesHubMenus.TextModes = {}
+TidyPlatesHubMenus.HeadlineEnemySubtexts = {}
+TidyPlatesHubMenus.NameColorModes = {}
+
+--TidyPlatesHubMenus.RangeModes = {}
+--TidyPlatesHubMenus.DebuffStyles = {}
+--TidyPlatesHubMenus.AuraWidgetModes = {}
+--TidyPlatesHubMenus.ThreatModes = {}
+
+
 --[[
 The basic concept of RapidPanel is that each UI widget will get attached to a 'rail' or alignment column.  This rail
 provides access to a common update function.  Each widget gets attached as a stack, with widget definition tagging
@@ -25,7 +45,7 @@ end
 
 local function CreateQuickSlider(name, label, ... ) --, neighborFrame, xOffset, yOffset)
 		local columnFrame = ...
-		local frame = PanelHelpers:CreateSliderFrame(name, columnFrame, L(label), .5, 0, 1, .1)
+		local frame = PanelHelpers:CreateSliderFrame(name, columnFrame, label, .5, 0, 1, .1)
 		frame:SetWidth(250)
 		--frame.Label:SetFont("FONTS/ARIALN.TTF", 14)
 		-- Margins	-- Bottom/Left are negative
@@ -42,7 +62,7 @@ local function CreateQuickSlider(name, label, ... ) --, neighborFrame, xOffset, 
 
 	local function CreateQuickCheckbutton(name, label, ...)
 		local columnFrame = ...
-		local frame = PanelHelpers:CreateCheckButton(name, columnFrame, L(label))
+		local frame = PanelHelpers:CreateCheckButton(name, columnFrame, label)
 		--frame.Label:SetFont("FONTS/ARIALN.TTF", 14)
 		-- Margins	-- Bottom/Left are supposed to be negative
 		frame.Margins = { Left = 2, Right = 100, Top = 0, Bottom = 0,}
@@ -116,7 +136,7 @@ local function CreateQuickSlider(name, label, ... ) --, neighborFrame, xOffset, 
 
 	local function CreateQuickColorbox(name, label, ...)
 		local columnFrame = ...
-		local frame = PanelHelpers:CreateColorBox(name, columnFrame, L(label), 0, .5, 1, 1)
+		local frame = PanelHelpers:CreateColorBox(name, columnFrame, label, 0, .5, 1, 1)
 		-- Margins	-- Bottom/Left are supposed to be negative
 		frame.Margins = { Left = 5, Right = 100, Top = 3, Bottom = 2,}
 		-- Set Positions
@@ -129,7 +149,8 @@ local function CreateQuickSlider(name, label, ... ) --, neighborFrame, xOffset, 
 
 	local function CreateQuickDropdown(name, label, dropdownTable, initialValue, ...)
 		local columnFrame = ...
-		local frame = PanelHelpers:CreateDropdownFrame(name, columnFrame, dropdownTable, initialValue, L(label))
+
+		local frame = PanelHelpers:CreateDropdownFrame(name, columnFrame, dropdownTable, initialValue, label)		--- ADD the new valueMethod  (2 for Token)
 		-- Margins	-- Bottom/Left are supposed to be negative
 		frame.Margins = { Left = -12, Right = 2, Top = 22, Bottom = 0,}
 		-- Set Positions
@@ -150,7 +171,7 @@ local function CreateQuickSlider(name, label, ... ) --, neighborFrame, xOffset, 
 		frame.Text:SetFont(font, 26)
 		frame.Text:SetTextColor(255/255, 105/255, 6/255)
 		frame.Text:SetAllPoints()
-		frame.Text:SetText(L(label))
+		frame.Text:SetText(label)
 		frame.Text:SetJustifyH("LEFT")
 		frame.Text:SetJustifyV("BOTTOM")
                 -- Divider Line
@@ -221,7 +242,7 @@ local function CreateQuickSlider(name, label, ... ) --, neighborFrame, xOffset, 
 		--frame.Text:SetTextColor(1, .7, 0)
 		--frame.Text:SetTextColor(55/255, 173/255, 255/255)
 		frame.Text:SetAllPoints()
-		frame.Text:SetText(L(label))
+		frame.Text:SetText(label)
 		frame.Text:SetJustifyH("LEFT")
 		frame.Text:SetJustifyV("BOTTOM")
 		-- Margins	-- Bottom/Left are supposed to be negative

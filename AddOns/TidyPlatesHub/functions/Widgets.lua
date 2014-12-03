@@ -14,6 +14,19 @@ local CreateRangeWidget = WidgetLib.CreateRangeWidget
 local CreateComboPointWidget = WidgetLib.CreateComboPointWidget
 local CreateTotemIconWidget = WidgetLib.CreateTotemIconWidget
 
+TidyPlatesHubDefaults.WidgetsRangeMode = 1
+TidyPlatesHubMenus.RangeModes = {
+				{ text = "9 yards"} ,
+				{ text = "15 yards" } ,
+				{ text = "28 yards" } ,
+				{ text = "40 yards" } ,
+			}
+
+TidyPlatesHubDefaults.WidgetsDebuffStyle = 1
+TidyPlatesHubMenus.DebuffStyles = {
+				{ text = "Wide",  } ,
+				{ text = "Compact (May require UI reload to take effect)",  } ,
+			}
 
 ------------------------------------------------------------------------------
 -- Aura Widget

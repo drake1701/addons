@@ -1,4 +1,15 @@
 
+--[[
+Tidy Plates Hub: Interface Panel
+
+Color Guide:
+|cffffdd00		for Yellow
+|cffff6906		for Orange
+|cff999999		for Grey
+|cffffaa33		for Brownish Orange
+
+--]]
+
 -- Rapid Panel Functions
 local CreateQuickSlider = TidyPlatesHubRapidPanel.CreateQuickSlider
 local CreateQuickCheckbutton = TidyPlatesHubRapidPanel.CreateQuickCheckbutton
@@ -23,15 +34,18 @@ local FriendlyOpacityModes = TidyPlatesHubMenus.FriendlyOpacityModes
 local ScaleModes = TidyPlatesHubMenus.ScaleModes
 local FriendlyBarModes = TidyPlatesHubMenus.FriendlyBarModes
 local EnemyBarModes = TidyPlatesHubMenus.EnemyBarModes
---local WarningGlowModes = TidyPlatesHubMenus.WarningGlowModes
 local ThreatWidgetModes = TidyPlatesHubMenus.ThreatWidgetModes
-local NameColorModes = TidyPlatesHubMenus.NameColorModes
-local TextPlateFieldModes = TidyPlatesHubMenus.TextPlateFieldModes
+local EnemyNameColorModes = TidyPlatesHubMenus.EnemyNameColorModes
+local FriendlyNameColorModes = TidyPlatesHubMenus.FriendlyNameColorModes
+local EnemyNameSubtextModes = TidyPlatesHubMenus.EnemyNameSubtextModes
 local ArtStyles = TidyPlatesHubMenus.ArtStyles
 local ArtModes = TidyPlatesHubMenus.ArtModes
 local ThreatModes = TidyPlatesHubMenus.ThreatModes
 local CustomTextModes = TidyPlatesHubMenus.CustomTextModes
 local BasicTextModes = TidyPlatesHubMenus.BasicTextModes
+
+local cEnemy = "|cffff5544"
+local cFriendly = "|cffc8e915"
 
 ------------------------------------------------------------------
 -- Generate Panel
@@ -41,7 +55,31 @@ local function CreateInterfacePanelWidgets(panel)
 	local AlignmentColumn = panel.AlignmentColumn
 	local OffsetColumnB = 200						-- 240
 	local F = nil									-- Cache for anchoring
+	local ColumnTop, ColumnEnd
 
+	panel.StyleLabel, F = CreateQuickHeadingLabel(nil, "Nameplate Style", AlignmentColumn, F, 0, 5)
+
+	ColumnTop = F
+
+	panel.StyleEnemyBarsLabel, F = CreateQuickItemLabel(nil, cEnemy.."Enemy Health Bars:", AlignmentColumn, F, 0, 2)
+	panel.StyleEnemyBarsOnElite, F = CreateQuickCheckbutton(objectName.."StyleEnemyBarsOnElite", "on Elite Units", AlignmentColumn, F, 16, 0)
+	panel.StyleEnemyBarsOnNPC, F = CreateQuickCheckbutton(objectName.."StyleEnemyBarsOnNPC", "on NPCs", AlignmentColumn, F, 16, 0)
+	panel.StyleEnemyBarsOnPlayers, F = CreateQuickCheckbutton(objectName.."StyleEnemyBarsOnPlayers", "on Players", AlignmentColumn, F, 16, 0)
+	panel.StyleEnemyBarsOnActive, F = CreateQuickCheckbutton(objectName.."StyleEnemyBarsOnActive", "on Active/Damaged Units", AlignmentColumn, F, 16, 0)
+
+	ColumnEnd = F
+
+	panel.StyleFriendlyBarsLabel, F = CreateQuickItemLabel(nil, cFriendly.."Friendly Health Bars:", AlignmentColumn, ColumnTop, OffsetColumnB, 2)
+	panel.StyleFriendlyBarsOnElite, F = CreateQuickCheckbutton(objectName.."StyleFriendlyBarsOnElite", "on Elite Units", AlignmentColumn, F, OffsetColumnB+16, 0)
+	panel.StyleFriendlyBarsOnNPC, F = CreateQuickCheckbutton(objectName.."StyleFriendlyBarsOnNPC", "on NPCs", AlignmentColumn, F, OffsetColumnB+16, 0)
+	panel.StyleFriendlyBarsOnPlayers, F = CreateQuickCheckbutton(objectName.."StyleFriendlyBarsOnPlayers", "on Players", AlignmentColumn, F, OffsetColumnB+16, 0)
+	panel.StyleFriendlyBarsOnActive, F = CreateQuickCheckbutton(objectName.."StyleFriendlyBarsOnActive", "on Active/Damaged Units", AlignmentColumn, F, OffsetColumnB+16, 0)
+
+	F =  ColumnEnd
+
+	panel.StyleHeadlineLabel, F = CreateQuickItemLabel(nil, "Headline View (Text-Only):", AlignmentColumn, F, 0, 2)
+	panel.StyleHeadlineNeutral, F = CreateQuickCheckbutton(objectName.."StyleHeadlineNeutral", "Force Headline on Neutral Units", AlignmentColumn, F, 16, 2)
+	panel.StyleHeadlineOutOfCombat, F = CreateQuickCheckbutton(objectName.."StyleHeadlineOutOfCombat", "Force Headline View while Out-of-Combat", AlignmentColumn, F, 16, 0)
 
 	------------------------------
     -- Health Bars
@@ -49,21 +87,16 @@ local function CreateInterfacePanelWidgets(panel)
 
     panel.HealthBarLabel, F = CreateQuickHeadingLabel(nil, "Health Bar View", AlignmentColumn, F, 0, 5)
 
---|cffff0000
-
-local cEnemy = "|cffff5544"
-local cFriendly = "|cffc8e915"
-
     -- Enemy
 	panel.ColorEnemyBarMode, F =  CreateQuickDropdown(objectName.."ColorEnemyBarMode", cEnemy.."Enemy Bar Color:", EnemyBarModes, 1, AlignmentColumn, F)
-	panel.ColorEnemyNameMode, F =  CreateQuickDropdown(objectName.."ColorEnemyNameMode", cEnemy.."Enemy Name Color:", NameColorModes, 1, AlignmentColumn, F)
+	panel.ColorEnemyNameMode, F =  CreateQuickDropdown(objectName.."ColorEnemyNameMode", cEnemy.."Enemy Name Color:", EnemyNameColorModes, 1, AlignmentColumn, F)
 	panel.ColorEnemyStatusTextMode, F =  CreateQuickDropdown(objectName.."ColorEnemyStatusTextMode", cEnemy.."Enemy Status Text:", TextModes, 1, AlignmentColumn, F )
 	--panel.ColorEnemyStatusTextModeCenter, F =  CreateQuickDropdown(objectName.."ColorEnemyStatusTextModeCenter", "", BasicTextModes, 1, AlignmentColumn, F, 0, -14 )
 	--panel.ColorEnemyStatusTextModeRight, F =  CreateQuickDropdown(objectName.."ColorEnemyStatusTextModeRight", "", BasicTextModes, 1, AlignmentColumn, F, 0, -14 )
 
 	-- Friendly
 	panel.ColorFriendlyBarMode, F =  CreateQuickDropdown(objectName.."ColorFriendlyBarMode", cFriendly.."Friendly Bar Color:", FriendlyBarModes, 1, AlignmentColumn, panel.HealthBarLabel, OffsetColumnB)
-	panel.ColorFriendlyNameMode, F =  CreateQuickDropdown(objectName.."ColorFriendlyNameMode", cFriendly.."Friendly Name Color:", NameColorModes, 1, AlignmentColumn, F, OffsetColumnB)
+	panel.ColorFriendlyNameMode, F =  CreateQuickDropdown(objectName.."ColorFriendlyNameMode", cFriendly.."Friendly Name Color:", FriendlyNameColorModes, 1, AlignmentColumn, F, OffsetColumnB)
 	panel.ColorFriendlyStatusTextMode, F =  CreateQuickDropdown(objectName.."ColorFriendlyStatusTextMode", cFriendly.."Friendly Status Text:", TextModes, 1, AlignmentColumn, F, OffsetColumnB)
 	--panel.ColorFriendlyStatusTextModeCenter, F =  CreateQuickDropdown(objectName.."ColorFriendlyStatusTextModeCenter", "", BasicTextModes, 1, AlignmentColumn, F, OffsetColumnB, -14)
 	--panel.ColorFriendlyStatusTextModeRight, F =  CreateQuickDropdown(objectName.."ColorFriendlyStatusTextModeRight", "", BasicTextModes, 1, AlignmentColumn, F, OffsetColumnB, -14)
@@ -78,20 +111,44 @@ local cFriendly = "|cffc8e915"
 	------------------------------
 	-- Headline View
 	------------------------------
-	panel.StyleLabel = CreateQuickHeadingLabel(nil, "Headline View", AlignmentColumn, F, 0, 5)
-	panel.StyleEnemyMode =  CreateQuickDropdown(objectName.."StyleEnemyMode", cEnemy.."Enemy Headline Mode:", StyleModes, 1, AlignmentColumn, panel.StyleLabel, 0, 2)
-	panel.StyleFriendlyMode =  CreateQuickDropdown(objectName.."StyleFriendlyMode", cFriendly.."Friendly Headline Mode:", StyleModes, 1, AlignmentColumn, panel.StyleLabel, OffsetColumnB, 2)
+	--[[
+		Hostile Headline	(Current Selection in Dropdown)
+			Default Bars
+			Headline Always
+			Out-of-Combat - Bars during Combat
+			On Idle - Bars on Active
+			On NPCs - Bars on Players
+			On Non-Targets - Bar on Current Target
+			On Aggroed Units - Bars on Low Threat (Tank Mode)
 
-	panel.HeadlineEnemyColor = CreateQuickDropdown(objectName.."HeadlineEnemyColor", cEnemy.."Enemy Headline Color:", NameColorModes, 1, AlignmentColumn, panel.StyleEnemyMode)	-- |cffee9900Text-Only Style
-	panel.HeadlineFriendlyColor = CreateQuickDropdown(objectName.."HeadlineFriendlyColor", cFriendly.."Friendly Headline Color:", NameColorModes, 1, AlignmentColumn, panel.StyleFriendlyMode, OffsetColumnB)	-- |cffee9900Text-Only Style
+		Show Enemy/Friendly Health Bars:
+			- On Elite Units
+			- On NPCs
+			- On Players (When available)
+			- On Active/Damaged Units	- Low Threat (Tank Mode)  (Could roll the Tank mode into Active/Damaged units)
 
-	panel.TextPlateFieldMode =  CreateQuickDropdown(objectName.."TextPlateFieldMode", "Status Text Field:", TextPlateFieldModes, 1, AlignmentColumn, panel.HeadlineEnemyColor )	-- |cffee9900Text-Only Style
+		- (Headline Neutral Units)
+		- Force Headline Out-of-Combat		Bars during Combat; Headline Out-of-Combat 		(Eliminate this)
 
+	--]]
+	panel.StyleLabel, F = CreateQuickHeadingLabel(nil, "Headline View (Text-Only)", AlignmentColumn, F, 0, 5)
+
+	ColumnTop = F
+
+	panel.HeadlineEnemyColor, F = CreateQuickDropdown(objectName.."HeadlineEnemyColor", cEnemy.."Enemy Headline Color:", EnemyNameColorModes, 1, AlignmentColumn, F)	-- |cffee9900Text-Only Style
+	panel.HeadlineEnemySubtext, F =  CreateQuickDropdown(objectName.."HeadlineEnemySubtext", cEnemy.."Enemy Headline Subtext:", EnemyNameSubtextModes, 1, AlignmentColumn, F )	-- |cffee9900Text-Only Style
+
+	ColumnEnd = F
+
+	panel.HeadlineFriendlyColor, F = CreateQuickDropdown(objectName.."HeadlineFriendlyColor", cFriendly.."Friendly Headline Color:", FriendlyNameColorModes, 1, AlignmentColumn, ColumnTop, OffsetColumnB)	-- |cffee9900Text-Only Style
+	panel.HeadlineFriendlySubtext, F =  CreateQuickDropdown(objectName.."HeadlineFriendlySubtext", cFriendly.."Friendly Headline Subtext:", EnemyNameSubtextModes, 1, AlignmentColumn, F, OffsetColumnB )	-- |cffee9900Text-Only Style
+
+	F = ColumnEnd
 
 	------------------------------
 	-- Aura (Buff and Debuff) Widget
 	------------------------------
-	panel.DebuffsLabel = CreateQuickHeadingLabel(nil, "Buffs & Debuffs", AlignmentColumn, panel.TextPlateFieldMode, 0, 5)
+	panel.DebuffsLabel = CreateQuickHeadingLabel(nil, "Buffs & Debuffs", AlignmentColumn, F, 0, 5)
 	panel.WidgetsDebuff = CreateQuickCheckbutton(objectName.."WidgetsDebuff", "Enable Aura Widget", AlignmentColumn, panel.DebuffsLabel)
 
 	--panel.WidgetsAuraMode =  CreateQuickDropdown(objectName.."WidgetsAuraMode", "Filter Mode:", AuraWidgetModes, 1, AlignmentColumn, panel.WidgetsDebuffStyle, 16)		-- used to be WidgetsDebuffMode
@@ -145,7 +202,10 @@ local cFriendly = "|cffc8e915"
 	------------------------------
 	panel.ScaleLabel = CreateQuickHeadingLabel(nil, "Scale", AlignmentColumn, panel.OpacityFullNoTarget, 0, 5)
 	panel.ScaleStandard = CreateQuickSlider(objectName.."ScaleStandard", "Normal Scale:", AlignmentColumn, panel.ScaleLabel, 0, 2)
+
 	panel.ScaleSpotlightMode =  CreateQuickDropdown(objectName.."ScaleSpotlightMode", "Scale Spotlight Mode:", ScaleModes, 1, AlignmentColumn, panel.ScaleStandard)
+
+
 	panel.ScaleSpotlight = CreateQuickSlider(objectName.."ScaleSpotlight", "Spotlight Scale:", AlignmentColumn, panel.ScaleSpotlightMode, 0, 2)
 	panel.ScaleIgnoreNeutralUnits= CreateQuickCheckbutton(objectName.."ScaleIgnoreNeutralUnits", "Ignore Neutral Units", AlignmentColumn, panel.ScaleSpotlight, 16)
 	panel.ScaleIgnoreNonEliteUnits= CreateQuickCheckbutton(objectName.."ScaleIgnoreNonEliteUnits", "Ignore Non-Elite Units", AlignmentColumn, panel.ScaleIgnoreNeutralUnits, 16)
@@ -254,9 +314,9 @@ local cFriendly = "|cffc8e915"
 	panel.ThreatGlowEnable = CreateQuickCheckbutton(objectName.."ThreatGlowEnable", "Enable Warning Glow", AlignmentColumn, panel.ThreatMode,0)
 
 	panel.ColorThreatColorLabels = CreateQuickItemLabel(nil, "Threat Colors:", AlignmentColumn, panel.ThreatGlowEnable, 0, 2)
-	panel.ColorAttackingMe = CreateQuickColorbox(objectName.."ColorAttackingMe", "Warning", AlignmentColumn, panel.ColorThreatColorLabels , 16)
-	panel.ColorAggroTransition = CreateQuickColorbox(objectName.."ColorAggroTransition", "Transition", AlignmentColumn, panel.ColorAttackingMe , 16)
-	panel.ColorAttackingOthers = CreateQuickColorbox(objectName.."ColorAttackingOthers", "Safe", AlignmentColumn, panel.ColorAggroTransition, 16)
+	panel.ColorThreatWarning = CreateQuickColorbox(objectName.."ColorThreatWarning", "Warning", AlignmentColumn, panel.ColorThreatColorLabels , 16)
+	panel.ColorThreatTransition = CreateQuickColorbox(objectName.."ColorThreatTransition", "Transition", AlignmentColumn, panel.ColorThreatWarning , 16)
+	panel.ColorThreatSafe = CreateQuickColorbox(objectName.."ColorThreatSafe", "Safe", AlignmentColumn, panel.ColorThreatTransition, 16)
 
 	--[[
 	-- Warning Border Glow

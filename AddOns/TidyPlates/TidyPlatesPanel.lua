@@ -52,6 +52,12 @@ TidyPlatesOptions = {
 	WelcomeShown = false,
 }
 
+local AutomationDropdownItems = {
+					{ text = NO_AUTOMATION, value = NO_AUTOMATION } ,
+					{ text = DURING_COMBAT, value = DURING_COMBAT } ,
+					{ text = OUT_OF_COMBAT, value = OUT_OF_COMBAT } ,
+					}
+
 local ProfileList = {
 	{ text = "Damage", r = 1 , g =.1 , b = 0, value = "Damage" },
 	{ text = "Healer", value = "Healer"},
@@ -337,14 +343,6 @@ local titleString = addonString			-- .." |cFF444444"..versionString
 local firstShow = true
 
 
-local AutomationDropdownItems = {
-					{ text = NO_AUTOMATION, notCheckable = 1 } ,
-					{ text = DURING_COMBAT, notCheckable = 1 } ,
-					{ text = OUT_OF_COMBAT, notCheckable = 1 } ,
-					}
-
-
-
 local function CreateMenuTables()
 	-- Convert the Theme List into a Menu List
 	local themecount = 1
@@ -358,7 +356,7 @@ local function CreateMenuTables()
 			themecount = themecount + 1
 		end
 		-- Theme Choices
-		for index, name in pairs(TidyPlatesThemeNames) do ThemeDropdownMenuItems[index] = {text = name, notCheckable = 1 } end
+		for index, name in pairs(TidyPlatesThemeNames) do ThemeDropdownMenuItems[index] = {text = name, value = name } end
 	end
 	sort(ThemeDropdownMenuItems, function (a,b)
 	  return (a.text < b.text)

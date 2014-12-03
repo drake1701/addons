@@ -20,6 +20,8 @@ local function DummyFunction() end
 -- Scale
 ------------------------------------------------------------------------------
 
+local MiniMobScale = .7
+
 -- By Low Health
 local function ScaleFunctionByLowHealth(unit)
 	if unit.health/unit.healthmax < LocalVars.LowHealthThreshold then return LocalVars.ScaleSpotlight end
@@ -93,27 +95,43 @@ end
 
 -- By Threat (Auto Detect)
 local function ScaleFunctionByThreat(unit)
-		if (LocalVars.ThreatMode == THREATMODE_AUTO and IsTankingAuraActive())
-			or LocalVars.ThreatMode == THREATMODE_TANK then
-				return ScaleFunctionByThreatLow(unit)	-- tank mode
-		else return ScaleFunctionByThreatHigh(unit) end
+	if unit.reaction == "NEUTRAL" and unit.threatValue < 2 then return ScaleFunctionByThreatHigh(unit) end
+
+	if (LocalVars.ThreatMode == "Auto" and IsTankingAuraActive())
+		or LocalVars.ThreatMode == "Tank" then
+			return ScaleFunctionByThreatLow(unit)	-- tank mode
+	else return ScaleFunctionByThreatHigh(unit) end
 
 end
 
 -- Function List
---local ScaleFunctionsDamage = { DummyFunction, ScaleFunctionByElite, ScaleFunctionByTarget, ScaleFunctionByThreatHigh, ScaleFunctionByActiveDebuffs, ScaleFunctionByEnemy,ScaleFunctionByNPC, ScaleFunctionByRaidIcon, ScaleFunctionByEnemyHealer, ScaleFunctionByThreatAutoDetect}
 
---local ScaleFunctionsTank = { DummyFunction, ScaleFunctionByElite, ScaleFunctionByTarget, ScaleFunctionByThreatLow, ScaleFunctionByActiveDebuffs, ScaleFunctionByEnemy, ScaleFunctionByNPC, ScaleFunctionByRaidIcon, ScaleFunctionByThreatAutoDetect}
+local ScaleFunctionsUniversal = {}
 
+--[[
 local ScaleFunctionsUniversal = { DummyFunction, ScaleFunctionByThreat, ScaleFunctionByElite,
 		ScaleFunctionByEnemy,ScaleFunctionByNPC, ScaleFunctionByRaidIcon,
 		ScaleFunctionByEnemyHealer, ScaleFunctionByLowHealth, ScaleFunctionByBoss}
+--]]
 
 
--- Scale Functions Listed by Role order: Damage, Tank, Heal
--- local ScaleFunctions = {ScaleFunctionsDamage, ScaleFunctionsTank}
+local AddHubFunction = TidyPlatesHubHelpers.AddHubFunction
+
+AddHubFunction(ScaleFunctionsUniversal, TidyPlatesHubMenus.ScaleModes, DummyFunction, "None", "None")
+AddHubFunction(ScaleFunctionsUniversal, TidyPlatesHubMenus.ScaleModes, ScaleFunctionByThreat, "By Threat", "ByThreat")
+AddHubFunction(ScaleFunctionsUniversal, TidyPlatesHubMenus.ScaleModes, ScaleFunctionByElite, "On Elite Units", "OnElite")
+AddHubFunction(ScaleFunctionsUniversal, TidyPlatesHubMenus.ScaleModes, ScaleFunctionByEnemy, "On Enemy Units", "OnHostile")
+AddHubFunction(ScaleFunctionsUniversal, TidyPlatesHubMenus.ScaleModes, ScaleFunctionByNPC, "On NPCs", "OnNPC")
+AddHubFunction(ScaleFunctionsUniversal, TidyPlatesHubMenus.ScaleModes, ScaleFunctionByRaidIcon, "On Raid Targets", "OnMarked")
+AddHubFunction(ScaleFunctionsUniversal, TidyPlatesHubMenus.ScaleModes, ScaleFunctionByEnemyHealer, "On Enemy Healers", "OnHealers")
+AddHubFunction(ScaleFunctionsUniversal, TidyPlatesHubMenus.ScaleModes, ScaleFunctionByLowHealth, "On Low-Health Units", "OnLowHealth")
+AddHubFunction(ScaleFunctionsUniversal, TidyPlatesHubMenus.ScaleModes, ScaleFunctionByBoss, "On Bosses", "OnBosses")
+--TidyPlatesHubDefaults.ScaleSpotlightMode = 2			-- Sets the default function
+TidyPlatesHubDefaults.ScaleSpotlightMode = "ByThreat"			-- Sets the default function
+
 
 local function ScaleDelegate(...)
+
 	local unit = ...
 	local scale
 
@@ -140,6 +158,7 @@ local function ScaleDelegate(...)
 
 	return scale or LocalVars.ScaleStandard
 end
+
 
 ------------------------------------------------------------------------------
 -- Local Variable

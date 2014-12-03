@@ -199,11 +199,16 @@ end
 
 local function FindWidgetByName(SearchFor)
 	if SearchFor == nil then return end
+	local SearchForForeign = SearchFor..FOREIGN_SERVER_LABEL
+
 	local widget
 	--local SearchFor = strsplit("-", NameString)
 	for widget in pairs(WidgetList) do
 		--if widget.unit.name == SearchFor then
-		if widget.unit.rawName == SearchFor then
+		if widget.unit.rawName == SearchFor  then
+			return widget
+		-- Try this alternative...
+		elseif widget.unit.name == SearchForForeign then
 			return widget
 		end
 	end
