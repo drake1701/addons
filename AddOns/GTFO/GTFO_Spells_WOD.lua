@@ -142,6 +142,42 @@ GTFO.SpellID["166002"] = {
 	sound = 1;
 };
 
+GTFO.SpellID["175294"] = {
+	--desc = "Lava Burn";
+	sound = 1;
+};
+
+GTFO.SpellID["173611"] = {
+	--desc = "Lava";
+	sound = 1;
+	negatingDebuffSpellID = 170153; -- Lava Slimed
+};
+
+GTFO.SpellID["161894"] = {
+	--desc = "Frosted Ground";
+	sound = 1;
+};
+
+GTFO.SpellID["178583"] = {
+	--desc = "Frosted Ground";
+	sound = 1;
+};
+
+GTFO.SpellID["176119"] = {
+	--desc = "Stinging Sands (Spirit of Kairozdormu)";
+	sound = 1;
+};
+
+GTFO.SpellID["176473"] = {
+	--desc = "Petrifying Breath (Spirit of Kairozdormu)";
+	sound = 1;
+};
+
+GTFO.SpellID["151630"] = {
+	--desc = "Blazing Shot (Commander Vorka)";
+	sound = 1;
+};
+
 --TODO: Acid Breath (Drov the Ruiner) - avoidable?
 --TODO: Noxious Spit (Tarlna the Ageless) - pool
 
@@ -432,6 +468,11 @@ GTFO.SpellID["159034"] = {
 -- * Skyreach *
 -- ************
 
+GTFO.SpellID["156841"] = {
+	--desc = "Storm (Whirling Dervish)";
+	sound = 1;
+};
+
 GTFO.SpellID["153139"] = {
 	--desc = "Four Winds (Ranjit)";
 	sound = 1;
@@ -444,6 +485,11 @@ GTFO.SpellID["153759"] = {
 
 GTFO.SpellID["159226"] = {
 	--desc = "Solar Storm (Skyreach Arcanologist)";
+	sound = 1;
+};
+
+GTFO.SpellID["159381"] = {
+	--desc = "Quills (Rukhran)";
 	sound = 1;
 };
 
@@ -727,6 +773,18 @@ GTFO.SpellID["156401"] = {
 -- * Highmaul *
 -- ************
 
+GTFO.SpellID["175642"] = {
+	--desc = "Rune of Destruction";
+	sound = 4;
+	negatingDebuffSpellID = 175642; -- Rune
+	test = true;
+};
+
+GTFO.SpellID["175654"] = {
+	--desc = "Rune of Disintegration";
+	sound = 1;
+};
+
 GTFO.SpellID["161635"] = {
 	--desc = "Molten Bomb (Vul'gor)";
 	sound = 1;
@@ -765,7 +823,6 @@ GTFO.SpellID["163046"] = {
 GTFO.SpellID["162370"] = {
 	--desc = "Crystalline Barrage (Tectus)";
 	sound = 1;
-	test = true; -- Avoidable if you're marked?
 };
 
 GTFO.SpellID["173232"] = {

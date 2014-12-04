@@ -100,6 +100,66 @@ GTFO.SpellID["154571"] = {
 	sound = 3;
 };
 
+GTFO.SpellID["150876"] = {
+	--desc = "Rolling Boulder Smash";
+	sound = 3;
+};
+
+GTFO.SpellID["148798"] = {
+	--desc = "Explosive Lava";
+	sound = 3;
+};
+
+GTFO.SpellID["151579"] = {
+	--desc = "Explosive Lava";
+	sound = 3;
+};
+
+GTFO.SpellID["155263"] = {
+	--desc = "Clusterpult Shot (Iron Clusterpult)";
+	sound = 3;
+};
+
+GTFO.SpellID["155260"] = {
+	--desc = "Punch [Right] (Iron Clusterpult)";
+	sound = 3;
+};
+
+GTFO.SpellID["155241"] = {
+	--desc = "Punch [Left] (Iron Clusterpult)";
+	sound = 3;
+};
+
+GTFO.SpellID["155230"] = {
+	--desc = "Avalanche Palm (Maggoc)";
+	sound = 3;
+};
+
+GTFO.SpellID["154648"] = {
+	--desc = "Spear Barrage";
+	sound = 3;
+};
+
+GTFO.SpellID["176367"] = {
+	--desc = "Time Bomb (Spirit of Kairozdormu)";
+	sound = 3;
+};
+
+GTFO.SpellID["176464"] = {
+	--desc = "Ripples in Time (Spirit of Kairozdormu)";
+	sound = 3;
+};
+
+GTFO.SpellID["151691"] = {
+	--desc = "Black Skies (Commander Vorka)";
+	sound = 3;
+};
+
+GTFO.SpellID["165908"] = {
+	--desc = "Earthshattering Slam (Grosh the Mighty)";
+	sound = 3;
+};
+
 --TODO: Colossal Slam (Drov the Ruiner) - non-tank fail for front-cone damage
 --TODO: Rumbling Goren (Drov the Ruiner) - non-tank fail?
 --TODO: Colossal Blow (Tarlna the Ageless) - avoidable by tanks too?
@@ -210,6 +270,11 @@ GTFO.SpellID["162057"] = {
 -- **************
 -- * Iron Docks *
 -- **************
+
+GTFO.SpellID["163668"] = {
+	--desc = "Flaming Slash (Makogg Emberblade)";
+	sound = 3;
+};
 
 GTFO.SpellID["163276"] = {
 	--desc = "Shredded Tendons (Neesa Nox)";
@@ -586,6 +651,12 @@ GTFO.SpellID["158009"] = {
 GTFO.SpellID["162271"] = {
 	--desc = "Earth Breaker (Vul'gor)";
 	sound = 3;
+};
+
+GTFO.SpellID["172115"] = {
+	--desc = "Earthen Thrust";
+	sound = 3;
+	test = true;
 };
 
 GTFO.SpellID["161634"] = {
