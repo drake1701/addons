@@ -82,6 +82,7 @@ L["have"] = "拥有"
 L["Hide trivial"] = "隐藏无价值的"
 L["Hide uncraftable"] = "隐藏不能制作的"
 L["Include alts"] = "包括其他人物"
+L["Include bank"] = "Include bank" -- Requires localization
 L["Include guild"] = "包括工会" -- Needs review
 L["Inventory"] = "背包"
 L["INVENTORYDESC"] = "背包信息"

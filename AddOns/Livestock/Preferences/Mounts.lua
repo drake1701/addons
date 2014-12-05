@@ -125,6 +125,11 @@ sb21:SetScript("OnClick", function()
 	Livestock.RenumberMounts()
 end)
 
+local sb22 = Recompense.CreateButtonAndText("LivestockSmartPreferencesFrameNagrand", smartprefs, 5, -352, "LivestockSmartPreferencesFrameNagrandText")
+sb22:SetScript("OnClick", function()
+	LivestockSettings.nagrand = 1 - LivestockSettings.nagrand
+end)
+
 local sbb = CreateFrame("Button", "LivestockSmartPreferencesFrameOpenLivestockMenuButton", smartprefs, "GameMenuButtonTemplate")
 sbb:SetText(LivestockLocalizations.LIVESTOCK_FONTSTRING_LIVESTOCKMENU)
 sbb:SetWidth(145)

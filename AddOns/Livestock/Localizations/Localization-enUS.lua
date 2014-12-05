@@ -46,6 +46,7 @@ L.LIVESTOCK_FONTSTRING_WATERSTRIDERLABEL = "Use Azure Water Strider on water if 
 L.LIVESTOCK_FONTSTRING_WATERSTRIDER2LABEL = "Use Azure Water Strider while underwater."
 L.LIVESTOCK_FONTSTRING_ZENFLIGHTLABEL = "Smart Mounting casts Zen Flight when moving (outdoors, out of combat)."
 L.LIVESTOCK_FONTSTRING_FLYLANDLABEL = "Include flying mounts in the land mount menu."
+L.LIVESTOCK_FONTSTRING_NAGRANDLABEL = "Use Garrison Mounts when in Nagrand zone."
 
 L.LIVESTOCK_MENU_MORE = "More   >>>"
 L.LIVESTOCK_MENU_SELECTALL = "Select all"

@@ -1,0 +1,249 @@
+<Ui>
+
+	<Button name="RematchLoadoutAbilityTemplate" inherits="RematchBaseSlotTemplate" virtual="true">
+		<Size x="24" y="24"/>
+		<Layers>
+			<Layer level="OVERLAY">
+				<FontString parentKey="level" inherits="SystemFont_Shadow_Med3" hidden="true">
+					<Anchors>
+						<Anchor point="CENTER"/>
+					</Anchors>
+					<Color r="1" g="0.1" b="0.1"/>
+				</FontString>
+			</Layer>
+		</Layers>
+		<Scripts>
+			<OnEnter>
+				Rematch.CurrentAbilityOnEnter(self)
+			</OnEnter>
+			<OnLeave>
+				Rematch.CurrentAbilityOnLeave(self)
+			</OnLeave>
+			<OnClick>
+				Rematch.CurrentAbilityOnClick(self)
+			</OnClick>
+		</Scripts>
+	</Button>
+
+	<Button name="RematchCurrentAbilityTemplate" inherits="RematchLoadoutAbilityTemplate" virtual="true">
+		<Size x="24" y="24"/>
+		<Layers>
+			<Layer level="OVERLAY">
+				<FontString parentKey="level" inherits="SystemFont_Shadow_Med3" hidden="true">
+					<Anchors>
+						<Anchor point="CENTER"/>
+					</Anchors>
+					<Color r="1" g="0.1" b="0.1"/>
+				</FontString>
+				<Texture parentKey="arrow" file="Interface\Buttons\ActionBarFlyoutButton" hidden="true">
+					<Size x="9" y="15"/>
+					<Anchors>
+						<Anchor point="LEFT" x="-4" y="0"/>
+					</Anchors>
+					<TexCoords left="0.796875" right="0.96875" top="0.0234375" bottom="0.171875"/>
+				</Texture>
+			</Layer>
+		</Layers>
+	</Button>
+
+	<Button name="RematchCurrentPetTemplate" inherits="RematchActivePetSlotTemplate" virtual="true">
+		<Size x="48" y="48"/>
+		<Layers>
+			<Layer level="ARTWORK">
+				<!-- background/border of health and xp bar -->
+				<Texture parentKey="healthBG" file="Interface\Archeology\Arch-Progress-BG">
+					<Size x="43" y="12"/>
+					<Anchors>
+						<Anchor point="TOPLEFT" relativePoint="BOTTOMLEFT" x="2" y="1"/> <!-- y="-2" -->
+					</Anchors>
+					<TexCoords left="0.005859375" right="0.837890625" top="0.046875" bottom="0.640625"/>
+				</Texture>
+				<Texture parentKey="xpBG" file="Interface\Archeology\Arch-Progress-BG">
+					<Size x="43" y="12"/>
+					<Anchors>
+						<Anchor point="TOPLEFT" relativeKey="$parent.healthBG" relativePoint="BOTTOMLEFT" x="0" y="1"/>
+					</Anchors>
+					<TexCoords left="0.005859375" right="0.837890625" top="0.046875" bottom="0.640625"/>
+				</Texture>
+			</Layer>
+			<Layer level="OVERLAY">
+				<!-- actual health and xp bar -->
+				<Texture parentKey="health" file="Interface\TargetingFrame\UI-TargetingFrame-BarFill">
+					<Size x="37" y="6"/>
+					<Anchors>
+						<Anchor point="TOPLEFT" relativeKey="$parent.healthBG" relativePoint="TOPLEFT" x="3" y="-3"/>
+					</Anchors>
+					<TexCoords left="0" right="0.85" top="0" bottom="1"/>
+					<Color r="0" g="0.85" b="0"/>
+				</Texture>
+				<Texture parentKey="xp" file="Interface\TargetingFrame\UI-TargetingFrame-BarFill">
+					<Size x="37" y="6"/>
+					<Anchors>
+						<Anchor point="TOPLEFT" relativeKey="$parent.xpBG" relativePoint="TOPLEFT" x="3" y="-3"/>
+					</Anchors>
+					<TexCoords left="0" right="0.85" top="0" bottom="1"/>
+					<Color r=".2" g=".5" b="1"/>
+				</Texture>
+			</Layer>
+		</Layers>
+		<Frames>
+			<!-- the three abilities to the right of the pet -->
+			<Button parentArray="abilities" inherits="RematchCurrentAbilityTemplate" id="1">
+				<Anchors>
+					<Anchor point="TOPLEFT" relativePoint="TOPRIGHT" x="2" y="4"/>
+				</Anchors>
+			</Button>
+			<Button parentArray="abilities" inherits="RematchCurrentAbilityTemplate" id="2">
+				<Anchors>
+					<Anchor point="TOPLEFT" relativePoint="TOPRIGHT" x="2" y="-21"/>
+				</Anchors>
+			</Button>
+			<Button parentArray="abilities" inherits="RematchCurrentAbilityTemplate" id="3">
+				<Anchors>
+					<Anchor point="TOPLEFT" relativePoint="TOPRIGHT" x="2" y="-46"/>
+				</Anchors>
+			</Button>
+		</Frames>
+		<Scripts>
+			<OnEnter>
+				Rematch.CurrentPetOnEnter(self)
+			</OnEnter>
+			<OnReceiveDrag>
+				Rematch.CurrentPetOnReceiveDrag(self)
+			</OnReceiveDrag>
+		</Scripts>
+	</Button>
+
+	<Frame parentKey="current" parent="Rematch" useParentLevel="true">
+		<Anchors>
+			<Anchor point="TOPLEFT" x="3" y="-3"/>
+			<Anchor point="BOTTOMRIGHT" relativePoint="TOPRIGHT" x="-3" y="-100"/>
+		</Anchors>
+		<Layers>
+			<Layer level="BACKGROUND">
+				<Texture parentKey="back" file="Interface\PetBattles\PetJournal" setAllPoints="true">
+					<TexCoords left="0.189453125" right="0.658203125" top="0.486328125" bottom="0.5908203125"/>
+				</Texture>
+			</Layer>
+			<Layer level="BORDER">
+				<!-- separator below current pets -->
+				<Texture file="Interface\PetBattles\_PetJournalHorizTile" tile="horiz">
+					<Size x="0" y="6"/>
+					<Anchors>
+						<Anchor point="BOTTOMLEFT" x="0" y="-3"/>
+						<Anchor point="BOTTOMRIGHT" x="0" y="-3"/>
+					</Anchors>
+					<TexCoords left="0" right="1" top="0.0078125" bottom="0.078125"/>
+				</Texture>
+			</Layer>
+		</Layers>
+		<Frames>
+			<Button parentArray="pets" inherits="RematchCurrentPetTemplate" id="1">
+				<Anchors>
+					<Anchor point="TOPLEFT" x="20" y="-20"/>
+				</Anchors>
+			</Button>
+			<Button parentArray="pets" inherits="RematchCurrentPetTemplate" id="2">
+				<Anchors>
+					<Anchor point="TOPLEFT" x="108" y="-20"/>
+				</Anchors>
+			</Button>
+			<Button parentArray="pets" inherits="RematchCurrentPetTemplate" id="3">
+				<Anchors>
+					<Anchor point="TOPLEFT" x="198" y="-20"/>
+				</Anchors>
+			</Button>
+
+			<!-- the left/right arrow buttons beneath a leveling pet to move around the queue -->
+			<Frame parentKey="levelingNavigator" hidden="true">
+				<Size x="56" y="32"/>
+				<Anchors>
+					<Anchor point="CENTER" relativeTo="UIParent"/>
+				</Anchors>
+				<Frames>
+					<Button parentKey="prev" inherits="RematchToolbarButtonTemplate">
+						<Anchors>
+							<Anchor point="LEFT"/>
+						</Anchors>
+						<Scripts>
+							<OnClick>
+								Rematch:TraverseQueue(true) -- backward
+							</OnClick>
+						</Scripts>
+					</Button>
+					<Button parentKey="next" inherits="RematchToolbarButtonTemplate">
+						<Anchors>
+							<Anchor point="RIGHT"/>
+						</Anchors>
+						<Scripts>
+							<OnClick>
+								Rematch:TraverseQueue()
+							</OnClick>
+						</Scripts>
+					</Button>
+				</Frames>
+				<Scripts>
+					<OnUpdate>
+						Rematch.LevelingNavigatorOnUpdate(self,elapsed)
+					</OnUpdate>
+				</Scripts>
+			</Frame>
+
+		</Frames>
+	</Frame>
+
+	<Frame name="RematchAbilityFlyout" enableMouse="true" frameLevel="10" hidden="true">
+		<Size x="56" y="32"/>
+		<Backdrop bgFile="Interface\ChatFrame\ChatFrameBackground" edgeFile="Interface\Tooltips\UI-Tooltip-Border" tile="true">
+			<BackgroundInsets>
+				<AbsInset left="3" right="3" top="3" bottom="3"/>
+			</BackgroundInsets>
+			<EdgeSize val="12"/>
+			<TileSize val="32"/>
+			<Color r="0" g="0" b="0"/>
+			<BorderColor r="1" g=".82" b="0"/>
+		</Backdrop>
+		<Layers>
+			<Layer level="OVERLAY">
+				<Texture parentKey="arrow" file="Interface\Buttons\ActionBarFlyoutButton">
+					<Size x="9" y="15"/>
+					<Anchors>
+						<Anchor point="LEFT" relativePoint="RIGHT" x="-3" y="0"/>
+					</Anchors>
+					<TexCoords left="0.96875" right="0.796875" top="0.0234375" bottom="0.171875"/>
+				</Texture>
+			</Layer>
+		</Layers>
+		<Frames>
+			<Button parentArray="ability" inherits="RematchLoadoutAbilityTemplate">
+				<Anchors>
+					<Anchor point="RIGHT" x="-4" y="0"/>
+				</Anchors>
+				<Scripts>
+					<OnClick>
+						Rematch.FlyoutButtonOnClick(self)
+					</OnClick>
+				</Scripts>
+			</Button>
+			<Button parentArray="ability" inherits="RematchLoadoutAbilityTemplate">
+				<Anchors>
+					<Anchor point="LEFT" x="4" y="0"/>
+				</Anchors>
+				<Scripts>
+					<OnClick>
+						Rematch.FlyoutButtonOnClick(self)
+					</OnClick>
+				</Scripts>
+			</Button>
+		</Frames>
+		<Scripts>
+			<OnHide>
+				Rematch.FlyoutOnHide(self)
+			</OnHide>
+			<OnUpdate>
+				Rematch.FlyoutOnUpdate(self,elapsed)
+			</OnUpdate>
+		</Scripts>
+	</Frame>
+
+</Ui>

@@ -77,6 +77,7 @@ L["have"] = "есть"
 L["Hide trivial"] = "Скрыть низкоуровневые"
 L["Hide uncraftable"] = "Скрыть не создаваемые"
 L["Include alts"] = "Включать альтов"
+L["Include bank"] = "Include bank" -- Requires localization
 L["Include guild"] = "Включая гильдию" -- Needs review
 L["Inventory"] = "Инвентарь"
 L["INVENTORYDESC"] = "Информация инвентаря"

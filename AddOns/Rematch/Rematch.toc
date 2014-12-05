@@ -1,0 +1,43 @@
+## Interface: 60000
+## Title: Rematch
+## Notes: A pet journal alternative to help manage battle pet teams and pets.
+## Author: Gello
+## Version: 3.1.8
+## SavedVariables: RematchSettings, RematchSaved
+
+localization\rematch enUS.lua
+localization\rematch deDE.lua
+localization\rematch zhCN.lua
+localization\rematch zhTW.lua
+localization\rematch esMX.lua
+localization\rematch esES.lua
+
+templates.xml
+main.xml
+common.lua
+main.lua
+current.xml
+current.lua
+options.xml
+options.lua
+floatingpetcard.xml
+floatingpetcard.lua
+roster.lua
+browser.xml
+browser.lua
+leveling.xml
+leveling.lua
+menu.xml
+menu.lua
+rmf.lua
+dialog.xml
+dialog.lua
+teams.xml
+teams.lua
+save.xml
+save.lua
+finder.lua
+petloading.lua
+notes.xml
+notes.lua
+

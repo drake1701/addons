@@ -820,6 +820,11 @@ GTFO.SpellID["163046"] = {
 -- Tectus
 -- TODO: Petrification (Tectus) -- How many stacks is too many?
 
+GTFO.SpellID["172069"] = {
+	--desc = "Radiating Poison (Tectus Trash)";
+	sound = 4;
+};
+
 GTFO.SpellID["162370"] = {
 	--desc = "Crystalline Barrage (Tectus)";
 	sound = 1;
@@ -853,6 +858,17 @@ GTFO.SpellID["160179"] = {
 	test = true;
 };
 
+GTFO.SpellID["166180"] = {
+	--desc = "Shield Charge (Highmaul Conscript)";
+	sound = 3;
+};
+
+GTFO.SpellID["166188"] = {
+	--desc = "Decimate (Ogron Brute)";
+	sound = 1;
+	tankSound = 0;
+};
+
 GTFO.SpellID["157944"] = {
 	--desc = "Whirlwind (Phemos)";
 	sound = 1;
@@ -868,12 +884,14 @@ GTFO.SpellID["158241"] = {
 -- Ko'ragh
 -- TODO: Expel Magic: Fel (Ko'ragh, Heroic) -- fire?
 
-GTFO.SpellID["159220"] = {
+--[[
+GTFO.SpellID["unknown"] = {
 	--desc = "Suppression Field (Ko'ragh)";
 	sound = 1;
 	tankSound = 0;
 	test = true; -- How does this mechanic work strat-wise?  Tanks may have to drag adds into the field to prevent explosions, but does DPS ever need to stand there?
 };
+]]--
 
 -- Imperator Mar'gok
 -- TODO: Force Nova (Imperator Mar'gok) -- avoidable?

@@ -1,0 +1,323 @@
+<!-- the main window -->
+
+<Ui>
+
+	<Frame name="Rematch" parent="UIParent" frameStrata="MEDIUM" clampedToScreen="true" movable="true" resizable="true" inherits="RematchBaseFrameTemplate,RematchDragTemplate" hidden="true">
+		<Size x="296" y="136"/>
+		<ResizeBounds>
+			<minResize>
+				<AbsDimension x="296" y="319"/>
+			</minResize>
+			<maxResize>
+				<AbsDimension x="296" y="700"/>
+			</maxResize>
+		</ResizeBounds>
+		<Anchors>
+			<Anchor point="CENTER"/>
+		</Anchors>
+		<Frames>
+			<!-- header at top of main window (usually "Current Battle Pets" or team loaded) -->
+			<Frame parentKey="header" inherits="RematchHeaderTemplate">
+				<Anchors>
+					<Anchor point="CENTER" relativePoint="TOP" x="0" y="-3"/>
+				</Anchors>
+				<Frames>
+					<!-- extra frame necessary to make header draggable -->
+					<Frame name="RematchDraggableHeader" inherits="RematchDragTemplate">
+						<Anchors>
+							<Anchor point="TOPLEFT" relativeKey="$parent.headerF"/>
+							<Anchor point="BOTTOMRIGHT" relativeKey="$parent.headerF"/>
+						</Anchors>
+					</Frame>
+				</Frames>
+			</Frame>
+			<!-- close button in topright -->
+			<Button inherits="RematchClearButtonTemplate">
+				<Anchors>
+					<Anchor point="TOPRIGHT" x="-2" y="-3"/>
+				</Anchors>
+				<Scripts>
+					<OnLoad>
+						self.texture:SetVertexColor(1,.82,0)
+					</OnLoad>
+					<OnClick>
+						Rematch.Toggle(self)
+					</OnClick>
+				</Scripts>
+			</Button>
+
+			<!-- notes button when the current team has notes sits within the header -->
+			<Button parentKey="notesButton">
+				<Size x="22" y="22"/>
+				<Anchors>
+					<Anchor point="LEFT" relativeTo="RematchDraggableHeader" x="-3" y="0"/>
+				</Anchors>
+				<NormalTexture file="Interface\Store\category-icon-scroll">
+					<TexCoords left="0.25" right="0.75" top="0.25" bottom="0.75"/>
+				</NormalTexture>
+				<PushedTexture file="Interface\Store\category-icon-scroll">
+					<TexCoords left="0.2" right="0.8" top="0.2" bottom="0.8"/>
+				</PushedTexture>
+				<HighlightTexture file="Interface\Store\minimap-delivery-highlight" blend="ADD" alpha="0.5">
+					<Size x="26" y="26"/>
+					<Anchors>
+						<Anchor point="CENTER"/>
+					</Anchors>
+				</HighlightTexture>
+				<Scripts>
+					<OnEnter>
+						Rematch.ShowNotesCard(self,RematchSettings.loadedTeamName)
+					</OnEnter>
+					<OnLeave>
+						Rematch.HideNotesCard(self)
+					</OnLeave>
+					<OnClick>
+						Rematch.LockNotesCard(self,RematchSettings.loadedTeamName,button)
+					</OnClick>
+				</Scripts>
+			</Button>
+
+			<!-- toolbar with pet/team tabs and save/import/etc buttons -->
+			<Frame parentKey="toolbar" useParentLevel="true">
+				<Size x="290" y="32"/>
+				<Anchors>
+					<Anchor point="BOTTOM" x="0" y="3"/>
+				</Anchors>
+				<Layers>
+					<Layer level="BACKGROUND" textureSubLevel="-1">
+						<Texture file="Interface\FrameGeneral\UI-Background-Rock" horizTile="true" vertTile="true">
+							<Anchors>
+								<Anchor point="TOPLEFT" x="1" y="-1"/>
+								<Anchor point="BOTTOMRIGHT" x="-1" y="1"/>
+							</Anchors>
+						</Texture>
+					</Layer>
+					<Layer level="BACKGROUND">
+						<Texture parentKey="shadow" file="Interface\Common\ShadowOverlay-Corner" setAllPoints="true">
+							<Anchors>
+								<Anchor point="TOPLEFT" x="1" y="-1"/>
+								<Anchor point="BOTTOMRIGHT" x="-1" y="1"/>
+							</Anchors>
+							<TexCoords left="1" right="0" top="0" bottom="1"/>
+						</Texture>
+					</Layer>
+				</Layers>
+				<Frames>
+					<!-- save -->
+					<Button parentArray="buttons" inherits="RematchToolbarButtonTemplate">
+						<Anchors>
+							<Anchor point="BOTTOMRIGHT" x="0" y="0"/>
+						</Anchors>
+					</Button>
+					<!-- import -->
+					<Button parentArray="buttons" inherits="RematchToolbarButtonTemplate">
+						<Anchors>
+							<Anchor point="BOTTOMRIGHT" x="-26" y="0"/>
+						</Anchors>
+					</Button>
+					<!-- options -->
+					<Button parentArray="buttons" inherits="RematchToolbarButtonTemplate">
+						<Anchors>
+							<Anchor point="BOTTOMRIGHT" x="-52" y="0"/>
+						</Anchors>
+					</Button>
+					<!-- find battle -->
+					<Button parentArray="buttons" inherits="RematchToolbarButtonTemplate">
+						<Anchors>
+							<Anchor point="BOTTOMLEFT" x="52" y="0"/>
+						</Anchors>
+					</Button>
+					<!-- bandage -->
+					<Button parentArray="buttons" inherits="RematchToolbarButtonTemplate,SecureActionButtonTemplate">
+						<Anchors>
+							<Anchor point="BOTTOMLEFT" x="26" y="0"/>
+						</Anchors>
+						<Attributes>
+							<Attribute name="type" value="item"/>
+							<Attribute name="item" value="item:86143"/>
+						</Attributes>
+						<Layers>
+							<Layer level="OVERLAY">
+								<FontString parentKey="count" inherits="SystemFont_Outline_Small">
+									<Anchors>
+										<Anchor point="CENTER"/>
+									</Anchors>
+								</FontString>
+							</Layer>
+						</Layers>
+						<Scripts>
+							<OnEnter>
+								Rematch.HealButtonOnEnter(self)
+							</OnEnter>
+							<OnLeave>
+								GameTooltip:Hide()
+							</OnLeave>
+						</Scripts>
+					</Button>
+					<!-- heal -->
+					<Button parentArray="buttons" inherits="RematchToolbarButtonTemplate,SecureActionButtonTemplate">
+						<Anchors>
+							<Anchor point="BOTTOMLEFT" x="0" y="0"/>
+						</Anchors>
+						<Attributes>
+							<Attribute name="type" value="spell"/>
+							<Attribute name="spell" value="125439"/>
+						</Attributes>
+						<Frames>
+							<Frame parentKey="cooldownContainer">
+								<Size x="18" y="18"/>
+								<Anchors>
+									<Anchor point="CENTER"/>
+								</Anchors>
+								<Frames>
+									<Cooldown parentKey="cooldown" setAllPoints="true" inherits="CooldownFrameTemplate"/>
+								</Frames>
+							</Frame>
+						</Frames>
+						<Scripts>
+							<OnEnter>
+								Rematch.HealButtonOnEnter(self)
+							</OnEnter>
+							<OnLeave>
+								GameTooltip:Hide()
+							</OnLeave>
+						</Scripts>
+					</Button>
+
+					<Button parentKey="petsTab" inherits="RematchToolbarTabTemplate" id="1">
+						<Anchors>
+							<Anchor point="BOTTOMRIGHT" relativePoint="BOTTOM" x="3" y="0"/>
+						</Anchors>
+					</Button>
+					<Button parentKey="teamsTab" inherits="RematchToolbarTabTemplate" id="2">
+						<Anchors>
+							<Anchor point="BOTTOMLEFT" relativePoint="BOTTOM" x="-3" y="0"/>
+						</Anchors>
+					</Button>
+				</Frames>
+			</Frame>
+
+			<Frame parentKey="drawer" name="RematchDrawer" useParentLevel="true">
+				<Layers>
+					<Layer level="BACKGROUND" textureSubLevel="-1">
+						<Texture file="Interface\FrameGeneral\UI-Background-Rock" horizTile="true" vertTile="true" setAllPoints="true"/>
+					</Layer>
+					<Layer level="BACKGROUND">
+						<Texture parentKey="shadow" file="Interface\Common\ShadowOverlay-Corner" setAllPoints="true">
+							<TexCoords left="1" right="0" top="0" bottom="1"/>
+						</Texture>
+					</Layer>
+					<Layer level="BORDER">
+						<!-- separator below current pets -->
+						<Texture parentKey="separator" file="Interface\PetBattles\_PetJournalHorizTile" tile="horiz">
+							<Size x="290" y="6"/>
+							<TexCoords left="0" right="1" top="0.0078125" bottom="0.078125"/>
+						</Texture>
+					</Layer>
+				</Layers>
+				<Frames>
+					<Frame parentKey="resizeGrip" frameStrata="LOW">
+						<Size x="298" y="12"/>
+						<Anchors>
+							<Anchor point="TOP" relativeTo="Rematch" relativePoint="BOTTOM" x="0" y="2"/>
+						</Anchors>
+						<Layers>
+							<Layer level="BORDER">
+								<Texture parentKey="left" file="Interface\Tooltips\UI-Tooltip-Border">
+									<Size x="16" y="16"/>
+									<Anchors>
+										<Anchor point="BOTTOMLEFT"/>
+									</Anchors>
+									<Color r="1" g="0.82" b="0"/>
+									<TexCoords left="0.75" right="0.8671875" top="0" bottom="1"/>
+								</Texture>
+								<Texture parentKey="right" file="Interface\Tooltips\UI-Tooltip-Border">
+									<Size x="16" y="16"/>
+									<Anchors>
+										<Anchor point="BOTTOMRIGHT"/>
+									</Anchors>
+									<Color r="1" g="0.82" b="0"/>
+									<TexCoords left="0.875" right="1" top="0" bottom="1"/>
+								</Texture>
+								<Texture file="Interface\Tooltips\UI-Tooltip-Border">
+									<Size x="0" y="12"/>
+									<Anchors>
+										<Anchor point="BOTTOMLEFT" relativeKey="$parent.left" relativePoint="BOTTOMRIGHT"/>
+										<Anchor point="BOTTOMRIGHT" relativeKey="$parent.right" relativePoint="BOTTOMLEFT"/>
+									</Anchors>
+									<Color r="1" g="0.82" b="0"/>
+									<TexCoords left="0.8125" right="0.9296875" top="0.25" bottom="1"/>
+								</Texture>
+								<Texture parentKey="gripLine1" file="Interface\Tooltips\UI-Tooltip-Border">
+									<Size x="0" y="8"/>
+									<Anchors>
+										<Anchor point="BOTTOMLEFT" x="8" y="4"/>
+										<Anchor point="BOTTOMRIGHT" x="-8" y="4"/>
+									</Anchors>
+									<Color r=".75" g=".75" b=".75"/>
+									<TexCoords left="0.8125" right="0.9296875" top="0.25" bottom="1"/>
+								</Texture>
+								<Texture parentKey="gripLine2" file="Interface\Tooltips\UI-Tooltip-Border">
+									<Size x="0" y="8"/>
+									<Anchors>
+										<Anchor point="BOTTOMLEFT" x="8" y="7"/>
+										<Anchor point="BOTTOMRIGHT" x="-8" y="7"/>
+									</Anchors>
+									<Color r=".75" g=".75" b=".75"/>
+									<TexCoords left="0.8125" right="0.9296875" top="0.25" bottom="1"/>
+								</Texture>
+							</Layer>
+							<Layer level="BACKGROUND">
+								<Texture>
+									<Anchors>
+										<Anchor point="TOPLEFT" x="3" y="0"/>
+										<Anchor point="BOTTOMRIGHT" x="-3" y="3"/>
+									</Anchors>
+									<Color r="0.1" g="0.1" b="0.1"/>
+								</Texture>
+							</Layer>
+						</Layers>
+						<Scripts>
+							<OnEnter>
+								Rematch:ResizeGripHighlight()
+							</OnEnter>
+							<OnLeave>
+								Rematch:ResizeGripUnhighlight()
+							</OnLeave>
+							<OnHide>
+								Rematch:ResizeGripUnhighlight()
+							</OnHide>
+							<OnMouseDown>
+								Rematch:FrameStartSizing()
+							</OnMouseDown>
+							<OnMouseUp>
+								Rematch:FrameStopSizing()
+							</OnMouseUp>
+						</Scripts>
+					</Frame>
+				</Frames>
+				<Scripts>
+					<OnHide>
+						Rematch.DrawerOnHide(self)
+					</OnHide>
+				</Scripts>
+			</Frame>
+
+		</Frames>
+		<Scripts>
+			<OnLoad>
+				self:RegisterEvent("PLAYER_LOGIN")
+			</OnLoad>
+			<OnEvent>
+				Rematch.OnEvent(self,event,...)
+			</OnEvent>
+			<OnShow>
+				Rematch.OnShow(self)
+			</OnShow>
+			<OnHide>
+				Rematch.OnHide(self)
+			</OnHide>
+		</Scripts>
+	</Frame>
+
+</Ui>

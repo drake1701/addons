@@ -1,0 +1,29 @@
+## Interface: 60000
+## Author: Lockslap
+## Title: |cff1784d1ElvUI|r Item Level Datatext
+## Version: 1.5
+## Notes: Simple datatext to show your character's item level.
+## RequiredDeps: ElvUI
+## X-Curse-Packaged-Version: 1.5
+## X-Curse-Project-Name: ElvUI Item Level Datatext
+## X-Curse-Project-ID: elvui_itemlevel
+## X-Curse-Repository-ID: wow/elvui_itemlevel/mainline
+
+Libraries\LibStub\LibStub.lua
+Libraries\CallbackHandler-1.0\CallbackHandler-1.0.xml
+Libraries\AceLocale-3.0\AceLocale-3.0.xml
+Libraries\AceTimer-3.0\AceTimer-3.0.xml
+
+Locales\enUS.lua
+Locales\deDE.lua
+Locales\esES.lua
+Locales\esMX.lua
+Locales\frFR.lua
+Locales\itIT.lua
+Locales\koKR.lua
+Locales\ptBR.lua
+Locales\ruRU.lua
+Locales\zhCN.lua
+Locales\zhTW.lua
+
+ElvUI_ItemLevelDatatext.lua

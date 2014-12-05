@@ -77,6 +77,7 @@ L["have"] = "Possession"
 L["Hide trivial"] = "Cacher les triviaux"
 L["Hide uncraftable"] = "Cacher les non-réalisables"
 L["Include alts"] = "Inclure les alts"
+L["Include bank"] = "Include bank" -- Requires localization
 L["Include guild"] = "Inclure la guilde"
 L["Inventory"] = "Inventaire"
 L["INVENTORYDESC"] = "Informations sur l'inventaire"

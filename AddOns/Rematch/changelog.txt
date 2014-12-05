@@ -1,0 +1,456 @@
+12/05/2014 version 3.1.8
+- Fixed a bug where renaming a team will delete its notes.
+- Pet filter by quantity now filters for 1, 2+ or 3+ Pets instead of 1, 2 or 3 Pets.
+- Leveling queue right-click menu items "Move to Top" and "Move to End" will dismiss menu.
+- Pet filter menu items "Load Filters" and "Save Filters" will dismiss menu.
+- When searching stats, you can abbreviate Health, Power, Speed and Level as H, P, S and L respectively. ie L<25 or s>300.
+- New pet filter "Without Any 25s" under Miscellaneous to filter to all pets without a level 25 variant.
+- Old pet filter "Only Level 25s" moved to Miscellaneous and paired with new "Without Any 25s".
+
+11/15/2014 version 3.1.7
+- Fix for bug where gaining/losing a pet while default journal has search text will reset the search.
+
+11/12/2014 version 3.1.6
+- Increased maximum number of team tabs to 16.
+- Team tabs are now scrollable, either with mousewheel or scroll buttons that appear at top and bottom of the tabs if there's anything to scroll.
+- Moved the team import button to the left of the team searchbox.
+- zhCN and zhTW localization updated.
+
+11/07/2014 version 3.1.5
+- Fix for battles that end abnormally, causing auto show/auto load to fail on next targets. (Thanks to Iibis at warcraftpets.com!)
+- Fix for saving over an existing team wiping out its notes.
+- Fix for notes button not appearing when creating a new note.
+- Fix for rarity border sometimes appearing over leveling border.
+
+11/06/2014 version 3.1.4
+- New filter menu item 'Save Filters' to save a snapshot of your current filters for later.
+- New filter menu item 'Load Filters' to load the previously saved filters.
+- New filter menu item 'Only Level 25s' to list only level 25 pets.
+- All filter settings except search text now persists across sessions.
+- New browser option 'Reset filters on login' to reset all filters on login.
+- The filter menus Rarity and Pet Type now behave the same as Sources when shift is held: it checks everything but the item you shift+clicked.
+- Team notes displayed due to 'Show notes in battle' option will dismiss at the end of battle.
+- Fixed a bug where Rematch would believe you were still targeting your last target when leaving a pet battle or combat.
+- zhCN localization updated.
+
+11/03/2014 version 3.1.3
+- When Auto Load is enabled and you're around multiple targets with teams saved, if you don't move an appreciable amount following an auto load, any further auto loads will prompt to load instead of automatically loading. The prompt dialog will tell you when it's happening.
+- Slotted pets will say so on pet cards (unless it's a pet card directly from a slotted pet).
+- Pets that aren't tradable will say so on the back of their pet card.
+- Pets that are unique will say so on the back of their pet card.
+- Rename/Release/Cage Pet confirmation dialogs will show pet level (and rarity if 'Hide rarity borders' option left unchecked).
+- Fix for scrollable lists sometimes not being scrollable.
+- Fix for inability to load teams while on a flight-master flight.
+- ESC key with 'Close everything on ESC' should no longer bring up game menu immediately.
+- Potential fix for team tab icons not saving.
+- Fix for level icons appearing on dialogs when it shouldn't (ie. team tab dialogs).
+- zhCN localization updated.
+
+10/31/2014 version 3.1.2
+- Notes system reworked:
+ - Notes are now a separate window apart from the team card.
+ - Notes can be dragged and resized independently from the main window.
+ - Notes behave like pet and team cards: mouseover of a notes button shows the notes as a tooltip; clicking a notes button locks the notes in place so you can scroll or edit the notes.
+ - New option 'Disable ESC for notes' to prevent ESC from closing any notes.
+ - The notes button in the save dialog is removed. Notes can be added/changed by right-clicking a team and choosing 'Set Note' or bringing up an existing note and editing it.
+- New option 'Close everything on ESC' will close everything when ESC is hit.
+- All four ESC-related options moved to their own category 'Escape Key Behavior'
+- zhTW localization udpated
+
+10/26/2014 version 3.1.1
+- Notes limit increased from 256 to 2048 characters.
+- New option 'Show notes in battle' to display and lock notes when you enter a pet battle with a team that contains notes.
+- Pets under 25 now display their level on team cards and dialogs.
+- Current pets, pets on team cards and dialogs now have a colored border to indicate each pets' rarity.
+- New option 'Hide rarity borders' to hide the new colored borders.
+- Old option 'Always show or load' renamed 'Discard loaded team on changes' with more explanation about what it does in its tooltip.
+
+10/25/2014 version 3.1.0
+- New team notes system:
+ - When saving a team you can expand the save window with a button in the lower left and type or paste notes to save with the team.
+ - To add or edit notes to an already existing team you can right-click the team and choose Set Notes.
+ - When the currently-loaded team has a note there will be a notes button beside the name of the team.
+  - Mouseover of this button will display the notes as a tooltip.
+  - Clicking this button will lock the notes in place so they remain up.
+  - You can mousewheel to scroll up/down the notes if they extend beyond the viewable area.
+ - Teams with notes will have an icon beside their name in the team list. These notes can be viewed several ways:
+  - When the mouse is over the notes icon in the team list.
+  - When the mouse is over the title of the "team card"/tooltip, flipping the card to its back.
+  - By holding the Alt key while looking at a team card to flip the card over.
+ - Locked notes can be dismissed just like the locked pet card: the ESCape key or by clicking one of the "screws" in the corner of the wooden frame.
+ - The search box on the team tab will also search for teams with the search text in their notes.
+- The "direction" of popup dialogs reworked when the window is collapsed:
+ - Before, the dialog appeared in the direction furthest from the edge of the screen. Moving the window around would cause it to show on different sides.
+ - Now, regardless where the window is on screen, unless "Show Dialogs at Side" is checked, the dialog appears in the direction the pullout would grow.
+ - The option Reverse Dialog Direction will flip it to the other side if you prefer.
+- Removed MoP-specific code.
+- Optimization of scrollable lists.
+- New option: List Real Names to list pets by their real name in the browser even if they've been renamed.
+- The "Fill Queue" leveling queue option will no longer add leveling pets if you have a level 25 version of the pet.
+- A new "Fill Queue More" leveling queue menu option will add leveling pets even if you have a level 25 version of the pet.
+- On the "pet card"/tooltip, when the mouse is over any part of the title area--instead of one of its icons--it will flip the card to the back.
+- On the pet card, if you have any level 25 versions of the pet you're looking at, the color of the pennant behind the level will be gold.
+- When a dialog appears, all but the current pets area will darken slightly and become uninteractive to prevent weird interactions with dialogs.
+- Mouseover of pet totals at bottom of the browser will display more totals: number of pets you own, number of pets you're missing, unique pets you own and level 25 pets.
+- When saving a team, if you change the name from the one provided, the team will save with no npc ID.
+
+10/14/2014 version 3.0.16
+- Fix for importing PBT teams.
+
+10/14/2014 version 3.0.15
+- 6.0 patch
+
+09/25/2014 version 3.0.14
+- Fix for error when a team fails to load.
+
+09/20/2014 version 3.0.13
+- Fix for unnecessary prompts when leveling pet changes and 'Always show or load' is checked in options.
+- If window was up before prompting for a load due to 'Always show or load' in an auto load, it should remain up after the load.
+- If 'Always show or load' is not enabled, a new Reload button is added to main window for reloading the current team to its saved pets and abilities.
+- Import button moved to top of Teams tab when Reload button is enabled (while 'Always show or load' unchecked).
+- 6.0/WoD fix for auto load and targets with saved npcID.
+- 6.0/WoD fix for "shine" animation on pets loading and queue operations.
+
+09/18/2014 version 3.0.12
+- 6.0/WoD fix for new battle pet petID formats
+- 6.0/WoD fix for search box visual bug
+- 6.0/WoD fix for icon choices when creating a team tab
+- 6.0/WoD fix for jumping to key binding from options
+
+09/07/2014 version 3.0.11
+- Options dialog reworked:
+  - Instead of a popup dialog, options now use the same space as the pets/teams tabs so you can stretch the list to see more.
+  - New options have a yellow ! beside their name to make them stand out.
+  - Instead of showing each option's description in a window below the list, the descriptions are a more proper tooltip beside each option.
+  - New option Hide Tooltips -> Even Options will hide this new tooltip.
+- Search bar added to teams tab.
+- New option Reverse Dialog Direction to make the popup dialog appear towards the edge of the screen instead of towards the center.
+- New option Larger List Text to make the text in the scrollable lists (pets, teams, options) a little bigger.
+- New pet browser filter: Miscellaneous -> In A Team/Not In A Team will filter pets depending on whether they're in a Rematch team.
+
+09/01/2014 version 3.0.10
+- Show on Injured option will work for pets at less than 100% life instead of 90% life.
+- Bug fix for browser type bar buttons not lighting up properly.
+- Bug fix for scrollbars not being active at times when near end of lists.
+- New option Auto Show -> Stay after loading, to keep the window on screen after loading a team when the window was shown via Auto Show.
+- New option Auto Load -> Show after loading, to show the window after a team is automatically loaded.
+- Partial Spanish localization (esES and esMX) by Phanx.
+
+08/19/2014 version 3.0.9
+- Removed WoD version number so the addon will not appear out of date on MoP clients.
+- WoD-only bug fix for auto show and auto load of teams saved with an npc ID.
+- New option "Show dialogs at side" to make dialogs appear beside the expaded window instead of ontop.
+
+08/13/2014 version 3.0.8
+- Bug fix: If 'Empty missing pet slot' option is unchecked and the leveling queue is empty, loading a team will not empty the slot reserved for a leveling pet.
+- zhTW and zhCN localization updates.
+
+08/09/2014 version 3.0.7
+- Teams with leveling pets will not cause the window to show after it's been loaded via Auto Load.
+- When a team loads with missing pets, a popup will display with the missing pets marked.
+- This popup includes a checkbox "Don't warn about missing pets" to prevent further popups.
+- You can also turn this on/off under Loading Options in the options dialog.
+- zhCN localization update.
+
+08/07/2014 version 3.0.6
+- Warlord of Draenor beta compatable. WoD users please see notes near end.
+- Better handling of revoked pets.
+
+08/06/2014 version 3.0.5
+- Auto Load made less aggressive
+
+08/05/2014 version 3.0.4
+- New option Jump To Key: While the mouse is over the team list or pet browser, hitting a key will jump to the next team or pet that begins with that letter.
+- New option Auto Load -> On Target Only: Auto load will only happen when you target, not mouseover.
+- New option Always Show or Load: Continue to offer to load (or auto load) teams if any pets or abilities are changed in the loaded team.
+- If window appears due to Auto Show option, it will disappear if you choose to load the offered team.
+- Popup dialogs (like "Load this team?") no longer overlap the collapsed window.
+- Popup dialogs no longer prohibit interacting with the main window.
+- Fixed bug where ESC wouldn't clear target (or other windows) if ESC disabled for window.
+- Fixed bug where ESC would collapse window instead of clearing focus in browser search box.
+- zhTW localization.
+
+08/01/2014 version 3.0.3
+- Bug fix: window will reappear after a pet battle only if it was up when the battle started
+- ESC system reworked again
+- Stay While Targeting behavior made standard
+- zhCN localization
+
+07/30/2014 version 3.0.2
+- Auto load/auto show disabled during pet battles.
+- Attempting to load a team during combat or pet battle will wait until afterwards.
+
+07/28/2014 version 3.0.1
+- Fix for auto load when window isn't visible.
+- Fix for teams not loading dead pets.
+
+07/28/2014 version 3.0.0
+- UI revamped and rewritten.
+- Teams and Pets (Browser+Queue) are separate tabs in the pullout drawer.
+- Teams can be grouped into user-created tabs within the team tab.
+- The window height can be resized with a grip at the bottom of the window.
+- More browser filter options.
+- Saving a team goes through a more consistent dialog.
+- Default dropdown menu system replaced with custom implementation.
+- New reusable dialog system.
+- The behavior of ESC reworked.
+- The pet journal can be open alongside the pet browser.
+
+07/02/2014 version 2.4.9
+- "Rebuild Teams" button near the end of options.
+- Behind-the-scenes team validation on login removed.
+
+06/16/2014 version 2.4.8
+- When turning on Auto Rotate in leveling queue, first pet in queue immediately loaded.
+- Moving topmost leveling pet to end of queue will set new topmost as current leveling pet.
+- Option to filter Only Tradeable pets in pet browser.
+
+06/05/2014 version 2.4.7
+- Localization update for zhTW, zhCN.
+
+06/02/2014 version 2.4.6
+- Ability tooltips now look more like the pet cards.
+- New option: Larger Pet Cards for slightly bigger pet cards and ability tooltips.
+- New option: Show on Injured to show the window if any pets are injured.
+- Localization update for zhTW, zhCN.
+
+05/29/2014 version 2.4.5
+- If the addon Pet Battle Teams is enabled, a button is listed at the end of Rematch's options to import teams.
+- Localization update for zhTW and zhCN.
+- Localization method reworked.
+
+05/27/2014 version 2.4.4
+- Fix for new Only Battle Pets option
+
+05/26/2014 version 2.4.3
+- Searching for level can be done in the stat format too: "level<25" or "level=11-15"
+- You can now search for levels, stats and text all at once: "health>700 level<25 bleed"
+- New option: Wide Search Bar for more room to type searches.
+- New option: Use Type Bar since the toggle button will be gone with the wide search bar enabled.
+- New option: Only Battle Pets to keep non-battle pets like Guild Heralds from listing.
+- If the window was up and you enter combat, it will return afterwards regardless of locked status.
+- Minor changes like options list not reverting to top and rarity searches excluding non-battle pets.
+- Fix for two Rematch buttons appearing on journal when using some addons
+- Update for zhTW localization
+
+05/24/2014 version 2.4.2
+- zhTW localization updated by leg883
+- Changed method of the Rematch button finding a free spot on the default pet journal
+- New option: Hide Journal Button for the (hopefully rare) case when another addon wants the same space
+- New option: Use Minimap Button to give up the fight for journal space and use a minimap button instead
+- Key Bindings button at the end of options will jump to the key binding interface to bind a key to open Rematch
+- Battle button in pullout drawer to queue for pvp pet battles
+
+05/18/2014 version 2.4.1
+- zhCN localization updated by zkpjy
+- In the browser you can now search for a stat greater or less than a value: ie "speed>300"
+- Pets with xp towards next level now have an xp bar in the leveling queue
+- If any pet is dead when a team loads, the Rematch window will appear to remind you and let you heal them.
+
+05/16/2014 version 2.4.0
+- Leveling queue revamp (see below)
+- Some tooltips added
+- Option to hide tooltips
+- LDB support added
+- Partial health amount shown on pet cards
+- Miscellaneous minor bug fixes
+
+04/06/2014 version 2.3.8
+- Update for zhTW, zhCN and deDE clients.
+
+04/03/2014 version 2.3.7
+- New browser filter 'Only Leveling' to only list leveling pets.
+- New option 'Close Pet Journal' to close the pet journal when the browser wants to open.
+- Sort order is preserved between sessions.
+
+03/30/2014 version 2.3.6
+- zhTW localization by Leg883
+
+03/29/2014 version 2.3.5
+- deDE localization by Tonyleila
+- zhCN localization by Zkpjy
+- Options panel reworked
+
+03/21/2014 version 2.3.4
+- Beginning of localization support.
+
+03/17/2014 version 2.3.3
+- You can now filter by Type, Strong vs and Tough vs simultaneously.
+- Facelift for the browser pullout type bar.
+- When a search or type filter is used in the browser, pet cards are marked with what caused the pet to be listed.
+- Buttons added to the top and bottom of the browser scrollbar to jump to top and bottom of the list.
+- Minor fixes for non-battle pets.
+
+03/09/2014 version 2.3.2
+- Fix for 'Start Leveling' in default pet journal.
+- Double-clicking a pet in the browser will summon/dismiss it.
+- Dead pets are marked in the browser.
+- Possible fix for browser scrolling bug.
+
+03/08/2014 version 2.3.1
+- Fix for very very old ability icons throwing a lua error due to their size.
+- Jump To Key will not jump while a modifier key is down.
+- Pets in the browser can be linked to chat.
+- If the browser was open when opening pet journal, it will return when pet journal closes.
+- Favorite filter only lists favorites that meet other criterea
+
+03/07/2014 version 2.3.0
+- New pet browser for finding pets to add to your teams.
+- When a pet is clicked, the pet card locks in place so you can mouseover abilities and other parts of the card.
+- More breed support with the Battle Pet Breed ID addon enabled: all possible breeds and their stats at 25 will show when you mouseover the stats of a pet card.
+- Pet cards and tooltips have more consistent anchors.
+- Jump to Team option renamed Jump to Key and performs the same action for the browser as it does for teams.
+- Hints window reworked again.
+- When caging one of multiple same-species pets in a team, the saved slot it's removed from will be greyed out and left alone.
+- Fix for abilities not linking to chat from current pets.
+
+02/22/2014 version 2.2.9
+- New option Use Side Panel to use a pullout panel for manipulating pets/queue and Auto Load while window is collapsed.
+- New option Stay For Battle to not hide Rematch during pet battles.
+- Hints window now also shows pet types the selected team is weak against.
+- Pet cards and tooltips more intelligently position themselves to stay out of the way.
+- More options in right-click of leveling pets.
+- Leveling slot now displays pet level.
+
+02/19/2014 version 2.2.8
+- Fix for revoked pets preventing teams from loading
+- If Rematch is up when a battle starts, it will hide and return when it's over
+
+02/11/2014 version 2.2.7
+- Leveling pets are marked in the pet journal
+- Changed leveling pet icon
+- Fix for leveling queue context menu titles
+
+02/01/2014 version 2.2.6
+- When teams are loaded, pets will load into the slot they were saved.
+- A selected team will display whether any pets are dead.
+- Auto Load will only happen once per encounter of a saved target, to allow changing pets while at the target.
+- New option Auto Load->Always Load: to preserve old behavior of always auto loading.
+- New option Empty Missing: When a team loads and a pet is missing, empty the slot the pet would go to.
+- Fix for dead icon persisting on empty slots.
+- Fix for current pet header not being draggable.
+- Help plate for leveling slot if it's empty to explain what it does.
+- /rematch import to import PBT teams will have empty slots converted to leveling pets and the 'Empty Missing' option enabled for an easier transition.
+
+01/29/2014 version 2.2.5
+- Fix for error on right-click menu of leveling slot
+
+01/29/2014 version 2.2.4
+- Species IDs are saved with teams in case pet IDs are ever lost/changed.
+- Auto Load without On Mouseover option should work when right-clicking to initiate battle.
+- Full support for empty slots in teams.
+
+01/25/2014 version 2.2.3
+- Rename, Send, Export and Delete moved to a right-click on the team in the team list.
+- Fix for current team title not updating if pets don't change.
+- Fix for ESCape sometimes throwing an error.
+- Possible fix for pet loading issue.
+
+01/28/2014 version 2.2.2
+- Current pets titled after the team they loaded from (unless any pets/abilities swapped).
+- New Rename button in pullout drawer to rename teams.
+- New option Jump To Team: when the mouse is over team list, hitting a key will jump to the next team that begins with that letter.
+- ESCape key behavior streamlined.
+- New binding to toggle Auto Load on/off.
+
+01/10/2014 version 2.2.1
+- Fix for "Wrong object type" error some are seeing.
+
+01/10/2013 version 2.2.0
+- Many internal changes (large parts rewritten, mostly with how the UI works).
+- Current pet abilities can be changed right on the UI.
+- Saved pet section collapses if window collapsed and no saved team to show.
+- New option 'Lock Drawer' to prevent window from collapsing with Escape key.
+- Help button added to show help plates for important parts of UI.
+- If the window is closed without being collapsed, it will return in same state.
+- Escape key now clears the selected team before collapsing the window.
+- Auto-Show/Load will no longer dismiss the window if it was up already.
+- 'Put Leveling Pet Here' added to current pets' right-click menu.
+- Save button changes to 'Save As' when it will ask for a name.
+
+12/14/2013 version 2.1.5
+- 'Add to Leveling Queue' on journal pet menus will add the pet to the end of leveling queue.
+- Removed 5.4.1 taint bug fix that's no longer needed.
+- Fix for leaving pet battle as a pet dings 25 when you can't swap pets.
+
+12/06/2013 version 2.1.4
+- New option 'Auto Upgrade': When learning a pet, automatically upgrade any lesser versions of the pet in your saved teams.
+
+11/29/2013 version 2.1.3
+- New leveling queue system (explained below).
+- Right-click on a journal pet now has a new option to start/stop leveling a pet.
+- Right-click on all but saved pets in Rematch can now summon/dismiss pets in addition to start/stop leveling them.
+- If a current pet is below 25, the level is displayed on the pet.
+
+11/07/2013 version 2.1.2
+- Confirmation window for deleting or saving over an existing team.
+- Auto Confirm option to skip the confirmation window.
+- Auto Load->On Mouseover option to auto load on mouseover instead of target.
+- Changed pullout drawer button.
+
+11/04/2013 version 2.1.1
+- Caged pets will remember their species/abilities instead of creating an empty slot
+- Fixes for auto load preventing window from appearing in some situations
+
+11/03/2013 version 2.1
+- Leveling pet system revamped
+- Minor tweaks and fixes
+
+10/29/2013 version 2.0.10
+- Fix for taint issue introduced by 5.4.1 patch
+
+10/28/2013 version 2.0.9
+- Fix for Pet Journal not being updated on team loads
+
+10/27/2013 version 2.0.8
+- Fix for disconnect bug. (Thanks Tonyleila and Aloak!)
+- /rematch migrate will migrate Pet Battle Teams to Rematch if that addon is enabled.
+
+10/27/2013 version 2.0.7
+- Rematch button on pet journal will move based on the existence of other buttons along the bottom.
+
+10/24/2013 version 2.0.6
+- Pets can be dragged around to different slots or from the pet journal.
+- All three pets can be locked independently with the lock button when you mouseover them.
+- Auto Show behavior is a little more intelligent.
+- Holding Shift while window is locked will let you move it.
+- Added Rematch button to Pet Journal.
+- Keep Companion should be a little more reliable.
+
+10/18/2013 version 2.0.5
+- Fix for saving low level pets caused by fix from last update.
+
+10/18/2013 version 2.0.4
+- Low level pets with abilities higher than they can use will low lower tier ability.
+- Low level current pets only show abilities they can use.
+- Team loads taking too long will stop trying.
+- BAG_UPDATE throttled.
+
+10/18/2013 version 2.0.3
+- Redesigned and polished UI.
+- A pull-out drawer to see all your saved teams.
+- Save custom teams that are not tied to a target.
+- Send your saved teams to other users.
+- Export/import teams as copy-pastable strings for/from other users.
+- Saved teams will display types they're strong against.
+- Buttons for Revive Battle Pets/Bandages on the window.
+- Auto Load option to automatically load teams without needing to open the window.
+- Keep Companion option to summon back companion pets after a load.
+- NPC ID awareness so you're not getting a popup for every Lorewalker Cho in the world.
+- Other options and details.
+
+09/11/2013 version 1.0.5
+- toc update for 5.4
+
+08/06/2013 version 1.0.4
+- Fix for saved pets caged or missing.
+
+05/21/2013 version 1.0.3
+- toc update for 5.4
+
+03/16/2013 version 1.0.2
+- added 'Auto Show' option
+- UI changed a bit
+
+03/13/2013 version 1.0.1
+- initial release

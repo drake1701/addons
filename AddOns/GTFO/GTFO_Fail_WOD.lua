@@ -707,14 +707,29 @@ GTFO.SpellID["171045"] = {
 	sound = 3;
 };
 
-
 -- Brackenspore
 -- TODO: Exploding Fungus (Brackenspore, Heroic) -- Avoidable?
 -- TODO: Call of the Tides (Brackenspore, Heroic) -- Avoidable?
 
--- Twin Ogron
-GTFO.SpellID["158026"] = {
-	--desc = "Enfeebling Roar (Phemos)";
+GTFO.SpellID["166185"] = {
+	--desc = "Rending Slash (Highmaul Conscript)";
+	applicationOnly = true;
+	sound = 3;
+	tankSound = 0;
+};
+
+GTFO.SpellID["166180"] = {
+	--desc = "Shield Charge (Highmaul Conscript)";
+	sound = 3;
+};
+
+GTFO.SpellID["166183"] = {
+	--desc = "Shield Slam (Highmaul Conscript)";
+	sound = 3;
+};
+
+GTFO.SpellID["178024"] = {
+	--desc = "Arcane Barrage (Gorian Arcanist)";
 	sound = 3;
 };
 
@@ -746,12 +761,9 @@ GTFO.SpellID["158420"] = {
 	test = true; -- Different damage amounts based on raid difficulty (50K for LFR?)
 };
 
-
--- TODO: Pulverize (Pol) -- Based on damage amount & distance, 3 different types in sequence: #1 spam fail, #2 impact fail, #3 distance fail
 -- TODO: Arcane Charge (Pol) -- Avoidable?
 -- TODO: Arcane Volatility (Phemos, Heroic) -- Avoidable? FF damage?
 
--- Ko'ragh
 GTFO.SpellID["172685"] = {
 	--desc = "Expel Magic: Fire (Ko'ragh)";
 	sound = 3;

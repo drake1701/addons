@@ -52,6 +52,7 @@ local defaults = {
 	waterstrider = 0, -- Use Azure Water Strider on water when you can't fly
 	waterstrider2 = 0, -- Use Azure Water Strider while underwater
 	zenflight = 0, -- Smart Mounting casts Zen Flight when moving (outdoors, out of combat)
+	nagrand = 1, -- Use Garrison Mounts in Nagrand zone
 	version = 2.1, -- WoD updates (remove opposite faction mounts)
 	}
 	
@@ -108,6 +109,7 @@ local stringstable = { -- strings to be localized in the GUI.  This table is ind
 	["LivestockSmartPreferencesFrameWaterStriderText"] = L.LIVESTOCK_FONTSTRING_WATERSTRIDERLABEL,
 	["LivestockSmartPreferencesFrameWaterStrider2Text"] = L.LIVESTOCK_FONTSTRING_WATERSTRIDER2LABEL,
 	["LivestockSmartPreferencesFrameZenFlightText"] = L.LIVESTOCK_FONTSTRING_ZENFLIGHTLABEL,
+	["LivestockSmartPreferencesFrameNagrandText"] = L.LIVESTOCK_FONTSTRING_NAGRANDLABEL,
 	}
 	
 local restrictSummonForTheseBuffs = { -- buffs that, when present, should prevent autosummoning from happening
@@ -544,6 +546,7 @@ function Livestock.RestoreUI(self, elapsed)
 	["LivestockSmartPreferencesFrameWaterStrider"] = LivestockSettings.waterstrider,
 	["LivestockSmartPreferencesFrameWaterStrider2"] = LivestockSettings.waterstrider2,
 	["LivestockSmartPreferencesFrameZenFlight"] = LivestockSettings.zenflight,
+	["LivestockSmartPreferencesFrameNagrand"] = LivestockSettings.nagrand,
 	}
 
 	for k, v in pairs(buttonstable) do -- show and scale each of the buttons if its setting is saved as 1 (shown)
@@ -1233,6 +1236,9 @@ function Livestock.SmartPreClick(self)
 		end
 	end
 
+	SetMapToCurrentZone()
+	local zoneID = GetCurrentMapAreaID()
+
 	if state == 1 then
 		if class == "HUNTER" then
 			if LivestockSettings.indooraspects == 1 then
@@ -1285,6 +1291,13 @@ function Livestock.SmartPreClick(self)
 		end
 		
 	elseif state == 4 then -- handle "flyable" areas
+
+		if LivestockSettings.nagrand == 1 and zoneID == 950 then
+			self:SetAttribute("type", "macro")
+			self:SetAttribute("macrotext", "/use Garrison Ability")
+			self.mounttype = nil
+			return
+		end
 
 		self.mounttype = Livestock.LandOrFlying()
 		

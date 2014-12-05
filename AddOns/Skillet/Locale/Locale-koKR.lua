@@ -81,6 +81,7 @@ L["have"] = "소지" -- Needs review
 L["Hide trivial"] = "회색 제작템 숨기기"
 L["Hide uncraftable"] = "제작할 수 없는 아이템 숨기기"
 L["Include alts"] = "다른캐릭터 포함"
+L["Include bank"] = "Include bank" -- Requires localization
 L["Include guild"] = "길드 포함" -- Needs review
 L["Inventory"] = "인벤토리"
 L["INVENTORYDESC"] = "인벤토리 정보"

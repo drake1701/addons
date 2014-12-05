@@ -77,6 +77,7 @@ L["have"] = true
 L["Hide trivial"] = true
 L["Hide uncraftable"] = true
 L["Include alts"] = true
+L["Include bank"] = true
 L["Include guild"] = true
 L["Inventory"] = true
 L["INVENTORYDESC"] = "Inventory Information"
