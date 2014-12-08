@@ -1,0 +1,8 @@
+## Interface: 60000
+## Title: Daily Prof
+## Notes: Tracks and runs your profession dailies
+## SavedVariables: EDailyProfDB
+## Author: Dräke
+## Version: 0.1
+
+DailyProf.lua
