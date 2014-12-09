@@ -1,17 +1,18 @@
 ## Interface: 60000
-## X-Curse-Packaged-Version: v11
+## X-Curse-Packaged-Version: v12
 ## X-Curse-Project-Name: Garrison Mission Manager
 ## X-Curse-Project-ID: garrison-mission-manager
 ## X-Curse-Repository-ID: wow/garrison-mission-manager/mainline
 
 ## Title: Garrison Mission Manager
-## Version: v11
+## Version: v12
 ## Notes: Assists you with selecting best team for garrison missions
 ## Author: Oleg "Rowaa[SR13]" Volkov
 
 ## LoadOnDemand: 1
 ## LoadWith: Blizzard_GarrisonUI
 
-## SavedVariables: 
+## SavedVariables: SV_GarrisonMissionManager
+## SavedVariablesPerCharacter: SVPC_GarrisonMissionManager
 
 GarrisonMissionManager.lua

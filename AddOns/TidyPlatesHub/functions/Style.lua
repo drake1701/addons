@@ -133,6 +133,9 @@ Threat Value
 
 local function StyleNameDelegate(unit)
 
+	-- Bars on Targets
+	if LocalVars.StyleForceBarsOnTargets and unit.isTarget then return "Default" end
+
 	-- Out-of-Combat Units
 	if LocalVars.StyleHeadlineOutOfCombat and (not InCombatLockdown()) then return "NameOnly" end
 
@@ -141,7 +144,9 @@ local function StyleNameDelegate(unit)
 		if IsUnitActive(unit) and LocalVars.StyleFriendlyBarsOnActive then return "Default"
 		elseif unit.isElite and LocalVars.StyleFriendlyBarsOnElite then return "Default"
 		elseif unit.type == "PLAYER" and LocalVars.StyleFriendlyBarsOnPlayers then return "Default"
-		elseif unit.type ~= "PLAYER" and LocalVars.StyleFriendlyBarsOnNPC then return "Default"
+		elseif unit.type ~= "PLAYER" and LocalVars.StyleFriendlyBarsOnNPC then
+			if LocalVars.StyleFriendlyBarsInstanceMode and IsInInstance() then return "NameOnly"
+			else return "Default" end
 		end
 	elseif unit.reaction == "NEUTRAL" then
 		-- if IsUnitActive(unit) and LocalVars.StyleEnemyBarsOnActive then return "Default" end
@@ -154,7 +159,9 @@ local function StyleNameDelegate(unit)
 		if IsUnitActive(unit) and LocalVars.StyleEnemyBarsOnActive then return "Default"
 		elseif unit.isElite and LocalVars.StyleEnemyBarsOnElite then return "Default"
 		elseif unit.type == "PLAYER" and LocalVars.StyleEnemyBarsOnPlayers then return "Default"
-		elseif unit.type ~= "PLAYER" and LocalVars.StyleEnemyBarsOnNPC then return "Default"
+		elseif unit.type ~= "PLAYER" and LocalVars.StyleEnemyBarsOnNPC then
+			if LocalVars.StyleEnemyBarsInstanceMode and IsInInstance() then return "NameOnly"
+			else return "Default" end
 		end
 	end
 

@@ -1,7 +1,8 @@
 ## Interface: 60000
 ## Title: The Undermine Journal
-## Notes: Tue, December 2
-## Version: 3.0.20141202
+## Notes: Sat, December 6
+## OptionalDeps: Auctionator, AuctionLite
+## Version: 3.1.20141206
 MarketData-US.lua
 MarketData-EU.lua
 TheUndermineJournal.lua
