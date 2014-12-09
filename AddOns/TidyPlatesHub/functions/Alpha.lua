@@ -83,8 +83,8 @@ end
 local function AlphaFunctionByThreat(unit)
 		if unit.reaction == "NEUTRAL" and unit.threatValue < 2 then return AlphaFunctionByThreatHigh(unit) end
 
-		if (LocalVars.ThreatWarningMode == "Auto" and IsTankingAuraActive())
-			or LocalVars.ThreatWarningMode == "Tank" then
+		if (LocalVars.ThreatMode == "Auto" and IsTankingAuraActive())
+			or LocalVars.ThreatMode == "Tank" then
 				return AlphaFunctionByThreatLow(unit)	-- tank mode
 		else return AlphaFunctionByThreatHigh(unit) end
 end
@@ -120,7 +120,7 @@ AddHubFunction(AlphaFunctionsEnemy, TidyPlatesHubMenus.EnemyOpacityModes, AlphaF
 local AlphaFunctionsFriendly = {}
 
 TidyPlatesHubDefaults.FriendlyAlphaSpotlightMode = "None"			-- Sets the default function
-AddHubFunction(AlphaFunctionsFriendly, TidyPlatesHubMenus.FriendlyOpacityModes, DummyFunction, "None", "None")
+AddHubFunction(AlphaFunctionsFriendly, TidyPlatesHubMenus.FriendlyOpacityModes, DummyFunction, "None", "NONE")
 AddHubFunction(AlphaFunctionsFriendly, TidyPlatesHubMenus.FriendlyOpacityModes, AlphaFunctionByLowHealth, "On Low-Health Units", "OnLowHealth")
 AddHubFunction(AlphaFunctionsFriendly, TidyPlatesHubMenus.FriendlyOpacityModes, AlphaFunctionGroupMembers, "On Group Members", "OnGroupMembers")
 AddHubFunction(AlphaFunctionsFriendly, TidyPlatesHubMenus.FriendlyOpacityModes, AlphaFunctionByPlayers, "OnPlayers", "OnPlayers")

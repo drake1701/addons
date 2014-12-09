@@ -2,25 +2,6 @@ Pack Command:  		zip -vr TP_Release.zip TidyPlates* -x@exclude.lst
 Exclusion List: 	*.svn*   *.DS_Store*   exclude.lst   *.db   *.png   *.gif   *.jpg   *.tif   *.txt   *.psd   *.bmp
 
 --------------------------------------
-6.16.Beta7
---------------------------------------
-* I haven't been keeping track of changes.  Warlords- yay!
-
-Things still needing testing...
-* Healer Tracking
-* Tank Target-Of-Mob Tracking
-
---------------------------------------
-6.16.Beta6
---------------------------------------
-* Some fixes, some additions..
-
-Things still needing testing...
-* Healer Tracking
-* Tank Target-Of-Mob Tracking
-
-
---------------------------------------
 6.16.Beta5
 --------------------------------------
 * Lots of things that I didn't write down because I'm busy playing Warlords of Freakin' Draenor woot!
@@ -30,6 +11,16 @@ Things still needing testing...
 
 * Migrated to new Dropdown Menu and Hub Function system; Your settings will be a bit borked until you go to /hub
 
+Note:
+In the past, your dropdown menu choices were referenced as a numerical index (1,2,3,etc.)
+which corresponded to a specific function.  If the order of those functions changed,
+your configuration would get futzed-up.
+
+I've changed the way that your choices are stored (As a descriptive token) so it now
+corresponds directly to a function, ex. "AlphaByThreat".  Even if I change the order
+of the function list, your configuration will still hum along, happily.
+
+Sorry for the inconvenience, but this will make for a better addon in the long-run!
 
 
 ---------------------------

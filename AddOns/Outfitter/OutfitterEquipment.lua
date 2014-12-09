@@ -200,9 +200,18 @@ function Outfitter:AddSlotToChangeList(pOutfit, pInventoryCache, pInventorySlot,
 	
 	local vSlotID = self.cSlotIDs[pInventorySlot]
 	
-	local vCurrentItemCodes, vCurrentItemName = self:GetSlotIDLinkInfo(vSlotID)
-	local vCurrentItemCode = vCurrentItemCodes[1]
-
+	local vCurrentItemCode,
+	      vCurrentItemEnchantCode,
+	      vCurrentItemJewelCode1,
+	      vCurrentItemJewelCode2,
+	      vCurrentItemJewelCode3,
+	      vCurrentItemJewelCode4,
+	      vCurrentItemSubCode,
+	      vCurrentItemUniqueID,
+	      vCurrentItemLinkLevel,
+	      vCurrentItemReforgeID,
+	      vCurrentItemName = self:GetSlotIDLinkInfo(vSlotID)
+	
 	local vEquipmentChange = self:NewEquipmentChange(pInventorySlot, vOutfitItem.Name)
 	
 	--

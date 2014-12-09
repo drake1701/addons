@@ -256,13 +256,13 @@ local function HealthFunctionCustom(unit)
 	--HealthTextModesCustom(mode, addColor)
 
 	--[[
-	FriendlyStatusTextMode
-	FriendlyStatusTextModeCenter
-	FriendlyStatusTextModeRight
+	ColorFriendlyStatusTextMode
+	ColorFriendlyStatusTextModeCenter
+	ColorFriendlyStatusTextModeRight
 
-	EnemyStatusTextMode
-	EnemyStatusTextModeCenter
-	EnemyStatusTextModeRight
+	ColorEnemyStatusTextMode
+	ColorEnemyStatusTextModeCenter
+	ColorEnemyStatusTextModeRight
 	--]]
 
 
@@ -281,8 +281,9 @@ end
 local HealthTextModeFunctions = {}
 
 
-TidyPlatesHubDefaults.FriendlyStatusTextMode = "HealthFunctionNone"
-TidyPlatesHubDefaults.EnemyStatusTextMode = "HealthFunctionNone"
+
+TidyPlatesHubDefaults.ColorFriendlyStatusTextMode = "HealthFunctionNone"
+TidyPlatesHubDefaults.ColorEnemyStatusTextMode = "HealthFunctionNone"
 
 AddHubFunction(HealthTextModeFunctions, TidyPlatesHubMenus.TextModes, HealthFunctionNone, "None", "HealthFunctionNone")
 AddHubFunction(HealthTextModeFunctions, TidyPlatesHubMenus.TextModes, HealthFunctionPercent, "Percent Health", "HealthFunctionPercent")
@@ -302,8 +303,8 @@ local function HealthTextDelegate(unit)
 	local mode = 1
 	local showText = not (LocalVars.TextShowOnlyOnTargets or LocalVars.TextShowOnlyOnActive)
 
-	if unit.reaction == "FRIENDLY" then mode = LocalVars.FriendlyStatusTextMode
-	else mode = LocalVars.EnemyStatusTextMode end
+	if unit.reaction == "FRIENDLY" then mode = LocalVars.ColorFriendlyStatusTextMode
+	else mode = LocalVars.ColorEnemyStatusTextMode end
 
 	func = HealthTextModeFunctions[mode] or DummyFunction
 

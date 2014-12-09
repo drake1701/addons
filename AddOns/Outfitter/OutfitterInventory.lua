@@ -11,7 +11,7 @@ function Outfitter:FindNextCooldownItem(pItemCodes, pIgnoreSwapCooldown)
 			local vItemName, vItemLink = GetItemInfo(vItemCode)
 			
 			if vItemLink then
-				vItemCode = self:ParseItemLink2(vItemLink)[1]
+				vItemCode = self:ParseItemLink(vItemLink)
 			end
 		end
 		
@@ -87,19 +87,29 @@ function Outfitter:GetBagItemLinkInfo(pBagIndex, pSlotIndex)
 		return
 	end
 	
-	return self:ParseItemLink2(vItemLink)
+	return self:ParseItemLink(vItemLink)
 end
 
-function Outfitter:GetBagItemInvType(pBagIndex, pSlotIndex)
+function Outfitter:GetExtendedBagItemLinkInfo(pBagIndex, pSlotIndex)
 	local vItemLink = GetContainerItemLink(pBagIndex, pSlotIndex)
 	
 	if not vItemLink then
 		return
 	end
 	
-	local vItemCodes, vItemName = self:ParseItemLink2(vItemLink)
+	local vItemCode,
+	      vItemEnchantCode,
+	      vItemJewelCode1,
+	      vItemJewelCode2,
+	      vItemJewelCode3,
+	      vItemJewelCode4,
+	      vItemSubCode,
+	      vItemUniqueID,
+	      vItemLinkLevel,
+	      vItemReforgeID,
+	      vItemName = self:ParseItemLink(vItemLink)
 	
-	if not vItemCodes then
+	if not vItemCode then
 		return
 	end
 	
@@ -112,9 +122,27 @@ function Outfitter:GetBagItemInvType(pBagIndex, pSlotIndex)
 	      vItemSubType,
 	      vItemCount,
 	      vItemInvType,
-		  vItemTexture = GetItemInfo(vItemCodes[1])
+		  vItemTexture = GetItemInfo(vItemCode)
 	
-	return vItemInvType
+	return vItemCode,
+	      vItemEnchantCode,
+	      vItemJewelCode1,
+	      vItemJewelCode2,
+	      vItemJewelCode3,
+	      vItemJewelCode4,
+	      vItemSubCode,
+	      vItemUniqueID,
+	      vItemUnknownCode1,
+	      vItemName,
+	      vItemFamilyName,
+	      vItemLink,
+	      vItemQuality,
+	      vItemLevel,
+	      vItemMinLevel,
+	      vItemType,
+	      vItemSubType,
+	      vItemCount,
+	      vItemInvType
 end
 
 function Outfitter:GetItemLocationLink(pItemLocation)
@@ -149,30 +177,30 @@ function Outfitter:GetItemLocationBagType(pItemLocation)
 end
 
 function Outfitter:GetBagItemBagType(pBagIndex, pSlotIndex)
-	local vItemCodes = self:GetBagItemLinkInfo(pBagIndex, pSlotIndex)
+	local vItemCode = self:GetBagItemLinkInfo(pBagIndex, pSlotIndex)
 	
-	if not vItemCodes then
+	if not vItemCode then
 		return
 	end
 	
-	return GetItemFamily(vItemCodes[1])
+	return GetItemFamily(vItemCode)
 end
 
 function Outfitter:GetSlotIDLinkInfo(pSlotID)
-	return self:ParseItemLink2(self:GetInventorySlotIDLink(pSlotID))
+	return self:ParseItemLink(self:GetInventorySlotIDLink(pSlotID))
 end
 
 function Outfitter:GetSlotIDItemBagType(pSlotID)
-	local vItemCodes = self:GetSlotIDLinkInfo(pSlotID)
+	local vItemCode = self:GetSlotIDLinkInfo(pSlotID)
 	
-	if not vItemCodes then
+	if not vItemCode then
 		return
 	end
 	
-	return GetItemFamily(vItemCodes[1])
+	return GetItemFamily(vItemCode)
 end
 
-function Outfitter:ParseItemLink2(pItemLink)
+function Outfitter:ParseItemLink(pItemLink)
 	if not pItemLink then
 		return
 	end
@@ -191,7 +219,17 @@ function Outfitter:ParseItemLink2(pItemLink)
 		vCodes[#vCodes + 1] = vCode
 	end
 
-	return vCodes, vName
+	return vCodes[1], -- ItemCode
+		    vCodes[2], -- ItemEnchantCode
+	        vCodes[3], -- ItemJewelCode1
+		    vCodes[4], -- ItemJewelCode2
+	        vCodes[5], -- ItemJewelCode3
+	        vCodes[6], -- ItemJewelCode4
+	        vCodes[7], -- ItemSubCode
+	        vCodes[8], -- ItemUniqueID
+	        vCodes[9], -- LinkLevel
+	        vCodes[10], -- ReforgeID
+	        vName
 end
 
 function Outfitter:GetItemInfoFromLink(pItemLink)
@@ -202,32 +240,40 @@ function Outfitter:GetItemInfoFromLink(pItemLink)
 	-- |cff1eff00|Hitem:1465:803:0:0:0:0:0:0|h[Tigerbane]|h|r
 	-- |(hex code for item color)|Hitem:(item ID code):(enchant code):(added stats code):0|h[(item name)]|h|r
 	
-	local vItemCodes, vItemName = self:ParseItemLink2(pItemLink)
+	local vItemCode,
+	      vItemEnchantCode,
+	      vItemJewelCode1,
+	      vItemJewelCode2,
+	      vItemJewelCode3,
+	      vItemJewelCode4,
+	      vItemSubCode,
+	      vItemUniqueID,
+	      vItemLinkLevel,
+	      vItemReforgeID,
+	      vItemName = self:ParseItemLink(pItemLink)
 	
-	if not vItemCodes then
-		return
+	if not vItemCode then
+		return nil
 	end
-
-	local vItemInfo = self:GetItemInfoFromCode(vItemCodes[1])
+	
+	vItemCode = tonumber(vItemCode)
+	
+	local vItemInfo = self:GetItemInfoFromCode(vItemCode)
 	
 	vItemInfo.Name = vItemName
 	vItemInfo.Link = pItemLink
-	vItemInfo.SubCode = vItemCodes[7]
+	vItemInfo.SubCode = tonumber(vItemSubCode)
 	
-	vItemInfo.EnchantCode = vItemCodes[2]
+	vItemInfo.EnchantCode = tonumber(vItemEnchantCode)
 	
-	vItemInfo.JewelCode1 = vItemCodes[3]
-	vItemInfo.JewelCode2 = vItemCodes[4]
-	vItemInfo.JewelCode3 = vItemCodes[5]
-	vItemInfo.JewelCode4 = vItemCodes[6]
+	vItemInfo.JewelCode1 = tonumber(vItemJewelCode1)
+	vItemInfo.JewelCode2 = tonumber(vItemJewelCode2)
+	vItemInfo.JewelCode3 = tonumber(vItemJewelCode3)
+	vItemInfo.JewelCode4 = tonumber(vItemJewelCode4)
 	
-	vItemInfo.UniqueID = vItemCodes[8]
-	vItemInfo.ReforgeID = vItemCodes[10]
+	vItemInfo.UniqueID = tonumber(vItemUniqueID)
+	vItemInfo.ReforgeID = tonumber(vItemReforgeID)
 	
-	vItemInfo.ID11 = vItemCodes[11] or 0;
-	vItemInfo.ID12 = vItemCodes[12] or 0;
-	vItemInfo.ID13 = vItemCodes[13] or 0;
-
 	return vItemInfo
 end
 
@@ -269,10 +315,6 @@ function Outfitter:GetItemInfoFromCode(pItemCode)
 		
 		UniqueID = 0,
 		ReforgeID = 0,
-
-		ID11 = 0,
-		ID12 = 0,
-		ID13 = 0
 	}
 	
 	-- Just return if there's no inventory type
@@ -637,6 +679,12 @@ function Outfitter._InventoryCache:Synchronize()
 end
 
 function Outfitter._InventoryCache:AddItem(pItem)
+	if pItem.Name == "Mining Sack" then
+		Outfitter:TestMessage("AddItem on Mining Sack")
+		Outfitter:DebugTable(pItem)
+		Outfitter:DebugStack()
+	end
+	
 	-- Add the item to the code list
 	
 	local vItemFamily = self.ItemsByCode[pItem.Code]
@@ -817,10 +865,7 @@ function Outfitter._InventoryCache:FindItemIndex(pOutfitItem, pAllowSubCodeWildc
 			and vItem.JewelCode3 == pOutfitItem.JewelCode3 
 			and vItem.JewelCode4 == pOutfitItem.JewelCode4
 			and vItem.UniqueID == pOutfitItem.UniqueID
-			and vItem.ReforgeID == pOutfitItem.ReforgeID
-			and vItem.ID11 == pOutfitItem.ID11
-			and vItem.ID12 == pOutfitItem.ID12
-			and vItem.ID13 == pOutfitItem.ID13) then
+			and vItem.ReforgeID == pOutfitItem.ReforgeID) then
 				if vItem.IgnoreItem then
 					vFoundIgnoredItem = vItem
 				else
@@ -851,10 +896,6 @@ function Outfitter._InventoryCache:FindItemIndex(pOutfitItem, pAllowSubCodeWildc
 		return vBestMatch, vBestMatchIndex, vItemFamily, nil
 	end
 	
-	--Outfitter:DebugMessage("Didn't find item:")
-	--Outfitter:DebugTable(pOutfitItem, "pOutfitItem")
-	--Outfitter:DebugTable(vItemFamily, "vItemFamily")
-
 	return nil, nil, nil, vFoundIgnoredItem
 end
 		
@@ -1050,11 +1091,8 @@ function Outfitter._InventoryCache:ItemsAreSame(pItem1, pItem2)
 		   and pItem1.JewelCode3 == pItem2.JewelCode3
 		   and pItem1.JewelCode4 == pItem2.JewelCode4
 		   and pItem1.UniqueID == pItem2.UniqueID
-		   and pItem1.ReforgeID == pItem2.ReforgeID
-		   and pItem1.ID11 == pItem2.ID11
-		   and pItem1.ID12 == pItem2.ID12
-		   and pItem1.ID13 == pItem2.ID13)
-		
+		   and pItem1.ReforgeID == pItem2.ReforgeID)
+		 
 		if Outfitter.Debug.TemporaryItems
 		and not vResult then
 			Outfitter:DebugMessage("ItemsAreSame(%s, %s): false", tostring(pItem1.Name), tostring(pItem2.Name))
@@ -1113,10 +1151,7 @@ function Outfitter._InventoryCache:InventorySlotContainsItem(pInventorySlot, pOu
 				                and vItem.JewelCode3 == pOutfitItem.JewelCode3
 				                and vItem.JewelCode4 == pOutfitItem.JewelCode4
 				                and vItem.UniqueID == pOutfitItem.UniqueID
-				                and vItem.ReforgeID == pOutfitItem.ReforgeID
-				                and vItem.ID11 == pOutfitItem.ID11
-				                and vItem.ID12 == pOutfitItem.ID12
-				                and vItem.ID13 == pOutfitItem.ID13)
+				                and vItem.ReforgeID == pOutfitItem.ReforgeID)
 				
 				if not vCodesMatch then
 --					Outfitter:DebugMessage("InventorySlotContainsItem: Items don't match")

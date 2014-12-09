@@ -1722,7 +1722,17 @@ function Outfitter:UnequipItemByName(pItemName)
 		vInventoryID = nil
 		
 		for _, vSlotID in ipairs(self.cSlotIDs) do
-			local vItemCodes, vItemName = self:GetSlotIDLinkInfo(vSlotID)
+			local vItemCode,
+				  vItemEnchantCode,
+				  vItemJewelCode1,
+				  vItemJewelCode2,
+				  vItemJewelCode3,
+				  vItemJewelCode4,
+				  vItemSubCode,
+				  vItemUniqueID,
+				  vItemLinkLevel,
+				  vItemReforgeID,
+				  vItemName = self:GetSlotIDLinkInfo(vSlotID)
 			
 			if vItemName and vItemName:lower() == vLowerItemName then
 				vInventoryID = vSlotID
@@ -4526,7 +4536,6 @@ function Outfitter:SetSlotEnable(pSlotName, pEnable)
 	end
 	
 	if pEnable then
-		Outfitter:DebugMessage("Enabling slot "..pSlotName)
 		self.SelectedOutfit:SetInventoryItem(pSlotName)
 	else
 		self.SelectedOutfit:RemoveItem(pSlotName)
@@ -5388,7 +5397,7 @@ end
 function Outfitter:InitializeSettings()
 	gOutfitter_Settings =
 	{
-		Version = 20,
+		Version = 19,
 		Options = {},
 		LastOutfitStack = {},
 		LayerIndex = {},
@@ -5679,7 +5688,25 @@ function Outfitter:FindTooltipLine(pTooltip, pText, pPlain)
 end
 
 function Outfitter:CanEquipBagItem(pBagIndex, pBagSlotIndex)
-	local vItemInvType = self:GetBagItemInvType(pBagIndex, pBagSlotIndex)
+	local vItemCode,
+	      vItemEnchantCode,
+	      vItemJewelCode1,
+	      vItemJewelCode2,
+	      vItemJewelCode3,
+	      vItemJewelCode4,
+	      vItemSubCode,
+	      vItemUniqueID,
+	      vItemUnknownCode1,
+	      vItemName,
+	      vItemFamilyName,
+	      vItemLink,
+	      vItemQuality,
+	      vItemLevel,
+	      vItemMinLevel,
+	      vItemType,
+	      vItemSubType,
+	      vItemCount,
+	      vItemInvType = self:GetExtendedBagItemLinkInfo(pBagIndex, pBagSlotIndex)
 	
 	-- Disabling minLevel check because new drops pre WoD are showing as minLevel 100 despite only requiring 90
 	return Outfitter.cInvTypeToSlotName[vItemInvType] ~= nil
@@ -7129,9 +7156,9 @@ function Outfitter:CheckDatabase()
 				for vIndex, vOutfit in ipairs(vOutfits) do
 					if vOutfit.Items then
 						for vInventorySlot, vItemInfo in pairs(vOutfit.Items) do
-							vItemInfo.Gem1 = vItemInfo.JewelCode1 and Outfitter.cUniqueGemEnchantIDs[vItemInfo.JewelCode1]
-							vItemInfo.Gem2 = vItemInfo.JewelCode2 and Outfitter.cUniqueGemEnchantIDs[vItemInfo.JewelCode2]
-							vItemInfo.Gem3 = vItemInfo.JewelCode3 and Outfitter.cUniqueGemEnchantIDs[vItemInfo.JewelCode3]
+							vItemInfo.Gem1 = Outfitter.cUniqueGemEnchantIDs[vItemInfo.JewelCode1]
+							vItemInfo.Gem2 = Outfitter.cUniqueGemEnchantIDs[vItemInfo.JewelCode2]
+							vItemInfo.Gem3 = Outfitter.cUniqueGemEnchantIDs[vItemInfo.JewelCode3]
 						end
 					end
 				end
@@ -7156,23 +7183,6 @@ function Outfitter:CheckDatabase()
 		self.Settings.Version = 19
 	end
 	
-	-- Added ID11,12 and 13 for WoW patch 6
-
-	if self.Settings.Version < 20 then
-		if self.Settings.Outfits then
-			for vCategoryID, vOutfits in pairs(self.Settings.Outfits) do
-				for vIndex, vOutfit in ipairs(vOutfits) do
-					for _, vItem in pairs(vOutfit.Items) do
-						vItem.ID11 = 0
-						vItem.ID12 = 0
-						vItem.ID13 = 0
-					end
-				end
-			end
-		end
-		self.Settings.Version = 20
-	end
-
 	-- Repair missing settings
 	
 	if not self.Settings.RecentCompleteOutfits then
@@ -8041,7 +8051,7 @@ Outfitter.cItemHasUseFeature = {}
 Outfitter.cItemUseDuration = {}
 
 function Outfitter:ItemHasUseFeature(pItemLink)
-	local vItemCode = self:ParseItemLink2(pItemLink)[1]
+	local vItemCode = self:ParseItemLink(pItemLink)
 	local vHasUseFeature
 	
 	if self.cItemHasUseFeature[vItemCode] ~= nil then
@@ -8056,7 +8066,7 @@ function Outfitter:ItemHasUseFeature(pItemLink)
 end
 
 function Outfitter:GetItemUseDuration(pItemLink)
-	local vItemCode = self:ParseItemLink2(pItemLink)[1]
+	local vItemCode = self:ParseItemLink(pItemLink)
 	local vUseDuration
 	
 	if self.cItemUseDuration[vItemCode] then
@@ -8079,7 +8089,7 @@ function Outfitter:InventoryItemIsActive(pInventorySlot)
 	
 	local vSlotID = self.cSlotIDs[pInventorySlot]
 	local vItemLink = self:GetInventorySlotIDLink(vSlotID)
-	local vItemCode = self:GetSlotIDLinkInfo(vSlotID)[1]
+	local vItemCode = self:GetSlotIDLinkInfo(vSlotID)
 	local vStartTime, vDuration, vEnable = GetItemCooldown(vItemCode)
 	
 	if not vStartTime or vStartTime == 0 then
@@ -8266,9 +8276,19 @@ function Outfitter._ExtendedCompareTooltip:ShowCompareItem()
 		return
 	end
 	
-	local vTooltipItemCodes, vTooltipItemName = Outfitter:ParseItemLink2(vLink)
+	local vTooltipItemCode,
+	      vTooltipItemEnchantCode,
+	      vTooltipItemJewelCode1,
+	      vTooltipItemJewelCode2,
+	      vTooltipItemJewelCode3,
+	      vTooltipItemJewelCode4,
+	      vTooltipItemSubCode,
+	      vTooltipItemUniqueID,
+	      vTooltipItemLinkLevel,
+	      vTooltipItemReforgeID,
+	      vTooltipItemName = Outfitter:ParseItemLink(vLink)
 	
-	if not vTooltipItemCodes then
+	if not vTooltipItemCode then
 		return
 	end
 	
@@ -8280,7 +8300,7 @@ function Outfitter._ExtendedCompareTooltip:ShowCompareItem()
 	      vTooltipItemType,
 	      vTooltipItemSubType,
 	      vTooltipItemCount,
-	      vTooltipItemInvType = GetItemInfo(vTooltipItemCodes[1])
+	      vTooltipItemInvType = GetItemInfo(vTooltipItemCode)
 
 	if not vTooltipItemInvType then
 		return

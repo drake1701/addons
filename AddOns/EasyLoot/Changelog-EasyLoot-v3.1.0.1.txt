@@ -1,0 +1,24 @@
+------------------------------------------------------------------------
+r89 | zaman | 2014-12-05 00:18:34 +0000 (Fri, 05 Dec 2014) | 1 line
+Changed paths:
+   A /tags/v3.1.0.1 (from /trunk:88)
+
+Tagging as v3.1.0.1
+------------------------------------------------------------------------
+r88 | zaman | 2014-12-05 00:17:55 +0000 (Fri, 05 Dec 2014) | 2 lines
+Changed paths:
+   M /trunk/EasyLoot.lua
+   M /trunk/EasyLoot.toc
+   M /trunk/EasyLoot.xml
+
+v3.1.0.1
+Added "Personal Loot" as loot option and changed routine for handling events.
+------------------------------------------------------------------------
+r86 | zaman | 2014-12-02 08:06:57 +0000 (Tue, 02 Dec 2014) | 2 lines
+Changed paths:
+   M /trunk/EasyLoot.lua
+   M /trunk/EasyLoot.toc
+
+v3.0.0.1
+Changed event to match the new event sequence when looting.
+------------------------------------------------------------------------

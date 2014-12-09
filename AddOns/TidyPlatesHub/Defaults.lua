@@ -16,17 +16,14 @@ TidyPlatesHubDefaults = {
 
 	StyleFriendlyBarsOnActive = true,
 	StyleFriendlyBarsOnElite = false,
-	StyleFriendlyBarsInstanceMode = false,
 	StyleFriendlyBarsOnPlayers = true,
 	StyleFriendlyBarsOnNPC = false,
 
 	StyleEnemyBarsOnActive = true,
 	StyleEnemyBarsOnElite = true,
-	StyleEnemyBarsInstanceMode = false,
 	StyleEnemyBarsOnPlayers = true,
 	StyleEnemyBarsOnNPC = true,
 
-	StyleForceBarsOnTargets = false,
 
 	ColorEnemyBarMode =  1,
 	ColorEnemyNameMode = 1,

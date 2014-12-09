@@ -21,7 +21,7 @@ TidyPlatesHubMenus.NameColorModes = {}
 --TidyPlatesHubMenus.RangeModes = {}
 --TidyPlatesHubMenus.DebuffStyles = {}
 --TidyPlatesHubMenus.AuraWidgetModes = {}
---TidyPlatesHubMenus.ThreatWarningModes = {}
+--TidyPlatesHubMenus.ThreatModes = {}
 
 
 --[[
