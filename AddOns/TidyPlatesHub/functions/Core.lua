@@ -68,8 +68,8 @@ HubData.Functions.GetFriendlyClass = GetFriendlyClass
 HubData.Functions.GetEnemyClass = GetEnemyClass
 
 -- Define the Menu for Threat Modes
-TidyPlatesHubDefaults.ThreatMode = "Auto"
-TidyPlatesHubMenus.ThreatModes = {
+TidyPlatesHubDefaults.ThreatWarningMode = "Auto"
+TidyPlatesHubMenus.ThreatWarningModes = {
 					{ text = "Auto (Color Swap)", value = "Auto",} ,
 					{ text = "Tank", value = "Tank",} ,
 					{ text = "DPS/Healer", value = "DPS",} ,
@@ -212,6 +212,7 @@ local function UseVariables(profileName)
 	if suffix then
 
 		local objectName = "HubPanelSettings"..suffix
+		---ocal objectName = "HubProfileSettings"..suffix
 
 		LocalVars = TidyPlatesHubSettings[objectName] or CreateVariableSet(objectName)
 

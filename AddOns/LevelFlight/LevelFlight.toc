@@ -1,9 +1,0 @@
-## Interface: 60000
-
-## Title: LevelFlight
-## Version: 60000.1
-## Notes: Lets you fly level.
-
-## Author: Cidrei (Jazrei of Zangarmarsh-US)
-
-LevelFlight.lua

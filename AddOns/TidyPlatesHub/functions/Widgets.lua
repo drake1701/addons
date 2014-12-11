@@ -427,7 +427,7 @@ local function OnInitializeWidgets(plate, configTable)
 	AddClassIcon(plate, ((LocalVars.ClassEnemyIcon or LocalVars.ClassPartyIcon)) , configTable.ClassIcon)
 	AddTotemIcon(plate,  LocalVars.WidgetsTotemIcon, configTable.TotemIcon)
 	--AddThreatWheelWidget(plate, LocalVars.WidgetsThreatIndicator and (LocalVars.WidgetsThreatIndicatorMode == 2), configTable.ThreatWheelWidget)
-	AddThreatLineWidget(plate, LocalVars.WidgetsThreatIndicator and (LocalVars.WidgetsThreatIndicatorMode == 1), configTable.ThreatLineWidget)		-- Tug-o-Threat
+	AddThreatLineWidget(plate, LocalVars.WidgetsThreatIndicator, configTable.ThreatLineWidget)		-- Tug-o-Threat
 	AddComboPoints(plate, LocalVars.WidgetsComboPoints, configTable.ComboWidget )
 	AddRangeWidget(plate, LocalVars.WidgetsRangeIndicator, configTable.RangeWidget )
 	if LocalVars.WidgetsComboPoints and configTable.DebuffWidgetPlus then -- If the combo widget is active, it often overlaps the debuff widget "DebuffWidgetPlus" will provide an alternative

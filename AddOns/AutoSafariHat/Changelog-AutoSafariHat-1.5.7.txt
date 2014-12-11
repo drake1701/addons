@@ -1,0 +1,8 @@
+2014-12-08  MMOSimca  <MMOSimca@gmail.com>
+
+[c1d5d577c017] [1.5.7]
+* AutoSafariHat.lua:
+
+Fixed bug causing tooltips to close early.
+
+

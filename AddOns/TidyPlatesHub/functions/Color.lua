@@ -115,6 +115,7 @@ local function ColorFunctionByReaction(unit)
 end
 
 local function ColorFunctionDamage(unit)
+
 	if unit.threatValue > 1 then return LocalVars.ColorThreatWarning				-- When player is unit's target		-- Warning
 	elseif unit.threatValue == 1 then return LocalVars.ColorThreatTransition											-- Transition
 	else return LocalVars.ColorThreatSafe end																	-- Safe
@@ -122,22 +123,22 @@ end
 
 local function ColorFunctionRawTank(unit)
 
+
 	if unit.threatValue > 2 then
 		return LocalVars.ColorThreatWarning							-- When player is solid target, ie. Safe
 	else
-		--if IsTankedByAnotherTank(unit) then return LocalVars.ColorAttackingOtherTank		-- When unit is tanked by another
-		if unit.threatValue == 2 then return LocalVars.ColorThreatTransition				-- Transition
+		if IsTankedByAnotherTank(unit) then return LocalVars.ColorAttackingOtherTank		-- When unit is tanked by another
+		elseif unit.threatValue == 2 then return LocalVars.ColorThreatTransition				-- Transition
 		else return LocalVars.ColorThreatSafe end										-- Warning
 	end
 end
 
 local function ColorFunctionTankSwapColors(unit)
-
 	if unit.threatValue > 2 then
 		return LocalVars.ColorThreatSafe				-- When player is solid target		-- ColorThreatSafe = Safe Color... which means that a Tank would want it to be Safe
 	else
-		--if IsTankedByAnotherTank(unit) then return LocalVars.ColorAttackingOtherTank			-- When unit is tanked by another
-		if unit.threatValue == 2 then return LocalVars.ColorThreatTransition					-- Transition
+		if IsTankedByAnotherTank(unit) then return LocalVars.ColorAttackingOtherTank			-- When unit is tanked by another
+		elseif unit.threatValue == 2 then return LocalVars.ColorThreatTransition					-- Transition
 		else return LocalVars.ColorThreatWarning end												-- Warning
 	end
 end
@@ -154,13 +155,11 @@ Threat Value
 local function ColorFunctionByThreat(unit)
 	if InCombatLockdown() and unit.reaction ~= "FRIENDLY" and unit.type == "NPC" then
 
-		if IsTankedByAnotherTank(unit) then return LocalVars.ColorAttackingOtherTank end
-
 		if unit.reaction == "NEUTRAL" and unit.threatValue < 2 then return ReactionColors[unit.reaction][unit.type] end
 
-		if (LocalVars.ThreatMode == "Tank") or (LocalVars.ThreatMode == "Auto" and TidyPlatesWidgets.IsTankingAuraActive) then
+		if (LocalVars.ThreatWarningMode == "Tank") or (LocalVars.ThreatWarningMode == "Auto" and TidyPlatesWidgets.IsTankingAuraActive) then
 			return ColorFunctionTankSwapColors(unit)
-		--elseif LocalVars.ThreatMode == "Tank" then
+		--elseif LocalVars.ThreatWarningMode == "Tank" then
 		--	return ColorFunctionRawTank(unit)
 		else return ColorFunctionDamage(unit) end
 
@@ -185,7 +184,7 @@ end
 
 --  Hub functions
 local EnemyBarFunctions = {}
-TidyPlatesHubDefaults.ColorEnemyBarMode = "ByThreat"			-- Sets the default function
+TidyPlatesHubDefaults.EnemyBarColorMode = "ByThreat"			-- Sets the default function
 
 AddHubFunction(EnemyBarFunctions, TidyPlatesHubMenus.EnemyBarModes, ColorFunctionByThreat, "By Threat", "ByThreat")
 AddHubFunction(EnemyBarFunctions, TidyPlatesHubMenus.EnemyBarModes, ColorFunctionByReaction, "By Reaction", "ByReaction")
@@ -194,7 +193,7 @@ AddHubFunction(EnemyBarFunctions, TidyPlatesHubMenus.EnemyBarModes, ColorFunctio
 
 
 local FriendlyBarFunctions = {}
-TidyPlatesHubDefaults.ColorFriendlyBarMode = "ByReaction"			-- Sets the default function
+TidyPlatesHubDefaults.FriendlyBarColorMode = "ByReaction"			-- Sets the default function
 
 AddHubFunction(FriendlyBarFunctions, TidyPlatesHubMenus.FriendlyBarModes, ColorFunctionByReaction, "By Reaction", "ByReaction")
 AddHubFunction(FriendlyBarFunctions, TidyPlatesHubMenus.FriendlyBarModes, ColorFunctionByClassFriendly, "By Class", "ByClass")
@@ -223,9 +222,9 @@ local function HealthColorDelegate(unit)
 		local func
 
 		if unit.reaction == "FRIENDLY" then
-			func = FriendlyBarFunctions[LocalVars.ColorFriendlyBarMode or 0] or DummyFunction
+			func = FriendlyBarFunctions[LocalVars.FriendlyBarColorMode or 0] or DummyFunction
 		else
-			func = EnemyBarFunctions[LocalVars.ColorEnemyBarMode or 0] or DummyFunction
+			func = EnemyBarFunctions[LocalVars.EnemyBarColorMode or 0] or DummyFunction
 		end
 
 		--local func = ColorFunctions[mode] or DummyFunction
@@ -313,8 +312,8 @@ local function WarningBorderFunctionByThreat(unit)
 	if InCombatLockdown() and unit.reaction ~= "FRIENDLY" and unit.type == "NPC" then
 		if unit.reaction == "NEUTRAL" and unit.threatValue < 2 then return end
 
-		if (LocalVars.ThreatMode == "Auto" and TidyPlatesWidgets.IsTankingAuraActive)
-			or LocalVars.ThreatMode == "Tank" then
+		if (LocalVars.ThreatWarningMode == "Auto" and TidyPlatesWidgets.IsTankingAuraActive)
+			or LocalVars.ThreatWarningMode == "Tank" then
 				if IsTankedByAnotherTank(unit) then return
 				elseif unit.threatValue == 2 then return LocalVars.ColorThreatTransition
 				elseif unit.threatValue < 2 then return LocalVars.ColorThreatWarning	end
@@ -334,8 +333,6 @@ local WarningBorderFunctionsUniversal = { DummyFunction, WarningBorderFunctionBy
 local function ThreatColorDelegate(unit)
 	local color
 
-	--LocalVars.ThreatGlowEnable
-
 	-- Friendly Unit Aggro
 	if LocalVars.ColorShowPartyAggro and LocalVars.ColorPartyAggroGlow and unit.reaction == "FRIENDLY" then
 		if GetAggroCondition(unit.rawName) then color = LocalVars.ColorPartyAggro end
@@ -349,12 +346,14 @@ local function ThreatColorDelegate(unit)
 		end
 
 		-- Players
-		-- Check for Healer?  By Threat already does this.
+		-- Check for Healer?  By Threat does this.
 	end
 
+	--[[
 	if LocalVars.UnitSpotlightGlowEnable and LocalVars.UnitSpotlightLookup[unit.name] then
 		color = LocalVars.UnitSpotlightColor
 	end
+	--]]
 
 	if color then return color.r, color.g, color.b, 1
 	else return 0, 0, 0, 0 end
@@ -473,7 +472,7 @@ end
 
 local EnemyNameColorFunctions = {}
 TidyPlatesHubMenus.EnemyNameColorModes = {}
-TidyPlatesHubDefaults.ColorEnemyNameMode = "Default"
+TidyPlatesHubDefaults.EnemyNameColorMode = "Default"
 
 AddHubFunction(EnemyNameColorFunctions, TidyPlatesHubMenus.EnemyNameColorModes, NameColorDefault, "Default", "Default")
 AddHubFunction(EnemyNameColorFunctions, TidyPlatesHubMenus.EnemyNameColorModes, NameColorByClass, "By Class", "ByClass")
@@ -485,7 +484,7 @@ AddHubFunction(EnemyNameColorFunctions, TidyPlatesHubMenus.EnemyNameColorModes, 
 
 local FriendlyNameColorFunctions = {}
 TidyPlatesHubMenus.FriendlyNameColorModes = {}
-TidyPlatesHubDefaults.ColorFriendlyNameMode = "Default"
+TidyPlatesHubDefaults.FriendlyNameColorMode = "Default"
 
 AddHubFunction(FriendlyNameColorFunctions, TidyPlatesHubMenus.FriendlyNameColorModes, NameColorDefault, "Default", "Default")
 AddHubFunction(FriendlyNameColorFunctions, TidyPlatesHubMenus.FriendlyNameColorModes, NameColorByClass, "By Class", "ByClass")
@@ -493,8 +492,8 @@ AddHubFunction(FriendlyNameColorFunctions, TidyPlatesHubMenus.FriendlyNameColorM
 AddHubFunction(FriendlyNameColorFunctions, TidyPlatesHubMenus.FriendlyNameColorModes, ColorFunctionByHealth, "By Health", "ByHealth")
 
 
-TidyPlatesHubDefaults.HeadlineFriendlyColor = "ByReaction"
-TidyPlatesHubDefaults.HeadlineEnemyColor = "ByReaction"
+TidyPlatesHubDefaults.FriendlyHeadlineColor = "ByReaction"
+TidyPlatesHubDefaults.EnemyHeadlineColor = "ByReaction"
 
 
 -- [[
@@ -520,14 +519,14 @@ local function SetNameColorDelegate(unit)
 		if StyleDelegate(unit) == "NameOnly" then
 
 			if unit.reaction == "FRIENDLY" then
-				colorMode = LocalVars.HeadlineFriendlyColor
+				colorMode = LocalVars.FriendlyHeadlineColor
 			else
-				colorMode = LocalVars.HeadlineEnemyColor
+				colorMode = LocalVars.EnemyHeadlineColor
 			end
 
 		else
-			if unit.reaction == "FRIENDLY" then colorMode = LocalVars.ColorFriendlyNameMode
-			else colorMode = LocalVars.ColorEnemyNameMode
+			if unit.reaction == "FRIENDLY" then colorMode = LocalVars.FriendlyNameColorMode
+			else colorMode = LocalVars.EnemyNameColorMode
 			end
 
 		end
@@ -553,7 +552,7 @@ end
 
 local function OnVariableChange(vars)
 	LocalVars = vars
-	if (EnemyBarFunctions[LocalVars.ColorEnemyBarMode] == ColorFunctionByThreat) or LocalVars.ThreatGlowEnable then
+	if (EnemyBarFunctions[LocalVars.EnemyBarColorMode] == ColorFunctionByThreat) or LocalVars.ThreatGlowEnable then
 		SetCVar("threatWarning", 3)
 	end
 end

@@ -1,258 +1,435 @@
-if not (IsAddOnLoaded("Tukui") or IsAddOnLoaded("AsphyxiaUI") or IsAddOnLoaded("DuffedUI") or IsAddOnLoaded("ElvUI")) then return end
-local A, C = unpack(ElvUI or Tukui or DuffedUI or AsphyxiaUI)
-local ignoreButtons = {
-	"AsphyxiaUIMinimapHelpButton",
-	"AsphyxiaUIMinimapVersionButton",
-	"ElvConfigToggle",
-	"GameTimeFrame",
-	"HelpOpenTicketButton",
-	"MiniMapMailFrame",
-	"MiniMapTrackingButton",
-	"MiniMapVoiceChatFrame",
-	"QueueStatusMinimapButton",
-	"TimeManagerClockButton",
+local AddOnName, NS = ...
+
+local strsub, strlen, strfind, ceil = strsub, strlen, strfind, ceil
+local tinsert, pairs, unpack = tinsert, pairs, unpack
+
+local SquareMinimapButtonBar = CreateFrame('Frame', 'SquareMinimapButtonBar', UIParent)
+SquareMinimapButtonBar:SetPoint('RIGHT', UIParent, 'RIGHT', -45, 0)
+SquareMinimapButtonBar:SetFrameStrata('LOW')
+SquareMinimapButtonBar:SetClampedToScreen(true)
+SquareMinimapButtonBar:SetMovable(true)
+
+SquareMinimapButtonOptions = {
+	['BarMouseOver'] = false,
+	['BarEnabled'] = false,
+	['IconSize'] = 27,
+	['ButtonsPerRow'] = 12
 }
 
-local function OnEnter()
+local BorderColor
+local TexCoords = { .1, .9, .1, .9 }
+
+function SquareMinimapButtonBar:OnEnter()
 	UIFrameFadeIn(SquareMinimapButtonBar, 0.2, SquareMinimapButtonBar:GetAlpha(), 1)
+	if self:GetName() ~= 'SquareMinimapButtonBar' then
+		self:SetBackdropBorderColor(.7, 0, .7)
+	end
 end
 
-local function OnLeave()
-	UIFrameFadeOut(SquareMinimapButtonBar, 0.2, SquareMinimapButtonBar:GetAlpha(), 0)
+function SquareMinimapButtonBar:OnLeave()
+	if SquareMinimapButtonOptions['BarMouseOver'] then
+		UIFrameFadeOut(SquareMinimapButtonBar, 0.2, SquareMinimapButtonBar:GetAlpha(), 0)
+	end
+	if self:GetName() ~= 'SquareMinimapButtonBar' then
+		self:SetBackdropBorderColor(unpack(BorderColor))
+	end
 end
 
-local MoveButtons = {}
+local SkinnedMinimapButtons = {}
 
-local LastFrame, FrameName, Anchor1, Anchor2, AnchorX1, AnchorY1, AnchorX2, AnchorY2
-local sub, len, find = string.sub, string.len, string.find
-
-FrameNumber = 0
-
--- list of frames that are ignored when they start with this text
-local genericIgnores = {
-	"Archy",
-	"GatherMatePin",
-	"GatherNote",
-	"GuildInstance",
-	"HandyNotesPin",
-	"MinimMap",
-	"Spy_MapNoteList_mini",
-	"ZGVMarker",
+local ignoreButtons = {
+	'FAQButton',		-- AsphyxiaUI
+	'VersionButton',	-- AsphyxiaUI
+	'ElvConfigToggle',
+	'GameTimeFrame',
+	'HelpOpenTicketButton',
+	'MiniMapVoiceChatFrame',
+	'TimeManagerClockButton',
 }
 
--- ignore all frames where then name contains this text
-local partialIgnores = {
-	"Node",
-	"Note",
-	"Pin",
+local GenericIgnores = {
+	'Archy',
+	'GatherMatePin',
+	'GatherNote',
+	'GuildInstance',
+	'HandyNotesPin',
+	'MinimMap',
+	'Spy_MapNoteList_mini',
+	'ZGVMarker',
+	'poiMinimap',
 }
 
--- whitelist all frames starting with
-local whiteList = {
-	"LibDBIcon",
+local PartialIgnores = {
+	'Node',
+	'Note',
+	'Pin',
+	'POI',
 }
 
-local function SkinButton(Frame)
-	if Frame == nil or Frame:GetName() == nil or (Frame:GetObjectType() ~= "Button") or not Frame:IsVisible() then return end
-	
-	local name = Frame:GetName()
-	local validIcon = false
+local WhiteList = {
+	'LibDBIcon',
+}
 
-	for i = 1, #whiteList do
-		if sub(name, 1, len(whiteList[i])) == whiteList[i] then validIcon = true break end
+local AcceptedFrames = {
+	'BagSync_MinimapButton',
+	'VendomaticButtonFrame',
+	'MiniMapMailFrame',
+	'MiniMapTrackingButton',
+}
+
+local AddButtonsToBar = {
+	'SmartBuff_MiniMapButton',
+	'QueueStatusMinimapButton',
+	'MiniMapMailFrame',
+}
+
+function SquareMinimapButtonBar:SkinMinimapButton(Button)
+	if (not Button or Button.isSkinned) then return end
+
+	local Name = Button:GetName()
+	if not Name then return end
+
+	if Button:IsObjectType('Button') then
+		local ValidIcon = false
+
+		for i = 1, #WhiteList do
+			if strsub(Name, 1, strlen(WhiteList[i])) == WhiteList[i] then ValidIcon = true break end
+		end
+
+		if not ValidIcon then
+			for i = 1, #ignoreButtons do
+				if Name == ignoreButtons[i] then return end
+			end
+
+			for i = 1, #GenericIgnores do
+				if strsub(Name, 1, strlen(GenericIgnores[i])) == GenericIgnores[i] then return end
+			end
+
+			for i = 1, #PartialIgnores do
+				if strfind(Name, PartialIgnores[i]) ~= nil then return end
+			end
+		end
+
+		Button:SetPushedTexture(nil)
+		Button:SetHighlightTexture(nil)
+		Button:SetDisabledTexture(nil)
 	end
+	for i = 1, Button:GetNumRegions() do
+		local Region = select(i, Button:GetRegions())
+		if Region:GetObjectType() == 'Texture' then
+			local Texture = Region:GetTexture()
 
-	if not validIcon then
-		for i = 1, #ignoreButtons do
-			if name == ignoreButtons[i] then return end
-		end
-
-		for i = 1, #genericIgnores do
-			if sub(name, 1, len(genericIgnores[i])) == genericIgnores[i] then return end
-		end
-
-		for i = 1, #partialIgnores do
-			if find(name, partialIgnores[i]) ~= nil then return end
-		end
-	end
-	
-	Frame:SetPushedTexture(nil)
-	Frame:SetHighlightTexture(nil)
-	Frame:SetDisabledTexture(nil)
-	if Frame:GetName() == "DBMMinimapButton" then Frame:SetNormalTexture("Interface\\Icons\\INV_Helmet_87") end
-	if Frame:GetName() == "SmartBuff_MiniMapButton" then Frame:SetNormalTexture(select(3, GetSpellInfo(12051))) end
-	
-	Frame:Size(27)  
-	if not Frame.isSkinned then
-		for i = 1, Frame:GetNumRegions() do
-			local Region = select(i, Frame:GetRegions())
-			if(Region:GetObjectType() == "Texture") then
-				local Texture = Region:GetTexture()
-			
-				if(Texture and (Texture:find("Border") or Texture:find("Background") or Texture:find("AlphaMask"))) then
-					Region:SetTexture(nil)
-				else
+			if Texture and (strfind(Texture, 'Border') or strfind(Texture, 'Background') or strfind(Texture, 'AlphaMask')) then
+				Region:SetTexture(nil)
+				if Name == 'MiniMapTrackingButton' then
+					Region:SetTexture('Interface\\Minimap\\Tracking\\None')
 					Region:ClearAllPoints()
-					Region:Point("TOPLEFT", Frame, "TOPLEFT", 2, -2)
-					Region:Point("BOTTOMRIGHT", Frame, "BOTTOMRIGHT", -2, 2)
-					Region:SetTexCoord( 0.1, 0.9, 0.1, 0.9 )
-					Region:SetDrawLayer( "ARTWORK" )
-					if(Frame:GetName() == "PS_MinimapButton") then
-						Region.SetPoint = function() end
-					end
+					Region:SetInside()
+				end
+			else
+				if Name == 'BagSync_MinimapButton' then Region:SetTexture('Interface\\AddOns\\BagSync\\media\\icon') end
+				if Name == 'DBMMinimapButton' then Region:SetTexture('Interface\\Icons\\INV_Helmet_87') end
+				if Name == 'MiniMapMailFrame' then
+					Region:ClearAllPoints()
+					Region:SetPoint('CENTER', Button)
+				end
+				if not (Name == 'MiniMapMailFrame' or Name == 'SmartBuff_MiniMapButton') then
+					Region:ClearAllPoints()
+					Region:SetInside()
+					Region:SetTexCoord(unpack(TexCoords))
+					Button:HookScript('OnLeave', function(self) Region:SetTexCoord(unpack(TexCoords)) end)
+				end
+				Region:SetDrawLayer('ARTWORK')
+				Region.SetPoint = function() return end
+			end
+		end
+	end
+
+	Button:SetFrameLevel(Minimap:GetFrameLevel() + 5)
+	Button:Size(SquareMinimapButtonOptions['IconSize'])
+
+	if Name == 'SmartBuff_MiniMapButton' then
+		Button:SetNormalTexture("Interface\\Icons\\Spell_Nature_Purge")
+		Button:GetNormalTexture():SetTexCoord(unpack(TexCoords))
+		Button.SetNormalTexture = function() end
+		Button:SetDisabledTexture("Interface\\Icons\\Spell_Nature_Purge")
+		Button:GetDisabledTexture():SetTexCoord(unpack(TexCoords))
+		Button.SetDisabledTexture = function() end
+	elseif Name == 'VendomaticButtonFrame' then
+		VendomaticButton:StripTextures()
+		VendomaticButton:SetInside()
+		VendomaticButtonIcon:SetTexture('Interface\\Icons\\INV_Misc_Rabbit_2')
+		VendomaticButtonIcon:SetTexCoord(unpack(TexCoords))
+	end
+	if Name == 'QueueStatusMinimapButton' then
+		QueueStatusMinimapButton:HookScript('OnUpdate', function(self)
+			QueueStatusMinimapButtonIcon:SetFrameLevel(QueueStatusMinimapButton:GetFrameLevel() + 1)
+		end)
+		local Frame = CreateFrame('Frame', 'QueueDummyFrame', self)
+		Frame:SetTemplate()
+		Frame.Icon = Frame:CreateTexture(nil, 'ARTWORK')
+		Frame.Icon:SetInside()
+		Frame.Icon:SetTexture([[Interface\LFGFrame\LFG-Eye]])
+		Frame.Icon:SetTexCoord(0, 64 / 512, 0, 64 / 256)
+		Frame:SetScript('OnMouseDown', function()
+			if PVEFrame:IsShown() then
+				HideUIPanel(PVEFrame)
+			else
+				ShowUIPanel(PVEFrame)
+				GroupFinderFrame_ShowGroupFrame()
+			end
+		end)
+		self:HookScript('OnUpdate', function()
+			if SquareMinimapButtonOptions['MoveBlizzard'] then
+				QueueDummyFrame:Show()
+			else
+				QueueDummyFrame:Hide()
+			end
+		end)
+		QueueStatusMinimapButton:HookScript('OnShow', function()
+			if SquareMinimapButtonOptions['MoveBlizzard'] then
+				QueueDummyFrame:Show()
+			else
+				QueueDummyFrame:Hide()
+			end
+		end)
+		Frame:HookScript('OnEnter', self.OnEnter)
+		Frame:HookScript('OnLeave', self.OnLeave)
+		Frame:SetScript('OnUpdate', function(self)
+			if QueueStatusMinimapButton:IsShown() then
+				self:EnableMouse(false)
+			else
+				self:EnableMouse(true)
+			end
+			self:Size(SquareMinimapButtonOptions['IconSize'])
+			self:SetFrameStrata(QueueStatusMinimapButton:GetFrameStrata())
+			self:SetFrameLevel(QueueStatusMinimapButton:GetFrameLevel())
+			self:SetPoint(QueueStatusMinimapButton:GetPoint())
+		end)
+	elseif Name == 'MiniMapMailFrame' then
+		local Frame = CreateFrame('Frame', 'MailDummyFrame', self)
+		Frame:Size(SquareMinimapButtonOptions['IconSize'])
+		Frame:SetTemplate()
+		Frame.Icon = Frame:CreateTexture(nil, 'ARTWORK')
+		Frame.Icon:SetPoint('CENTER')
+		Frame.Icon:Size(18)
+		Frame.Icon:SetTexture(MiniMapMailIcon:GetTexture())
+		Frame:HookScript('OnEnter', self.OnEnter)
+		Frame:HookScript('OnLeave', self.OnLeave)
+		Frame:SetScript('OnUpdate', function(self)
+			if SquareMinimapButtonOptions['MoveBlizzard'] then
+				self:Show()
+				self:SetPoint(MiniMapMailFrame:GetPoint())
+			else
+				self:Hide()
+			end
+		end)
+		MiniMapMailFrame:HookScript('OnShow', function(self) MiniMapMailIcon:SetVertexColor(0, 1, 0) end)
+		MiniMapMailFrame:HookScript('OnHide', function(self) MiniMapMailIcon:SetVertexColor(1, 1, 1) end)
+	else
+		Button:SetTemplate()
+		--Button:SetBackdropColor(0, 0, 0, 0)
+	end
+
+	Button.isSkinned = true
+	tinsert(SkinnedMinimapButtons, Button)
+end
+
+function SquareMinimapButtonBar:GetOptions()
+	local Options = {
+		type = 'group',
+		name = GetAddOnMetadata(AddOnName, "Title"),
+		order = 101,
+		args = {
+			mbb = {
+				order = 1,
+				type = 'group',
+				name = 'Minimap Buttons / Bar',
+				guiInline = true,
+				get = function(info) return SquareMinimapButtonOptions[info[#info]] end,
+				set = function(info, value) SquareMinimapButtonOptions[info[#info]] = value SquareMinimapButtonBar:Update() end, 
+				args = {
+					BarEnabled = {
+						order = 1,
+						type = 'toggle',
+						name = 'Enable Bar',
+					},
+					BarMouseOver = {
+						order = 2,
+						type = 'toggle',
+						name = 'Bar MouseOver',
+					},
+					MoveBlizzard = {
+						order = 3,
+						type = 'toggle',
+						name = 'Move Blizzard Buttons',
+						desc = 'Mail / Dungeon',
+					},
+					IconSize = {
+						order = 4,
+						type = 'range',
+						width = 'full',
+						name = 'Icon Size',
+						min = 24, max = 48, step = 1,
+					},
+					ButtonsPerRow = {
+						order = 5,
+						type = 'range',
+						width = 'full',
+						name = 'Buttons Per Row',
+						min = 1, max = 12, step = 1,
+					},
+  				},
+			},
+		},
+	}
+	if EP then
+		local Ace3OptionsPanel = IsAddOnLoaded("ElvUI") and ElvUI[1] or Enhanced_Config[1]
+		Ace3OptionsPanel.Options.args.SquareMinimapButton = Options
+	else
+		local ACR, ACD = LibStub("AceConfigRegistry-3.0", true), LibStub("AceConfigDialog-3.0", true)
+		if not (ACR or ACD) then return end
+		ACR:RegisterOptionsTable("SquareMinimapButtons", Options)
+		ACD:AddToBlizOptions("SquareMinimapButtons", "SquareMinimapButtons", nil, "mbb")
+	end
+end
+
+SquareMinimapButtonBar:RegisterEvent('PLAYER_ENTERING_WORLD')
+SquareMinimapButtonBar:RegisterEvent('PLAYER_LOGIN')
+
+function SquareMinimapButtonBar:GrabMinimapButtons()
+	for i = 1, Minimap:GetNumChildren() do
+		local object = select(i, Minimap:GetChildren())
+		if object then
+			if object:IsObjectType('Button') and object:GetName() then
+				self:SkinMinimapButton(object)
+			end
+			for _, frame in pairs(AcceptedFrames) do
+				if object:IsObjectType('Frame') and object:GetName() == frame then
+					self:SkinMinimapButton(object)
 				end
 			end
 		end
-		Frame.isSkinned = true
-	end
-	Frame:SetTemplate("Default")
-	
-	if SquareMinimapButtonBarLayout == "Disabled" then return end
-	if SquareMinimapButtonBarLayout == "Vertical" then
-		Anchor1 = "TOP"
-		Anchor2 = "BOTTOM"
-		AnchorX1 = 0
-		AnchorY1 = -4
-		AnchorX2 = 0
-		AnchorY2 = -4
-	elseif SquareMinimapButtonBarLayout == "Horizontal" then
-		Anchor1 = "RIGHT"
-		Anchor2 = "LEFT"
-		AnchorX1 = -4
-		AnchorY1 = 0
-		AnchorX2 = -4
-		AnchorY2 = 0
-	end
-	
-	Frame:ClearAllPoints()
-	Frame:SetFrameStrata("LOW")
-	if not LastFrame then
-		Frame:SetPoint(Anchor1, SquareMinimapButtonBar, Anchor1, AnchorX1, AnchorY1)
-	else
-		Frame:SetPoint(Anchor1, LastFrame, Anchor2, AnchorX2, AnchorY2)
-	end
-	tinsert(MoveButtons, Frame:GetName())
-	LastFrame = Frame
-	if SquareMinimapButtonBarLayout == "Vertical" then
-		SquareMinimapButtonBar:Height((Frame:GetSize() * #MoveButtons) + (4 * #MoveButtons+1) + 3)
-	else
-		SquareMinimapButtonBar:Width((Frame:GetSize() * #MoveButtons) + (4 * #MoveButtons+1) + 3)
-	end
-	SquareMinimapButtonBar:Hide()
-	SquareMinimapButtonBar:Show()
-end
-
-local SquareMinimapButtonBarAnchor = CreateFrame("Frame", "SquareMinimapButtonBarAnchor", UIParent)
-SquareMinimapButtonBarAnchor:SetFrameStrata("HIGH")
-SquareMinimapButtonBarAnchor:SetTemplate("Transparent")
-SquareMinimapButtonBarAnchor:SetBackdropBorderColor(1,0,0)
-SquareMinimapButtonBarAnchor:SetPoint("RIGHT", UIParent,"RIGHT", -45, 0)
-SquareMinimapButtonBarAnchor:Hide()
-if not ElvUI then
-	SquareMinimapButtonBarAnchor:SetMovable(true)
-	SquareMinimapButtonBarAnchor:EnableMouse(true)
-	SquareMinimapButtonBarAnchor:SetClampedToScreen(true)
-	SquareMinimapButtonBarAnchor:RegisterForDrag("LeftButton")
-	SquareMinimapButtonBarAnchor:SetScript("OnDragStart", function(self) self:StartMoving() end)
-	SquareMinimapButtonBarAnchor:SetScript("OnDragStop", function(self) self:StopMovingOrSizing() end)
-	SquareMinimapButtonBarAnchor.text = SquareMinimapButtonBarAnchor:CreateFontString(nil, "OVERLAY")
-	SquareMinimapButtonBarAnchor.text:SetPoint("CENTER", SquareMinimapButtonBarAnchor, 0, 0)
-end
-
-local SquareMinimapButtonBar = CreateFrame("Frame", "SquareMinimapButtonBar", UIParent)
-SquareMinimapButtonBar:SetFrameStrata("BACKGROUND")
-SquareMinimapButtonBar:Height(34)
-SquareMinimapButtonBar:Width(34)
-SquareMinimapButtonBar:SetTemplate("Transparent")
-SquareMinimapButtonBar:CreateShadow()
-SquareMinimapButtonBar:SetPoint("CENTER", SquareMinimapButtonBarAnchor,"CENTER", 0, 0)
-SquareMinimapButtonBar:Hide()
-SquareMinimapButtonBar:SetScript("OnShow", function(self)
-	for _, buttons in pairs(MoveButtons) do
-		_G[buttons]:SetParent(self)
-		_G[buttons]:SetMovable(false)
-		_G[buttons]:SetScript("OnDragStart", nil)
-		_G[buttons]:SetScript("OnDragStop", nil)
-		if SMBBMouseOver then
-			_G[buttons]:HookScript("OnEnter", OnEnter)
-			_G[buttons]:HookScript("OnLeave", OnLeave)
-		end
-	end
-	self:HookScript("OnEnter", OnEnter)
-	self:HookScript("OnLeave", OnLeave)
-	SquareMinimapButtonBarAnchor:SetSize(SquareMinimapButtonBar:GetSize())
-end)
-
-function StartMinimapSkinning()
-	for i = 1, Minimap:GetNumChildren() do
-		SkinButton(select(i, Minimap:GetChildren()))
 	end
 end
 
-local SquareMinimapButtons = CreateFrame("Frame")
-SquareMinimapButtons:RegisterEvent("PLAYER_ENTERING_WORLD")
-SquareMinimapButtons:SetScript("OnEvent", function(self, event)
-	if MMHolder or TukuiMinimap or AsphyxiaUIMinimap or DuffedUIMinimap then
-		Minimap:SetMaskTexture('Interface\\ChatFrame\\ChatFrameBackground')
-	end
-	if SquareMinimapButtonBarLayout == nil then SquareMinimapButtonBarLayout = "Disabled" end
-	
-	StartMinimapSkinning()
-	
-	if event == "PLAYER_ENTERING_WORLD" then if ElvUI then A:Delay(15, StartMinimapSkinning) else A.Delay(15, StartMinimapSkinning) end self:UnregisterEvent("PLAYER_ENTERING_WORLD") self:RegisterEvent("ADDON_LOADED") end
-	if SquareMinimapButtonBarLayout == "Disabled" then return end
-	if not ElvUI then
-		SquareMinimapButtonBarAnchor.text:SetFont(C["media"].font, 12, "OUTLINE")
-		SquareMinimapButtonBarAnchor.text:SetText("Square Minimap Button Anchor")
-	else
-		A:CreateMover(SquareMinimapButtonBarAnchor, "MinimapButtonAnchor", "Square Minimap Button Bar Anchor", nil, nil, nil, "ALL,SOLO")
-	end
-	if SMBBMouseOver then
-		UIFrameFadeOut(SquareMinimapButtonBar, 0.2, SquareMinimapButtonBar:GetAlpha(), 0)
-	end
-end)
+function SquareMinimapButtonBar:Update()
+	MiniMapTrackingButton:Hide()
+	if not SquareMinimapButtonOptions['BarEnabled'] then return end
 
-SLASH_SQUAREMINIMAP1 = "/mbb"
-SlashCmdList["SQUAREMINIMAP"] = function(arg)
-	if arg == "unlock" or arg == "lock" then
-		if not ElvUI then
-			if SquareMinimapButtonBarAnchor:IsShown() then
-				SquareMinimapButtonBarAnchor:Hide()
-			else
-				SquareMinimapButtonBarAnchor:Show()
+	local AnchorX, AnchorY, MaxX = 0, 1, SquareMinimapButtonOptions['ButtonsPerRow']
+	local ButtonsPerRow = SquareMinimapButtonOptions['ButtonsPerRow']
+	local NumColumns = ceil(#SkinnedMinimapButtons / ButtonsPerRow)
+	local Spacing, Mult = 4, 1
+	local Size = SquareMinimapButtonOptions['IconSize']
+	local ActualButtons, Maxed = 0
+
+	if NumColumns == 1 and ButtonsPerRow > #SkinnedMinimapButtons then
+		ButtonsPerRow = #SkinnedMinimapButtons
+	end
+
+	for Key, Frame in pairs(SkinnedMinimapButtons) do
+		local Name = Frame:GetName()
+		local Exception = false
+		for _, Button in pairs(AddButtonsToBar) do
+			if Name == Button then
+				Exception = true
+				if Name == 'SmartBuff_MiniMapButton' then
+					SMARTBUFF_MinimapButton_CheckPos = function() end
+					SMARTBUFF_MinimapButton_OnUpdate = function() end
+				end
+				if not SquareMinimapButtonOptions['MoveBlizzard'] and (Name == 'QueueStatusMinimapButton' or Name == 'MiniMapMailFrame') then
+					Exception = false
+				end
 			end
-		else
-			print("/ec -> Toggle Anchors -> Options: All or Solo")
 		end
-	elseif arg == "horizontal" or arg == "h" then
-		SquareMinimapButtonBarLayout = "Horizontal"
-		print("Square Minimap Button Bar Layout: "..SquareMinimapButtonBarLayout.." Set!")
-		print("Please Reload for changes to take effect. /rl")
-	elseif arg == "vertical" or arg == "v" then
-		SquareMinimapButtonBarLayout = "Vertical"
-		print("Square Minimap Button Bar Layout: "..SquareMinimapButtonBarLayout.." Set!")
-		print("Please Reload for changes to take effect. /rl")
-	elseif arg == "disable" then
-		SquareMinimapButtonBarLayout = "Disabled"
-		print("Square Minimap Button Bar : "..SquareMinimapButtonBarLayout)
-		print("Please Reload for changes to take effect. /rl")
-	elseif arg == "mouseover" then
-		if SMBBMouseOver == true then
-			SMBBMouseOver = false
-		else
-			SMBBMouseOver = true
+		if SquareMinimapButtonOptions['MoveBlizzard'] and Name == 'MiniMapTrackingButton' then MiniMapTrackingButton:Show() end
+		if Frame:IsVisible() and not (Name == 'QueueStatusMinimapButton' or Name == 'MiniMapMailFrame') or Exception then
+			AnchorX = AnchorX + 1
+			ActualButtons = ActualButtons + 1
+			if AnchorX > MaxX then
+				AnchorY = AnchorY + 1
+				AnchorX = 1
+				Maxed = true
+			end
+
+			local yOffset = - Spacing - ((Size + Spacing) * (AnchorY - 1))
+			local xOffset = Spacing + ((Size + Spacing) * (AnchorX - 1))
+			Frame:SetTemplate()
+			Frame:SetBackdropColor(0, 0, 0, 0)
+			Frame:SetParent(SquareMinimapButtonBar)
+			Frame:ClearAllPoints()
+			Frame:SetPoint('TOPLEFT', SquareMinimapButtonBar, 'TOPLEFT', xOffset, yOffset)
+			Frame:SetSize(SquareMinimapButtonOptions['IconSize'], SquareMinimapButtonOptions['IconSize'])
+			Frame:SetFrameStrata('LOW')
+			Frame:SetFrameLevel(self:GetFrameLevel() + 2)
+			Frame:RegisterForDrag('LeftButton')
+			Frame:SetScript('OnDragStart', nil)
+			Frame:SetScript('OnDragStop', nil)
+			Frame:HookScript('OnEnter', self.OnEnter)
+			Frame:HookScript('OnLeave', self.OnLeave)
+			if Maxed then ActualButtons = ButtonsPerRow end
+			local BarWidth = (Spacing + ((Size * (ActualButtons * Mult)) + ((Spacing * (ActualButtons - 1)) * Mult) + (Spacing * Mult)))
+			local BarHeight = (Spacing + ((Size * (AnchorY * Mult)) + ((Spacing * (AnchorY - 1)) * Mult) + (Spacing * Mult)))
+			self:SetSize(BarWidth, BarHeight)
+
+			if not self.RegisteredMovers then
+				if IsAddOnLoaded("Tukui") then
+					Tukui[1]["Movers"]:RegisterFrame(self)
+				elseif IsAddOnLoaded("ElvUI") then
+					ElvUI[1]:CreateMover(self, "SquareMinimapButtonBarMover", "SquareMinimapButtonBar Anchor", nil, nil, nil, "ALL,GENERAL")
+				else
+					self:RegisterForDrag('LeftButton')
+					self:SetScript('OnDragStart', self.StartMoving)
+					self:SetScript('OnDragStop', self.StopMovingOrSizing)
+					Frame:SetScript('OnDragStart', function(self) self:GetParent():StartMoving() end)
+					Frame:SetScript('OnDragStop', function(self) self:GetParent():StopMovingOrSizing() end)
+				end
+				self.RegisteredMovers = true
+			end
 		end
-	elseif arg == "show" or arg == "hide" then
-		if SquareMinimapButtonBar:IsShown() then
-			SquareMinimapButtonBar:Hide()
-		else
-			SquareMinimapButtonBar:Show()
-		end
-	elseif arg == "" then
-		print("Square Minimap Button Bar Options")
-		if not ElvUI then print("/mbb unlock | lock - Toggles the Anchor.") end
-		print("/mbb horizontal | h - Switches to Horizontal Layout.")
-		print("/mbb vertical | v - Switches to Vertical Layout.")
-		print("/mbb disable - Disables the Anchor.")
 	end
+	self:Show()
+	self:OnEnter()
+	self:OnLeave()
 end
+
+SquareMinimapButtonBar:SetScript('OnEvent', function(self, event, addon)
+	if event == 'PLAYER_LOGIN' then
+		QueueStatusMinimapButton:SetParent(Minimap)
+		MiniMapTrackingButton:SetParent(Minimap)
+
+		self:SetTemplate('Transparent', true)
+
+		Minimap:SetMaskTexture("Interface\\ChatFrame\\ChatFrameBackground")
+
+		BorderColor = { self:GetBackdropBorderColor() }
+
+		self:SetScript('OnEnter', self.OnEnter)
+		self:SetScript('OnLeave', self.OnLeave)
+
+		EP = LibStub('LibElvUIPlugin-1.0', true)
+		if EP then
+			EP:RegisterPlugin(AddOnName, self.GetOptions)
+		else
+			self:GetOptions()
+		end
+
+		self:RegisterEvent('ADDON_LOADED')
+	else
+		self:GrabMinimapButtons()
+		self:Update()
+		self:OnLeave()
+	end
+end)
+
+local Time = 0
+SquareMinimapButtonBar:SetScript('OnUpdate', function(self, elasped)
+	Time = Time + elasped
+	if Time > 5 then
+		self:GrabMinimapButtons()
+		self:Update()
+		self:OnLeave()
+		self:SetScript('OnUpdate', nil)
+	end
+end)

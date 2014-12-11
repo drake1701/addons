@@ -1,6 +1,52 @@
 Pack Command:  		zip -vr TP_Release.zip TidyPlates* -x@exclude.lst
 Exclusion List: 	*.svn*   *.DS_Store*   exclude.lst   *.db   *.png   *.gif   *.jpg   *.tif   *.txt   *.psd   *.bmp
 
+---------------------------
+6.16.Beta: Quick Notes
+---------------------------
+This is a MAJOR update to Tidy Plates, and many things have changed.
+
+Here are some of the bigger changes:
+
+* The Hub has been revamped and some rearranging has been done.
+* Quick Fix - Quick Setup:
+	1. Use '/tp' to reselect your Theme (and Profile)
+	2. Use '/hub' to check your settings...
+		...Some settings have been pruned; If there was something important that got removed, let me know...
+
+* Numerous Bug Fixes & Improvements
+* Numerous Bug "Additions", possibly
+
+I sincerely apologize for any inconvenience these changes may cause...
+
+Think of this: Changes mean that this addon is being actively developed
+and maintained, rather than withering.
+
+--------------------------------------
+6.16.Beta8
+--------------------------------------
+* Hub: Threat: Highlight Mobs Tanked by Other Tanks:  It was a mess. Rewrote and tested with hunter pet, and it's working well in that condition.
+	- To do:  Reimplement Combat Log melee swing detection, and test in 5-man and Raids
+
+--------------------------------------
+6.16.Beta7
+--------------------------------------
+* I haven't been keeping track of changes.  Warlords- yay!
+
+Things still needing testing...
+* Healer Tracking
+* Tank Target-Of-Mob Tracking
+
+--------------------------------------
+6.16.Beta6
+--------------------------------------
+* Some fixes, some additions..
+
+Things still needing testing...
+* Healer Tracking
+* Tank Target-Of-Mob Tracking
+
+
 --------------------------------------
 6.16.Beta5
 --------------------------------------
@@ -10,50 +56,6 @@ Exclusion List: 	*.svn*   *.DS_Store*   exclude.lst   *.db   *.png   *.gif   *.j
 * Lots of changes to the Hub.  Feedback is good.  Be polite, please!
 
 * Migrated to new Dropdown Menu and Hub Function system; Your settings will be a bit borked until you go to /hub
-
-Note:
-In the past, your dropdown menu choices were referenced as a numerical index (1,2,3,etc.)
-which corresponded to a specific function.  If the order of those functions changed,
-your configuration would get futzed-up.
-
-I've changed the way that your choices are stored (As a descriptive token) so it now
-corresponds directly to a function, ex. "AlphaByThreat".  Even if I change the order
-of the function list, your configuration will still hum along, happily.
-
-Sorry for the inconvenience, but this will make for a better addon in the long-run!
-
-
----------------------------
-6.16.Beta1: Notes
----------------------------
-
-This is a major update to Tidy Plates, and many things have changed.
-
-Here are some of the bigger changes:
-
-* Quick Fix - Quick Setup:
-	1. Use '/tp' to reselect your Theme
-	2. Use '/hub' to check your settings...
-		...Some settings have been pruned!
-
-* NEON is the only theme that has been updated in Beta1
-* QUATRE will be available after Beta3
-* GREY will be available after Beta5
-
-* Hub Revamp / Phase 1
-	1. Removed theme copies; ie. "Damage" and "Tank"
-	2. Theme copies have become 'Profiles'
-	3. Access profiles via: '/tp'
-	4. You can still use '/hub' to jump to the
-		appropriate panel
-	5. Again, some settings have been pruned!
-
-* Numerous Bug Fixes & Improvements
-* Numerous Bug "Additions", possibly
-
-I sincerely apologize for any inconvenience these changes may cause.
-Think of this: Changes mean that this addon is being actively developed
-and maintained, rather than withering.
 
 --------------------------------------
 6.16.Beta4:

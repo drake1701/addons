@@ -97,8 +97,8 @@ end
 local function ScaleFunctionByThreat(unit)
 	if unit.reaction == "NEUTRAL" and unit.threatValue < 2 then return ScaleFunctionByThreatHigh(unit) end
 
-	if (LocalVars.ThreatMode == "Auto" and IsTankingAuraActive())
-		or LocalVars.ThreatMode == "Tank" then
+	if (LocalVars.ThreatWarningMode == "Auto" and IsTankingAuraActive())
+		or LocalVars.ThreatWarningMode == "Tank" then
 			return ScaleFunctionByThreatLow(unit)	-- tank mode
 	else return ScaleFunctionByThreatHigh(unit) end
 
@@ -126,8 +126,8 @@ AddHubFunction(ScaleFunctionsUniversal, TidyPlatesHubMenus.ScaleModes, ScaleFunc
 AddHubFunction(ScaleFunctionsUniversal, TidyPlatesHubMenus.ScaleModes, ScaleFunctionByEnemyHealer, "On Enemy Healers", "OnHealers")
 AddHubFunction(ScaleFunctionsUniversal, TidyPlatesHubMenus.ScaleModes, ScaleFunctionByLowHealth, "On Low-Health Units", "OnLowHealth")
 AddHubFunction(ScaleFunctionsUniversal, TidyPlatesHubMenus.ScaleModes, ScaleFunctionByBoss, "On Bosses", "OnBosses")
---TidyPlatesHubDefaults.ScaleSpotlightMode = 2			-- Sets the default function
-TidyPlatesHubDefaults.ScaleSpotlightMode = "ByThreat"			-- Sets the default function
+--TidyPlatesHubDefaults.ScaleFunctionMode = 2			-- Sets the default function
+TidyPlatesHubDefaults.ScaleFunctionMode = "ByThreat"			-- Sets the default function
 
 
 local function ScaleDelegate(...)
@@ -151,7 +151,7 @@ local function ScaleDelegate(...)
 		-- Filter
 		if (LocalVars.FilterScaleLock or (not unit.isTarget)) and UnitFilter(unit) then scale = LocalVars.ScaleFiltered
 		else
-			local func = ScaleFunctionsUniversal[LocalVars.ScaleSpotlightMode] or DummyFunction
+			local func = ScaleFunctionsUniversal[LocalVars.ScaleFunctionMode] or DummyFunction
 			if func then scale = func(...) end
 		end
 	end
@@ -166,7 +166,7 @@ end
 
 local function OnVariableChange(vars)
 	LocalVars = vars
-	if ScaleFunctionsUniversal[LocalVars.ScaleSpotlightMode] == ScaleFunctionByThreat then
+	if ScaleFunctionsUniversal[LocalVars.ScaleFunctionMode] == ScaleFunctionByThreat then
 		SetCVar("threatWarning", 3)
 	end
 
