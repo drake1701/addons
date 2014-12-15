@@ -1,3 +1,7 @@
+Version 2.3.1
+
+- Restrict Nagrand option to not use siege tanks and only use mounts if learned
+
 Version 2.3.0
 
 - Added Garrison Mounts option for Nagrand

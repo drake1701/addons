@@ -1293,10 +1293,13 @@ function Livestock.SmartPreClick(self)
 	elseif state == 4 then -- handle "flyable" areas
 
 		if LivestockSettings.nagrand == 1 and zoneID == 950 then
-			self:SetAttribute("type", "macro")
-			self:SetAttribute("macrotext", "/use Garrison Ability")
-			self.mounttype = nil
-			return
+			local spellID = select(7, GetSpellInfo(GetSpellInfo(DraenorZoneAbilitySpellID)))
+			if spellID == 165803 or spellID == 164222 then
+				self:SetAttribute("type", "macro")
+				self:SetAttribute("macrotext", "/use Garrison Ability")
+				self.mounttype = nil
+				return
+			end
 		end
 
 		self.mounttype = Livestock.LandOrFlying()

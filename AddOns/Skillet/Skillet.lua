@@ -20,9 +20,9 @@ along with this program.  If not, see <http://www.gnu.org/licenses/>.
 
 ]]--
 
-local MAJOR_VERSION = "2.70"
-local MINOR_VERSION = ("$Revision: 411 $"):match("%d+") or 1
-local DATE = string.gsub("$Date: 2014-12-07 16:06:26 +0000 (Sun, 07 Dec 2014) $", "^.-(%d%d%d%d%-%d%d%-%d%d).-$", "%1")
+local MAJOR_VERSION = "2.71"
+local MINOR_VERSION = ("$Revision: 416 $"):match("%d+") or 1
+local DATE = string.gsub("$Date: 2014-12-13 03:16:50 +0000 (Sat, 13 Dec 2014) $", "^.-(%d%d%d%d%-%d%d%-%d%d).-$", "%1")
 
 Skillet = LibStub("AceAddon-3.0"):NewAddon("Skillet", "AceConsole-3.0", "AceEvent-3.0", "AceHook-3.0", "AceTimer-3.0")
 Skillet.title   = "Skillet"
@@ -463,6 +463,62 @@ Skillet.options =
 			guiHidden = true,
 			order = 56
 		},
+		ignorelist = {
+			type = 'execute',
+			name = L["Ignored Materials List"],
+			desc = L["IGNORELISTDESC"],
+			func = function()
+				if not (UnitAffectingCombat("player")) then
+					Skillet:DisplayIgnoreList()
+				else
+					DA.DEBUG(0,"|cff8888ffSkillet|r: Combat lockdown restriction." ..
+												  " Leave combat and try again.")
+				end
+			end,
+			order = 57
+		},
+		ignoreclear = {
+			type = 'execute',
+			name = L["Ignored Materials Clear"],
+			desc = L["IGNORECLEARDESC"],
+			func = function()
+				if not (UnitAffectingCombat("player")) then
+					Skillet:ClearIgnoreList()
+				else
+					DA.DEBUG(0,"|cff8888ffSkillet|r: Combat lockdown restriction." ..
+												  " Leave combat and try again.")
+				end
+			end,
+			order = 58
+		},
+		ignoreadd = {
+			type = "input",
+			name = "IgnoreAdd",
+			desc = "Add to userIgnoredMats",
+			get = function()
+				local value = tonumber(value)
+				return Skillet.db.realm.userIgnoredMats[UnitName("player")][value]
+			end,
+			set = function(self,value)
+				local value = tonumber(value)
+				Skillet.db.realm.userIgnoredMats[UnitName("player")][value] = 1
+			end,
+			order = 59
+		},
+		ignoredel = {
+			type = "input",
+			name = "IgnoreDel",
+			desc = "Delete from userIgnoredMats",
+			get = function()
+				local value = tonumber(value)
+				return Skillet.db.realm.userIgnoredMats[UnitName("player")][value]
+			end,
+			set = function(self,value)
+				local value = tonumber(value)
+				Skillet.db.realm.userIgnoredMats[UnitName("player")][value] = nil
+			end,
+			order = 60
+		},
 
 		WarnShow = {
 			type = "toggle",
@@ -741,6 +797,7 @@ function Skillet:FlushAllData()
 	Skillet.db.realm.reagentsInQueue = {}
 	Skillet.db.realm.inventoryData = {}
 	Skillet.db.realm.reagentBank = {}
+	Skillet.db.realm.userIgnoredMats = {}
 	Skillet:InitializeDatabase((UnitName("player")))
 end
 
@@ -786,6 +843,15 @@ function Skillet:InitializeDatabase(player, clean)
 	if not self.db.realm.reagentsInQueue then
 		self.db.realm.reagentsInQueue = {}
 	end
+	if not self.db.realm.reagentsInQueue[player] then
+		self.db.realm.reagentsInQueue[player] = {}
+	end
+	if not self.db.realm.userIgnoredMats then
+		self.db.realm.userIgnoredMats = {}
+	end
+	if not self.db.realm.userIgnoredMats[player] then
+		self.db.realm.userIgnoredMats[player] = {}
+	end
 	if not self.db.realm.skillDB then
 		self.db.realm.skillDB = {}
 	end
@@ -794,6 +860,9 @@ function Skillet:InitializeDatabase(player, clean)
 	end
 	if not self.db.realm.tradeSkills then
 		self.db.realm.tradeSkills = {}
+	end
+	if not self.db.realm.tradeSkills[player] then
+		self.db.realm.tradeSkills[player] = {}
 	end
 	if not self.db.realm.queueData then
 		self.db.realm.queueData = {}
@@ -1546,9 +1615,9 @@ function ProfessionPopup_Init(menuFrame, level)
 	end
 end
 
-function ProfessionPopup_Show(this)
+function ProfessionPopup_Show(self)
 	ProfessionPopupFrame = CreateFrame("Frame", "ProfessionPopupFrame", _G["UIParent"], "UIDropDownMenuTemplate")
-	Skillet.professionPopupButton = this
+	Skillet.professionPopupButton = self
 	UIDropDownMenu_Initialize(ProfessionPopupFrame, ProfessionPopup_Init, "MENU")
 	ToggleDropDownMenu(1, nil, ProfessionPopupFrame, Skillet.professionPopupButton, Skillet.professionPopupButton:GetWidth(), 0)
 end

@@ -123,16 +123,14 @@ local function createShoppingListFrame(self)
 	-- Ace Window manager library, allows the window position (and size)
 	-- to be automatically saved
 	local windowManger = LibStub("LibWindow-1.1")
-	local tradeSkillLocation = {
+	local shoppingListLocation = {
 		prefix = "shoppingListLocation_"
 	}
-	windowManger.RegisterConfig(frame, self.db.char, tradeSkillLocation)
+	windowManger.RegisterConfig(frame, self.db.char, shoppingListLocation)
 	windowManger.RestorePosition(frame)  -- restores scale also
 	windowManger.MakeDraggable(frame)
-
 	-- lets play the resize me game!
 	Skillet:EnableResize(frame, 300, 165, Skillet.UpdateShoppingListWindow)
-
 	-- so hitting [ESC] will close the window
 	tinsert(UISpecialFrames, frame:GetName())
 	return frame
@@ -253,14 +251,8 @@ function Skillet:GetShoppingList(player, includeBank, includeGuildbank)
 					usedGuild[id] = math.min(usedGuild[id], cachedGuildbank[curGuild][id]) -- but don't use more than there is
 				end
 				if deficit < 0 then
-					if LSW and LSW.GetItemCost then
-						local value, source = LSW:GetItemCost(id)
-						local entry = { ["id"] = id, ["count"] = -deficit, ["player"] = player, ["value"] = (value or 0), ["source"] = source }
-						table.insert(list, entry)
-					else
-						local entry = { ["id"] = id, ["count"] = -deficit, ["player"] = player, ["value"] = 0, ["source"] = "?" }
-						table.insert(list, entry)
-					end
+					local entry = { ["id"] = id, ["count"] = -deficit, ["player"] = player, ["value"] = 0, ["source"] = "?" }
+					table.insert(list, entry)
 				end
 			end
 		end
@@ -295,16 +287,18 @@ local function indexBank()
 			if item then
 				local _,count = GetContainerItemInfo(container, i)
 				local id = Skillet:GetItemIDFromLink(item)
-				table.insert(bank, {
-					["bag"]   = container,
-					["slot"]  = i,
-					["id"]  = id,
-					["count"] = count,
-				})
-				if not reagentbank[id] then
-					reagentbank[id] = 0
+				if id then
+					table.insert(bank, {
+						["bag"]   = container,
+						["slot"]  = i,
+						["id"]  = id,
+						["count"] = count,
+					})
+					if not reagentbank[id] then
+						reagentbank[id] = 0
+					end
+					reagentbank[id] = reagentbank[id] + count
 				end
-				reagentbank[id] = reagentbank[id] + count
 			end
 		end
 	end
@@ -336,16 +330,18 @@ local function indexGuildBank()
 				if item then
 					local _,count = GetGuildBankItemInfo(tab, slot)
 					local id = Skillet:GetItemIDFromLink(item)
-					table.insert(guildbank, {
-						["bag"]   = tab,
-						["slot"]  = slot,
-						["id"]  = id,
-						["count"] = count,
-					})
-					if not cachedGuildbank[guildName][id] then
-						cachedGuildbank[guildName][id] = 0
+					if id then
+						table.insert(guildbank, {
+							["bag"]   = tab,
+							["slot"]  = slot,
+							["id"]  = id,
+							["count"] = count,
+						})
+						if not cachedGuildbank[guildName][id] then
+							cachedGuildbank[guildName][id] = 0
+						end
+						cachedGuildbank[guildName][id] = cachedGuildbank[guildName][id] + count
 					end
-					cachedGuildbank[guildName][id] = cachedGuildbank[guildName][id] + count
 				end
 			end
 		end
@@ -859,9 +855,6 @@ function Skillet:UpdateShoppingListWindow(use_cached_recipes)
 	local itemOffset = FauxScrollFrame_GetOffset(SkilletShoppingListList)
 	local width = SkilletShoppingListList:GetWidth()
 	local totalPrice = 0
-	if LSW then
-		width = width - 60
-	end
 	for i=1, button_count, 1 do
 		num_buttons = math.max(num_buttons, i)
 		local itemIndex = i + itemOffset
@@ -881,14 +874,9 @@ function Skillet:UpdateShoppingListWindow(use_cached_recipes)
 		player:SetPoint("LEFT", name:GetName(), "RIGHT", 4)
 		if itemIndex <= numItems then
 			count:SetText(self.cachedShoppingList[itemIndex].count)
-			name:SetText(GetItemInfo(self.cachedShoppingList[itemIndex].id) or id)
+			name:SetText(GetItemInfo(self.cachedShoppingList[itemIndex].id))
 			player:SetText(self.cachedShoppingList[itemIndex].player)
-			if LSW then
-				button.valueText:SetText(LSW:FormatMoney(self.cachedShoppingList[itemIndex].value * self.cachedShoppingList[itemIndex].count, true)..self.cachedShoppingList[itemIndex].source)
-				totalPrice = totalPrice + self.cachedShoppingList[itemIndex].value * self.cachedShoppingList[itemIndex].count
-			else
-				button.valueText:Hide()
-			end
+			button.valueText:Hide()
 			button.id  = self.cachedShoppingList[itemIndex].id
 			button.count = self.cachedShoppingList[itemIndex].count
 			button.player = self.cachedShoppingList[itemIndex].player
@@ -903,18 +891,6 @@ function Skillet:UpdateShoppingListWindow(use_cached_recipes)
 			count:Hide()
 			player:Hide()
 		end
-	end
-	--DA.DEBUG(0,("total price for shopping list "..LSW_formatMoney(totalPrice, true))
-	if LSW then
-		local totalPriceReport = _G["SkilletShoppingListTotalPrice"]
-		if not totalPriceReport then
-			totalPriceReport = SkilletShoppingList:CreateFontString("SkilletShoppingListTotalPrice",nil, "GameFontNormal")
-			totalPriceReport:SetPoint("BOTTOMLEFT", SkilletShoppingList, "BOTTOMLEFT", 50, 50)
-			totalPriceReport:SetText("shopping list cost: 00 00")
-			totalPriceReport:SetWidth(200)
-			totalPriceReport:SetHeight(20)
-		end
-		totalPriceReport:SetText("shopping list cost: "..LSW:FormatMoney(totalPrice,true))
 	end
 	-- Hide any of the buttons that we created, but don't need right now
 	for i = button_count+1, num_buttons, 1 do
