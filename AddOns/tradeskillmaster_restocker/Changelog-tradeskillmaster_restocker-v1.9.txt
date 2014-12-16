@@ -1,0 +1,46 @@
+------------------------------------------------------------------------
+r36 | riccool | 2014-02-22 17:27:23 +0000 (Sat, 22 Feb 2014) | 7 lines
+Changed paths:
+   A /tags/v1.9 (from /trunk:35)
+
+Added localization support.
+Closing restocker will also close the group window
+Allow Custom Price String to configure "Price" Column.
+Creating an operation from a group will allow you to automatically apply to group.
+
+
+
+------------------------------------------------------------------------
+r35 | riccool | 2014-02-22 17:26:07 +0000 (Sat, 22 Feb 2014) | 1 line
+Changed paths:
+   M /trunk/TradeSkillMaster_Restocker.toc
+
+Changed patch to 5.4 to avoid Out of Date Errors
+------------------------------------------------------------------------
+r34 | riccool | 2014-02-14 00:39:37 +0000 (Fri, 14 Feb 2014) | 1 line
+Changed paths:
+   M /trunk/Locale/enUS.lua
+   M /trunk/Modules/Options.lua
+   M /trunk/Modules/gui.lua
+   M /trunk/TradeSkillMaster_Restocker.lua
+
+Added localization support.
+------------------------------------------------------------------------
+r33 | riccool | 2014-02-12 20:33:21 +0000 (Wed, 12 Feb 2014) | 1 line
+Changed paths:
+   M /trunk/Modules/Options.lua
+   M /trunk/Modules/gui.lua
+   M /trunk/TradeSkillMaster_Restocker.lua
+
+Made closing the Restocker UI persist through session unless manually opened.
+------------------------------------------------------------------------
+r31 | riccool | 2014-02-11 01:19:08 +0000 (Tue, 11 Feb 2014) | 2 lines
+Changed paths:
+   M /trunk/Modules/Options.lua
+   M /trunk/Modules/gui.lua
+   M /trunk/TradeSkillMaster_Restocker.lua
+   M /trunk/TradeSkillMaster_Restocker.toc
+
+Closing restocker will also close the group window
+
+------------------------------------------------------------------------

@@ -712,9 +712,13 @@ G.unitframe.buffwatch = {
 	},
 }
 
-local mfTicks = 3
-if select(2, UnitClass("player")) == "PRIEST" and IsSpellKnown(157223) then --Enhanced Mind Flay
-	mfTicks = 4
+local function getMindFlayTicks()
+	local mfTicks = 3
+	if string.lower(select(2, UnitClass("player"))) == "priest" and IsSpellKnown(157223) then --Enhanced Mind Flay
+		mfTicks = 4
+	end
+	
+	return mfTicks;
 end
 --List of spells to display ticks
 G.unitframe.ChannelTicks = {
@@ -729,8 +733,8 @@ G.unitframe.ChannelTicks = {
 	--[SpellName(44203)] = 4, -- "Tranquility"
 	[SpellName(16914)] = 10, -- "Hurricane"
 	--Priest
-	[SpellName(15407)] = mfTicks, -- "Mind Flay"
-	[SpellName(129197)] = mfTicks, -- "Mind Flay (Insanity)"
+	[SpellName(15407)] = getMindFlayTicks(), -- "Mind Flay"
+	[SpellName(129197)] = getMindFlayTicks(), -- "Mind Flay (Insanity)"
 	[SpellName(48045)] = 5, -- "Mind Sear"
 	[SpellName(47540)] = 2, -- "Penance"
 	--[SpellName(64901)] = 4, -- Hymn of Hope

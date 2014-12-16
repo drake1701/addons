@@ -1,0 +1,53 @@
+
+
+local L = LibStub("AceLocale-3.0"):NewLocale("TradeSkillMaster_Restocker", "enUS", true)
+if not L then return end
+
+L["Opens the restocking panel."] = true
+L["Hiding frame for the remainder of this session. Typing '/tsm restock' will open the frame again."] = true
+L["Desired Quantity"] = true
+L["Stock"] = true
+L["Item"] = true
+L["No Restocking Data to Show."] = true			
+L["Avgbuy"] = true
+L["MinBuyOut"] = true
+L["Options"] = true
+L["General Options"] = true
+L["Restocking operations contain the desired amount you would like to keep stockpiled for items in your groups"] = true
+L["Desired Quantity"] = true
+L["Deficit"] = true
+L["The number of the item you would like to keep restocked. By default, restocker will not show items above this quantity"] = true
+L["New Operation"] = true
+L["Error creating operation. Operation with name '%s' already exists."] = true
+L["Give the new operation a name. A descriptive name will help you find this operation later."] = true
+L["General Operation Options"] = true
+L["General Settings"] = true
+L["Below are some general options for the this module"] = true
+L["Open the Restock UI"] = true
+L["To create a Restocking Operation"] = true
+L["You can toggle the Restock UI by typing the command "] = true
+L["1) Select Operations on the left menu and type a name in the textbox labeled \"Operation Name\", hit okay."] = true
+L["2) You can delete an operation by selecting the operation and then under Operation Management click the button labelled \"Delete Operation\". "] = true
+ L["Restocker will show you a list of group items with assigned operations, your current stock, and your desired quantity. This can be a helpful tool to know if you should buy more (or even at a slightly higher price than normal."] = true
+ L["Help"] =true
+ L["General"] = true
+ L["Relationships"] = true
+ L["Options"] = true
+ L["Operations"] = true
+ L["Default Price Method"]=true
+ L["This is the default method Restocking will use for determining the Price column."] = true
+ L["Inventory Settings"]=true
+ L["Restock will not automatically open and close for Selected Characters:"] = true
+ L["Operation Name"] = true
+ L["Override the default Price Method"] = true
+ L["Restocker Price Source"] = true
+ L["Set the price method you would like used in the 'Price' Column on Restocker for this operation.  The default is dbmarket."] = true
+ L["Restock Desired Quantity"] = true
+ L["Restock Default Price Source"] = true
+ L["Toggle groups"] = true
+ L["Select Groups to Show"] = true
+ L["You have manually closed the TSM Restocker window. It will remain closed for the rest of this session or until you open it manually with /tsm rest."] = true
+ L["Please switch to the Shopping Tab to perform the search."] = true
+ L["The Auction House doesn't appear to be open. Please (re-)open it to search."] = true
+ L["Update Restock"] = true
+ L["Price"] = true

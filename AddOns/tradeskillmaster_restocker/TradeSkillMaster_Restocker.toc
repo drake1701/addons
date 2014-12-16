@@ -1,0 +1,20 @@
+## Interface: 60000
+## Title: |cff00ff00TradeSkillMaster_Restocker|r
+## Notes: Adds a restocking UI to TSM to allow you to quickly monitor inventory of specified items.
+## Author: ShaddamV
+## SavedVariables: TradeSkillMaster_RestockerDB
+## Dependency: TradeSkillMaster, TradeSkillMaster_ItemTracker, TradeSkillMaster_Shopping
+## X-Curse-Packaged-Version: r13
+## X-Curse-Project-Name: Tradeskillmaster_Restocker
+## X-Curse-Project-ID: tradeskillmaster_restocker
+## X-Curse-Repository-ID: wow/tradeskillmaster_restocker/mainline
+## X-Curse-Packaged-Version: v1.9
+## X-Curse-Project-Name: Tradeskillmaster_Restocker
+## X-Curse-Project-ID: tradeskillmaster_restocker
+## X-Curse-Repository-ID: wow/tradeskillmaster_restocker/mainline
+
+Locale\enUS.lua
+
+TradeSkillMaster_Restocker.lua
+Modules\GUI.lua
+Modules\Options.lua
