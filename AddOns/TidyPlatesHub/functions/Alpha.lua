@@ -36,7 +36,7 @@ end
 -- Tank Mode
 local function AlphaFunctionByThreatLow (unit)
 	if InCombatLockdown() and unit.reaction ~= "FRIENDLY" then
-		if  IsTankedByAnotherTank(unit) then return end
+		if IsTankedByAnotherTank(unit) then return end
 		if unit.threatValue < 2 and unit.health > 0 then return LocalVars.OpacitySpotlight end
 	elseif LocalVars.ColorShowPartyAggro and unit.reaction == "FRIENDLY" then
 		if GetAggroCondition(unit.rawName) then return LocalVars.OpacitySpotlight end

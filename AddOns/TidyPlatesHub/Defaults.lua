@@ -121,7 +121,7 @@ TidyPlatesHubDefaults = {
 	ColorDangerGlowMode = 2,
 	TextNameColorMode = 1,
 	ClassColorPartyMembers = false,
-	ColorEnableOffTank = false,
+	EnableOffTankHighlight = false,
 
 	-- Threat
 	---------------------------------------

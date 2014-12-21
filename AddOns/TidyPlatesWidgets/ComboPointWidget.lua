@@ -93,10 +93,11 @@ end
 -- Context
 local function UpdateWidgetContext(frame, unit)
 	local guid = unit.guid
-	frame.guid = guid
 
 	-- Add to Widget List
 	if guid then
+		if frame.guid then WidgetList[frame.guid] = nil end
+		frame.guid = guid
 		WidgetList[guid] = frame
 	end
 

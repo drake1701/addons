@@ -37,7 +37,14 @@ local IsGuildmate = TidyPlatesUtility.IsGuildmate
 
 local isTanked = TidyPlatesWidgets.IsTankedByAnotherTank
 local function IsTankedByAnotherTank(...)
-	if LocalVars.ColorEnableOffTank and isTanked(...) then return true end
+
+	-- Testing
+	if LocalVars.EnableOffTankHighlight then
+		local unit = ...
+		if not unit.isTarget then return true end
+	end
+
+	if LocalVars.EnableOffTankHighlight and isTanked(...) then return true end
 end
 
 HubData.Functions.IsTankedByAnotherTank = IsTankedByAnotherTank

@@ -577,6 +577,7 @@ local clamItemIds = Set {
 72201, -- Plump Intestine
 73792,
 73792, --Stolen Present
+116762,
 77501, --Blue Blizzcon Bag
 77956, --Spectral Mount Crate
 78890,
@@ -876,6 +877,7 @@ local clamItemIds = Set {
 115359, --Draenor Jewelcrafting
 115981, --Abrogator Stone Cluster
 116062, --Greater Darkmoon Pet Supplies
+118697, --Big Bag of Pet Supplies
 116185, --Garrison Blueprint: War Mill, Level 2
 116186, --Garrison Blueprint: War Mill, Level 3
 116196, --Garrison Blueprint: Spirit Lodge, Level 2
