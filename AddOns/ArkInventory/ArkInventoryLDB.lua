@@ -170,7 +170,7 @@ function ArkInventory.LDB.Tracking_Item:Update( )
 	
 	for k in ArkInventory.spairs( ArkInventory.db.global.option.tracking.items )  do
 		if ArkInventory.Global.Me.ldb.tracking.item.tracked[k] then
-			local count = GetItemCount( k )
+			local count = GetItemCount( k, true )
 --[[
 			if ( k == 6265 ) then
 				-- soul shards for cataclysm
@@ -205,7 +205,7 @@ function ArkInventory.LDB.Tracking_Item:OnTooltipShow( )
 	
 	for k in ArkInventory.spairs( ArkInventory.db.global.option.tracking.items )  do
 		
-		local count = GetItemCount( k )
+		local count = GetItemCount( k, true )
 --[[
 		if k == 6265 then
 			-- soul shards for cataclysm

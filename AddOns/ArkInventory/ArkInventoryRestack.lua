@@ -483,8 +483,6 @@ local function RestackRun( loc_id )
 			ArkInventory.Output( ArkInventory.Localise["RESTACK"], ": ", ArkInventory.Global.Location[loc_id].Name, " " , ArkInventory.Localise["COMPLETE"] )
 		end
 		
-		ArkInventory.Frame_Main_Generate( loc_id, ArkInventory.Const.Window.Draw.Recalculate )
-		
 	elseif loc_id == ArkInventory.Const.Location.Bank then
 		
 		if ArkInventory.Global.Mode.Bank then
@@ -513,8 +511,6 @@ local function RestackRun( loc_id )
 				ArkInventory.Output( ArkInventory.Localise["RESTACK"], ": ", ArkInventory.Global.Location[loc_id].Name, " " , ArkInventory.Localise["COMPLETE"] )
 			end
 			
-			ArkInventory.Frame_Main_Generate( loc_id, ArkInventory.Const.Window.Draw.Recalculate )
-			
 		end
 		
 	elseif loc_id == ArkInventory.Const.Location.Vault then
@@ -530,8 +526,6 @@ local function RestackRun( loc_id )
 			if ArkInventory.db.global.option.message.restack[loc_id] then
 				ArkInventory.Output( ArkInventory.Localise["RESTACK"], ": ", ArkInventory.Global.Location[loc_id].Name, " " , ArkInventory.Localise["COMPLETE"] )
 			end
-			
-			ArkInventory.Frame_Main_Generate( loc_id, ArkInventory.Const.Window.Draw.Recalculate )
 			
 		end
 		

@@ -2348,7 +2348,7 @@ function ArkInventory.MenuSwitchCharacterOpen( frame )
 end
 
 function ArkInventory.MenuLDBBagsOpen( frame )
-
+	
 	assert( frame, "code error: frame argument is missing" )
 
 	if ArkInventory.Lib.Dewdrop:IsOpen( frame ) then
@@ -2473,7 +2473,9 @@ function ArkInventory.MenuLDBBagsOpen( frame )
 									"text", v.Name,
 									"closeWhenClicked", true,
 									"icon", v.Texture,
-									"func", v.Scripts.OnClick
+									"func", function( )
+										v.Scripts.OnClick( nil, nil )
+									end
 								)
 							end
 						end
@@ -3644,6 +3646,70 @@ function ArkInventory.MenuItemMountJournal( frame, index )
 			end
 		)
 
+	end
+	
+end
+
+function ArkInventory.MenuRestackOpen( frame )
+	
+	assert( frame, "code error: frame argument is missing" )
+
+	if ArkInventory.Lib.Dewdrop:IsOpen( frame ) then
+		
+		ArkInventory.Lib.Dewdrop:Close( )
+		
+	else
+		
+		local x, p, rp
+		x = frame:GetBottom( ) + ( frame:GetTop( ) - frame:GetBottom( ) ) / 2
+		if ( x >= ( GetScreenHeight( ) / 2 ) ) then
+			p = "TOPLEFT"
+			rp = "BOTTOMLEFT"
+		else
+			p = "BOTTOMLEFT"
+			rp = "TOPLEFT"
+		end
+	
+		ArkInventory.Lib.Dewdrop:Open( frame,
+			"point", p,
+			"relativePoint", rp,
+			"children", function( level, value )
+				
+				if level == 1 then
+					
+					ArkInventory.Lib.Dewdrop:AddLine(
+						"icon", ArkInventory.Const.Actions[22].Texture,
+						"text", ArkInventory.Localise["RESTACK"],
+						"isTitle", true,
+						"textHeight", 14
+					)
+					
+					ArkInventory.Lib.Dewdrop:AddLine( )
+					
+					ArkInventory.Lib.Dewdrop:AddLine(
+						"text", REAGENTBANK_DEPOSIT,
+						"tooltipTitle", REAGENTBANK_DEPOSIT,
+						"closeWhenClicked", true,
+						"disabled", ArkInventory.Global.Mode.Edit or not ArkInventory.Global.Mode.Bank,
+						"func", function( )
+							PlaySound( "igMainMenuOption" )
+							DepositReagentBank( )
+						end
+					)
+					
+					ArkInventory.Lib.Dewdrop:AddLine( )
+					
+					ArkInventory.Lib.Dewdrop:AddLine(
+						"text", ArkInventory.Localise["CLOSE_MENU"],
+						"closeWhenClicked", true
+					)
+					
+				end
+				
+			end
+			
+		)
+	
 	end
 	
 end

@@ -15,6 +15,7 @@ P['general'] = {
 	['autoAcceptInvite'] = false,
 	['bottomPanel'] = true,
 	['hideErrorFrame'] = true,
+	['objectiveFrameHeight'] = 480,
 
 	['afk'] = true,
 	
@@ -307,7 +308,7 @@ P['datatexts'] = {
 		['LeftChatDataPanel'] = {
 			['left'] = 'Talent/Loot Specialization',
 			['middle'] = 'Durability',
-			['right'] = 'Combat/Arena Time',
+			['right'] = 'Garrison',
 		},
 		['RightChatDataPanel'] = {
 			['left'] = 'System',

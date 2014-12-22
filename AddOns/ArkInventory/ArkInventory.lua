@@ -1,6 +1,6 @@
 ﻿-- (c) 2006-2014, all rights reserved.
--- $Revision: 1283 $
--- $Date: 2014-11-11 22:21:15 +1100 (Tue, 11 Nov 2014) $
+-- $Revision: 1285 $
+-- $Date: 2014-12-21 16:40:14 +1100 (Sun, 21 Dec 2014) $
 
 
 local _G = _G
@@ -709,9 +709,8 @@ ArkInventory.Const = { -- constants
 		[11] = {
 			Texture = [[Interface\Icons\Trade_Engineering]],
 			Name = ArkInventory.Localise["MENU_ACTION_EDITMODE"],
-			LDB = true,
 			Scripts = {
-				OnClick = function( self )
+				OnClick = function( self, button )
 					ArkInventory.Frame_Main_Level( self:GetParent( ):GetParent( ) )
 					ArkInventory.ToggleEditMode( )
 				end,
@@ -725,8 +724,10 @@ ArkInventory.Const = { -- constants
 			Name = ArkInventory.Localise["CONFIG_RULES"],
 			LDB = true,
 			Scripts = {
-				OnClick = function( self )
-					ArkInventory.Frame_Main_Level( self:GetParent( ):GetParent( ) )
+				OnClick = function( self, button )
+					if self then
+						ArkInventory.Frame_Main_Level( self:GetParent( ):GetParent( ) )
+					end
 					ArkInventory.Frame_Rules_Toggle( )
 				end,
 				OnEnter = function( self )
@@ -740,10 +741,8 @@ ArkInventory.Const = { -- constants
 			LDB = true,
 			Scripts = {
 				OnClick = function( self, button )
-					ArkInventory.Frame_Main_Level( self:GetParent( ):GetParent( ) )
-					if button == "LeftButton" then
-						ArkInventory.Frame_Search_Toggle( )
-					elseif button == "RightButton" then
+					if self and button == "RightButton" then
+						ArkInventory.Frame_Main_Level( self:GetParent( ):GetParent( ) )
 						local loc_id = self:GetParent( ):GetParent( ):GetID( )
 						if ArkInventory.Global.Location[loc_id].canSearch then
 							local v = not ArkInventory.LocationOptionGet( loc_id, "search", "hide" )
@@ -751,6 +750,8 @@ ArkInventory.Const = { -- constants
 							ArkInventory.LocationOptionSet( loc_id, "search", "hide", v )
 							ArkInventory.Frame_Main_Generate( nil, ArkInventory.Const.Window.Draw.Refresh )
 						end
+					else
+						ArkInventory.Frame_Search_Toggle( )
 					end
 				end,
 				OnEnter = function( self )
@@ -762,8 +763,10 @@ ArkInventory.Const = { -- constants
 			Texture = [[Interface\Icons\INV_Misc_GroupLooking]],
 			Name = ArkInventory.Localise["MENU_CHARACTER_SWITCH"],
 			Scripts = {
-				OnClick = function( self )
-					ArkInventory.Frame_Main_Level( self:GetParent( ):GetParent( ) )
+				OnClick = function( self, button )
+					if self then
+						ArkInventory.Frame_Main_Level( self:GetParent( ):GetParent( ) )
+					end
 					ArkInventory.MenuSwitchCharacterOpen( self )
 				end,
 				OnEnter = function( self )
@@ -775,7 +778,7 @@ ArkInventory.Const = { -- constants
 			Texture = [[Interface\Icons\INV_Helmet_47]],
 			Name = ArkInventory.Localise["MENU_LOCATION_SWITCH"],
 			Scripts = {
-				OnClick = function( self )
+				OnClick = function( self, button )
 					ArkInventory.Frame_Main_Level( self:GetParent( ):GetParent( ) )
 					ArkInventory.MenuSwitchLocationOpen( self )
 				end,
@@ -787,11 +790,14 @@ ArkInventory.Const = { -- constants
 		[22] = {
 			Texture = [[Interface\Icons\Spell_Shadow_DestructiveSoul]], -- find texture used by bags-button-autosort-up
 			Name = ArkInventory.Localise["RESTACK"],
-			LDB = true,
 			Scripts = {
-				OnClick = function( self )
-					ArkInventory.Frame_Main_Level( self:GetParent( ):GetParent( ) )
-					ArkInventory.Restack( )
+				OnClick = function( self, button )
+					if button == "RightButton" then
+						ArkInventory.MenuRestackOpen( self )
+					else
+						ArkInventory.Frame_Main_Level( self:GetParent( ):GetParent( ) )
+						ArkInventory.Restack( )
+					end
 				end,
 				OnEnter = function( self )
 					ArkInventory.GameTooltipSetText( self, ArkInventory.Localise["RESTACK"] )
@@ -802,7 +808,7 @@ ArkInventory.Const = { -- constants
 			Texture = [[Interface\Icons\INV_Misc_EngGizmos_17]],
 			Name = ArkInventory.Localise["MENU_ACTION_BAGCHANGER"],
 			Scripts = {
-				OnClick = function( self )
+				OnClick = function( self, button )
 					ArkInventory.Frame_Main_Level( self:GetParent( ):GetParent( ) )
 					ArkInventory.ToggleChanger( self:GetParent( ):GetParent( ):GetID( ) )
 				end,
@@ -815,7 +821,7 @@ ArkInventory.Const = { -- constants
 			Texture = [[Interface\Icons\Spell_Frost_Stun]],
 			Name = ArkInventory.Localise["MENU_ACTION_REFRESH"],
 			Scripts = {
-				OnClick = function( self )
+				OnClick = function( self, button )
 					ArkInventory.Frame_Main_Level( self:GetParent( ):GetParent( ) )
 					ArkInventory.Frame_Main_Generate( nil, ArkInventory.Const.Window.Draw.Resort )
 				end,
@@ -2203,9 +2209,7 @@ function ArkInventory.OnInitialize( )
 	
 	-- tooltips
 	ArkInventory.Global.Tooltip.Scan = ArkInventory.TooltipInit( "ARKINV_ScanTooltip" )	
-	--ArkInventory.Global.Tooltip.Vendor = ArkInventory.TooltipInit( "ARKINV_VendorTooltip" )
 	ArkInventory.Global.Tooltip.Vendor = ArkInventory.Global.Tooltip.Scan
-	--ArkInventory.Global.Tooltip.Mount = ArkInventory.TooltipInit( "ARKINV_MountTooltip" )
 	ArkInventory.Global.Tooltip.Mount = ArkInventory.Global.Tooltip.Scan
 	
 	-- cant unhook a script so it goes here
@@ -6961,14 +6965,16 @@ function ArkInventory.Frame_Item_Update_New( frame )
 	local i = ArkInventory.Frame_Item_GetDB( frame )
 	
 	local isNewItem = C_NewItems.IsNewItem( blizzard_id, slot_id )
-	-- C_NewItems.RemoveNewItem( blizzard_id, slot_id )
 	local isBattlePayItem = IsBattlePayItem( blizzard_id, slot_id )
 	local battlepayItemTexture = frame.BattlepayItemTexture
 	local newItemTexture = frame.NewItemTexture
 	local flash = frame.flashAnim
 	local newItemAnim = frame.newitemglowAnim
 	
-	if i and i.h then --and ArkInventory.LocationOptionGet( loc_id, "slot", "new", "show" ) then
+	local obj_name = "ArkNewText"
+	local obj = _G[string.format( "%s%s", framename, obj_name )]
+	
+	if i and i.h then
 		
 		if isNewItem then
 			
@@ -6988,10 +6994,49 @@ function ArkInventory.Frame_Item_Update_New( frame )
 			
 		end
 		
+		
+		if obj then
+			
+			if ArkInventory.LocationOptionGet( loc_id, "slot", "new", "show" ) then
+				
+				local cutoff = ArkInventory.LocationOptionGet( loc_id, "slot", "new", "cutoff" )
+				local age, age_text = ArkInventory.ItemAgeGet( i.age )
+				
+				if age and ( cutoff == 0 or age <= cutoff ) then
+					
+					local colour = ArkInventory.LocationOptionGet( loc_id, "slot", "new", "colour" )
+					
+					obj:SetText( age_text )
+					obj:SetTextColor( colour.r, colour.g, colour.b )
+					obj:Show( )
+					
+				else
+					
+					obj:Hide( )
+					
+					if isNewItem then
+						C_NewItems.RemoveNewItem( blizzard_id, slot_id )
+					end
+					
+				end
+				
+			else
+				
+				obj:Hide( )
+				
+			end
+			
+		end
+		
 		return
 		
+	else
+		
+		if obj then
+			obj:Hide( )
+		end
+		
 	end
-	
 	
 	battlepayItemTexture:Hide( )
 	newItemTexture:Hide( )
@@ -6999,54 +7044,6 @@ function ArkInventory.Frame_Item_Update_New( frame )
 	if flash:IsPlaying( ) or newItemAnim:IsPlaying( ) then
 		flash:Stop( )
 		newItemAnim:Stop( )
-	end
-	
-end
-
-function ArkInventory.Frame_Item_Update_NewIndicator_OLD( frame )
-	
-	if not ArkInventory.ValidFrame( frame, true ) then return end
-
-	local framename = frame:GetName( )
-	
-	local obj_name = "ArkNewText"
-	local obj = _G[string.format( "%s%s", framename, obj_name )]
-	if not obj then return end
-	
-	local loc_id = frame.ARK_Data.loc_id
-	local i = ArkInventory.Frame_Item_GetDB( frame )
-	
-	if i and i.h and ArkInventory.LocationOptionGet( loc_id, "slot", "new", "show" ) then
-		
-		--[[
-		if i.new == ArkInventory.Const.Slot.New.No then
-			obj:Hide( )
-		elseif i.new == ArkInventory.Const.Slot.New.Yes then
-			obj:SetText( ArkInventory.Localise["NEW"] )
-			obj:Show( )
-		elseif i.new == ArkInventory.Const.Slot.New.Inc then
-			obj:SetText( ArkInventory.Localise["NEW_ITEM_INCREASE"] )
-			obj:Show( )
-		elseif i.new == ArkInventory.Const.Slot.New.Dec then
-			obj:SetText( ArkInventory.Localise["NEW_ITEM_DECREASE"] )
-			obj:Show( )
-		end
-		]]--
-		
-		local cutoff = ArkInventory.LocationOptionGet( loc_id, "slot", "new", "cutoff" )
-		local age, age_text = ArkInventory.ItemAgeGet( i.age )
-		
-		if age and ( cutoff == 0 or age <= cutoff ) then
-			local colour = ArkInventory.LocationOptionGet( loc_id, "slot", "new", "colour" )
-			obj:SetText( age_text )
-			obj:SetTextColor( colour.r, colour.g, colour.b )
-			obj:Show( )
-		else
-			obj:Hide( )
-		end
-		
-	else
-		obj:Hide( )
 	end
 	
 end
@@ -9145,9 +9142,9 @@ function ArkInventory.BlizzardAPIHook( disable )
 	-- tooltips
 
 	local tooltip_functions = {
-		"SetAuctionItem", "SetAuctionSellItem", "SetAuctionCompareItem", "SetBagItem", "SetBuybackItem", "SetCraftItem", "SetCraftSpell", "SetGuildBankItem", "SetHyperlink",
-		"SetHyperlinkCompareItem", "SetInboxItem", "SetInventoryItem", "SetLootItem", "SetLootRollItem", "SetMerchantCompareItem", "SetMerchantItem", "SetQuestItem",
-		"SetQuestLogItem", "SetSendMailItem", "SetTradePlayerItem", "SetTradeSkillItem", "SetTradeTargetItem",
+		"SetAuctionItem", "SetAuctionSellItem", "SetAuctionCompareItem", "SetBagItem", "SetBuybackItem", "SetCraftItem", "SetCraftSpell", "SetCurrencyTokenByID", "SetGuildBankItem", "SetHyperlink",
+		"SetHyperlinkCompareItem", "SetInboxItem", "SetInventoryItem", "SetItemByID", "SetLootItem", "SetLootRollItem", "SetMerchantCompareItem", "SetMerchantItem", "SetQuestItem", "SetQuestLogItem", "SetQuestLogSpecialItem",
+		"SetSendMailItem", "SetTradePlayerItem", "SetTradeSkillItem", "SetTradeTargetItem",
 		"SetVoidDepositItem", "SetVoidItem", "SetVoidWithdrawalItem",
 	}
     
