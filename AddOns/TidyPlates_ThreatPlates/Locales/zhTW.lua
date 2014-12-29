@@ -358,7 +358,6 @@ L["Combo Points"] = "連擊點"
 L["This widget will display combo points on your target nameplate."] = "這個組件將在你的姓名板上顯示連擊點。"
 
 ----
-L["Auras"] = "減益狀態(Auras)"
 L["This widget will display auras that match your filtering on your target nameplate and others you recently moused over."] = "這個組件將在你的目標姓名板與你最近鼠標指向過的其他單位姓名板上顯示符合你過濾條件的減益狀態(Auras)。"
 L["This lets you select the layout style of the aura widget. (Reloading UI is needed)"] = "This lets you select the layout style of the aura widget."
 L["Wide"] = "Wide"
@@ -462,5 +461,5 @@ L["Open Config"] = "打開設置"
 ------------------------
 L["Presences"] = "領域"
 L["Shapeshifts"] = "形態"
-L["Auras"] = "光環"
+L["Seals"] = "光環"
 L["Stances"] = "姿態"

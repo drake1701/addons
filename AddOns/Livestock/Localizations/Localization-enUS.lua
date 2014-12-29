@@ -24,7 +24,8 @@ L.LIVESTOCK_FONTSTRING_IGNOREPVPRESTRICTIONININSTANCESLABEL = "...unless you are
 L.LIVESTOCK_FONTSTRING_DONOTRAIDSUMMONLABEL = "Do not automatically summon a pet if you are in a raid or group."
 L.LIVESTOCK_FONTSTRING_DISMISSPETONMOUNTLABEL = "Dismiss your pet whenever you mount a flying mount, cast a flying form or enter a vehicle."
 L.LIVESTOCK_FONTSTRING_CYCLETIMERTOGGLELABEL = "Automatically change your pet after                             seconds."
-L.LIVESTOCK_FONTSTRING_DRUIDTOGGLELABEL = "Enable Flight Form behavior with Smart Mounting."
+L.LIVESTOCK_FONTSTRING_DRUIDTOGGLELABEL = "Enable Flight Form behavior in flying areas."
+L.LIVESTOCK_FONTSTRING_TRAVELFORMLABEL = "Enable Travel Form behavior in land areas."
 L.LIVESTOCK_FONTSTRING_WORGENTOGGLELABEL = "Enable Running Wild behavior with Smart Mounting."
 L.LIVESTOCK_FONTSTRING_SAFEFLIGHTLABEL = "Safe Flight: Mounting while in the air will not dismount you."
 L.LIVESTOCK_FONTSTRING_AUTODISMISSONSTEALTHLABEL = "Dismiss your vanity pet when you Stealth, Feign Death, or cast Invisibility."
@@ -94,6 +95,7 @@ L.LIVESTOCK_SPELL_ZENFLIGHT = GetSpellInfo(125883)		-- "Zen Flight"
 
 L.LIVESTOCK_SKILL_TAILOR = GetSpellInfo(3908)			-- "Tailoring"
 L.LIVESTOCK_SKILL_ENGR = GetSpellInfo(4036)				-- "Engineering"
+L.LIVESTOCK_SKILL_LW = GetSpellInfo(2108)				-- "Leatherworking"
 
 L.LIVESTOCK_TOOLTIP_VERY = "very"
 L.LIVESTOCK_TOOLTIP_EXTREMELY = "extremely"

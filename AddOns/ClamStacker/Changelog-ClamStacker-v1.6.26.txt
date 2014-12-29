@@ -1,0 +1,13 @@
+tag v1.6.26
+fa757d6af87f733c3aaae25ccf6d3bf0a8c466a8
+Gunboat Smith <gunboat.smith.2010@gmail.com>
+2014-12-27 08:12:18 -0600
+
+releasing as v1.6.26
+
+
+--------------------
+
+Gunboat Smith:
+	- releasing as v1.6.26
+	- removed some dups, added winter veil gift

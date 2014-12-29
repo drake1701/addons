@@ -1,3 +1,7 @@
+v2.4.3
+*Increased Max DE iLvl to 640.
+*Added transformations to destroying search.
+
 v2.4.2
 *Fixed Lua error with disenchant search.
 

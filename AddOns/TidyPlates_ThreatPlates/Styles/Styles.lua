@@ -20,7 +20,7 @@ local function GetGeneral(unit)
 	end
 end
 
-function GetType(unit)
+local function GetType(unit)
 	local db = TidyPlatesThreat.db.profile
 	local unitRank
 	local totem = ThreatPlates_Totems[unit.name]

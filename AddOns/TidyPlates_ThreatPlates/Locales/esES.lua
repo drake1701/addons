@@ -362,7 +362,6 @@ L["Combo Points"] = "Combo Points"
 L["This widget will display combo points on your target nameplate."] = "This widget will display combo points on your target nameplate."
 
 ----
-L["Auras"] = "Auras"
 L["This widget will display auras that match your filtering on your target nameplate and others you recently moused over."] = "This widget will display auras that match your filtering on your target nameplate and others you recently moused over."
 L["This lets you select the layout style of the aura widget. (Reloading UI is needed)"] = "This lets you select the layout style of the aura widget."
 L["Wide"] = "Wide"
@@ -466,5 +465,5 @@ L["Open Config"] = "Open Config"
 ------------------------
 L["Presences"] = "Presences"
 L["Shapeshifts"] = "Shapeshifts"
-L["Auras"] = "Auras"
+L["Seals"] = "Seals"
 L["Stances"] = "Stances"

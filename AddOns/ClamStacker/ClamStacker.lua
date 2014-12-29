@@ -1,6 +1,6 @@
 ClamStacker = LibStub("AceAddon-3.0"):NewAddon("ClamStacker", "AceConsole-3.0", "AceEvent-3.0")
 local L = LibStub("AceLocale-3.0"):GetLocale("ClamStacker", false)
-local version = "1.6.24"
+local version = "1.6.26"
 
 local debugFrame = tekDebug and tekDebug:GetFrame("ClamStacker")
 
@@ -412,7 +412,6 @@ local clamItemIds = Set {
 34077,
 34077, --Crudely Wrapped Gift
 34119, --Black Conrad's Treasure
-34426,
 34426, --Winter Veil Gift
 34583, --Aldor Supplies Package
 34584, --Scryer Supplies Package
@@ -453,7 +452,6 @@ local clamItemIds = Set {
 42108,
 43346, --Large Satchel of Spoils
 43347, --Satchel of Spoils
-43504,
 43504, --Winter Veil Gift
 43556, --Patroller's Pack
 44113,
@@ -483,7 +481,6 @@ local clamItemIds = Set {
 45909,
 46007,
 46110, --Alchemist's Cache
-46740,
 46740, --Winter Veil Gift
 46809, --Bountiful Cookbook
 46810, --Bountiful Cookbook
@@ -545,7 +542,6 @@ local clamItemIds = Set {
 67250,
 67250, --Satchel of Helpful Goods
 67414,
-67443,
 67443, --Winter Veil Gift
 67495,
 67539,
@@ -570,14 +566,12 @@ local clamItemIds = Set {
 69999, --Moat Monster Feeding Kit
 70719, --Water-Filled Gills
 70931, --Scrooge's Payoff
-70938,
 70938, --Winter Veil Gift
 71631,
 71631, --Zen'Vorka's Cache
 72201, -- Plump Intestine
 73792,
 73792, --Stolen Present
-116762,
 77501, --Blue Blizzcon Bag
 77956, --Spectral Mount Crate
 78890,
@@ -869,15 +863,17 @@ local clamItemIds = Set {
 113138, --Garrison Blueprint: Lunarfall Excavation
 113258, --Blingtron 5000 Gift Package
 113992, --Scribe's Research Notes
+114028, --Small Pouch of Coins
 114116, --Bag of Salvaged Goods
 114662, --Tranquil satchel of helpful goods
+114970, --Small Pouch of Coins
 115356, --Draenor Blacksmithing
 115357, --Draenor Tailoring
 115358, --Draenor Leatherworking
 115359, --Draenor Jewelcrafting
 115981, --Abrogator Stone Cluster
 116062, --Greater Darkmoon Pet Supplies
-118697, --Big Bag of Pet Supplies
+116111, --Small Pouch of Coins
 116185, --Garrison Blueprint: War Mill, Level 2
 116186, --Garrison Blueprint: War Mill, Level 3
 116196, --Garrison Blueprint: Spirit Lodge, Level 2
@@ -887,9 +883,12 @@ local clamItemIds = Set {
 116247, --Garrison Blueprint: Frostwall Mines
 116248, --Garrison Blueprint: Frostwall Mines, Level 2
 116249, --Garrison Blueprint: Frostwall Mines, Level 3
+116376, --Small Pouch of Coins
 116404, -- Pilgrim's Bounty
 116431, --Garrison Blueprint: Frostwall Tavern, Level 2
 116432, --Garrison Blueprint: Frostwall Tavern, Level 3
+116761, --Winter Veil Gift
+116764, --Small Pouch of Coins
 116980, --Invader's Forgotten Treasure
 117392, --Loot-filled pumpkin
 118193, --Mysterious Shining Lockbox

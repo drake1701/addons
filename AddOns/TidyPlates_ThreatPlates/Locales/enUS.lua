@@ -466,5 +466,5 @@ L["Open Config"] = true
 ------------------------
 L["Presences"] = true
 L["Shapeshifts"] = true
-L["Auras"] = true
+L["Seals"] = true
 L["Stances"] = true

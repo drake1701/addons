@@ -2,7 +2,7 @@
 xsi:schemaLocation="http://www.blizzard.com/wow/ui/
 ..\FrameXML\UI.xsd">
 <Script file="alpha.lua"/>
-<Script file="castbar.lua"/>
+<Script file="castbarcolor.lua"/>
 <Script file="healthbarcolor.lua"/>
 <Script file="healthtext.lua"/>
 <Script file="nametext.lua"/>

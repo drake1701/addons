@@ -1,3 +1,15 @@
+Version 2.3.4
+
+- Support for Dustmane Direwolf and Creeping Carpet
+
+Version 2.3.3
+
+- Fix for silly LUA errors (coding too fast)
+
+Version 2.3.2
+
+- New option to use Travel Form in land areas
+
 Version 2.3.1
 
 - Restrict Nagrand option to not use siege tanks and only use mounts if learned

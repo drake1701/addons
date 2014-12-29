@@ -1,8 +1,0 @@
-2014-12-04  MMOSimca  <MMOSimca@gmail.com>
-
-[c4c3ac7d64e5] [v1.1.11]
-* PetData.lua:
-
-Updated breed for Argi.
-
-

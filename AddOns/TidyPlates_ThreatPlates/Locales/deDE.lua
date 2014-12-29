@@ -462,5 +462,5 @@ L["Open Config"] = "Konfiguration öffnen"
 ------------------------
 L["Presences"] = "Präsenzen"
 L["Shapeshifts"] = "Gestaltwandlungen"
-L["Auras"] = "Auren"
+L["Seals"] = "Auren"
 L["Stances"] = "Haltungen"

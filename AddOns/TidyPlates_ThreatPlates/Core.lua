@@ -131,11 +131,9 @@ function TidyPlatesThreat:OnInitialize()
 				ON = false,
 				[0] = false, -- Caster Form
 				[1] = true, -- Bear Form
-				[2] = false, -- Aquatic Form
-				[3] = false, -- Cat Form
-				[4] = false, -- Travel Form				
-				[5] = false, -- Moonkin Form, Tree of Life, (Swift) Flight Form
-				[6] = false -- Flight Form (if moonkin or tree spec'd)
+				[2] = false, -- Cat Form
+				[3] = false, -- Travel Form	
+				[4] = false, -- Moonkin Form, Tree of Life
 			},
 			presences = {
 				ON = false,
@@ -144,7 +142,7 @@ function TidyPlatesThreat:OnInitialize()
 				[2] = false, -- Frost
 				[3] = false -- Unholy
 			},
-			auras = {
+			seals = {
 				ON = false,
 				[0] = false, -- No Aura
 				[1] = true, -- Devotion Aura
@@ -1659,7 +1657,7 @@ function TidyPlatesThreat:PLAYER_TALENT_UPDATE()
 end
 
 function TidyPlatesThreat:UPDATE_SHAPESHIFT_FORM()
-	
+	--self.ShapeshiftUpdate()
 end
 
 function TidyPlatesThreat:ACTIVE_TALENT_GROUP_CHANGED()
@@ -1668,64 +1666,3 @@ function TidyPlatesThreat:ACTIVE_TALENT_GROUP_CHANGED()
 		t.Print(L["|cff89F559Threat Plates|r: Player spec change detected: |cff"]..t.HCC[class]..self:SpecName()..L["|r, you are now in your |cff89F559"]..t.ActiveText()..L["|r spec and are now in your "]..self:RoleText()..L[" role."])
 	end
 end
-
---[[
-local f = CreateFrame("Frame")
-function f:Events(self,event,...)
-	local ProfDB = TidyPlatesThreat.db.profile
-	local CharDB = TidyPlatesThreat.db.char
-	if event == "ADDON_LOADED" then
-		if arg1 == "TidyPlates_ThreatPlates" then
-						
-		end
-		f:UnregisterEvent("ADDON_LOADED")
-	elseif event == "PLAYER_ALIVE" then
-		f:UnregisterEvent("PLAYER_ALIVE")
-	elseif event == "PLAYER_LOGIN" then
-		CharDB.tanking = TidyPlatesThreat:currentRoleBool(Active()) -- Aligns tanking role with current spec on log in.
-		
-		SetCVar("ShowClassColorInNameplate", 1)
-		--SetCVar("bloattest", 1)
-		if CharDB.welcome and ((TidyPlatesOptions.primary == "Threat Plates") or (TidyPlatesOptions.secondary == "Threat Plates")) then
-			t.Print(L["|cff89f559Threat Plates:|r Welcome back |cff"]..t.HCC[class]..UnitName("player").."|r!!")
-		end
-		-- Enable Stances / Shapeshifts and Create Options Tables
-		if class == "WARRIOR" or class == "DRUID" or class == "DEATHKNIGHT" or class == "PALADIN" then
-			f:RegisterEvent("UPDATE_SHAPESHIFT_FORM")
-		end
-	elseif event == "PLAYER_ENTERING_WORLD" then
-		
-		local inInstance, iType = IsInInstance()
-		if iType == "arena" or iType == "pvp" then
-			ProfDB.threat.ON = false
-		elseif iType == "party" or iType == "raid" or iType == "none" then
-			ProfDB.threat.ON = ProfDB.OldSetting
-		end
-		
-		self:RegisterEvent("ACTIVE_TALENT_GROUP_CHANGED")
-		-- Set Debuff Widget Style
-		--self.db.char.spec[t.Active()] = TidyPlatesThreat:currentRoleBool(Active()) -- Aligns tanking role with current spec on log in, post setup.
-		
-		TidyPlates:ForceUpdate()
-	elseif event == "PLAYER_LEAVING_WORLD" then
-		self:UnregisterEvent("ACTIVE_TALENT_GROUP_CHANGED")
-	elseif event == "ACTIVE_TALENT_GROUP_CHANGED" then
-		TidyPlatesThreat:SetSpecInfo()
-		local s = CharDB.specInfo[Active()]
-		CharDB.tanking = TidyPlatesThreat:currentRoleBool(Active())
-		if ((TidyPlatesOptions.primary == "Threat Plates") or (TidyPlatesOptions.secondary == "Threat Plates")) and ProfDB.verbose then
-			t.Print(L["|cff89F559Threat Plates|r: Player spec change detected: |cff"]..t.HCC[class]..TidyPlatesThreat:specName()..L["|r, you are now in your |cff89F559"]..TidyPlatesThreat:dualSpec()..L["|r spec and are now in your "]..TidyPlatesThreat:roleText()..L[" role."])
-		end
-		TidyPlates:ForceUpdate()
-	elseif event == "PLAYER_REGEN_DISABLED" or event == "PLAYER_REGEN_ENABLED" then
-		
-	elseif event == "PLAYER_LOGOUT" then
-		ProfDB.cache = {}
-	elseif event == "PLAYER_TALENT_UPDATE" then
-		TidyPlatesThreat:SetSpecInfo()
-	elseif event == "RAID_TARGET_UPDATE" then
-		--TidyPlates:Update()
-	elseif event == "UPDATE_SHAPESHIFT_FORM" then -- Set tanking per Stances / Shapeshifts
-		TidyPlatesThreat.ShapeshiftUpdate()
-	end
-end]]

@@ -1,7 +1,7 @@
 ﻿local _, ns = ...
 local t = ns.ThreatPlates
 local L = t.L
-local class = t.Class
+local class = t.Class()
 local path = t.Art
 
 local TidyPlatesThreat = LibStub("AceAddon-3.0"):GetAddon("TidyPlatesThreat");
@@ -56,7 +56,7 @@ local function GetValueChar(info)
 	return value
 end
 
-local function SetValueChar(info, val)
+local function SetValueChar(info, value)
 	local DB = TidyPlatesThreat.db.char
 	local keys = info.arg
 	for index = 1, #keys - 1 do
@@ -4735,8 +4735,8 @@ function TidyPlatesThreat:AddOptions(class)
 			index = "presences",
 			names = {
 				[1] = GetSpellInfo(48263), -- Blood
-				[2] = GetSpellInfo(48265), -- Frost
-				[3] = GetSpellInfo(48266) -- Unholy
+				[2] = GetSpellInfo(48266), -- Frost
+				[3] = GetSpellInfo(48265) -- Unholy
 			},
 		},
 		DRUID = {
@@ -4744,16 +4744,14 @@ function TidyPlatesThreat:AddOptions(class)
 			index = "shapeshifts",
 			names = {
 				[1] = GetSpellInfo(5487), -- Bear Form
-				[2] = GetSpellInfo(1066), -- Aquatic Form
-				[3] = GetSpellInfo(768), -- Cat Form
-				[4] = GetSpellInfo(783), -- Travel Form				
-				[5] = GetSpellInfo(24858)..", "..GetSpellInfo(34551).." or "..GetSpellInfo(33943), -- Moonkin Form, Tree of Life, Flight Form
-				[6] = GetSpellInfo(33943) -- Flight Form (if moonkin or tree spec'd)
+				[2] = GetSpellInfo(783), -- Cat Form
+				[3] = GetSpellInfo(783), -- Travel Form
+				[4] = GetSpellInfo(114282)..", "..GetSpellInfo(24858) -- Tree of Life (Glyphed), Moonkin
 			},
 		},
 		PALADIN = {
-			AuraType = L["Auras"],
-			index = "auras",
+			AuraType = L["Seals"],
+			index = "seals",
 			names = {
 				[1] = GetSpellInfo(465), -- Devotion Aura
 				[2] = GetSpellInfo(7294), -- Retribution Aura
@@ -4799,6 +4797,7 @@ function TidyPlatesThreat:AddOptions(class)
 	}
 	local addorder = 20
 	for k_c,k_v in pairs(AddOptionsTable[class].names) do
+		print(k_c.. " "..k_v)
 		AdditionalOptions.args.Options.args[index..k_c] = {
 			type = "group",
 			name = k_v,
@@ -4836,7 +4835,7 @@ function TidyPlatesThreat:SetUpOptions()
 	t.Update();
 	
 	if class == "DEATHKNIGHT" or class == "DRUID" or class == "PALADIN" or class == "WARRIOR" then
-		TidyPlatesThreat:AddOptions(class)
+		--TidyPlatesThreat:AddOptions(class)
 	end
 	
 	options.args.profiles = LibStub("AceDBOptions-3.0"):GetOptionsTable(self.db);

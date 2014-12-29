@@ -1,0 +1,8 @@
+2014-12-23  MMOSimca  <MMOSimca@gmail.com>
+
+[a783d1968c54] [v1.2.0]
+* PetData.lua:
+
+Updated breeds for Crazy Carrot, Deathwatch Hatchling, Bone Wasp, Stonegrinder, Albino River Calf, and Sky Fry.
+
+

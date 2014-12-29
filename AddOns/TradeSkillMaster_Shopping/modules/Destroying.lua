@@ -2,7 +2,7 @@ local TSM = select(2, ...)
 local Destroying = TSM:NewModule("Destroying")
 local L = LibStub("AceLocale-3.0"):GetLocale("TradeSkillMaster_Shopping") -- loads the localization table
 
-local private = {sources={}}
+local private = { sources = {} }
 
 
 function Destroying:OnEnable()
@@ -42,6 +42,16 @@ function private:UpdateTargetItems()
 			end
 		end
 	end
+	for _, itemString in ipairs(TSMAPI:GetConversionTargetItems("transform")) do
+		private.sources[itemString] = "transform"
+		if not TSM.db.global.destroyingTargetItems[itemString] then
+			update = true
+			local name = TSMAPI:GetSafeItemInfo(itemString)
+			if name then
+				TSM.db.global.destroyingTargetItems[itemString] = name
+			end
+		end
+	end
 	for _, itemString in ipairs(TSMAPI:GetEnchantingTargetItems()) do
 		private.sources[itemString] = "disenchant"
 		if not TSM.db.global.destroyingTargetItems[itemString] then
@@ -59,7 +69,7 @@ end
 
 function Destroying:StartDestroyingSearch(target, filter, isCrafting)
 	if not private.sources[target] then return TSM:Printf(L["Invalid destroy target: '%s'"], target) end
-	
+
 	TSM.isCrafting = isCrafting
 	Destroying.maxQuantity = filter.maxQuantity
 	filter.maxPrice = nil
@@ -69,14 +79,16 @@ function Destroying:StartDestroyingSearch(target, filter, isCrafting)
 		private:TryStarting(private.StartProspectingSearch, target, filter)
 	elseif private.sources[target] == "disenchant" then
 		private:TryStarting(private.StartDisenchantingSearch, target, filter)
+	elseif private.sources[target] == "transform" then
+		private:TryStarting(private.StartTransformSearch, target, filter)
 	end
-	TSMAPI:FireEvent("SHOPPING:SEARCH:STARTDESTROYSCAN", {target=target, filter=filter})
+	TSMAPI:FireEvent("SHOPPING:SEARCH:STARTDESTROYSCAN", { target = target, filter = filter })
 end
 
 function private:TryStarting(func, target, filter, attempt)
 	attempt = attempt or 0
 	if attempt <= 10 and not func(target, filter, attempt == 10) then
-		TSMAPI:CreateTimeDelay("destroySearchTryStart", 0.1, function() private:TryStarting(func, target, filter, attempt+1) end)
+		TSMAPI:CreateTimeDelay("destroySearchTryStart", 0.1, function() private:TryStarting(func, target, filter, attempt + 1) end)
 	end
 end
 
@@ -106,24 +118,24 @@ function private.StartMillingSearch(target, filter, lastAttempt)
 		end
 		if not inkItemString then return TSM:Printf(L["Unknown milling search target: '%s'"], target) end
 	end
-	
+
 	private.evenFilter = {}
 	private.conversions = {}
 	private.conversions[inkItemString] = 1
 	private.conversions[pigmentItemString] = 1 / TSMAPI.InkConversions[inkItemString].pigmentPerInk
 	local itemList = {}
-	
+
 	-- add ink and pigment
 	if not private:AddItemQuery(itemList, filter, inkItemString) and not lastAttempt then return end
 	if not private:AddItemQuery(itemList, filter, pigmentItemString) and not lastAttempt then return end
-	
+
 	-- add primary herbs
 	for itemString, data in pairs(TSMAPI:GetItemConversions(pigmentItemString)) do
 		if not private:AddItemQuery(itemList, filter, itemString) and not lastAttempt then return end
 		private.evenFilter[itemString] = filter.evenOnly
 		private.conversions[itemString] = data.rate / TSMAPI.InkConversions[inkItemString].pigmentPerInk
 	end
-	
+
 	-- deal with vendor trades
 	local otherInks = TSMAPI.Conversions[inkItemString]
 	for otherInk, otherInkData in pairs(otherInks or {}) do
@@ -140,7 +152,7 @@ function private.StartMillingSearch(target, filter, lastAttempt)
 			private.conversions[TSMAPI.InkConversions[otherInk].pigment] = vendorTradeRate / TSMAPI.InkConversions[otherInk].pigmentPerInk
 		end
 	end
-	
+
 	private.mode = "mill"
 	private.target = inkItemString
 	if TSM.isCrafting then
@@ -182,10 +194,35 @@ function private.StartProspectingSearch(target, filter, lastAttempt)
 	return true
 end
 
+function private.StartTransformSearch(target, filter, lastAttempt)
+	local itemList = {}
+	private.evenFilter = {}
+	if not private:AddItemQuery(itemList, filter, target) and not lastAttempt then return end
+	for itemString in pairs(TSMAPI:GetItemConversions(target)) do
+		if not private:AddItemQuery(itemList, filter, itemString) and not lastAttempt then return end
+		private.evenFilter[itemString] = filter.evenOnly
+	end
+
+	private.mode = "transform"
+	private.target = target
+	if TSM.isCrafting then
+		local func = TSMAPI:ParseCustomPrice("matprice")
+		price = func and func(target) or nil
+		private.targetMarketValue = price
+		TSM.Util:ShowSearchFrame(true, L["% Max Price"])
+	else
+		private.targetMarketValue = TSM:GetMaxPrice(TSM.db.global.marketValueSource, target)
+		TSM.Util:ShowSearchFrame(true, L["% Target Value"])
+	end
+	TSM.Search:SetSearchBarDisabled(true)
+	TSM.Util:StartFilterScan(itemList, private.ScanCallback)
+	return true
+end
+
 function private.StartDisenchantingSearch(target, filter, lastAttempt)
 	local disenchantData = TSMAPI:GetDisenchantData(target)
 	if not disenchantData then return end
-	
+
 	local queries = {}
 	local query = TSMAPI:GetAuctionQueryInfo(target)
 	if not query and not lastAttempt then return end
@@ -202,11 +239,11 @@ function private.StartDisenchantingSearch(target, filter, lastAttempt)
 		for rarity, data in pairs(rarityData) do
 			local minILevel = data[1].minItemLevel or 0
 			local maxILevel = data[#data].maxItemLevel or 0
-			local query = {name="", class=class, subClass=0, minLevel=disenchantData.minLevel, maxLevel=disenchantData.maxLevel, minILevel=minILevel, maxILevel=maxILevel, quality=rarity}
+			local query = { name = "", class = class, subClass = 0, minLevel = disenchantData.minLevel, maxLevel = disenchantData.maxLevel, minILevel = minILevel, maxILevel = maxILevel, quality = rarity }
 			tinsert(queries, query)
 		end
 	end
-	
+
 	for itemString, data in pairs(TSMAPI.Conversions[target] or {}) do
 		local query = TSMAPI:GetAuctionQueryInfo(itemString)
 		if not query and not lastAttempt then return end
@@ -214,7 +251,7 @@ function private.StartDisenchantingSearch(target, filter, lastAttempt)
 			tinsert(queries, query)
 		end
 	end
-	
+
 	private.mode = "disenchant"
 	private.target = target
 	if TSM.isCrafting then
@@ -241,6 +278,11 @@ function private.ScanCallback(event, ...)
 		if private.mode == "mill" then
 			rate = private.conversions[itemString]
 			shouldEvenFilter = private.evenFilter[itemString]
+		elseif private.mode == "transform" then
+			if TSMAPI.Conversions[private.target] and TSMAPI.Conversions[private.target][itemString] then
+				rate = TSMAPI.Conversions[private.target][itemString].rate
+			end
+			shouldEvenFilter = private.evenFilter[itemString]
 		elseif private.mode == "disenchant" then
 			if TSMAPI.Conversions[private.target] and TSMAPI.Conversions[private.target][itemString] then
 				rate = TSMAPI.Conversions[private.target][itemString].rate
@@ -259,11 +301,11 @@ function private.ScanCallback(event, ...)
 		else
 			if not rate then return end
 			if shouldEvenFilter then
-				auctionItem:FilterRecords(function(record) return record.count%5 ~= 0 end)
+				auctionItem:FilterRecords(function(record) return record.count % 5 ~= 0 end)
 			end
-			auctionItem.destroyingNum = 1/rate
+			auctionItem.destroyingNum = 1 / rate
 			if private.targetMarketValue then
-				auctionItem:SetMarketValue(private.targetMarketValue*rate)
+				auctionItem:SetMarketValue(private.targetMarketValue * rate)
 			end
 		end
 		return auctionItem
