@@ -888,12 +888,14 @@ local clamItemIds = Set {
 116431, --Garrison Blueprint: Frostwall Tavern, Level 2
 116432, --Garrison Blueprint: Frostwall Tavern, Level 3
 116761, --Winter Veil Gift
+116762, --Stolen Present
 116764, --Small Pouch of Coins
 116980, --Invader's Forgotten Treasure
 117392, --Loot-filled pumpkin
 118193, --Mysterious Shining Lockbox
 118215, --Book of Garrison Blueprints
 118473, --Small Sack of Salvaged Goods
+118697, --Big Bag of Pet Supplies
 118759, --Alchemy Experiment
 118924, --Cache of Arms
 118925, --Plundered Booty
