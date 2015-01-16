@@ -44,9 +44,6 @@ function rematch:InitMain()
 	rematch.toolbar.petsTab:SetText(PETS)
 	rematch.toolbar.teamsTab:SetText(L["Teams"])
 
-	rematch:RegisterEvent("PET_BATTLE_QUEUE_STATUS")
-	rematch.events:PET_BATTLE_QUEUE_STATUS()
-
 	rematch:SetUserPlaced(0)
 	rematch:SetWidth(296)
 
@@ -63,7 +60,7 @@ end
 
 function rematch:Toggle()
 	if InCombatLockdown() then
-		print(L["\124cffff8800You're in combat. Blizzard has restrictions on what we can do with pets during combat. Try again when you're out of combat. Sorry!"])
+		rematch:print(L["You're in combat. Blizzard has restrictions on what we can do with pets during combat. Try again when you're out of combat. Sorry!"])
 	else
 		rematch:SetShown(not rematch:IsVisible())
 		return true
@@ -74,7 +71,7 @@ end
 function rematch:ToggleAutoLoad()
 	rematch:HideDialogs()
 	settings.AutoLoad = not settings.AutoLoad and 1 or nil
-	print(L["\124cffffff00Rematch Auto Load is now"],settings.AutoLoad and L["\124cff00ff00Enabled"] or L["\124cffff0000Disabled"])
+	rematch:print(L["Auto Load is now"],settings.AutoLoad and L["\124cff00ff00Enabled"] or L["\124cffff0000Disabled"])
 end
 
 -- called from BINDING_NAME_REMATCH_PETS ("PETS") and BINDING_NAME_REMATCH_TEAMS ("TEAMS")
@@ -92,7 +89,6 @@ function rematch:ToggleTab(mode)
 end
 
 function rematch:OnShow()
-
 	-- if options was open, close it
 	if settings.DrawerMode=="OPTIONS" then
 		settings.DrawerMode = settings.oldDrawerMode
@@ -118,11 +114,20 @@ function rematch:OnHide()
 end
 
 function rematch:ToolbarSaveOnClick()
-	if rematch.targetName then -- if something targeted, use targeted name/npcID
-		rematch:ShowSaveDialog(rematch.targetName,nil,rematch.targetNpcID)
-	else -- otherwise, use loaded name/npcID if they exist
-		rematch:ShowSaveDialog(settings.loadedTeamName,nil,settings.loadedNpcID)
+
+	if rematch.dialog.name=="SaveTeam" then
+		rematch:HideDialogs() -- if we're looking at save dialog already, hide it
+		return -- and leave
 	end
+
+	local team
+	if rematch.targetName then -- if something targeted, use targeted name/npcID
+		team = rematch:CreateTeamFromCurrent(rematch.targetName,rematch.targetNpcID)
+	else -- otherwise, use loaded name/npcID if they exist
+		team = rematch:CreateTeamFromCurrent()
+	end
+
+	rematch:ShowSaveDialog(team,true)
 end
 
 function rematch:ToolbarFindBattleOnClick()
@@ -135,17 +140,6 @@ function rematch:ToolbarFindBattleOnClick()
 		C_PetBattles.StartPVPMatchmaking()
 	end
 	RematchTooltip:Hide()
-end
-
-function rematch.events.PET_BATTLE_QUEUE_STATUS()
-	local button = rematch.toolbar.buttons[4]
-	local oldIcon = button.icon:GetTexture()
-	local queued = C_PetBattles.GetPVPMatchmakingInfo()
-	button.tooltipTitle = queued and LEAVE_QUEUE or FIND_BATTLE
-	button.icon:SetTexture(queued and "Interface\\Icons\\PetBattle_Attack-Down" or "Interface\\Icons\\PetBattle_Attack")
-	if oldIcon~=button.icon:GetTexture() then
-		rematch:ShineOnYouCrazy(button,"CENTER")
-	end
 end
 
 function rematch:ToolbarTabOnClick()
@@ -226,6 +220,9 @@ end
 function rematch.events.UPDATE_MOUSEOVER_UNIT()
 	if settings.AutoLoad and not settings.AutoLoadTargetOnly then
 		local teamName,npcID = rematch:GetUnitNameandID("mouseover")
+		if settings.loadedTeamName==UnitName("target") then
+			return -- ignore mouseover if we've loaded a team for target
+		end
 		if rematch:TeamNeedsLoading(teamName,npcID) then
 			if rematch.lastTeamAutoLoaded~=teamName then
 				if rematch:MovedSinceLastAutoLoad() then
@@ -262,7 +259,7 @@ end
 -- can't just track when bandages used, also need to track when bandages received
 -- this is only registered while the rematch window is visible
 function rematch.events:BAG_UPDATE()
-	rematch:StartTimer("UpdateHealbuttons",0.1,rematch.UpdateBandageButton)
+	rematch:StartTimer("UpdateHealButtons",0.1,rematch.UpdateBandageButton)
 end
 
 function rematch:UpdatePetHealButton()
@@ -423,6 +420,7 @@ function rematch:UpdateWindow()
 	rematch:HideFloatingPetCard(true)
 
 	rematch:UpdateCurrentPets()
+	rematch:UpdatePVPStatus()
 
 	local drawerMode = rematch:GetDrawerMode()
 	local drawerOpen = drawerMode and true
@@ -620,7 +618,7 @@ SlashCmdList["REMATCH"] = function(msg)
 			rematch:Show()
 			rematch.optionsFunc.ImportPBTButton()
 		else
-			print(L["\124cffffd200PetBattleTeams is not enabled. Try again when the addon is enabled."])
+			rematch:print(L["\124cffffd200PetBattleTeams is not enabled. Try again when the addon is enabled."])
 		end
 	else
 		rematch:Toggle()

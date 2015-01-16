@@ -1268,7 +1268,7 @@ function Livestock.SmartPreClick(self)
 			local spellID = select(7, GetSpellInfo(GetSpellInfo(DraenorZoneAbilitySpellID)))
 			if spellID == 165803 or spellID == 164222 then
 				self:SetAttribute("type", "macro")
-				self:SetAttribute("macrotext", "/use Garrison Ability")
+				self:SetAttribute("macrotext", "/use "..L.LIVESTOCK_SKILL_GARRISON)
 				self.mounttype = nil
 				return
 			end
@@ -1646,11 +1646,10 @@ function Livestock.PickLandMount()
 	for k in pairs(LivestockSettings.Mounts) do -- go through the land mounts and add the ones that are selected to the temp table
 		if (LivestockSettings.Mounts[k].type == "land") and LivestockSettings.Mounts[k].show == 1 then
 			if (LivestockSettings.Mounts[k].spellID == 61451 or
-				LivestockSettings.Mounts[k].spellID == 169952) and tailoringLevel < 300 then
-				-- don't try to use the Flying Carpet or Creeping Carpet
-			elseif (LivestockSettings.Mounts[k].spellID == 61309 or 
-				LivestockSettings.Mounts[k].spellID == 75596) and tailoringLevel < 425 then
-				-- don't try to use the Magnificent Flying Carpet or Frosty Flying Carpet
+				LivestockSettings.Mounts[k].spellID == 169952 or
+				LivestockSettings.Mounts[k].spellID == 61309 or 
+				LivestockSettings.Mounts[k].spellID == 75596) and tailoringLevel < 300 then
+				-- don't try to use the Flying Carpets
 			elseif LivestockSettings.Mounts[k].spellID == 44153 and engineeringLevel < 300 then
 				-- don't try to use the Flying Machine
 			elseif LivestockSettings.Mounts[k].spellID == 44151 and engineeringLevel < 375 then
@@ -1711,11 +1710,10 @@ function Livestock.PickFlyingMount(breath)
 	for k in pairs(LivestockSettings.Mounts) do -- go through the flying mounts and add the ones that are selected to the temp table
 		if (LivestockSettings.Mounts[k].type == "flying") and LivestockSettings.Mounts[k].show == 1 then
 			if (LivestockSettings.Mounts[k].spellID == 61451 or
-				LivestockSettings.Mounts[k].spellID == 169952) and tailoringLevel < 300 then
-				-- don't try to use the Flying Carpet or Creeping Carpet
-			elseif (LivestockSettings.Mounts[k].spellID == 61309 or 
-				LivestockSettings.Mounts[k].spellID == 75596) and tailoringLevel < 425 then
-				-- don't try to use the Magnificent Flying Carpet or Frosty Flying Carpet
+				LivestockSettings.Mounts[k].spellID == 169952 or
+				LivestockSettings.Mounts[k].spellID == 61309 or 
+				LivestockSettings.Mounts[k].spellID == 75596) and tailoringLevel < 300 then
+				-- don't try to use the Flying Carpets
 			elseif LivestockSettings.Mounts[k].spellID == 44153 and engineeringLevel < 300 then
 				-- don't try to use the Flying Machine
 			elseif LivestockSettings.Mounts[k].spellID == 44151 and engineeringLevel < 375 then

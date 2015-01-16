@@ -3453,7 +3453,7 @@ function ArkInventory.MenuItemPetJournal( frame, index )
 						-- rename
 						ArkInventory.Lib.Dewdrop:AddLine(
 							"text", BATTLE_PET_RENAME,
-							"disabled", not ArkInventory.PetJournal.JournalIsUnlocked( ),
+							"disabled", not ArkInventory.PetJournal.JournalIsReady( ),
 							"closeWhenClicked", true,
 							"func", function( info )
 								ArkInventory.Lib.StaticDialog:Spawn( "BATTLE_PET_RENAME", pd.guid )
@@ -3469,7 +3469,7 @@ function ArkInventory.MenuItemPetJournal( frame, index )
 						
 						ArkInventory.Lib.Dewdrop:AddLine(
 							"text", txt,
-							"disabled", not ArkInventory.PetJournal.JournalIsUnlocked( ),
+							"disabled", not ArkInventory.PetJournal.JournalIsReady( ),
 							"closeWhenClicked", true,
 							"func", function( info )
 								if pd.fav then
@@ -3608,7 +3608,7 @@ function ArkInventory.MenuItemMountJournal( frame, index )
 						
 						ArkInventory.Lib.Dewdrop:AddLine(
 							"text", txt,
-							"disabled", not ArkInventory.PetJournal.JournalIsUnlocked( ),
+							"disabled", not ArkInventory.PetJournal.JournalIsReady( ),
 							"closeWhenClicked", true,
 							"func", function( info )
 								if md.fav then
@@ -3679,7 +3679,7 @@ function ArkInventory.MenuRestackOpen( frame )
 					
 					ArkInventory.Lib.Dewdrop:AddLine(
 						"icon", ArkInventory.Const.Actions[22].Texture,
-						"text", ArkInventory.Localise["RESTACK"],
+						"text", ArkInventory.Const.Actions[22].Name,
 						"isTitle", true,
 						"textHeight", 14
 					)
@@ -3694,6 +3694,82 @@ function ArkInventory.MenuRestackOpen( frame )
 						"func", function( )
 							PlaySound( "igMainMenuOption" )
 							DepositReagentBank( )
+						end
+					)
+					
+					ArkInventory.Lib.Dewdrop:AddLine( )
+					
+					ArkInventory.Lib.Dewdrop:AddLine(
+						"text", REVERSE_CLEAN_UP_BAGS_TEXT,
+						"tooltipTitle", REVERSE_CLEAN_UP_BAGS_TEXT,
+						"tooltipText", OPTION_TOOLTIP_REVERSE_CLEAN_UP_BAGS,
+						"checked", GetSortBagsRightToLeft( ),
+						"closeWhenClicked", true,
+						"func", function( )
+							SetSortBagsRightToLeft( not GetSortBagsRightToLeft( ) )
+						end
+					)
+					
+					ArkInventory.Lib.Dewdrop:AddLine( )
+					
+					ArkInventory.Lib.Dewdrop:AddLine(
+						"text", ArkInventory.Localise["CLOSE_MENU"],
+						"closeWhenClicked", true
+					)
+					
+				end
+				
+			end
+			
+		)
+	
+	end
+	
+end
+
+function ArkInventory.MenuRefreshOpen( frame )
+	
+	assert( frame, "code error: frame argument is missing" )
+
+	if ArkInventory.Lib.Dewdrop:IsOpen( frame ) then
+		
+		ArkInventory.Lib.Dewdrop:Close( )
+		
+	else
+		
+		local x, p, rp
+		x = frame:GetBottom( ) + ( frame:GetTop( ) - frame:GetBottom( ) ) / 2
+		if ( x >= ( GetScreenHeight( ) / 2 ) ) then
+			p = "TOPLEFT"
+			rp = "BOTTOMLEFT"
+		else
+			p = "BOTTOMLEFT"
+			rp = "TOPLEFT"
+		end
+	
+		ArkInventory.Lib.Dewdrop:Open( frame,
+			"point", p,
+			"relativePoint", rp,
+			"children", function( level, value )
+				
+				if level == 1 then
+					
+					ArkInventory.Lib.Dewdrop:AddLine(
+						"icon", ArkInventory.Const.Actions[24].Texture,
+						"text", ArkInventory.Const.Actions[24].Name,
+						"isTitle", true,
+						"textHeight", 14
+					)
+					
+					ArkInventory.Lib.Dewdrop:AddLine( )
+					
+					ArkInventory.Lib.Dewdrop:AddLine(
+						"text", string.format( "%s: %s", ArkInventory.Localise["CONFIG_SETTINGS_ITEMS_NEW"], ArkInventory.Localise["RESET"] ),
+						"tooltipTitle", ArkInventory.Localise["CONFIG_SETTINGS_ITEMS_NEW_RESET_TEXT"],
+						"closeWhenClicked", true,
+						"func", function( )
+							ArkInventory.Global.NewItemResetTime = ArkInventory.TimeAsMinutes( )
+							ArkInventory.Frame_Main_Generate( nil, ArkInventory.Const.Window.Draw.Recalculate )
 						end
 					)
 					

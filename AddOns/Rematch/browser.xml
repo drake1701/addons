@@ -102,7 +102,7 @@
 				Rematch.PetOnLeave(self)
 			</OnLeave>
 			<OnDragStart>
-				Rematch.BrowserPetOnDrag(self)
+				Rematch.PetOnDragStart(self)
 			</OnDragStart>
 			<OnClick>
 				Rematch.PetOnClick(self,button)

@@ -504,7 +504,7 @@ local function ReleaseButton(level, index)
 --	button.arrow:SetHeight(16)
 --	button.arrow:SetWidth(16)
 	table.remove(level.buttons, index)
-	table.insert(buttons, button)
+	buttons[#buttons + 1] = button
 	for k in pairs(button) do
 		if k ~= 0 and k ~= "text" and k ~= "check" and k ~= "arrow" and k ~= "colorSwatch" and k ~= "highlight" and k ~= "radioHighlight" then
 			button[k] = nil
@@ -821,7 +821,7 @@ local function AcquireButton( level )
 	button.text:SetPoint("LEFT", button, "LEFT", 24, 0)
 	button:Show()
 	button.level = level
-	table.insert(level.buttons, button)
+	level.buttons[#level.buttons + 1] = button
 	if not level.parented then
 		level.parented = true
 		level:ClearAllPoints()
@@ -1335,7 +1335,7 @@ function Dewdrop:FeedAceOptionsTable(options, difference)
 		if current.num == difference + 1 then
 			break
 		end
-		table.insert(values, current.value)
+		values[#values + 1] = current.value
 		current = levels[current.num - 1]
 	end
 
@@ -1382,7 +1382,7 @@ function Dewdrop:FeedAceOptionsTable(options, difference)
 			return
 		end
 		for k in pairs(options.args) do
-			table.insert(values, k)
+			values[#values + 1] = k
 		end
 		if options.pass then
 			if options.get and options.set then
@@ -1729,7 +1729,7 @@ function Dewdrop:FeedAceOptionsTable(options, difference)
 			if type(k) ~= "number" then
 				indexed = false
 			end
-			table.insert(values, k)
+			values[#values + 1] = k
 		end
 		if not indexed then
 			if not othersort then
@@ -1820,7 +1820,7 @@ function Dewdrop:FeedTable(s, difference)
 		if current.num == difference + 1 then
 			break
 		end
-		table.insert(values, current.value)
+		values[#values + 1] = current.value
 		current = levels[current.num - 1]
 	end
 
@@ -1834,14 +1834,14 @@ function Dewdrop:FeedTable(s, difference)
 
 	if t.subMenu or current.num == 1 then
 		for k in pairs(t.subMenu) do
-			table.insert(values, k)
+			values[#values + 1] = k
 		end
 		table.sort(values)
 		for _,k in ipairs(values) do
 			local argTable = {"value", k}
 			for key, val in pairs(t.subMenu[k]) do
-				table.insert(argTable, key)
-				table.insert(argTable, val)
+				argTable[#argTable + 1] = key
+				argTable[#argTable + 1] = val
 			end
 			self:AddLine(unpack(argTable))
 		end
@@ -3549,7 +3549,7 @@ function Dewdrop:error(message, ...)
 			arg[i] = tostring(arg[i])
 		end
 		for i = 1, 10 do
-			table.insert(arg, "nil")
+			arg[#arg + 1] = "nil"
 		end
 		message = message:format(unpack(arg))
 	end

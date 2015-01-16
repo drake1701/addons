@@ -1,14 +1,15 @@
 --[[ teams are saved in RematchSaved (saved local) in this format:
 
 	["team name"] = {
-		{petID,abilityID,abilityID,abilityID,speciesID}, -- petID can be a speciesID (number) if missing
-		{petID,abilityID,abilityID,abilityID,speciesID},
-		{petID,abilityID,abilityID,abilityID,speciesID},
-		npcID, -- nil or number
-		tab, -- nil or tab number (1-16)
-		notes, -- nil or string max 255 characters
-		minLevel, -- nil or minimum leveling pet level
-		maxLevel, -- nil or maximum leveling pet level
+		[1] = {petID,abilityID,abilityID,abilityID,speciesID}, -- petID can be a speciesID (number) if missing
+		[2] = {petID,abilityID,abilityID,abilityID,speciesID},
+		[3] = {petID,abilityID,abilityID,abilityID,speciesID},
+		[4] = npcID, -- nil or number
+		[5] = tab, -- nil or tab number (1-16)
+		[6] = notes, -- nil or string max 255 characters
+		[7] = minHP, - nil or minimum health preference
+		[8] = allowMM, nil or true to allow low-health magic and mechanical
+		[9] = maxXP, - nil or maximum level preference
 	}
 
 	petID of 0 notes a leveling pet.
@@ -97,7 +98,7 @@ end
 
 function rematch:TeamTabButtonOnClick(button)
 	rematch:HideDialogs()
-	self:SetChecked(0)
+	self:SetChecked(false)
 	rematch:ClearSearchBox(teams.searchBox)
 	local index = self:GetID()
 	if not self.name then
@@ -148,7 +149,12 @@ end
 
 -- hybridscrollframe update for icon list in tab edit dialog
 function rematch:UpdateTeamTabEditIconList()
-	local data = teams.iconChoices
+	local data
+	if rematch.dialog.iconPicker.search.text then
+		data = teams.iconSearches -- if anything in search table, use this table for icons
+	else
+		data = teams.iconChoices
+	end
 	local numData = ceil(#data/6)
 	local scrollFrame = rematch.dialog.iconPicker.scrollFrame
 	local offset = HybridScrollFrame_GetOffset(scrollFrame)
@@ -189,7 +195,7 @@ function rematch:ShowTeamTabEditDialog(index,name,icon)
 		return
 	end
 
-	local dialog = rematch:ShowDialog("EditTab",278,name,L["Choose a name and icon."],rematch.TeamTabEditDialogAccept)
+	local dialog = rematch:ShowDialog("EditTab",294,name,L["Choose a name and icon."],rematch.TeamTabEditDialogAccept)
 	dialog.index = index
 
 	dialog.slot:SetPoint("TOPLEFT",16,-20)
@@ -210,15 +216,65 @@ function rematch:ShowTeamTabEditDialog(index,name,icon)
 		scrollFrame:SetHeight(168) -- 5 buttons*32 buttonHeight
 		scrollFrame.update = rematch.UpdateTeamTabEditIconList
 		HybridScrollFrame_CreateButtons(scrollFrame, "RematchTabIconPickerTemplate")
+		dialog.iconPicker.search = CreateFrame("EditBox","RematchTeamTabIconSearch",dialog.iconPicker,"RematchSearchBoxTemplate")
+		local search = dialog.iconPicker.search
+		search:SetSize(150,20)
+		search:SetPoint("TOP",dialog.iconPicker,"BOTTOM",0,-4)
+		search:SetScript("OnTextChanged",rematch.TeamTabEditIconSearchChanged)
+		search.testIcon = search:CreateTexture(nil,"BACKGROUND")
+		search.testIcon:SetSize(64,64)
+		teams.iconChoices = {}
+		teams.iconSearches = {}
+		dialog.iconPicker:SetScript("OnHide",function() wipe(teams.iconChoices) wipe(teams.iconSearches) end)
 	end
 
 	dialog.iconPicker:SetPoint("TOP",0,-64)
+	dialog.iconPicker.search:SetText("")
 	dialog.iconPicker:Show()
-	teams.iconChoices = teams.iconChoices or {}
 	wipe(teams.iconChoices)
+	GetLooseMacroIcons(teams.iconChoices)
 	GetMacroIcons(teams.iconChoices)
+	GetMacroItemIcons(teams.iconChoices)
 
 	rematch:UpdateTeamTabEditIconList()
+end
+
+function rematch:TeamTabEditIconSearchChanged()
+	if self:GetText():trim():len()>0 then
+		rematch:StartTimer("TeamTabIconSearch",0.5,rematch.TeamTabEditDelayedIconSearch)
+	else
+		rematch:TeamTabEditDelayedIconSearch()
+	end
+end
+
+function rematch:TeamTabEditDelayedIconSearch()
+	local search = rematch.dialog.iconPicker.search
+	local text = search:GetText():trim()
+	wipe(teams.iconSearches)
+	if text:len()>0 then
+		search.text = rematch:DesensitizedText(text)
+		for i=1,#teams.iconChoices do
+			local candidate = teams.iconChoices[i]
+			if type(candidate)=="number" then
+				search.testIcon:SetToFileData(candidate)
+				candidate = (search.testIcon:GetTexture() or ""):gsub("[iI][nN][tT][eE][rR][fF][aA][cC][eE]\\[iI][cC][oO][nN][sS]\\","")
+			end
+			if candidate:match(search.text) then
+				tinsert(teams.iconSearches,candidate)
+			end
+		end
+	else
+		search.text = nil
+	end
+	rematch:UpdateTeamTabEditIconList()
+end
+
+function rematch:TeamTabEditIconOnEnter()
+	local icon = (self.icon:GetTexture() or ""):gsub("[iI][nN][tT][eE][rR][fF][aA][cC][eE]\\[iI][cC][oO][nN][sS]\\","")
+	rematch.ShowTooltip(self,icon)
+	RematchTooltip:ClearAllPoints()
+	local left = rematch.inLeftHalf
+	RematchTooltip:SetPoint(left and "LEFT" or "RIGHT",self:GetParent(),left and "RIGHT" or "LEFT")
 end
 
 -- when user clicks accept button
@@ -353,13 +409,18 @@ function rematch:UpdateTeamList()
 			else
 				button.name:SetTextColor(1,.82,0)
 			end
-			if teamData[6] then
-				button.name:SetPoint("BOTTOMRIGHT",-26,1)
-				button.notes:Show()
-			else
-				button.name:SetPoint("BOTTOMRIGHT",-10,1)
-				button.notes:Hide()
+			local xoff = -10 -- xoffset for BOTTOMRIGHT anchor for name
+			local hasNotes = teamData[6] and true
+			local hasPreferences = (teamData[7] or teamData[9]) and true
+			xoff = xoff - (hasNotes and 16 or 0) - (hasPreferences and 16 or 0)
+			button.name:SetPoint("BOTTOMRIGHT",xoff,1)
+			button.notes:SetShown(hasNotes)
+			if hasNotes and hasPreferences then
+				button.preferences:SetPoint("RIGHT",-18,0)
+			elseif hasPreferences then
+				button.preferences:SetPoint("RIGHT",1,0)
 			end
+			button.preferences:SetShown(hasPreferences)
 			button:Show()
 		else
 			button:Hide()
@@ -509,9 +570,12 @@ function rematch:FindBestPetForTeam(speciesID,index,teamTable)
 	end
 end
 
-function rematch:FillPetFramesFromTeam(pets,team)
+function rematch:FillPetFramesFromTeam(pets,team,teamName)
 	if type(team)=="string" then
+		teamName = team
 		team = saved[team]
+	elseif type(team)=="table" and not teamName then
+		teamName = team.teamName
 	end
 	if not team then
 		return
@@ -551,6 +615,13 @@ function rematch:FillPetFramesFromTeam(pets,team)
 			end
 		end
 	end
+
+	-- copy other info (npcID, notes, etc) to frames' parent table
+	for i=4,9 do
+		pets[i] = team[i]
+	end
+	pets.teamName = teamName
+	pets.originalTeamName = teamName
 end
 
 function rematch:ScrollToTeam(teamName)
@@ -562,8 +633,9 @@ function rematch:ScrollToTeam(teamName)
 	end
 end
 
-function rematch:ShowRenameDialog(teamName)
+--[[ Rename ]]
 
+function rematch:ShowRenameDialog(teamName)
 	local dialog = rematch:ShowDialog("RenameTeam",154,teamName,L["Rename this team?"],rematch.RenameAccept)
 	dialog.team:SetPoint("TOP",0,-24)
 	dialog.team:Show()
@@ -573,16 +645,12 @@ function rematch:ShowRenameDialog(teamName)
 	dialog.editBox:SetText(teamName)
 	dialog.editBox:SetScript("OnTextChanged",rematch.RenameOnTextChanged)
 	dialog.editBox:Show()
-
-	dialog.teamName = teamName
-	dialog.npcID = saved[teamName][4]
-
 end
 
 function rematch:RenameOnTextChanged()
 	local teamName = self:GetText()
 	local dialog = rematch.dialog
-	local nameTaken = saved[teamName] and teamName~=dialog.teamName
+	local nameTaken = saved[teamName] and teamName~=dialog.team.pets.teamName
 	rematch:SetAcceptEnabled(teamName:len()>0 and not nameTaken)
 	if nameTaken then
 		dialog.warning:SetPoint("TOP",dialog.editBox,"BOTTOM",0,-4)
@@ -597,17 +665,27 @@ end
 
 function rematch:RenameAccept()
 	local dialog = rematch.dialog
-	local oldTeamName = dialog.teamName
+	local oldTeamName = dialog.team.pets.teamName
 	local newTeamName = dialog.editBox:GetText()
-	local notes = saved[oldTeamName][6]
-	rematch:SaveTeamFromPetFrames(newTeamName,dialog.npcID,dialog.team.pets)
-	saved[newTeamName][6] = notes
-	saved[oldTeamName] = nil
-	if settings.loadedTeamName==oldTeamName then
-		settings.loadedTeamName = newTeamName
+	if newTeamName and saved[oldTeamName] and oldTeamName~=newTeamName then
+		saved[newTeamName] = {}
+		for i=1,9 do
+			if i<=3 then
+				saved[newTeamName][i] = {}
+				for j=1,5 do
+					saved[newTeamName][i][j] = saved[oldTeamName][i][j]
+				end
+			else
+				saved[newTeamName][i] = saved[oldTeamName][i]
+			end
+		end
+		saved[oldTeamName] = nil
+		if settings.loadedTeamName==oldTeamName then
+			settings.loadedTeamName = newTeamName
+		end
+		rematch:UpdateWindow()
+		rematch:ScrollToTeam(newTeamName)
 	end
-	rematch:UpdateWindow()
-	rematch:ScrollToTeam(newTeamName)
 end
 
 --[[ Search Box ]]

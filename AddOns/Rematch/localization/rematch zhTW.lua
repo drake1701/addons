@@ -1,6 +1,11 @@
 ﻿local _,L = ...
 if GetLocale()=="zhTW" then
 
+-- New or changed strings in 3.1.8:
+	L["Without Any 25s"] = "未滿25級"
+	L["2+ Pets"] = "已收集2/3"
+	L["3+ Pets"] = "已收集3/3"
+
 -- New or changed strings in 3.1.4:
 	L["Only Level 25s"] = "僅25級"
 	L["Level 25"] = "25級"
@@ -9,7 +14,6 @@ if GetLocale()=="zhTW" then
 	L["Load Filters"] = "讀取過濾器設定"
 	L["Save Filters"] = "保存過濾器設定"
 	L["Do you want to overwrite the existing saved filters?"] = "確定更新過濾器設定?"
-
 
 -- New or changed strings in 3.1.3:
 	L["This team did not automatically load because you've already auto-loaded a team from where you're standing."] = "該組合沒有加載.因為另一個組合已經被載入."

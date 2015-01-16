@@ -37,7 +37,6 @@ rematch.optionsList = {
 	{ "check", "CloseAllOnESC", L["Close everything with ESC"], L["Close all Escape-enabled Rematch windows at once with the Escape key instead of one at a time."] },
 	{ "header", nil, L["Loading Options"] },
 	{ "check", "OneClickLoad", L["One-click loading"], L["When clicking a team in the Teams tab, instead of locking the team card, load the team immediately. If this is unchecked you can double-click a team to load it."] },
---	{ "check", "EmptyMissing", L["Empty missing pet slots"], L["When a team with missing pets loads and a pet is missing, empty the slot the pet would go to instead of ignoring the slot."] },
 	{ "check", "DontWarnMissing", L["Don't warn about missing pets"], L["Don't display a popup when a team loads and a pet within the team can't be found."] },
 	{ "check", "KeepSummoned", L["Keep companion"], L["After a team is loaded, summon back the companion that was at your side before the load."] },
 	{ "check", "ShowOnInjured", L["Show on injured"], L["When pets load, show the window if any pets are injured. The window will show if any pets are dead or missing regardless of this setting."] },
@@ -51,6 +50,7 @@ rematch.optionsList = {
 	{ "check", "ListRealNames", L["List real names"], L["Even if a pet has been renamed, list each pet by its real name."] },
 	{ "check", "ResetFilters", L["Reset filters on login"], L["Reset all pet browser filters (except sort order) when logging in."] },
 	{ "header", nil, MISCELLANEOUS },
+	{ "check", "RealAbilityIcons", L["Use actual ability icons"]..newOption, L["In the pet card, display the actual icon of each ability instead of an icon showing the ability's type."], nil, true },
 	{ "check", "ShowNotesInBattle", L["Show notes in battle"], L["If the loaded team has notes, display and lock the notes when you enter a pet battle."] },
 	{ "check", "HideRarityBorders", L["Hide rarity borders"], L["Hide the colored borders to indicate rarity around current pets and pets on the team cards."] },
 	{ "check", "DisableShare", L["Disable sharing"], L["Disable the Send button and also block any incoming pets sent by others. Import and Export still work."] },
@@ -74,6 +74,7 @@ function rematch:InitOptions()
 		end
 	end
 
+	-- if PetBattleTeams enabled, add a button to import teams
 	if IsAddOnLoaded("PetBattleTeams") then
 		tinsert(rematch.optionsList,{"button", "ImportPBTButton", L["Import Pet Battle Teams"], L["Copy the teams from the addon Pet Battle Teams to the current team tab in Rematch."]})
 	end
@@ -352,6 +353,33 @@ function rematch.optionsFunc.HideRarityBorders()
 	rematch:UpdateWindow()
 end
 
+function rematch.optionsFunc.QueueSkipDead()
+	rematch:ProcessQueue(true)
+end
+
+function rematch.optionsFunc.RealAbilityIcons()
+	for i=1,6 do
+		local button = RematchFloatingPetCard.abilities[tostring(i)]
+		button:UnlockHighlight()
+		local icon = button.type
+		local highlight = button:GetHighlightTexture()
+		local hit = button.searchHit
+		if settings.RealAbilityIcons then
+			icon:SetTexCoord(0,1,0,1)
+			highlight:SetTexture("Interface\\Buttons\\UI-Quickslot-Depress")
+			highlight:SetTexCoord(0,1,0,1)
+			hit:SetTexture("Interface\\PetBattles\\PetBattle-GoldSpeedFrame")
+			hit:SetTexCoord(0.1171875,0.7421875,0.1171875,0.734375)
+		else
+			icon:SetTexCoord(0.4921875,0.796875,0.50390625,0.65625)
+			highlight:SetTexture("Interface\\PetBattles\\PetBattleHUD")
+			highlight:SetTexCoord(0.884765625,0.943359375,0.681640625,0.798828125)
+			hit:SetTexture("Interface\\Common\\GoldRing")
+			hit:SetTexCoord(0,1,0,1)
+		end
+	end
+end
+
 -- migrate any teams saved in Pet Battle Teams, whose name doesn't already exist, into Rematch
 function rematch:MigratePBT(over)
 	local copied,notCopied = 0,0
@@ -388,10 +416,10 @@ function rematch:MigratePBT(over)
 				saved[teamName][5] = settings.SelectedTab
 				rematch:ValidateTeam(teamName)
 				copied = copied + 1
-				print(format(L["\124cffffd200%s\124r copied."],teamName))
+				rematch:print(format(L["%s copied."],teamName))
 			else
 				notCopied = notCopied + 1
-				print(format(L["\124cffffd200%s\124r not copied. A team of that name already exists."],teamName))
+				rematch:print(format(L["%s not copied. A team of that name already exists."],teamName))
 			end
 		end
 	end
@@ -422,7 +450,7 @@ function rematch.events.ADDON_LOADED(addon)
 		rematch:UnregisterEvent("ADDON_LOADED")
 
 		-- hook the pet menu drop-down menu to rematch.NewDropDownMenu after giving time for all LoadWith to get done
-		rematch:StartTimer("JournalLoad",.25,function()
+		C_Timer.After(0.25,function()
 			if not settings.HideJournalButton then
 				rematch:CreateJournalButton()
 			end
@@ -430,26 +458,26 @@ function rematch.events.ADDON_LOADED(addon)
 			rematch.oldDropDownInit = parent.initialize
 			parent.initialize = rematch.NewPetMenuDropDownInit
 		end) -- come back in .5 seconds to look for them
-		hooksecurefunc("HybridScrollFrame_Update",rematch.UpdateLevelingMarkersHook)
+		hooksecurefunc("HybridScrollFrame_Update",rematch.UpdateLevelingMarkers)
 
 		-- there is no GetSearchFilter, so we need to watch filters being set
 		hooksecurefunc(C_PetJournal,"SetSearchFilter",function(search)
 			if (search or ""):len()>0 and settings.DrawerMode=="PETS" and rematch.drawer:IsVisible() then
-				rematch.drawer:Hide()
-				local dialog = rematch:ShowDialog("PetJournalWarning",128,L["Pets Tab Closed"],"",true)
-				dialog.text:SetPoint("TOPLEFT",64,-20)
-				dialog.text:SetPoint("BOTTOMRIGHT",-12,46)
-				dialog.text:SetText(L["The pet journal's search box can't be used while the pet tab is open, sorry!"])
-				dialog.text:Show()
-				dialog.slot:SetPoint("TOPLEFT",12,-32)
-				dialog.slot.icon:SetTexture("Interface\\Icons\\Spell_Misc_EmotionSad")
-				dialog.slot:Show()
+				rematch:Hide()
+				rematch:print("The pet journal's search box can't be used while the pet tab is open, sorry!")
 			end
 			rematch.defaultSearchFilter = search
 		end)
 		hooksecurefunc(C_PetJournal,"ClearSearchFilter",function()
 			rematch.defaultSearchFilter = search
 		end)
+
+		-- handlers for when a journal slot is receiving a leveling pet
+		for i=1,3 do
+		  local button = _G["PetJournalLoadoutPet"..i.."SetButton"]
+			button:HookScript("OnClick",rematch.HandleReceivingLevelingPet)
+			button:HookScript("OnReceiveDrag",rematch.HandleReceivingLevelingPet)
+		end
 
 	end
 end
@@ -462,12 +490,12 @@ function rematch:NewPetMenuDropDownInit(level)
 	  info.notCheckable = true
 		info.arg1 = petID
 		if rematch:PetCanLevel(petID) then
-			if not rematch:IsCurrentLevelingPet(petID) then
+			local isLeveling = rematch:IsPetLeveling(petID)
+			if petID~=rematch:GetCurrentLevelingPet() and not settings.QueueFullSort then
 				info.text = L["Start Leveling"]
 				info.func = rematch.DropDownStartLeveling
 				UIDropDownMenu_AddButton(info,level)
 			end
-			local isLeveling = rematch:IsPetLeveling(petID)
 			if rematch:GetNumLevelingPets()>0 and not isLeveling then
 				info.text = L["Add to Leveling Queue"]
 				info.func = rematch.DropDownAddToQueue
@@ -497,7 +525,10 @@ end
 
 -- in ADDON_LOADED of the pet journal, HybridScrollFrame_Update is hooked to this
 -- to go through all buttons in the journal to show/hide a leveling icon
-function rematch:UpdateLevelingMarkersHook()
+function rematch:UpdateLevelingMarkers()
+	if self==rematch and PetJournal then
+		self = PetJournalEnhancedListScrollFrame or PetJournalListScrollFrame
+	end
 	if self==PetJournalListScrollFrame or self==PetJournalEnhancedListScrollFrame then
 		for i=1,#self.buttons do
 			local petID = self.buttons[i].petID

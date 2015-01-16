@@ -2,7 +2,7 @@
 ## Title: Rematch
 ## Notes: A pet journal alternative to help manage battle pet teams and pets.
 ## Author: Gello
-## Version: 3.1.8
+## Version: 3.2.5
 ## SavedVariables: RematchSettings, RematchSaved
 
 localization\rematch enUS.lua
@@ -40,4 +40,3 @@ finder.lua
 petloading.lua
 notes.xml
 notes.lua
-

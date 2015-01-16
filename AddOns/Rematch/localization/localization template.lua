@@ -18,6 +18,50 @@
 local _,L = ...
 if GetLocale()=="????" then
 
+	-- New or changed strings in 3.2.3:
+	L["The Full Sort queue option has been turned off to allow this new pet to be the active leveling pet. You can turn Full Sort back on in the queue menu."]
+
+	-- New or changed strings in 3.2.2:
+	L["\124cffddddddPossible Breeds"]
+	L["Choosing a pet will turn off Full Sort"]
+	L["Choose a new pet"]
+
+	-- New or changed strings in 3.2.1:
+	L["All done leveling pets!"]
+	L["Rematch's leveling queue is empty"]
+	L["You are in %s.\n\nThe leveling slot and queue are locked while you are in %s."
+	L["a pet battle"] -- usage: "You are in a pet battle"
+	L["pet PVP"] -- usage: "You are in pet PVP"
+	L["Use actual ability icons"]
+	L["In the pet card, display the actual icon of each ability instead of an icon showing the ability's type."]
+
+	-- New or changed strings in 3.2.0:
+	L["Sort the queue by pet types."]
+	L["Full Sort"]
+	L["Include even the top-most pet in the sort. This can cause the top-most pet to change as it gains xp or pets get added to the queue."]
+	L["\124TInterface\\DialogFrame\\UI-Dialog-Icon-AlertNew:16\124t The queue is in \124cffffffffFull Sort\124r mode."]
+	L["You can't choose the active leveling pet while the queue is fully sorted."]
+	L["Leveling Pet Preferences"]
+	L["Minimum Health"]
+	L["Maximum Level"]
+	L["Or any \124TInterface\\PetBattles\\PetIcon-Magical:20:20:0:0:128:256:102:63:129:168\124t & \124TInterface\\PetBattles\\PetIcon-Mechanical:20:20:0:0:128:256:102:63:129:168\124t"]
+	L["Prefer Live Pets"]
+	L["When loading pets from the queue, skip dead pets and load living ones first."]
+	L["In Pet Battle"]
+	L["This is the leveling slot.\n\nDrag a level 1-24 pet here to set it as the active leveling pet.\n\nWhen a team is saved with a leveling pet, that pet's place on the team is reserved for future leveling pets.\n\nThis slot can contain as many leveling pets as you want. When a pet reaches 25 the topmost pet in the queue becomes your new leveling pet."]
+	L["Leveling Pet"]
+	L["When this team loads, your active leveling pet will go in this spot."]
+	L["Leveling Preferences"]
+	L["Save Preferences?"]
+	L["This is the minimum health preferred for a leveling pet."]
+	L["This is the maximum level preferred for a leveling pet.\n\nLevels can be partial amounts. Level 23.45 is level 23 with 45% xp towards level 24."]
+	L["Allow low-health Magic and Mechanical pets to ignore the Minimum Health, since their racials allow them to often survive a hit that would ordinarily kill them."]
+	L["Save leveling pets as themselves"]
+	L["Save As Themselves"]
+	L["Save pets without turning them into leveling pets.\n\nSo loading this team in the future will load these specific pets and not from the queue."]
+	L["No Preferences"]
+	L["Suspend all preferred loading of pets from the queue, except for pets that can't load."]
+
 	-- New or changed strings in 3.1.8:
 	L["Without Any 25s"] = "Without Any 25s"
 	L["2 Pets"] = "2+ Pets"
@@ -37,13 +81,11 @@ if GetLocale()=="????" then
 	L["This pet is currently slotted."] = "This pet is currently slotted."
 
 	-- New or changed strings in 3.1.2:
-
 	L["Undo"] = "Undo"
 	L["Revert to the last saved notes. Changes are saved when leaving these notes."] = "Revert to the last saved notes. Changes are saved when leaving these notes."
 	L["Delete Notes"] = "Delete Notes"
 
 	-- New or changed strings in 3.1.1:
-
 	L["Show notes in battle"] = "Show notes in battle"
 	L["If the loaded team has notes, display and lock the notes when you enter a pet battle."] = "If the loaded team has notes, display and lock the notes when you enter a pet battle."
 	L["Hide rarity borders"] = "Hide rarity borders"
@@ -52,7 +94,6 @@ if GetLocale()=="????" then
 	L["This option changes the normal behavior of Rematch and its interaction with targets. Specifically, any time you change pets or abilities, it will disregard what you have loaded in the past and always offer to load/show teams. Also, it will be very difficult to save changes to teams by targeting. The Reload button will also be disabled. \124cffff2222WARNING!\124cffffd200 This option is not recommended!"] = "This option changes the normal behavior of Rematch and its interaction with targets. Specifically, any time you change pets or abilities, it will disregard what you have loaded in the past and always offer to load/show teams. Also, it will be very difficult to save changes to teams by targeting. The Reload button will also be disabled. \124cffff2222WARNING!\124cffffd200 This option is not recommended!"
 
 	-- New or changed strings in 3.1.0:
-
 	L["List real names"] = "List real names"
 	L["Even if a pet has been renamed, list each pet by its real name."] = "Even if a pet has been renamed, list each pet by its real name."
 	L["Fill the leveling queue with one of each species that can level from the filtered pet browser, and for which you don't have a level 25 already."] = "Fill the leveling queue with one of each species that can level from the filtered pet browser, and for which you don't have a level 25 already."
@@ -63,13 +104,11 @@ if GetLocale()=="????" then
 	L["Set Notes"] = "Set Notes"
 	L["Save these notes?"] = "Save these notes?"
 
--- New or changed strings in 3.0.13:
-
+	-- New or changed strings in 3.0.13:
 	L["Reload"] = "Reload"
 	L[" \124cffffd200Note:\124r Enabling this option disables the 'Reload' button."] = " \124cffffd200Note:\124r Enabling this option disables the 'Reload' button."
 
--- New or changed strings in 3.0.11:
-
+	-- New or changed strings in 3.0.11:
 	L["Even options"] = "Even options"
 	L["Also hide tooltips that appear here in the options panel. This is not recommended if you're new to the addon."] = "Also hide tooltips that appear here in the options panel. This is not recommended if you're new to the addon."
 	L["Larger list text"] = "Larger list text"
@@ -79,20 +118,17 @@ if GetLocale()=="????" then
 	L["In a Team"] = "In a Team"
 	L["Not In a Team"] = "Not In a Team"
 
--- New or changed strings in 3.0.10:
-
+	-- New or changed strings in 3.0.10:
 	L["Stay after loading"] = "Stay after loading"
 	L["Keep the Rematch window on screen after loading a team when the window was shown via 'Auto show on target'."] = "Keep the Rematch window on screen after loading a team when the window was shown via 'Auto show on target'."
 	L["Show after loading"] = "Show after loading"
 	L["When a team is automatically loaded, show the Rematch window if it's not already shown."] = "When a team is automatically loaded, show the Rematch window if it's not already shown."
 
--- New or changed strings in 3.0.9:
-
+	-- New or changed strings in 3.0.9:
 	L["Show dialogs at side"] = "Show dialogs at side"
 	L["Instead of making popup dialogs appear in the middle of the expanded Rematch window, make them appear to the side."] = "Instead of making popup dialogs appear in the middle of the expanded Rematch window, make them appear to the side."
 
--- New or changed strings in 3.0.1 to 3.0.7:
-
+	-- New or changed strings in 3.0.1 to 3.0.7:
 	L["Queued:"] = "Queued:"
 	L["When targeting something with a saved team not already loaded, show the Rematch window."] = "When targeting something with a saved team not already loaded, show the Rematch window."
 	L["Auto load"] = "Auto load"

@@ -1,8 +1,10 @@
 
 local _,L = ...
 local rematch = Rematch
+local settings
 
 function rematch:InitCurrent()
+	settings = RematchSettings
 	rematch.header.text:SetText(L["Current Battle Pets"])
 
 	for i=1,3 do
@@ -14,32 +16,25 @@ function rematch:InitCurrent()
 	-- there's no event for when loadout pets change (really!) so we hooksecurefunc them
 	hooksecurefunc(C_PetJournal,"SetAbility",rematch.StartPetsChanging)
 	hooksecurefunc(C_PetJournal,"SetPetLoadOutInfo",rematch.StartPetsChanging)
-
-	rematch.current.levelingNavigator.prev.icon:SetTexture("Interface\\Icons\\misc_arrowleft")
-	rematch.current.levelingNavigator.next.icon:SetTexture("Interface\\Icons\\misc_arrowright")
 end
 
 function rematch:CurrentPetOnReceiveDrag()
 	local petID = rematch:GetCursorPetID()
 	if petID then
-		if rematch:IsCurrentLevelingPet(self.petID) and rematch:PetCanLevel(petID) then
-			rematch:StartLevelingPet(petID) -- if a pet that can level is being dropped on current leveling pet
-		else
-			rematch:LoadPetSlot(self:GetID(),petID)
-		end
+		rematch:HandleReceivingLevelingPet(petID)
+		rematch:LoadPetSlot(self:GetID(),petID)
 		ClearCursor()
 	end
 end
 
-function rematch:CurrentPetOnEnter()
-	rematch:ShowFloatingPetCard(rematch:GetPetID(self.petID),self)
-	if rematch:IsCurrentLevelingPet(self.petID) and #RematchSettings.LevelingQueue>1 then
-		local nav = rematch.current.levelingNavigator
-		nav.timer = 0
-		nav:SetParent(self)
-		nav:SetPoint("TOP",self,"BOTTOM",0,3)
-		nav:SetFrameLevel(self:GetFrameLevel()+3)
-		nav:Show()
+function rematch:CurrentPetOnEnter(noCard)
+	if not noCard then
+		rematch:ShowFloatingPetCard(self.petID,self)
+	end
+	if self.petID and rematch:GetCurrentLevelingPet()==self.petID then
+		rematch.current.swap:SetParent(self)
+		rematch.current.swap:SetPoint("TOP",self,"BOTTOM",0,4) -- -10,10)
+		rematch.current.swap:Show()
 	end
 end
 
@@ -98,48 +93,53 @@ function rematch:UpdateCurrentPets()
 			end
 			-- xp bar: update+show xp bar if pet is less than 25, hide if pet is 25
 			local notMax = level<25
+			local bars = button.bars
 			if notMax then
-				button.healthBG:SetPoint("TOPLEFT",button,"BOTTOMLEFT",2,0)
-				button.xp:SetWidth(xp>0 and 38*(xp/xpmax) or 1)
+				bars.healthBG:SetPoint("TOPLEFT",button,"BOTTOMLEFT",2,0)
+				bars.xp:SetWidth(xp>0 and 38*(xp/xpmax) or 1)
 				button.level:SetText(level)
 			else
-				button.healthBG:SetPoint("TOPLEFT",button,"BOTTOMLEFT",2,-4)
+				bars.healthBG:SetPoint("TOPLEFT",button,"BOTTOMLEFT",2,-4)
 			end
-			button.xpBG:SetShown(notMax)
-			button.xp:SetShown(notMax)
+			bars.xpBG:SetShown(notMax)
+			bars.xp:SetShown(notMax)
 			button.levelBG:SetShown(notMax)
 			button.level:SetShown(notMax)
 			-- update hp and whether pet is dead
 			local hp,hpmax,_,_,rarity = C_PetJournal.GetPetStats(petID)
 			if hp>0 then
-				button.health:SetWidth(hp>0 and 38*(hp/hpmax) or 1)
+				bars.health:SetWidth(hp>0 and 38*(hp/hpmax) or 1)
 			end
 			button.dead:SetShown(hp==0)
-			button.healthBG:Show()
-			button.health:SetShown(hp>0)
+			bars.healthBG:Show()
+			bars.health:SetShown(hp>0)
 			-- color border for rarity
-			if not RematchSettings.HideRarityBorders then
+			if not settings.HideRarityBorders then
 		    local r,g,b = ITEM_QUALITY_COLORS[rarity-1].r, ITEM_QUALITY_COLORS[rarity-1].g, ITEM_QUALITY_COLORS[rarity-1].b
 				button.border:SetVertexColor(r,g,b,1)
 				button.border:Show()
 			end
+			button.bars:Show()
 		else
 			button.petID = rematch.emptyPetID
-			button.xpBG:Hide()
-			button.xp:Hide()
+			button.bars:Hide()
 			button.level:Hide()
-			button.healthBG:Hide()
-			button.health:Hide()
 		end
+	end
+	local teamName = settings.loadedTeamName
+	if teamName and RematchSaved[teamName] then
+		for i=4,9 do
+			rematch.current.pets[i] = RematchSaved[teamName][i]
+		end
+		rematch.current.pets.teamName = teamName
 	end
 	rematch:UpdateCurrentLevelingBorders()
 end
 
 function rematch:UpdateCurrentLevelingBorders()
-	local levelingPetID = rematch:GetCurrentLevelingPet()
 	for i=1,3 do
 		local petID = C_PetJournal.GetPetLoadOutInfo(i)
-		rematch.current.pets[i].leveling:SetShown(petID and petID==levelingPetID)
+		rematch.current.pets[i].leveling:SetShown(rematch:IsPetLeveling(petID))
 	end
 end
 
@@ -154,7 +154,6 @@ end
 -- runs 0.1 seconds after pets/abilities change, primarily calls an UpdateWindow
 -- but also does extra processing if AutoAlways enabled to see if any pets really changed
 function rematch:FinishPetsChanging()
-	local settings = RematchSettings
 	if settings.AutoAlways and type(settings.loadedTeamTable)=="table" then
 		local info = rematch.info
 		for i=1,3 do
@@ -264,17 +263,6 @@ function rematch:FillFlyout(petSlot,abilitySlot)
 			button.icon:SetVertexColor(.3,.3,.3)
 			button.icon:SetDesaturated(true)
 			button.canUse = nil
-		end
-	end
-end
-
-function rematch:LevelingNavigatorOnUpdate(elapsed)
-	if MouseIsOver(self) or MouseIsOver(self:GetParent()) then
-		self.timer = 0
-	else
-		self.timer = self.timer + elapsed
-		if self.timer > 0.3 then
-			self:Hide()
 		end
 	end
 end

@@ -156,6 +156,9 @@ function TSM:OnInitialize()
 	-- We're not using AceDB here on purpose due to bugs in AceDB, but are emulating the parts of it that we need.
 	local json = TradeSkillMasterAppDB
 	TradeSkillMasterAppDB = nil
+	if type(json) == "table" then
+		json = table.concat(json)
+	end
 	if type(json) == "string" then
 		json = gsub(json, "%[", "{")
 		json = gsub(json, "%]", "}")
@@ -168,12 +171,13 @@ function TSM:OnInitialize()
 			TSM_APP_DATA_TMP = nil
 		end
 	end
-	TradeSkillMasterAppDB = TradeSkillMasterAppDB or {realm={}, profiles={}}
+	TradeSkillMasterAppDB = TradeSkillMasterAppDB or {realm={}, profiles={}, global={}}
 	TradeSkillMasterAppDB.version = max(TradeSkillMasterAppDB.version or 0, 7)
 	TradeSkillMasterAppDB.region = GetCVar("portal") == "public-test" and "PTR" or GetCVar("portal")
 	local realmKey = GetRealmName()
 	local profileKey = TSM.db:GetCurrentProfile()
 	TradeSkillMasterAppDB.factionrealm = nil
+	TradeSkillMasterAppDB.global = TradeSkillMasterAppDB.global or {}
 	TradeSkillMasterAppDB.realm = TradeSkillMasterAppDB.realm or {}
 	TradeSkillMasterAppDB.realm[realmKey] = TradeSkillMasterAppDB.realm[realmKey] or {}
 	TradeSkillMasterAppDB.profiles[profileKey] = TradeSkillMasterAppDB.profiles[profileKey] or {}
@@ -181,6 +185,7 @@ function TSM:OnInitialize()
 	TSM.appDB.realm = TradeSkillMasterAppDB.realm[realmKey]
 	TSM.appDB.profile = TradeSkillMasterAppDB.profiles[profileKey]
 	TSM.appDB.profile.groupTest = nil
+	TSM.appDB.global = TradeSkillMasterAppDB.global
 	TSM.appDB.keys = {profile=profileKey, realm=realmKey}
 
 	for name, module in pairs(TSM.modules) do
@@ -729,19 +734,14 @@ function TSM:ScanBMAH()
 	TSM.appDB.realm.bmah = nil
 	local items = {}
 	for i=1, C_BlackMarket.GetNumItems() do
-		local quantity, minBid, minIncr, currBid, numBids, itemLink, bmId = TSMAPI:Select({3, 9, 10, 11, 13, 15, 16}, C_BlackMarket.GetItemInfoByIndex(i))
-		local itemString = TSMAPI:GetItemString(itemLink)
-		if itemString then
-			local itemID, rand = TSMAPI:Select({2, 8}, (":"):split(itemString))
-			itemID = tonumber(itemID)
-			rand = tonumber(rand)
-			if itemID and rand then
-				minBid = floor(minBid/COPPER_PER_GOLD)
-				minIncr = floor(minIncr/COPPER_PER_GOLD)
-				currBid = floor(currBid/COPPER_PER_GOLD)
-				tinsert(items, {item=itemID, rand=rand, quantity=quantity, minBid=minBid, minIncr=minIncr, currBid=currBid, numBids=numBids, bmId=bmId, time=time()})
-			end
+		local quantity, minBid, minIncr, currBid, numBids, timeLeft, itemLink, bmId = TSMAPI:Select({3, 9, 10, 11, 13, 14, 15, 16}, C_BlackMarket.GetItemInfoByIndex(i))
+		local itemID = TSMAPI:GetItemID(TSMAPI:GetItemString(itemLink))
+		if itemID then
+			minBid = floor(minBid/COPPER_PER_GOLD)
+			minIncr = floor(minIncr/COPPER_PER_GOLD)
+			currBid = floor(currBid/COPPER_PER_GOLD)
+			tinsert(items, {bmId, itemID, quantity, timeLeft, minBid, minIncr, currBid, numBids, time()})
 		end
 	end
-	TSM.appDB.realm.blackMarket = {lastUpdate=time(), items=items, version=1}
+	TSM.appDB.realm.blackMarket = items
 end

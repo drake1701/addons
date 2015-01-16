@@ -1,3 +1,6 @@
+v2.4.1
+*Added the STD deviation values as price sources.
+
 v2.4
 *Updated for patch 6.0.2
 

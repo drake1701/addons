@@ -117,34 +117,42 @@ local function FindProfessionItem( loc_id, ct )
 	end
 	
 	for _, bag_id in pairs( ArkInventory.Global.Location[loc_id].Bags ) do
-	
-		local _, bt = GetContainerNumFreeSlots( bag_id )
 		
-		-- only match items in normal bags to move them to profession bags
-		if bt == 0 then
-		
-			for slot_id = GetContainerNumSlots( bag_id ), 1, -1 do
-				
-				if ( loc_id == ArkInventory.Const.Location.Bank ) and ( not ArkInventory.Global.Mode.Bank ) then
-					return false -- no longer at bank, abort
-				end
-				
-				--ArkInventory.OutputDebug( "checking for special item at ", bag_id, ".", slot_id )
-				
-				if not select( 3, GetContainerItemInfo( bag_id, slot_id ) ) then
+		if loc_id == ArkInventory.Const.Location.Bank and bag_id == ArkInventory.Global.Location[loc_id].tabReagent then
+			
+			-- ignore the reagent bank, dont remove anything from there
+			
+		else
+			
+			local _, bt = GetContainerNumFreeSlots( bag_id )
+			
+			-- only match items in normal bags to move them to profession bags
+			if bt == 0 then
+			
+				for slot_id = GetContainerNumSlots( bag_id ), 1, -1 do
 					
-					local h = GetContainerItemLink( bag_id, slot_id )
+					if ( loc_id == ArkInventory.Const.Location.Bank ) and ( not ArkInventory.Global.Mode.Bank ) then
+						return false -- no longer at bank, abort
+					end
 					
-					if h then
+					--ArkInventory.OutputDebug( "checking for special item at ", bag_id, ".", slot_id )
+					
+					if not select( 3, GetContainerItemInfo( bag_id, slot_id ) ) then
 						
-						-- ignore bags
-						if select( 11, ArkInventory.ObjectInfo( h ) ) ~= "INVTYPE_BAG" then
+						local h = GetContainerItemLink( bag_id, slot_id )
+						
+						if h then
 							
-							local it = GetItemFamily( h )
-							
-							if bit.band( it, ct ) > 0 then
-								--ArkInventory.OutputDebug( "special > ", bag_id, ".", slot_id )
-								return true, bag_id, slot_id
+							-- ignore bags
+							if select( 11, ArkInventory.ObjectInfo( h ) ) ~= "INVTYPE_BAG" then
+								
+								local it = GetItemFamily( h )
+								
+								if bit.band( it, ct ) > 0 then
+									--ArkInventory.OutputDebug( "special > ", bag_id, ".", slot_id )
+									return true, bag_id, slot_id
+								end
+								
 							end
 							
 						end
@@ -319,43 +327,51 @@ local function Consolidate( loc_id )
 	-- move items into appropriate bag types with empty slots
 	for _, bag_id in pairs( ArkInventory.Global.Location[loc_id].Bags ) do
 		
-		local _, bt = GetContainerNumFreeSlots( bag_id )
-		
-		if bt ~= 0 then
+		if loc_id == ArkInventory.Const.Location.Bank and bag_id == ArkInventory.Global.Location[loc_id].tabReagent then
 			
-			--ArkInventory.OutputDebug( "bag=[", bag_id, "], type=[", bt, "]" )
+			-- do nothing, deposit all reagents should have done this already
 			
-			for slot_id = GetContainerNumSlots( bag_id ), 1, -1 do
+		else
+			
+			local _, bt = GetContainerNumFreeSlots( bag_id )
+			
+			--ArkInventory.Output( "bag=[", bag_id, "], type=[", bt, "]" )
+			
+			if bt ~= 0 then
 				
-				if ( loc_id == ArkInventory.Const.Location.Bank ) and ( not ArkInventory.Global.Mode.Bank ) then
-					return false -- no longer at bank, abort
-				end
-				
-				--ArkInventory.OutputDebug( "checking bag=[", bag_id, "], slot=[", slot_id, "]" )
-				
-				if select( 3, GetContainerItemInfo( bag_id, slot_id ) ) then
+				for slot_id = GetContainerNumSlots( bag_id ), 1, -1 do
 					
-					--ArkInventory.Output( "locked > ", bag_id, ".", slot_id )
-					recheck = true -- this slot is locked, move on and check it again next time
+					if ( loc_id == ArkInventory.Const.Location.Bank ) and ( not ArkInventory.Global.Mode.Bank ) then
+						return false -- no longer at bank, abort
+					end
 					
-				else
-				
-					local h = GetContainerItemLink( bag_id, slot_id )
+					--ArkInventory.OutputDebug( "checking bag=[", bag_id, "], slot=[", slot_id, "]" )
 					
-					if not h then
+					if select( 3, GetContainerItemInfo( bag_id, slot_id ) ) then
 						
-						--ArkInventory.OutputDebug( "empty > ", bag_id, ".", slot_id )
+						--ArkInventory.Output( "locked > ", bag_id, ".", slot_id )
+						recheck = true -- this slot is locked, move on and check it again next time
 						
-						local ok, sb, ss = FindProfessionItem( loc_id, bt )
+					else
+					
+						local h = GetContainerItemLink( bag_id, slot_id )
 						
-						if ok then
-						
-							--ArkInventory.OutputDebug( "move> ", sb, ".", ss, " to ", bag_id, ".", slot_id )
+						if not h then
 							
-							ClearCursor( )
-							PickupContainerItem( sb, ss )
-							PickupContainerItem( bag_id, slot_id )
-							ClearCursor( )
+							--ArkInventory.OutputDebug( "empty > ", bag_id, ".", slot_id )
+							
+							local ok, sb, ss = FindProfessionItem( loc_id, bt )
+							
+							if ok then
+							
+								--ArkInventory.OutputDebug( "move> ", sb, ".", ss, " to ", bag_id, ".", slot_id )
+								
+								ClearCursor( )
+								PickupContainerItem( sb, ss )
+								PickupContainerItem( bag_id, slot_id )
+								ClearCursor( )
+								
+							end
 							
 						end
 						

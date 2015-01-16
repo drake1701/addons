@@ -1,7 +1,7 @@
 ﻿
 --[[
 輕描半面妝 米奈希爾 TW伺服器 2014-2-20 早期翻譯
- 2014.11.8 kptit _ 重庆铜梁 for v3.1.5  (补充补分汉化)
+ 2014.11.8 kptit _ 重庆铜梁 for v3.1.8  (补充补分简体汉化)
 ]]
 
 local _,L = ...
@@ -9,6 +9,9 @@ if GetLocale()=="zhCN" then
 --附加的
 L["Rematch"] = "宠物组合"
 L["Rematch version "] = "Rematch版本："
+
+-- 3.1.8:
+L["Without Any 25s"] = "未满25级"
 
 -- 3.1.4:
 L["Only Level 25s"] = "仅25级的"
@@ -233,8 +236,8 @@ L["Not Tradable"] = "不可交易"
 L["Can Battle"] = "可对战"
 L["Can't Battle"] = "不能对战"
 L["1 Pet"] = "已收集1/3"
-L["2 Pets"] = "已收集2/3"
-L["3 Pets"] = "已收集3/3"
+L["2+ Pets"] = "已收集2/3"
+L["3+ Pets"] = "已收集3/3"
 L["Put Leveling Pet Here"] = "设为升级栏"
 L["Empty Slot"] = "空槽"
 L["Move to Top"] = "移至顶部"

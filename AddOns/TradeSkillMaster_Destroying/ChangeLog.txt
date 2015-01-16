@@ -1,3 +1,23 @@
+v2.1.10
+*Removed some debug code.
+
+v2.1.9
+*Fixed some bugs with the previous version.
+
+v2.1.8
+*Fixed a bug with non-English clients.
+
+v2.1.7
+*Bug Fix on last commit.
+
+v2.1.6
+*Fix issue with milling / prospecting item detection.
+
+v2.1.5
+*Added an option to only display disenchantable items where the disenchant value is above a custom price.
+*Added an option to only display disenchantable items where the disenchant value is above the Vendor Sell price.
+*Fixed typo.
+
 v2.1.4
 *Changed method for determining if prospectable / millable due to Blizzard removing it from tooltips.
 

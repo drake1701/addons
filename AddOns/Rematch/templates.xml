@@ -235,6 +235,11 @@
 		</Layers>
 		<HighlightTexture file="Interface\AddOns\Rematch\textures\button-border" alphaMode="ADD"/>
 		<Scripts>
+			<OnLoad>
+				if self.defaultIcon then
+					self.icon:SetTexture(self.defaultIcon)
+				end
+			</OnLoad>
 			<PreClick>
 				Rematch.HideDialogs()
 			</PreClick>
@@ -614,7 +619,6 @@
 						<Anchor point="RIGHT" relativePoint="LEFT" x="0" y="1"/>
 					</Anchors>
 					<TexCoords left="0" right="0.0625" top="0" bottom="0.625"/>
-					<Color r=".75" g=".75" b=".75"/>
 				</Texture>
 				<Texture parentKey="right" file="Interface\Common\Common-Input-Border">
 					<Size x="8" y="20"/>
@@ -622,7 +626,6 @@
 						<Anchor point="LEFT" relativePoint="RIGHT" x="0" y="1"/>
 					</Anchors>
 					<TexCoords left="0.9375" right="1.0" top="0" bottom="0.625"/>
-					<Color r=".75" g=".75" b=".75"/>
 				</Texture>
 				<Texture file="Interface\Common\Common-Input-Border">
 					<Size x="10" y="20"/>
@@ -631,7 +634,6 @@
 						<Anchor point="RIGHT" relativeKey="$parent.right" relativePoint="LEFT"/>
 					</Anchors>
 					<TexCoords left="0.0625" right="0.9375" top="0" bottom="0.625"/>
-					<Color r=".75" g=".75" b=".75"/>
 				</Texture>
 			</Layer>
 		</Layers>

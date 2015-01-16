@@ -186,19 +186,19 @@
 								<Anchor point="LEFT" x="7" y="0"/>
 							</Anchors>
 						</FontString>
-						<Texture parentKey="sorted" file="Interface\Common\UI-ModelControlPanel">
-							<Size x="14" y="14"/>
+						<Texture parentKey="sorted" file="Interface\Minimap\Minimap-QuestArrow">
+							<Size x="16" y="16"/>
 							<Anchors>
 								<Anchor point="LEFT" relativeKey="$parent.sortLabel" relativePoint="RIGHT" x="-1" y="0"/>
 							</Anchors>
-							<TexCoords left="0.01562500" right="0.26562500" top="0.13281250" bottom="0.00781250"/>
+							<TexCoords left="0.075" right="0.925" top="0.075" bottom="0.925"/>
 						</Texture>
-						<Texture parentKey="rotate" file="Interface\Common\UI-ModelControlPanel">
-							<Size x="14" y="14"/>
+						<Texture parentKey="rotate" file="Interface\Minimap\ObjectIcons">
+							<Size x="16" y="16"/>
 							<Anchors>
-								<Anchor point="CENTER" x="6" y="0"/>
+								<Anchor point="LEFT" relativeKey="$parent.sorted" relativePoint="RIGHT" x="-3" y="0"/>
 							</Anchors>
-							<TexCoords left="0.01562500" right="0.26562500" top="0.13281250" bottom="0.00781250"/>
+							<TexCoords left="0.375" right="0.5" top="0.25" bottom="0.375"/>
 						</Texture>
 					</Layer>
 				</Layers>
@@ -210,7 +210,7 @@
 						<Scripts>
 							<OnClick>
 								Rematch:HideMenu()
-								Rematch.ClearQueueSortAndRotate(self)
+								Rematch.ClearQueueSort(self)
 							</OnClick>
 						</Scripts>
 					</Button>
@@ -256,13 +256,13 @@
 							<!-- top will be anchored in UpdateQueueList() -->
 							<Anchor point="BOTTOMLEFT" x="0" y="-2"/>
 						</Anchors>
-<!--						<Layers>
+						<Layers>
 							<Layer level="OVERLAY">
 								<Texture setAllPoints="true">
-									<Color r="1" g="1" b="1" a=".25"/>
+									<Color r="1" g="1" b="1" a="0"/>
 								</Texture>
 							</Layer>
-						</Layers> -->
+						</Layers>
 						<Scripts>
 							<OnEnter>
 								Rematch.QueueListOnEnter(self)

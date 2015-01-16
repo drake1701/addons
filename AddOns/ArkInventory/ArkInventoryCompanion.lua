@@ -939,6 +939,9 @@ local TempData = { -- temporary table for item to spell translations.
 [118675]={cid=7546}, -- Time-Locked Box / Bronze Whelpling
 -- pets up to patch 6.0.2
 
+[118106]={cid=86716}, -- Crimson Spore
+[118104]={cid=86717}, -- Umbrafen Spore
+
 }
 
 

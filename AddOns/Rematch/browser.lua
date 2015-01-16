@@ -211,12 +211,19 @@ function rematch:UpdateBrowserList()
 				if health<1 and maxHealth>0 then
 					button.dead:Show()
 				end
-		    button.icon:SetDesaturated(false)
+				-- color unsummonable/revoked pets and half-alpha their buttons
+				if (health>0 and not C_PetJournal.PetIsSummonable(petID)) or C_PetJournal.PetIsRevoked(petID) then
+					button.icon:SetDesaturated(true)
+					button.icon:SetVertexColor(1,0,0)
+				else
+					button.icon:SetDesaturated(false)
+					button.icon:SetVertexColor(1,1,1)
+				end
 		    button.type:SetDesaturated(false)
 		    button.name:SetTextColor(1,.82,.2)
 				button.leveling:SetShown(rematch:IsPetLeveling(petID))
-				if rematch.breedable then
-					button.breed:SetText(GetBreedID_Journal(petID) or "")
+				if rematch.breedSource then
+					button.breed:SetText(rematch:GetBreed(petID))
 					button.name:SetPoint("BOTTOMRIGHT",-24,2)
 				else
 					button.breed:SetText("")
@@ -244,12 +251,6 @@ function rematch:UpdateBrowserList()
 
 	end
 	HybridScrollFrame_Update(scrollFrame, 28*numData, 28)
-end
-
-function rematch:BrowserPetOnDrag()
-	if self.petID then
-		C_PetJournal.PickupPet(self.petID)
-	end
 end
 
 function rematch:ResetAllBrowserFilters()

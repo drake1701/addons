@@ -5,6 +5,8 @@ local _,L = ...
 local rematch = Rematch
 local card = RematchFloatingPetCard
 
+rematch.breedNames = {nil,nil,"B/B","P/P","S/S","H/H","H/P","P/S","H/S","P/B","S/B","H/B"}
+
 do
 	card.back.damageTaken:SetText(L["Damage Taken"])
 	card.back.weakFrom:SetText(L["from"])
@@ -12,8 +14,8 @@ do
 	card.back.strongFrom:SetText(L["from"])
 	card.back.strongAbilities:SetText(L["abilities"])
 	card.main.slotted:SetText(L["This pet is currently slotted."])
+	card.isleveling:SetText(L["When this team loads, your active leveling pet will go in this spot."])
 end
-
 
 -- desturates floating pet cards that are not owned
 local function SetCardDesaturate(desat)
@@ -58,34 +60,60 @@ function rematch:ShowFloatingPetCard(petID,relativeTo,fromBrowser)
 		petID = nil
 		realName,icon,petType,creatureID,sourceText,description,_,canBattle,tradable,unique = C_PetJournal.GetPetInfoBySpeciesID(speciesID)
 	else
-		return
+		realName = L["Leveling Pet"]
+		icon = rematch.levelingIcon
 	end
 
 	card.petID = petID or speciesID
 
-	card.back.source:SetText(format("%s%s%s",sourceText,tradable and "" or "\n\124cffff0000"..BATTLE_PET_NOT_TRADABLE,unique and "\n\124cffffd200"..ITEM_UNIQUE or ""))
-	card.back.description:SetText(description)
-
-	local model = card.model
-	if displayID and displayID~=0 then
-		if ( displayID ~= model.displayID ) then
-			model.creatureID = nil
-			model.displayID = displayID
-			model:SetDisplayInfo(displayID)
-			model:SetDoBlend(false)
-		end
-	elseif creatureID and creatureID~=0 then
-		if ( creatureID ~= model.creatureID ) then
-			model.creatureID = creatureID
-			model.displayID = nil
-			model:SetCreature(creatureID)
-			model:SetDoBlend(false)
-		end
+	if petID~=0 then -- leveling pets have no back of card
+		card.back.source:SetText(format("%s%s%s",sourceText,tradable and "" or "\n\124cffff0000"..BATTLE_PET_NOT_TRADABLE,unique and "\n\124cffffd200"..ITEM_UNIQUE or ""))
+		card.back.description:SetText(description)
+		-- set vulnerabilities
+		card.back.strongType:SetTexture("Interface\\PetBattles\\PetIcon-"..PET_TYPE_SUFFIX[rematch.vulnerabilities[petType][1]])
+		card.back.weakType:SetTexture("Interface\\PetBattles\\PetIcon-"..PET_TYPE_SUFFIX[rematch.vulnerabilities[petType][2]])
+		card.titleCapture:EnableMouse(true)
+	else
+		card.back:Hide()
+		card.titleCapture:EnableMouse(false)
 	end
+
+	local model
+	if petID==0 then
+		model = card.levelingModel
+		model:SetModel("Interface\\Buttons\\talktomequestion_ltblue.m2")
+		model:SetModelScale(2.5)
+		card.model:Hide()
+	else
+		model = card.model
+		if displayID and displayID~=0 then
+			if ( displayID ~= model.displayID ) then
+				model.creatureID = nil
+				model.displayID = displayID
+				model:SetDisplayInfo(displayID)
+				model:SetDoBlend(false)
+			end
+		elseif creatureID and creatureID~=0 then
+			if ( creatureID ~= model.creatureID ) then
+				model.creatureID = creatureID
+				model.displayID = nil
+				model:SetCreature(creatureID)
+				model:SetDoBlend(false)
+			end
+		end
+		card.levelingModel:Hide()
+	end
+	model:Show()
 	model:SetAnimation(0)
 
 	SetPortraitToTexture(card.icon.icon,icon)
-	card.petType.icon:SetTexture("Interface\\PetBattles\\PetIcon-"..PET_TYPE_SUFFIX[petType])
+	if petID==0 then
+		card.petType.icon:SetTexCoord(0,1,0,1)
+		SetPortraitToTexture(card.petType.icon,"Interface\\Icons\\Garrison_Building_Menagerie")
+	else
+		card.petType.icon:SetTexCoord(0.4921875,0.796875,0.50390625,0.65625)
+		card.petType.icon:SetTexture("Interface\\PetBattles\\PetIcon-"..PET_TYPE_SUFFIX[petType])
+	end
 	card.name:SetText(customName or realName)
 
 	if customName then
@@ -113,7 +141,11 @@ function rematch:ShowFloatingPetCard(petID,relativeTo,fromBrowser)
 		for i=1,#rematch.abilityList do
 			local _,name, icon, _, description, _, abilityType, noHints = C_PetBattles.GetAbilityInfoByID(rematch.abilityList[i])
 			local index = tostring(i)
-			card.abilities[index].type:SetTexture("Interface\\PetBattles\\PetIcon-"..PET_TYPE_SUFFIX[abilityType])
+			if RematchSettings.RealAbilityIcons then
+				card.abilities[index].type:SetTexture(icon)
+			else
+				card.abilities[index].type:SetTexture("Interface\\PetBattles\\PetIcon-"..PET_TYPE_SUFFIX[abilityType])
+			end
 			card.abilities[index].name:SetText(name)
 			card.abilities[index].abilityID = rematch.abilityList[i]
 			card.abilities[index].searchHit:Hide()
@@ -131,6 +163,7 @@ function rematch:ShowFloatingPetCard(petID,relativeTo,fromBrowser)
 			end
 		end
 		card.cantbattle:Hide()
+		card.isleveling:Hide()
 		card.abilities:Show()
 		if petID then -- this is a pet we own with actual stats
 
@@ -158,9 +191,8 @@ function rematch:ShowFloatingPetCard(petID,relativeTo,fromBrowser)
 			card.stats.quality:SetText(_G["BATTLE_PET_BREED_QUALITY"..rarity])
 			card.stats.quality:SetVertexColor(color.r,color.g,color.b)
 
-			if rematch.breedable then
-				local breed = GetBreedID_Journal(petID) or ""
-				card.stats.breed:SetText(GetBreedID_Journal(petID) or "")
+			if rematch.breedSource then
+				card.stats.breed:SetText(rematch:GetBreed(petID))
 				card.stats.breed:Show()
 				card.stats.breedIcon:Show()
 			end
@@ -196,19 +228,13 @@ function rematch:ShowFloatingPetCard(petID,relativeTo,fromBrowser)
 		end
 
 	else -- this pet can't battle
-		if petID then
-			SetCardDesaturate(false)
-		else
-			SetCardDesaturate(true)
-		end
+		SetCardDesaturate(not petID)
 		card.abilities:Hide()
 		card.stats:Hide()
-		card.cantbattle:Show()
+		card.cantbattle:SetShown(petID~=0)
+		card.isleveling:SetShown(petID==0)
+		card.main.slotted:Hide()
 	end
-
-	-- set vulnerabilities
-	card.back.strongType:SetTexture("Interface\\PetBattles\\PetIcon-"..PET_TYPE_SUFFIX[rematch.vulnerabilities[petType][1]])
-	card.back.weakType:SetTexture("Interface\\PetBattles\\PetIcon-"..PET_TYPE_SUFFIX[rematch.vulnerabilities[petType][2]])
 
 	card:Show()
 end
@@ -257,9 +283,7 @@ end
 
 ]]
 
-rematch.breedNames = {nil,nil,"B/B","P/P","S/S","H/H","H/P","P/S","H/S","P/B","S/B","H/B"}
-
-function rematch:GetBreedName(breed)
+function rematch:GetBPBIDBreedName(breed)
 	if BPBID_Options.format==1 then
 		return breed
 	elseif BPBID_Options.format==2 then
@@ -277,16 +301,11 @@ function rematch:ShowBreedTable()
 	local speciesID = type(card.petID)=="string" and C_PetJournal.GetPetInfoByPetID(card.petID) or card.petID
 	local currentBreed = card.stats.breed:IsVisible() and card.stats.breed:GetText()
 
-	if not rematch.breedable or not speciesID or not select(8,C_PetJournal.GetPetInfoBySpeciesID(speciesID)) then
+	if not rematch.breedSource or not speciesID or not select(8,C_PetJournal.GetPetInfoBySpeciesID(speciesID)) then
 		return -- leave if BPBID not loaded, invalid species or pet can't battle
 	end
-	if not BPBID_Arrays.BreedsPerSpecies then
-		BPBID_Arrays.InitializeArrays()
-	end
-
 	card.main.blackout:SetAlpha(1) -- darken main area so table stands out
 
-	local data = BPBID_Arrays
 	local row = card.main.breedTable.row
 
 	for i=1,10 do
@@ -294,31 +313,62 @@ function rematch:ShowBreedTable()
 	end
 	card.main.breedTable.highlight:Hide()
 
-	local numBreeds
-	if data.BreedsPerSpecies[speciesID] then
-		numBreeds = #data.BreedsPerSpecies[speciesID]
-		for i=1,numBreeds do
-			local breed = data.BreedsPerSpecies[speciesID][i]
+	local info = rematch.info
+	rematch:FillBreedTable(speciesID,info)
+
+	if #info>0 then -- breeds are known
+		for i=1,#info do
 			row[i]:Show()
-			local breedText = rematch:GetBreedName(breed)
-			row[i].breed:SetText(breedText)
-			if breedText==currentBreed then
+			row[i].breed:SetText(info[i][1])
+			if info[i][1]==currentBreed then
 				card.main.breedTable.highlight:SetPoint("BOTTOMLEFT",row[i],"BOTTOMLEFT")
 				card.main.breedTable.highlight:Show()
 			end
-			row[i].health:SetText(ceil((data.BasePetStats[speciesID][1] + data.BreedStats[breed][1]) * 25 * ((data.RealRarityValues[4] - 0.5) * 2 + 1) * 5 + 100 - 0.5))
-			row[i].power:SetText(ceil((data.BasePetStats[speciesID][2] + data.BreedStats[breed][2]) * 25 * ((data.RealRarityValues[4] - 0.5) * 2 + 1) - 0.5))
-			row[i].speed:SetText(ceil((data.BasePetStats[speciesID][3] + data.BreedStats[breed][3]) * 25 * ((data.RealRarityValues[4] - 0.5) * 2 + 1) - 0.5))
+			row[i].health:SetText(info[i][2])
+			row[i].power:SetText(info[i][3])
+			row[i].speed:SetText(info[i][4])
 		end
-	end
-	if not numBreeds or numBreeds==0 then
+		card.main.breedTable.title:SetText(rematch.breedSource=="PetTracker_Breeds" and L["\124cffddddddPossible Breeds"] or L["\124cffddddddPossible level 25 \124cff0070ddRares"])
+		card.main.breedTable:SetHeight(44+#info*14)
+	else
 		card.main.breedTable.title:SetText(L["No breeds known :("])
 		card.main.breedTable:SetHeight(44)
-	else
-		card.main.breedTable.title:SetText(L["\124cffddddddPossible level 25 \124cff0070ddRares"])
-		card.main.breedTable:SetHeight(44+numBreeds*14)
 	end
 	card.main.breedTable:Show()
+end
+
+-- takes a table (breeds) and fills it with all known breeds and their stats as a 25 rare: { breedName, health, power, speed }
+function rematch:FillBreedTable(speciesID,breeds)
+	wipe(breeds)
+	if rematch.breedSource=="BattlePetBreedID" then
+		if not BPBID_Arrays.BreedsPerSpecies then
+			BPBID_Arrays.InitializeArrays()
+		end
+		local data,numBreeds = BPBID_Arrays
+		if data.BreedsPerSpecies[speciesID] then
+			for i=1,#data.BreedsPerSpecies[speciesID] do
+				local breed = data.BreedsPerSpecies[speciesID][i]
+				local breedText = rematch:GetBPBIDBreedName(breed)
+				local health = ceil((data.BasePetStats[speciesID][1] + data.BreedStats[breed][1]) * 25 * ((data.RealRarityValues[4] - 0.5) * 2 + 1) * 5 + 100 - 0.5)
+				local power = ceil((data.BasePetStats[speciesID][2] + data.BreedStats[breed][2]) * 25 * ((data.RealRarityValues[4] - 0.5) * 2 + 1) - 0.5)
+				local speed = ceil((data.BasePetStats[speciesID][3] + data.BreedStats[breed][3]) * 25 * ((data.RealRarityValues[4] - 0.5) * 2 + 1) - 0.5)
+				tinsert(breeds,{breedText,health,power,speed})
+			end
+		end
+	elseif rematch.breedSource=="LibPetBreedInfo-1.0" then
+		local lib = rematch.breedLib
+		for _,breed in pairs(lib:GetAvailableBreeds(speciesID)) do
+			tinsert(breeds,{lib:GetBreedName(breed),lib:GetPetPredictedStats(speciesID,breed,4,25)})
+		end
+	elseif rematch.breedSource=="PetTracker_Breeds" then
+		for _,breed in pairs(PetTracker.Breeds[speciesID]) do
+			local health, power, speed = unpack(PetTracker.BreedStats[breed])
+			health = health*50
+			power = power*50
+			speed = speed*50
+			tinsert(breeds,{(PetTracker:GetBreedIcon(breed,.85)),health>0 and format("%d%%",health) or "-    ",power>0 and format("%d%%",power) or "-    ",speed>0 and format("%d%%",speed) or "-    "})
+		end
+	end
 end
 
 function rematch:HideBreedTable()

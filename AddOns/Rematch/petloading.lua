@@ -86,6 +86,11 @@ function rematch:LoadTeam(teamName)
 	local team = saved[teamName]
 	if not team then return end
 
+	if C_PetBattles.GetPVPMatchmakingInfo() then -- can't load teams while queued or in a pvp battle
+		local info = ChatTypeInfo["SYSTEM"]
+		print(format("\124cff%02x%02x%02x",info.r*255, info.g*255, info.b*255)..ERR_PETBATTLE_NOT_WHILE_IN_MATCHED_BATTLE)
+		return
+	end
 	if InCombatLockdown() or C_PetBattles.IsInBattle() then
 		rematch.teamNeedsLoaded = teamName
 		return
@@ -107,21 +112,15 @@ function rematch:LoadTeam(teamName)
 		wipe(loadin[i])
 	end
 
-	local levelingAllocated
+	local levelingPickIndex = 1
 
 	-- fill loadin from the team
 	for i=1,3 do
 		local petID = team[i][1]
-		if petID==0 and not levelingAllocated then
-			local levelingPetID = rematch:GetCurrentLevelingPet()
-			if levelingPetID then
-				loadin[i][1] = levelingPetID
-			elseif settings.EmptyMissing then
-				loadin[i][1] = rematch.emptyPetID
-			end
-			levelingAllocated = true
-		elseif not petID or petID==rematch.emptyPetID then
-			loadin[i][1] = rematch.emptyPetID
+		local levelingPick = rematch:GetLevelingPick(levelingPickIndex)
+		if petID==0 and levelingPick then
+			loadin[i][1] = levelingPick
+			levelingPickIndex = levelingPickIndex + 1
 		elseif type(petID)=="string" then
 			if not C_PetJournal.PetIsRevoked(petID) then
 				loadin[i][1] = petID
@@ -137,7 +136,7 @@ function rematch:LoadTeam(teamName)
 		end
 	end
 
-	-- nil any empty slots if we're on a WoD client
+	-- nil any empty slots for legacy teams (no longer possible in WoD)
 	for i=1,3 do
 		if loadin[i][1]==rematch.emptyPetID then
 			loadin[i][1] = nil
@@ -266,6 +265,8 @@ function rematch:LoadingDone(unsuccessful)
 		end
 	end
 
+	rematch:ProcessQueue() -- team change may mean leveling pet preferences changed
+
 end
 
 function rematch:ShowMissingDialog(teamName)
@@ -277,7 +278,7 @@ function rematch:ShowMissingDialog(teamName)
 		dialog.team:SetPoint("TOP",0,-24)
 		dialog.team:Show()
 
-		rematch:FillPetFramesFromTeam(dialog.team.pets,team)
+		rematch:FillPetFramesFromTeam(dialog.team.pets,team,teamName)
 
 		-- show a red leveling border around missing pets
 		for i=1,3 do

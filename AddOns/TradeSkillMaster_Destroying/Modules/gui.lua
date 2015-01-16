@@ -11,9 +11,9 @@ local TSM = select(2, ...)
 local GUI = TSM:NewModule("GUI", "AceEvent-3.0")
 
 -- loads the localization table --
-local L = LibStub("AceLocale-3.0"):GetLocale("TradeSkillMaster_Destroying") 
+local L = LibStub("AceLocale-3.0"):GetLocale("TradeSkillMaster_Destroying")
 
-local private = {data={}, ignore={}}
+local private = { data = {}, ignore = {} }
 TSMAPI:RegisterForTracing(private, "TSM_Destroying.GUI_private")
 
 
@@ -33,6 +33,10 @@ function GUI:ShowFrame()
 	private:UpdateST(true)
 end
 
+function GUI:UpdateST(forceShow)
+	private:UpdateST(forceShow)
+end
+
 function private:CreateDestroyingFrame()
 	local frameDefaults = {
 		x = 850,
@@ -44,38 +48,38 @@ function private:CreateDestroyingFrame()
 	local frame = TSMAPI:CreateMovableFrame("TSMDestroyingFrame", frameDefaults)
 	frame:SetFrameStrata("HIGH")
 	TSMAPI.Design:SetFrameBackdropColor(frame)
-	
+
 	local title = TSMAPI.GUI:CreateLabel(frame)
 	title:SetText("TSM_Destroying")
 	title:SetPoint("TOPLEFT")
 	title:SetPoint("TOPRIGHT")
 	title:SetHeight(20)
-	
+
 	local line = TSMAPI.GUI:CreateVerticalLine(frame, 0)
 	line:ClearAllPoints()
 	line:SetPoint("TOPRIGHT", -25, -1)
 	line:SetWidth(2)
 	line:SetHeight(22)
-	
+
 	local closeBtn = TSMAPI.GUI:CreateButton(frame, 18)
 	closeBtn:SetPoint("TOPRIGHT", -3, -3)
 	closeBtn:SetWidth(19)
 	closeBtn:SetHeight(19)
 	closeBtn:SetText("X")
 	closeBtn:SetScript("OnClick", function()
-			if InCombatLockdown() then return end
-			TSM:Print(L["Hiding frame for the remainder of this session. Typing '/tsm destroy' will open the frame again."])
-			private.hidden = true
-			frame:Hide()
-		end)
-	
+		if InCombatLockdown() then return end
+		TSM:Print(L["Hiding frame for the remainder of this session. Typing '/tsm destroy' will open the frame again."])
+		private.hidden = true
+		frame:Hide()
+	end)
+
 	TSMAPI.GUI:CreateHorizontalLine(frame, -23)
-	
+
 	local stContainer = CreateFrame("Frame", nil, frame)
 	stContainer:SetPoint("TOPLEFT", 0, -25)
 	stContainer:SetPoint("BOTTOMRIGHT", 0, 30)
 	TSMAPI.Design:SetFrameColor(stContainer)
-	
+
 	local stCols = {
 		{
 			name = L["Item"],
@@ -119,30 +123,30 @@ function private:CreateDestroyingFrame()
 	st:SetData({})
 	st:DisableSelection(true)
 	frame.st = st
-	
+
 	local destroyBtn = TSMAPI.GUI:CreateButton(frame, 14, "TSMDestroyButton", true)
 	destroyBtn:SetPoint("BOTTOMLEFT", 3, 3)
-	destroyBtn:SetPoint("BOTTOMRIGHT",  -3, 3)
+	destroyBtn:SetPoint("BOTTOMRIGHT", -3, 3)
 	destroyBtn:SetHeight(20)
 	destroyBtn:SetText(L["Destroy Next"])
 	destroyBtn:SetAttribute("type1", "macro")
 	destroyBtn:SetAttribute("macrotext1", "")
 	destroyBtn:SetScript("PreClick", function()
-			if not destroyBtn:IsVisible() or #private.data == 0 then
-				destroyBtn:SetAttribute("macrotext1", "")
-			else
-				local data = private.data[1]
-				private.tempData = data
-				destroyBtn:SetAttribute("macrotext1", format("/cast %s;\n/use %d %d", data.spell, data.bag, data.slot))
-				destroyBtn:Disable()
-				TSMAPI:CancelFrame("destroyEnableDelay")
-				TSMAPI:CreateTimeDelay("destroyEnableDelay", 3, function() if not UnitCastingInfo("player") and not LootFrame:IsVisible() then destroyBtn:Enable() end end)
-				private.highStack = data.numDestroys > 1
-				private.currentSpell = data.spell
-			end
-		end)
+		if not destroyBtn:IsVisible() or #private.data == 0 then
+			destroyBtn:SetAttribute("macrotext1", "")
+		else
+			local data = private.data[1]
+			private.tempData = data
+			destroyBtn:SetAttribute("macrotext1", format("/cast %s;\n/use %d %d", data.spell, data.bag, data.slot))
+			destroyBtn:Disable()
+			TSMAPI:CancelFrame("destroyEnableDelay")
+			TSMAPI:CreateTimeDelay("destroyEnableDelay", 3, function() if not UnitCastingInfo("player") and not LootFrame:IsVisible() then destroyBtn:Enable() end end)
+			private.highStack = data.numDestroys > 1
+			private.currentSpell = data.spell
+		end
+	end)
 	frame.destroyBtn = destroyBtn
-	
+
 	return frame
 end
 
@@ -153,17 +157,17 @@ function private:Stack()
 		local spell, perDestroy = TSM:IsDestroyable(itemString)
 		if spell and quantity % perDestroy ~= 0 and not private.ignore[itemString] and not TSM.db.global.ignore[itemString] then
 			partialStacks[itemString] = partialStacks[itemString] or {}
-			tinsert(partialStacks[itemString], {bag, slot})
+			tinsert(partialStacks[itemString], { bag, slot })
 		end
 	end
-	
+
 	for itemString, locations in pairs(partialStacks) do
-		for i=#locations, 2, -1 do
+		for i = #locations, 2, -1 do
 			local quantity = select(2, GetContainerItemInfo(unpack(locations[i])))
 			local maxStack = select(8, GetItemInfo(itemString))
 			if quantity == 0 or quantity == maxStack then break end
-			
-			for j=1, i-1 do
+
+			for j = 1, i - 1 do
 				local targetQuantity = select(2, GetContainerItemInfo(unpack(locations[j])))
 				if targetQuantity ~= maxStack then
 					PickupContainerItem(unpack(locations[i]))
@@ -182,40 +186,46 @@ function private:UpdateST(forceShow)
 		return
 	end
 	if InCombatLockdown() then return end
-	
+
 	if TSM.db.global.autoStack then
 		private:Stack()
 	end
-	
+
 	local stData = {}
 	for bag, slot, itemString, quantity in TSMAPI:GetBagIterator(nil, TSM.db.global.includeSoulbound) do
 		if not private.ignore[itemString] and not TSM.db.global.ignore[itemString] then
 			local spell, perDestroy = TSM:IsDestroyable(itemString)
-			local link = GetContainerItemLink(bag, slot)
-			if spell and quantity >= perDestroy then
-				local row = {
-					cols = {
-						{
-							value = link,
+			local deValue = TSM:GetPrice("Disenchant", itemString)
+			local vendorSell = (TSM.db.global.deAboveVendor and TSM:GetPrice("VendorSell", itemString)) or 0
+			local customPrice = TSM:GetPrice(TSM.db.global.deCustomPrice, itemString) or 0
+			local deSpellName = GetSpellInfo(TSM.spells.disenchant)
+			if spell ~= deSpellName or not deValue or (spell == deSpellName and (deValue and deValue >= customPrice and deValue >= vendorSell)) then
+				local link = GetContainerItemLink(bag, slot)
+				if spell and quantity >= perDestroy then
+					local row = {
+						cols = {
+							{
+								value = link,
+							},
+							{
+								value = quantity
+							},
 						},
-						{
-							value = quantity
-						},
-					},
-					itemString = itemString,
-					link = link,
-					quantity = quantity,
-					bag = bag,
-					slot = slot,
-					spell = spell,
-					perDestroy = perDestroy,
-					numDestroys = floor(quantity/perDestroy),
-				}
-				tinsert(stData, row)
+						itemString = itemString,
+						link = link,
+						quantity = quantity,
+						bag = bag,
+						slot = slot,
+						spell = spell,
+						perDestroy = perDestroy,
+						numDestroys = floor(quantity / perDestroy),
+					}
+					tinsert(stData, row)
+				end
 			end
 		end
 	end
-	
+
 	if #stData == 0 then
 		if forceShow then
 			TSM:Print(L["Nothing to destroy in your bags."])
@@ -240,7 +250,7 @@ end
 
 function private:LootOpened()
 	if not private.currentSpell then return end
-	local temp = {result={}, time=time()}
+	local temp = { result = {}, time = time() }
 	for bag, slot, itemString, quantity, locked in TSMAPI:GetBagIterator(nil, TSM.db.global.includeSoulbound) do
 		if locked and TSM:IsDestroyable(itemString) then
 			temp.item = itemString
@@ -248,12 +258,15 @@ function private:LootOpened()
 		end
 	end
 	if temp.item and GetNumLootItems() > 0 then
-		for i=1, GetNumLootItems() do
+		for i = 1, GetNumLootItems() do
 			local itemString = TSMAPI:GetItemString(GetLootSlotLink(i))
 			local quantity = select(3, GetLootSlotInfo(i)) or 0
 			if itemString and quantity > 0 then
 				temp.result[itemString] = quantity
 			end
+		end
+		if private.currentSpell == GetSpellInfo(TSM.spells.disenchant) then
+			temp.isDraenicEnchanting = TSM:HasDraenicEnchanting()
 		end
 		TSM.db.global.history[private.currentSpell] = TSM.db.global.history[private.currentSpell] or {}
 		tinsert(TSM.db.global.history[private.currentSpell], temp)

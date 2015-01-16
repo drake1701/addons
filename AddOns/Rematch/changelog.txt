@@ -1,3 +1,53 @@
+01/10/2015 version 3.2.5
+- Fix for lua error on login from 3.2.3->3.2.4.
+
+01/10/2015 version 3.2.4
+- Improved recovery when the server assigns all new petIDs: teams and leveling queue will restore to same pets and breeds when their petID changes between sessions.
+- Fixed a bug preventing dragging a pet in the queue to the leveling slot.
+- Fixed a bug preventing Fill Queue More queue option from working.
+- Fixed a lua error when emptying/filling the queue if the journal had not been opened.
+
+01/07/2015 version 3.2.3
+- If a pet in the queue is dragged to a loadout slot, that pet will be raised to the top of the queue, and Full Sort turned off if it's on.
+- While you have a team for your current target already loaded, any mouseover targets are ignored for auto load purposes.
+- Added 'Start Leveling' back to pet menus for pets already in the queue, to move them to top of queue, if Full Sort isn't enabled.
+- Fixed a bug with the leveling icon sometimes not updating on journal pets when they're added or removed from queue.
+
+01/06/2015 version 3.2.2
+- Breed information can now be pulled from PetTracker_Breeds or LibPetBreedInfo, if BattlePet Breed ID isn't enabled.
+- Added a button to change the leveling pet when you mouseover a loaded pet that's also in the leveling slot.
+
+01/02/2015 version 3.2.1
+- New option 'Use actual ability icons' under Miscellaneous, to show the actual icons of abilities on pet cards instead of ability types.
+- Added a search box for icons when creating/editing a team tab.
+- While queued for a PVP battle, all automatic behavior is suspended and teams will not attempt to load.
+- If a team with leveling pets is loaded, adding pets to the queue will also load them to their intended slots if they don't already have a leveling pet.
+- Fix for error when last pet in the queue levels to 25 and leaves the queue.
+
+01/01/2015 version 3.2.0
+- Leveling queue rewritten and revamped:
+  - The pet in the leveling slot will be the top-most pet in the queue. Always.
+  - Support for multiple leveling pets on a team.
+  - When the queue is sorted, the top-most pet will remain in the top slot and the rest of the pets will sort.
+  - Auto Rotate is replaced with Full Sort, which will include the top-most pet in the sort.
+  - New Type sort for the queue to order by pet families.
+  - The gold Previous/Next buttons beneath loaded leveling pets have been removed.
+  - The forced-Auto Rotate behavior for Unsorted/Descending sorts has been removed.
+- New leveling pet preferences system:
+  - The queue now supports "skipping" pets in the queue to prefer some pets over others.
+  - Leveling preferences can be assigned to teams with at least one leveling pet: Minimum Health (or any Magic and Mechanical), and Maximum Level.
+  - New queue option 'Prefer Live Pets' to make the queue skip over dead pets and prefer loading live ones.
+  - New queue option 'No Preferences' to suspend all preferences.
+- New option 'Save leveling pets as themselves' in the leveling preferences when saving a loaded team with leveling pets: to save the pets directly without treating them as leveling pets.
+- Added more icon choices when creating/editing a team tab.
+- Set/Remove Favorite menu option added to most pet menus.
+- Leveling pets in saved teams have their own pet card.
+- Entering search text in the default journal while the pet browser is up will close Rematch.
+- Pets that are revoked or can't be summoned are colored red in the pet browser.
+- Fixed a bug where menus would not expand to the left if it was close to the right edge of the screen while 'Larger Window' option enabled.
+- Fixed a bug where renaming a team without changing the name would delete the team.
+- A couple new textures were added in this update. If you see neon green rectangles anywhere, exit the game and log back in.
+
 12/05/2014 version 3.1.8
 - Fixed a bug where renaming a team will delete its notes.
 - Pet filter by quantity now filters for 1, 2+ or 3+ Pets instead of 1, 2 or 3 Pets.

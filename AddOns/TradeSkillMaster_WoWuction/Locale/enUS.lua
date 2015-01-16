@@ -42,3 +42,7 @@ L["WoWuction Realm Market Value"] = true
 L["WoWuction Realm Median Price"] = true
 L["WoWuction Region Market Value"] = true
 L["WoWuction Region Median Price"] = true
+L["WoWuction Realm Market STD Deviation"] = true
+L["WoWuction Realm Median STD Deviation"] = true
+L["WoWuction Region Market STD Deviation"] = true
+L["WoWuction Region Median STD Deviation"] = true

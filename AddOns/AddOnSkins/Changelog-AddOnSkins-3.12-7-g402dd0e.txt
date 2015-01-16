@@ -1,0 +1,8 @@
+Azilroka:
+	- Fixed these Vars
+	- Altoholic
+	- Updating
+	- 3.121
+	- ArkInventory / Altoholic
+	- LightHeaded
+	- Author didn't account for Locale being too long.

@@ -1,4 +1,4 @@
---[[  There are over a dozen occasions to ask a user to confirm something:
+--[[  There are over two dozen occasions to ask a user to confirm something:
 			"Delete this tab?" "Load this team?" "Choose a name and icon" etc.
 			Instead of creating separate dialogs, one common dialog is used with
 			common elements that functions can repurpose for its use.
@@ -15,6 +15,9 @@
 				warning: <Frame> alert icon with .text that resizes based on text
 				tabPicker: <RematchToolbarButtonTemplate> to switch team tabs
 				multiLine: <ScrollFrame> multi-line editbox
+				levelingPanel: <Frame> contains controls for setting leveling pet preferences (for save and set preferences dialogs)
+				panelToggle: <RematchToolbarButtonTemplate> to expand dialog panel (so far just levelingPanel)
+				levelingCarousel: <Frame> contains a carousel UI for choosing a leveling pet
 
 			For custom widgets:
 				- Make the dialog its direct parent
@@ -28,7 +31,7 @@ local dialog = rematch.dialog
 
 -- list of widget keys (ie dialog.slot) to unanchor/hide when a dialog is shown
 -- before calling function makes its changes.
-dialog.widgets = { "text", "slot", "editBox", "team", "warning", "tabPicker", "multiLine" }
+dialog.widgets = { "text", "slot", "editBox", "team", "warning", "tabPicker", "multiLine", "levelingPanel", "panelToggle", "levelingCarousel" }
 
 function rematch:InitDialog()
 	saved = RematchSaved
@@ -36,7 +39,6 @@ function rematch:InitDialog()
 	dialog.cancel.icon:SetTexture("Interface\\AddOns\\Rematch\\textures\\no")
 	dialog:SetFrameLevel(3)
 	dialog.blackout:SetFrameLevel(1)
-	dialog.backupTeam = {{},{},{}}
 end
 
 -- hides all the little popups and widgets
@@ -45,6 +47,7 @@ function rematch:HideDialogs()
 	rematch:HideFloatingPetCard(true)
 	RematchAbilityFlyout:Hide()
 	RematchTeamCard:Hide()
+	RematchAbilityCard:Hide()
 	dialog:Hide()
 end
 
@@ -91,6 +94,7 @@ function rematch:WipeDialog()
 	dialog.editBox:SetScript("OnTextChanged",nil)
 	dialog.editBox:SetText("")
 	dialog.editBox:SetWidth(160)
+	dialog.editBox:SetScript("OnTabPressed",nil)
 	dialog.multiLine.editBox:SetScript("OnTextChanged",nil)
 	dialog.multiLine.editBox:SetText("")
 	dialog.multiLine:SetSize(192,55)
@@ -107,7 +111,7 @@ end
 
 -- to create non-standard widgets (like iconPicker), create
 -- it as a key to rematch.dialog (ie rematch.dialog.iconPicker)
--- and rematch:RegisterWidget("iconPicker")
+-- and rematch:RegisterDialogWidget("iconPicker")
 function rematch:RegisterDialogWidget(name)
 	if type(name)=="string" and not tContains(dialog.widgets,name) then
 		tinsert(dialog.widgets,name)

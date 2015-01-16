@@ -1,6 +1,6 @@
 ﻿-- (c) 2006-2014, all rights reserved.
--- $Revision: 1285 $
--- $Date: 2014-12-21 16:40:14 +1100 (Sun, 21 Dec 2014) $
+-- $Revision: 1294 $
+-- $Date: 2015-01-07 14:57:02 +1100 (Wed, 07 Jan 2015) $
 
 
 local _G = _G
@@ -350,6 +350,10 @@ ArkInventory.Const = { -- constants
 				[445] = {
 					["id"] = "SYSTEM_TOY",
 					["text"] = ArkInventory.Localise["TOY"],
+				},
+				[446] = {
+					["id"] = "SYSTEM_NEW",
+					["text"] = ArkInventory.Localise["CONFIG_SETTINGS_ITEMS_NEW"],
 				},
 			},
 			Consumable = {
@@ -822,8 +826,12 @@ ArkInventory.Const = { -- constants
 			Name = ArkInventory.Localise["MENU_ACTION_REFRESH"],
 			Scripts = {
 				OnClick = function( self, button )
-					ArkInventory.Frame_Main_Level( self:GetParent( ):GetParent( ) )
-					ArkInventory.Frame_Main_Generate( nil, ArkInventory.Const.Window.Draw.Resort )
+					if button == "RightButton" then
+						ArkInventory.MenuRefreshOpen( self )
+					else
+						ArkInventory.Frame_Main_Level( self:GetParent( ):GetParent( ) )
+						ArkInventory.Frame_Main_Generate( nil, ArkInventory.Const.Window.Draw.Resort )
+					end
 				end,
 				OnEnter = function( self )
 					ArkInventory.GameTooltipSetText( self, ArkInventory.Localise["MENU_ACTION_REFRESH"] )
@@ -1493,6 +1501,12 @@ ArkInventory.Global = { -- globals
 		MOUNT = { },
 	},
 	
+	Masque = {
+		items = nil,
+	},
+	
+	NewItemResetTime = nil,
+	
 }
 
 ArkInventory.Config = {
@@ -1962,7 +1976,7 @@ ArkInventory.Const.DatabaseDefaults.profile = {
 					},
 					["ignorehidden"] = false,
 					["anchor"] = ArkInventory.Const.Anchor.BottomRight,
-					["new"] = {
+					["age"] = {
 						["show"] = false,
 						["colour"] = {
 							["r"] = 1,
@@ -1970,6 +1984,10 @@ ArkInventory.Const.DatabaseDefaults.profile = {
 							["b"] = 1,
 						},
 						["cutoff"] = 0,
+					},
+					["new"] = {
+						["enable"] = false,
+						["cutoff"] = 2,
 					},
 					["offline"] = {
 						["fade"] = true,
@@ -2105,6 +2123,7 @@ function ArkInventory.OnLoad( )
 	
 	--ArkInventory.Output( "OnLoad: ", debugprofilestop( ) )
 	
+	
 	ArkInventory.Const.Program.Version = 0 + GetAddOnMetadata( ArkInventory.Const.Program.Name, "Version" )
 	
 	ArkInventory.Global.Version = string.format( "v%s", string.gsub( ArkInventory.Const.Program.Version, "(%d-)(%d%d)(%d%d)$", "%1.%2.%3" ) )
@@ -2114,38 +2133,52 @@ function ArkInventory.OnLoad( )
 		ArkInventory.Global.Version = string.format( "%s %s(%s)%s", ArkInventory.Global.Version, RED_FONT_COLOR_CODE, releasetype, FONT_COLOR_CODE_CLOSE )
 	end
 	
-	local loc_id
+	local loc_id = 0
+	local bags
+	
 	
 	-- bags
 	loc_id = ArkInventory.Const.Location.Bag
-	table.insert( ArkInventory.Global.Location[loc_id].Bags, BACKPACK_CONTAINER )
+	bags = ArkInventory.Global.Location[loc_id].Bags
+	
+	bags[#bags + 1] = BACKPACK_CONTAINER
 	for x = 1, NUM_BAG_SLOTS do
-		table.insert( ArkInventory.Global.Location[loc_id].Bags, x )
+		bags[#bags + 1] = x
 	end
-	ArkInventory.Global.Location[loc_id].bagCount = #ArkInventory.Global.Location[loc_id].Bags
+	ArkInventory.Global.Location[loc_id].bagCount = #bags
+	
 	
 	-- bank
 	loc_id = ArkInventory.Const.Location.Bank
-	table.insert( ArkInventory.Global.Location[loc_id].Bags, BANK_CONTAINER )
+	bags = ArkInventory.Global.Location[loc_id].Bags
+	
+	bags[#bags + 1] = BANK_CONTAINER
 	for x = NUM_BAG_SLOTS + 1, NUM_BAG_SLOTS + NUM_BANKBAGSLOTS do
-		table.insert( ArkInventory.Global.Location[loc_id].Bags, x )
+		bags[#bags + 1] = x
 		--ArkInventory.Output( "added bag ", x, " to ", ArkInventory.Global.Location[loc_id].Name )
 	end
-	table.insert( ArkInventory.Global.Location[loc_id].Bags, REAGENTBANK_CONTAINER )
-	ArkInventory.Global.Location[loc_id].tabReagent = #ArkInventory.Global.Location[loc_id].Bags
-	ArkInventory.Global.Location[loc_id].bagCount = #ArkInventory.Global.Location[loc_id].Bags
-
+	bags[#bags + 1] = REAGENTBANK_CONTAINER
+	ArkInventory.Global.Location[loc_id].tabReagent = #bags
+	ArkInventory.Global.Location[loc_id].bagCount = #bags
+	
+	
 	-- vault
 	loc_id = ArkInventory.Const.Location.Vault
+	bags = ArkInventory.Global.Location[loc_id].Bags
+	
 	for x = 1, MAX_GUILDBANK_TABS do
-		table.insert( ArkInventory.Global.Location[loc_id].Bags, ArkInventory.Const.Offset.Vault + x )
+		bags[#bags + 1] = ArkInventory.Const.Offset.Vault + x
 	end
-	ArkInventory.Global.Location[loc_id].bagCount = #ArkInventory.Global.Location[loc_id].Bags
+	ArkInventory.Global.Location[loc_id].bagCount = #bags
+	
 	
 	-- mail
-	table.insert( ArkInventory.Global.Location[ArkInventory.Const.Location.Mail].Bags, ArkInventory.Const.Offset.Mail + 1 )
-	table.insert( ArkInventory.Global.Location[ArkInventory.Const.Location.Mail].Bags, ArkInventory.Const.Offset.Mail + 2 )
-	ArkInventory.Global.Location[loc_id].bagCount = #ArkInventory.Global.Location[loc_id].Bags
+	loc_id = ArkInventory.Const.Location.Mail
+	bags = ArkInventory.Global.Location[loc_id].Bags
+	for x = 1, 2 do
+		bags[#bags + 1] = ArkInventory.Const.Offset.Mail + x
+	end
+	ArkInventory.Global.Location[loc_id].bagCount = #bags
 	
 	-- wearing
 	table.insert( ArkInventory.Global.Location[ArkInventory.Const.Location.Wearing].Bags, ArkInventory.Const.Offset.Wearing + 1 )
@@ -2181,6 +2214,22 @@ function ArkInventory.OnLoad( )
 		table.insert( ArkInventory.Global.Location[ArkInventory.Const.Location.Void].Bags, ArkInventory.Const.Offset.Void + x )
 	end
 	
+	
+	
+	if IsAddOnLoaded( "Masque" ) then
+		
+--		ArkInventory.Output( "Masque: ", ArkInventory.Localise["ENABLED"] )
+		
+--		ArkInventory.Lib.Masque = LibStub( "Masque" )
+		
+--		ArkInventory.Global.Masque.item = ArkInventory.Lib.Masque:Group( "ArkInventory" )
+		
+--		ArkInventory.Lib.Masque:Register( "ArkInventory", ArkInventory.MasquePaint, ArkInventory )
+		
+		
+		-- /run ArkInventory.Global.Masque.item:ReSkin( )
+	end
+
 end
 
 function ArkInventory.OnInitialize( )
@@ -2598,12 +2647,21 @@ function ArkInventory.Output( ... )
 	table.wipe( ArkInventory_TempOutputTable )
 	
 	local n = select( '#', ... )
-	for i = 1, n do
-		local v = select( i, ... )
-		ArkInventory_TempOutputTable[i] = ArkInventory.OutputSerialize( v )
-	end
 	
-	ArkInventory:Print( table.concat( ArkInventory_TempOutputTable ) )
+	if n == 0 then
+		
+		ArkInventory:Print( "nil" )
+		
+	else
+		
+		for i = 1, n do
+			local v = select( i, ... )
+			ArkInventory_TempOutputTable[i] = ArkInventory.OutputSerialize( v )
+		end
+		
+		ArkInventory:Print( table.concat( ArkInventory_TempOutputTable ) )
+		
+	end
 	
 end
 
@@ -3002,7 +3060,7 @@ function ArkInventory.SortingMethodCheck( )
 				end
 				
 				if not ok then
-					table.insert( data.order, s )
+					data.order[#data.order + 1] = s
 				end
 				
 			end
@@ -4614,6 +4672,8 @@ function ArkInventory.Frame_Main_Paint( frame )
 					
 				end
 				
+			else
+			
 			end
 			
 		end
@@ -4631,21 +4691,21 @@ function ArkInventory.Frame_Main_Paint_All( )
 	
 end
 
-function ArkInventory.Frame_Border_Paint( border, slot, file, size, offset, scale, r, g, b, a )
+function ArkInventory.Frame_Border_Paint( obj, slot, file, size, offset, scale, r, g, b, a )
 	
 	local otheroffset = 3
 	if slot then otheroffset = 0 end
 	
-	local parentname = border:GetParent( ):GetName( )
+	local parentname = obj:GetParent( ):GetName( )
 	
 	local offset = offset * scale
 	
-	border:SetBackdrop( { edgeFile = file, edgeSize = size * scale } )
-	border:SetBackdropBorderColor( r or 0, g or 0, b or 0, a or 1 )
+	obj:SetBackdrop( { edgeFile = file, edgeSize = size * scale } )
+	obj:SetBackdropBorderColor( r or 0, g or 0, b or 0, a or 1 )
 	
-	border:ClearAllPoints( )
-	border:SetPoint( "TOPLEFT", parentname, 0 - offset + otheroffset, offset - otheroffset )
-	border:SetPoint( "BOTTOMRIGHT", parentname, offset - otheroffset, 0 - offset + otheroffset )
+	obj:ClearAllPoints( )
+	obj:SetPoint( "TOPLEFT", parentname, 0 - offset + otheroffset, offset - otheroffset )
+	obj:SetPoint( "BOTTOMRIGHT", parentname, offset - otheroffset, 0 - offset + otheroffset )
 	
 end
 
@@ -5332,10 +5392,17 @@ function ArkInventory.Frame_Container_CalculateBars( frame, Layout )
 	local ignore = false
 	local hidden = false
 	local show_all = false
+	
 	if ArkInventory.Global.Mode.Edit or ArkInventory.LocationOptionGet( loc_id, "slot", "ignorehidden" ) then
 		-- show everything if in edit mode or the user wants us to ignore the hidden flag
 		show_all = true
 	end
+	
+	local new_shift = ArkInventory.LocationOptionGet( loc_id, "slot", "new", "enable" )
+	local new_cutoff = ArkInventory.TimeAsMinutes( ) - ArkInventory.LocationOptionGet( loc_id, "slot", "new", "cutoff" )
+	local new_reset = ArkInventory.Global.NewItemResetTime or new_cutoff
+	
+	-- /run ArkInventory.Global.NewItemResetTime = ArkInventory.TimeAsMinutes( )
 	
 	-- the basics, just stick the items into their appropriate bars (cpu intensive, so yield when in combat)
 	local yieldcount = 1
@@ -5356,7 +5423,11 @@ function ArkInventory.Frame_Container_CalculateBars( frame, Layout )
 			if not ignore then
 				
 				cat_id = ArkInventory.ItemCategoryGet( i )
-				--bar_id = filter.slot[bag_id][slot_id] or filter.slot[bag_id][0] or ArkInventory.CategoryLocationGet( loc_id, cat_id )
+				
+				if i.h and new_shift and i.age > new_reset and i.age > new_cutoff then
+					cat_id = ArkInventory.CategoryGetSystemID( "SYSTEM_NEW" )
+				end
+				
 				bar_id = ArkInventory.db.profile.option.location[loc_id].bag[bag_id].bar or ArkInventory.CategoryLocationGet( loc_id, cat_id )
 				
 				--ArkInventory.Output( "loc=[", loc_id, "], bag=[", bag_id, "], slot=[", slot_id, "], cat=[", cat_id, "], bar_id=[", bar_id, "]" )
@@ -5396,7 +5467,7 @@ function ArkInventory.Frame_Container_CalculateBars( frame, Layout )
 					end
 					
 					-- add the item to the bar
-					table.insert( Layout.bar[bar_id].item, { ["bag"] = bag_id, ["slot"] = slot_id } )
+					Layout.bar[bar_id].item[#Layout.bar[bar_id].item + 1] = { ["bag"] = bag_id, ["slot"] = slot_id }
 					
 					-- increment the bars item count
 					Layout.bar[bar_id].count = Layout.bar[bar_id].count + 1
@@ -5514,7 +5585,6 @@ function ArkInventory.Frame_Container_CalculateContainer( frame, Layout )
 					Layout.bar[j]["frame"] = bf
 					bf = bf + 1
 					bc = bc + 1
-					--table.insert( vr, j )
 					vr[bc] = j
 				else
 					--ArkInventory.Output( "bar [", j, "] has no items" )
@@ -5698,13 +5768,12 @@ function ArkInventory.Frame_Container_Draw( frame )
 		
 		for j = 1, ArkInventory.Global.Location[loc_id].maxBar do
 			
-			--local barframename = string.format( "%s%s", placeframename, j )
 			local barframename = string.format( "%sBar%s", frame:GetName( ), j )
 			local barframe = _G[barframename]
 			if not barframe then
-				--ArkInventory.Output( "creating bar [", barframename, "]" )
+				
 				barframe = CreateFrame( "Frame", barframename, frame, "ARKINV_TemplateFrameBar" )
-				--ArkInventory.Output( barframe:GetName( ), " / level = ", barframe:GetFrameLevel( ) )
+				
 			end
 			
 			ArkInventory.Frame_Bar_Paint( barframe )
@@ -5720,8 +5789,10 @@ function ArkInventory.Frame_Container_Draw( frame )
 			local bagframename = string.format( "%sBag%s", frame:GetName( ), bag_id )
 			local bagframe = _G[bagframename]
 			if not bagframe then
+				
 				--ArkInventory.Output( "creating bag frame [", bagframename, "]" )
 				bagframe = CreateFrame( "Frame", bagframename, frame, "ARKINV_TemplateFrameBag" )
+				
 			end
 			
 			-- remember the maximum number of slots used for each bag
@@ -5751,6 +5822,10 @@ function ArkInventory.Frame_Container_Draw( frame )
 						
 						itemframe = CreateFrame( "Button", tainteditemframename, bagframe, "ARKINV_TemplateButtonItemTainted" )
 						
+						if ArkInventory.Global.Masque.item then
+							ArkInventory.Global.Masque.item:AddButton( itemframe )
+						end
+						
 						ArkInventory.Global.Location[loc_id].tainted = true
 						
 						_G[itemframename] = itemframe
@@ -5760,6 +5835,10 @@ function ArkInventory.Frame_Container_Draw( frame )
 					else
 						
 						itemframe = CreateFrame( "Button", itemframename, bagframe, ArkInventory.Global.Location[loc_id].template or "ARKINV_TemplateButtonViewOnlyItem" )
+						
+						if ArkInventory.Global.Masque.item then
+							ArkInventory.Global.Masque.item:AddButton( itemframe )
+						end
 						
 						ArkInventory.Global.Location[loc_id].tainted = false
 						
@@ -5777,9 +5856,11 @@ function ArkInventory.Frame_Container_Draw( frame )
 						
 						itemframe = CreateFrame( "Button", itemframename, bagframe, ArkInventory.Global.Location[loc_id].template or "ARKINV_TemplateButtonViewOnlyItem" )
 						
-						ArkInventory.Global.Location[loc_id].tainted = false
+						if ArkInventory.Global.Masque.item then
+							ArkInventory.Global.Masque.item:AddButton( itemframe )
+						end
 						
-						--ArkInventory.Output( "secure replace ", itemframename )
+						ArkInventory.Global.Location[loc_id].tainted = false
 						
 					end
 					
@@ -5806,7 +5887,7 @@ function ArkInventory.Frame_Container_Draw( frame )
 	local padWindow = ArkInventory.LocationOptionGet( loc_id, "window", "pad" )
 	local padLabel = ( ArkInventory.LocationOptionGet( loc_id, "bar", "name", "show" ) and ArkInventory.LocationOptionGet( loc_id, "bar", "name", "height" ) ) or 0
 	local anchor = ArkInventory.LocationOptionGet( loc_id, "bar", "anchor" )
-
+	
 	--ArkInventory.Output( "Layout=[", ArkInventory.Global.Location[loc_id].Layout, "]" )
 	
 	for rownum, row in ipairs( ArkInventory.Global.Location[loc_id].Layout.container.row ) do
@@ -5988,6 +6069,10 @@ function ArkInventory.Frame_Container_OnLoad( frame )
 				
 				local itemframename = ArkInventory.ContainerItemNameGet( loc_id, bag_id, j )
 				local itemframe = CreateFrame( "Button", itemframename, bagframe, ArkInventory.Global.Location[loc_id].template or "ARKINV_TemplateButtonItem" )
+				
+				if ArkInventory.Global.Masque.item then
+					ArkInventory.Global.Masque.item:AddButton( itemframe )
+				end
 				
 				ArkInventory.Frame_Item_Update_Clickable( itemframe )
 				itemframe:Hide( )
@@ -6557,7 +6642,7 @@ function ArkInventory.Frame_Bar_OnLoad( frame )
 	end
 	
 	ArkInventory.MediaSetFontFrame( frame )
-
+	
 end
 
 
@@ -6723,7 +6808,7 @@ function ArkInventory.SetItemButtonTexture( frame, texture, r, g, b )
 	
 	ArkInventory.SetTexture( obj, texture, r, g, b )
 	
-	obj:SetTexCoord( 0.070, 0.935, 0.070, 0.935 )
+	obj:SetTexCoord( 0.075, 0.935, 0.075, 0.935 )
 	
 end
 
@@ -6954,8 +7039,6 @@ function ArkInventory.Frame_Item_Update_New( frame )
 	
 	if not ArkInventory.ValidFrame( frame, true ) then return end
 
-	local framename = frame:GetName( )
-	
 	local loc_id = frame.ARK_Data.loc_id
 	if loc_id ~= ArkInventory.Const.Location.Bag then return end
 	
@@ -6971,8 +7054,7 @@ function ArkInventory.Frame_Item_Update_New( frame )
 	local flash = frame.flashAnim
 	local newItemAnim = frame.newitemglowAnim
 	
-	local obj_name = "ArkNewText"
-	local obj = _G[string.format( "%s%s", framename, obj_name )]
+	local obj = frame.ArkNewText
 	
 	if i and i.h then
 		
@@ -6997,14 +7079,21 @@ function ArkInventory.Frame_Item_Update_New( frame )
 		
 		if obj then
 			
-			if ArkInventory.LocationOptionGet( loc_id, "slot", "new", "show" ) then
+			if ArkInventory.LocationOptionGet( loc_id, "slot", "age", "show" ) then
 				
-				local cutoff = ArkInventory.LocationOptionGet( loc_id, "slot", "new", "cutoff" )
+				local cutoff = ArkInventory.LocationOptionGet( loc_id, "slot", "age", "cutoff" )
 				local age, age_text = ArkInventory.ItemAgeGet( i.age )
 				
 				if age and ( cutoff == 0 or age <= cutoff ) then
 					
-					local colour = ArkInventory.LocationOptionGet( loc_id, "slot", "new", "colour" )
+					obj:ClearAllPoints( )
+					if ArkInventory.LocationOptionGet( i.loc_id, "slot", "itemlevel", "show" ) then
+						obj:SetPoint( "CENTER" )
+					else
+						obj:SetPoint( "TOPLEFT" )
+					end
+					
+					local colour = ArkInventory.LocationOptionGet( loc_id, "slot", "age", "colour" )
 					
 					obj:SetText( age_text )
 					obj:SetTextColor( colour.r, colour.g, colour.b )
@@ -7506,6 +7595,9 @@ function ArkInventory.Frame_Item_OnLoad( frame )
 	-- bump the frame level for items up so that theyre always displayed above the bars
 	--frame:SetFrameLevel( frame:GetFrameLevel( ) + 1 )
 	
+	--frame.IconBorder:SetTexture( [[Interface\Addons\ArkInventory\Images\TextureSquare2.tga]] )
+	--frame.IconBorder:Show( )
+	
 	if loc_id == ArkInventory.Const.Location.Bank and bag_id == 1 then
 		BankFrameItemButton_OnLoad( frame )
 	elseif loc_id == ArkInventory.Const.Location.Bank and bag_id == ArkInventory.Global.Location[loc_id].tabReagent then
@@ -7727,6 +7819,7 @@ function ArkInventory.Frame_Item_Update( loc_id, bag_id, slot_id )
 		ArkInventory.Frame_Item_Update_Stock( obj )
 		
 		ArkInventory.Frame_Item_Update_Texture( obj )
+		--ArkInventory.Frame_Item_Update_New( obj ) -- part of texture update
 		
 		ArkInventory.Frame_Item_Update_Quest( obj )
 		
@@ -7831,7 +7924,7 @@ function ArkInventory.Frame_Status_Update_Empty( loc_id, cp, ldb )
 	
 	if ts == 0 then
 		
-		table.insert( y, string.format( "%s%s%s", RED_FONT_COLOR_CODE, ArkInventory.Localise["STATUS_NO_DATA"], FONT_COLOR_CODE_CLOSE ) )
+		y[#y + 1] = string.format( "%s%s%s", RED_FONT_COLOR_CODE, ArkInventory.Localise["STATUS_NO_DATA"], FONT_COLOR_CODE_CLOSE )
 		
 	else
 		
@@ -7852,9 +7945,9 @@ function ArkInventory.Frame_Status_Update_Empty( loc_id, cp, ldb )
 				end
 				
 				if ArkInventory.Global.Me.ldb.bags.full then
-					table.insert( y, string.format( "%s%i/%i%s%s", c, e.count - e.empty, e.count, n, FONT_COLOR_CODE_CLOSE ) )
+					y[#y + 1] = string.format( "%s%i/%i%s%s", c, e.count - e.empty, e.count, n, FONT_COLOR_CODE_CLOSE )
 				else
-					table.insert( y, string.format( "%s%i%s%s", c, e.empty, n, FONT_COLOR_CODE_CLOSE ) )
+					y[#y + 1] = string.format( "%s%i%s%s", c, e.empty, n, FONT_COLOR_CODE_CLOSE )
 				end
 				
 			else
@@ -7868,10 +7961,12 @@ function ArkInventory.Frame_Status_Update_Empty( loc_id, cp, ldb )
 					n = ""
 				end
 				
-				if ArkInventory.LocationOptionGet( loc_id, "status", "emptytext", "full" ) then
-					table.insert( y, string.format( "%s%i/%i%s%s", c, e.count - e.empty, e.count, n, FONT_COLOR_CODE_CLOSE ) )
+				if cp.info.player_id == ArkInventory.PlayerIDAccount( ) then
+					y[#y + 1] = string.format( "%s%i%s%s", c, e.count, n, FONT_COLOR_CODE_CLOSE )
+				elseif ArkInventory.LocationOptionGet( loc_id, "status", "emptytext", "full" ) then
+					y[#y + 1] = string.format( "%s%i/%i%s%s", c, e.count - e.empty, e.count, n, FONT_COLOR_CODE_CLOSE )
 				else
-					table.insert( y, string.format( "%s%i%s%s", c, e.empty, n, FONT_COLOR_CODE_CLOSE ) )
+					y[#y + 1] = string.format( "%s%i%s%s", c, e.empty, n, FONT_COLOR_CODE_CLOSE )
 				end
 				
 			end
@@ -8961,7 +9056,11 @@ function ArkInventory.HookFloatingBattlePet_Show( ... )
 		ItemRefTooltip:SetOwner( UIParent, "ANCHOR_PRESERVE" )
 	end
 	
-	ArkInventory.TooltipSetBattlepet( ItemRefTooltip, h )
+	if ItemRefTooltip:IsShown( ) and ItemRefTooltip.ARK_Data[1] == h then
+		ItemRefTooltip:Hide( )
+	else
+		ArkInventory.TooltipSetBattlepet( ItemRefTooltip, h )
+	end
 	
 end
 
@@ -9742,7 +9841,7 @@ function ArkInventory.MemoryUsed( c )
 
 end
 
-function ArkInventory.ItemAgeUpdate( )
+function ArkInventory.TimeAsMinutes( )
 	return math.floor( time( date( '*t' ) ) / 60 ) -- minutes
 end
 
@@ -9752,7 +9851,7 @@ function ArkInventory.ItemAgeGet( age )
 		
 		local s = ArkInventory.Localise["DHMS"]
 		
-		local x = ArkInventory.ItemAgeUpdate( ) - age
+		local x = ArkInventory.TimeAsMinutes( ) - age
 		local m = x + 1 -- push seconds up so that items with less than a minute get displayed
 		
 		local d = math.floor( m / 1440 )
@@ -9794,6 +9893,10 @@ end
 
 function ArkInventory.StartupChecks( )
 	
+end
+
+function ArkInventory.MasquePaint( Addon, Group, SkinID, Gloss, Backdrop, Colors, Disabled )
+	--ArkInventory.Output( Group, " / ", SkinID, " / ", Gloss, " / ", Backdrop, " / ", Colors, " / ", Disabled )
 end
 
 function ArkInventory.UiSetEditBoxLabel( frame, label )

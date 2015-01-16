@@ -97,6 +97,8 @@ L.LIVESTOCK_SKILL_TAILOR = GetSpellInfo(3908)			-- "Tailoring"
 L.LIVESTOCK_SKILL_ENGR = GetSpellInfo(4036)				-- "Engineering"
 L.LIVESTOCK_SKILL_LW = GetSpellInfo(2108)				-- "Leatherworking"
 
+L.LIVESTOCK_SKILL_GARRISON = GetSpellInfo(161691)			-- "Garrison Ability"
+
 L.LIVESTOCK_TOOLTIP_VERY = "very"
 L.LIVESTOCK_TOOLTIP_EXTREMELY = "extremely"
 L.LIVESTOCK_TOOLTIP_FAST = "fast"

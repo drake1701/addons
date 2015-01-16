@@ -251,28 +251,19 @@
 			</Anchors>
 		</PushedTexture>
 		
+		<Layers>
+			<Layer level="ARTWORK">
+				<FontString name="$parentArkNewText" inherits="ARKINV_NewItemFont" hidden="true" parentKey="ArkNewText">
+					<Anchors>
+						<Anchor point="TOPLEFT" />
+					</Anchors>
+				</FontString>
+			</Layer>
+		</Layers>
+		
 		<Frames>
 			
-			<Frame name="$parentArkBorder" inherits="ARKINV_Border" />
-			
-			<Frame name="$parentArkNew">
-			
-				<Anchors>
-					<Anchor point="TOPLEFT" relativeTo="$parent" relativePoint="TOPLEFT">
-						<Offset x="0" y="-2" />
-					</Anchor>
-					<Anchor point="BOTTOMRIGHT" relativeTo="$parent" relativePoint="TOPRIGHT">
-						<Offset x="0" y="-12" />
-					</Anchor>
-				</Anchors>
-				
-				<Layers>
-					<Layer level="BORDER">
-						<FontString name="$parentText" inherits="ARKINV_NewItemFont" justifyH="CENTER" hidden="true" />
-					</Layer>
-				</Layers>
-				
-			</Frame>
+			<Frame name="$parentArkBorder" inherits="ARKINV_Border" parentKey="ArkBorder" />
 			
 		</Frames>
 		

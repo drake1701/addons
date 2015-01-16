@@ -4,7 +4,7 @@ local ConnectedRealms = { }
 local tempData
 
 if portal == "US" then
-	ArkInventory.Output( "Loading US Connected Realm Data" )
+	ArkInventory.Output( "Loading Connected Realm (", portal, ") Data" )
 	tempData = {
 		{ ["Aegwynn"]=true, ["Bonechewer"]=true, ["Daggerspine"]=true, ["Gurubashi"]=true, ["Hakkar"]=true },
 		{ ["Aerie Peak"]=true, ["Ulduar"]=true },
@@ -87,7 +87,7 @@ end
 
 
 if portal == "EU" then
-	ArkInventory.Output( "Loading EU Connected Realm Data" )
+	ArkInventory.Output( "Loading Connected Realm (", portal, ") Data" )
 	tempData = {
 		--ENGLISH
 		{ ["Aggramar"]=true, ["Hellscream"]=true },
@@ -150,33 +150,23 @@ end
 
 function ArkInventory.IsConnectedRealm( a, b )
 	if ConnectedRealms[a] then
-		return ConnectedRealms[a][b], nil --ConnectedRealms[a]["p"]
+		return ConnectedRealms[a][b]
 	end
 end
 
 if tempData then
 	
-	local p
-	
 	for _, v in pairs( tempData ) do
-		
-		p = nil
 		
 		for x in pairs( v ) do
 			
-			if not p then
-				p = x
-			end
-			
 			if ConnectedRealms[x] then
-				ArkInventory.OutputWarning( "duplicate connected realm data found for ", x )
+				ArkInventory.OutputWarning( "duplicate connected realm (", portal, ") data found for ", x )
 			else
 				ConnectedRealms[x] = v
 			end
 			
 		end
-		
-		v.p = p
 		
 	end
 	
@@ -184,4 +174,3 @@ if tempData then
 	tempData = nil
 	
 end
-

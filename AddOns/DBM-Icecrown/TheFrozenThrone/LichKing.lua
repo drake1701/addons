@@ -1,7 +1,7 @@
 local mod	= DBM:NewMod("LichKing", "DBM-Icecrown", 5)
 local L		= mod:GetLocalizedStrings()
 
-mod:SetRevision(("$Revision: 176 $"):sub(12, -3))
+mod:SetRevision(("$Revision: 178 $"):sub(12, -3))
 mod:SetCreatureID(36597)
 mod:SetEncounterID(1106)
 mod:DisableEEKillDetection()--EE fires at 10%
@@ -96,9 +96,6 @@ local countdownInfest		= mod:NewCountdown(22.5, 70541)
 local countdownShadowTrap	= mod:NewCountdown(15.5, 73539, nil, nil, nil, nil, true)
 local countdownDefile		= mod:NewCountdown(32.5, 72762, nil, nil, nil, nil, true)
 
-local soundDefile			= mod:NewSound(72762)
-local soundShadowTrap		= mod:NewSound(73539)
-
 mod:AddBoolOption("DefileIcon")
 mod:AddBoolOption("NecroticPlagueIcon")
 mod:AddBoolOption("RagingSpiritIcon", false)
@@ -148,7 +145,6 @@ function mod:DefileTarget(targetname, uId)
 	if targetname == UnitName("player") then
 		specWarnDefileCast:Show()
 		yellDefile:Yell()
-		soundDefile:Play()
 	else
 		if uId then
 			local inRange = CheckInteractDistance(uId, 2)
@@ -168,7 +164,6 @@ function mod:TrapTarget(targetname, uId)
 	if targetname == UnitName("player") then
 		specWarnTrap:Show()
 		yellTrap:Yell()
-		soundDefile:Play()
 	else
 		if uId then
 			local inRange = CheckInteractDistance(uId, 2)

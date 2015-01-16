@@ -9,6 +9,9 @@ local table = _G.table
 local C_PetJournal = _G.C_PetJournal
 local C_PetBattles = _G.C_PetBattles
 
+local BreedAvailable = IsAddOnLoaded( "BattlePetBreedID" )
+
+
 local filter = {
 	ignore = false,
 	searchBox = nil,
@@ -48,6 +51,7 @@ end
 
 function ArkInventory.PetJournal.FilterSetSearch( s )
 	PetJournal.searchBox:SetText( s )
+	C_PetJournal.SetSearchFilter( s )
 end
 
 function ArkInventory.PetJournal.FilterGetCollected( )
@@ -119,16 +123,16 @@ function ArkInventory.PetJournal.FilterActionClear( )
 	
 	--ArkInventory.Output( "PetJournal.FilterActionClear" )
 	
-	PetJournal:UnregisterEvent( "PET_JOURNAL_LIST_UPDATE" )
+	--PetJournal:UnregisterEvent( "PET_JOURNAL_LIST_UPDATE" )
 	filter.ignore = true
 	
-	ArkInventory.PetJournal.FilterSetSearch( SEARCH )
+	ArkInventory.PetJournal.FilterSetSearch( "" ) --SEARCH
 	ArkInventory.PetJournal.FilterSetCollected( true )
 	ArkInventory.PetJournal.FilterSetUncollected( true )
 	ArkInventory.PetJournal.FilterSetFamily( true )
 	ArkInventory.PetJournal.FilterSetSource( true )
 	
-	PetJournal:RegisterEvent( "PET_JOURNAL_LIST_UPDATE" )
+	--PetJournal:RegisterEvent( "PET_JOURNAL_LIST_UPDATE" )
 	
 end
 	
@@ -153,7 +157,7 @@ function ArkInventory.PetJournal.FilterActionRestore( )
 	
 	--ArkInventory.Output( "PetJournal.FilterActionRestore" )
 	
-	PetJournal:UnregisterEvent( "PET_JOURNAL_LIST_UPDATE" )
+	--PetJournal:UnregisterEvent( "PET_JOURNAL_LIST_UPDATE" )
 	filter.ignore = true
 	
 	ArkInventory.PetJournal.FilterSetSearch( filter.search )
@@ -162,7 +166,7 @@ function ArkInventory.PetJournal.FilterActionRestore( )
 	ArkInventory.PetJournal.FilterSetFamily( filter.family )
 	ArkInventory.PetJournal.FilterSetSource( filter.source )
 	
-	PetJournal:RegisterEvent( "PET_JOURNAL_LIST_UPDATE" )
+	--PetJournal:RegisterEvent( "PET_JOURNAL_LIST_UPDATE" )
 	
 end
 
@@ -334,6 +338,11 @@ function ArkInventory.PetJournal.Scan( )
 		return
 	end
 	
+	if not ArkInventory.PetJournal.JournalIsUnlocked( ) then
+		-- journal not ready, come back later
+		ArkInventory:SendMessage( "LISTEN_PETJOURNAL_RELOAD_BUCKET", "RESCAN" )
+	end
+	
 	local pj = ArkInventory.PetJournal.data
 	
 	ArkInventory.PetJournal.FilterActionBackup( )
@@ -341,14 +350,12 @@ function ArkInventory.PetJournal.Scan( )
 	
 	local total, owned = C_PetJournal.GetNumPets( )
 	
-	if ( total == 0 ) or ( owned == 0 ) then
+	if total == 0 or owned == 0 or total < owned then
 		
-		--ArkInventory.Output( "* no pets, try again later" )
+		--ArkInventory.Output( "no pets available or list is filtered, t=", total, " o=", owned" )
+		
 		ArkInventory.PetJournal.FilterActionRestore( )
-		
-		-- reset ignore filter or it wont run next time
 		filter.ignore = false
-		
 		return
 		
 	end
@@ -427,8 +434,9 @@ end
 function ArkInventory.PetJournal.GetSpeciesIDfromGUID( guid )
 	
 	-- breaks apart a guid to get the battlepet speciesid
-	
 	-- Creature-[unknown]-[serverID]-[instanceID]-[zoneUID]-[npcID]-[spawnUID]
+	
+	-- replaced with UnitBattlePetSpeciesID( unit )
 	
 	local creatureID = string.match( guid or "", "Creature%-.-%-.-%-.-%-.-%-(.-)%-.-$" )
 	--ArkInventory.Output( creatureID, " / ", guid )
@@ -486,8 +494,14 @@ function ArkInventory.PetJournal.ScanPet( index, guid, update )
 		power = power,
 		speed = speed,
 		
+		breed = nil, -- wipe it every time
+		
 		sd = ArkInventory.PetJournal.data.species[speciesID], -- species data for this pet
 	}
+	
+	if BreedAvailable then
+		pd[guid].breed = GetBreedID_Journal( guid )
+	end
 	
 	pet = pd[guid]
 	
@@ -497,34 +511,10 @@ function ArkInventory.PetJournal.ScanPet( index, guid, update )
 		pet.fullName = sd.name
 	end
 	
-	if ( level == 25 ) then
-		pet.maxHealth = fullHealth
-		pet.maxPower = power
-		pet.maxSpeed = speed
-	else
-		pet.maxHealth = ( fullHealth - 100 ) / level * 25
-		pet.maxPower = power / level * 25
-		pet.maxSpeed = speed / level * 25
-	end
-	
 	return pet, update
 	
 end
 
-
-local breedStatPoints = { 0, 4, 5, 9, 20 }
-local breedRarityMultiplyer = { 1, 1.1, 1.2, 1.3, 1.4, 1.5 }
-
-function ArkInventory.PetJournal.BreedType( rarity, level, health, power, speed )
---[[
-	local h = nil
-	for _, x in pairs( breedStatPoints ) do
-		breed[x] = ( ( fullHealth - 100 ) / rarity / level / 5 ) - ( x / 10 )
-	end
-		
-		sd.baseHealth = 
-]]--	
-end
 
 local PET_STRONG = { 2, 6, 9, 1, 4, 3, 10, 5, 7, 8 }
 --[[
@@ -557,7 +547,7 @@ local PET_WEAK = { 8, 4, 2, 8, 1, 10, 5, 3, 6, 7 }
 function ArkInventory.PetJournal.ScanSpecies( speciesID )
 	
 	if ( not speciesID ) or ( type( speciesID ) ~= "number" ) or ( speciesID <= 0 ) then
-		error( "invalid speciesID" )
+		error( "invalid speciesID: ", speciesID )
 		return
 	end
 	
@@ -586,6 +576,9 @@ function ArkInventory.PetJournal.ScanSpecies( speciesID )
 				abilityID = { },
 				abilityLevel = { },
 			}
+			
+			local _, maxAllowed = C_PetJournal.GetNumCollectedInfo( speciesID )
+			data[speciesID].maxAllowed = maxAllowed
 			
 			if canBattle then
 				
@@ -731,24 +724,6 @@ end
 
 function ArkInventory.PetJournal.PetTypeName( arg1 )
 	return _G[string.format( "BATTLE_PET_NAME_%s", arg1 )]
-end
-
-function ArkInventory.PetJournal.BattlePetInfoTarget( )
-	
-	local unit = "target"
-	
-	if ( unit ) and ( UnitIsWildBattlePet( unit ) or UnitIsOtherPlayersBattlePet( unit ) or UnitIsBattlePetCompanion( unit ) ) then
-		
-		local id = UnitGUID( unit )
-		local speciesID = ArkInventory.PetJournal.GetSpeciesIDfromGUID( id )
-		
-		if speciesID then
-			-- cant get level from targeted battlepets
-			ArkInventory.PetJournal.PetBattleHelp( speciesID )
-		end
-		
-	end
-	
 end
 
 function ArkInventory.PetJournal.PetBattleHelp( speciesID, level )
@@ -977,6 +952,8 @@ function ArkInventory:LISTEN_PET_BATTLE_OPENING_DONE( event, ... )
 	-- /run ArkInventory:LISTEN_PET_BATTLE_OPENING_DONE( "MANUAL" )
 	if not ArkInventory.db.global.option.message.battlepet.opponent then return end
 	
+	ArkInventory.PetJournal.Scan( )
+	
 	local help = ...
 	local player = 2
 	local isnpc = C_PetBattles.IsPlayerNPC( player )
@@ -985,6 +962,11 @@ function ArkInventory:LISTEN_PET_BATTLE_OPENING_DONE( event, ... )
 --	if opponents > 1 then
 		ArkInventory.Output( "--- --- --- --- --- --- ---" )
 --	end
+	
+	if not ArkInventory.PetJournal.JournalIsReady( ) then
+		ArkInventory.Output( "pet journal not ready" )
+		return
+	end
 	
 	for i = 1, opponents do
 		
@@ -995,115 +977,113 @@ function ArkInventory:LISTEN_PET_BATTLE_OPENING_DONE( event, ... )
 		local fullHealth = C_PetBattles.GetMaxHealth( player, i )
 		local power = C_PetBattles.GetPower( player, i )
 		local speed = C_PetBattles.GetSpeed( player, i )
+		local breed = ""
+		if BreedAvailable then
+			breed = string.format( " %s", GetBreedID_Battle( { ["petOwner"] = player, ["petIndex"] = i } ) )
+		end
 		
 		local rarity = C_PetBattles.GetBreedQuality( player, i )
 		rarity = ( rarity and ( rarity - 1 ) ) or -1
 		
-		local maxHealth, maxPowerm, maxSpeed
-		
-		if ( level == 25 ) then
-			maxHealth = fullHealth
-			maxPower = power
-			maxSpeed = speed
-		else
-			maxHealth = ( fullHealth - 100 ) / level * 25
-			maxPower = power / level * 25
-			maxSpeed = speed / level * 25
-		end
-		
 		local info = ""
 		local count
 		
-		local sd = ArkInventory.PetJournal.ScanSpecies( speciesID, i )
+		local sd = ArkInventory.PetJournal.data.species[speciesID] or ArkInventory.PetJournal.ScanSpecies( speciesID )
 		
-		if C_PetBattles.IsWildBattle( ) then
+		if not sd then
 			
-			--ArkInventory.Output( "wild battle" )
+			ArkInventory.Output( YELLOW_FONT_COLOR_CODE, "#", i, ": ", name, " - ", RED_FONT_COLOR_CODE, ArkInventory.Localise["NO_DATA_AVAILABLE"] )
 			
-			if ( not sd.canBattle ) then
-				-- opponent cannot battle (and yet it is), its one of the secondary non-capturabe opponents
-				info = string.format( "%s- %s", YELLOW_FONT_COLOR_CODE, ArkInventory.Localise["BATTLEPET_OPPONENT_IMMUNE"] )
+		else
+			
+			if C_PetBattles.IsWildBattle( ) then
+				
+				--ArkInventory.Output( "wild battle" )
+				if not sd.canBattle then
+					-- opponent cannot battle (and yet it is), its one of the secondary non-capturabe opponents
+					info = string.format( "%s- %s", YELLOW_FONT_COLOR_CODE, ArkInventory.Localise["BATTLEPET_OPPONENT_IMMUNE"] )
+				else
+					count = true
+				end
+				
+			elseif isnpc then
+				
+				--ArkInventory.Output( "trainer battle" )
+				
 			else
+				
+				--ArkInventory.Output( "pvp battle" )
+				
 				count = true
+				
 			end
 			
-		elseif isnpc then
+			if help and ( type( help ) == "string" ) and ( help == "PET_BATTLE_HELP" ) then
+				--local good, bad = ArkInventory.PetJournal.AttackList( speciesID, level )
+				--info = string.format( " vs %s", good )
+				ArkInventory.PetJournal.PetBattleHelp( speciesID, level )
+			end
 			
-			--ArkInventory.Output( "trainer battle" )
+			local h = string.format( "%s|Hbattlepet:%s:%s:%s:%s:%s:%s:%s|h[%s]|h|r", select( 5, ArkInventory.GetItemQualityColor( rarity ) ), speciesID, level, rarity, fullHealth, power, speed, "", name )
 			
-		else
-			
-			--ArkInventory.Output( "pvp battle" )
-			
-			count = true
-			
-		end
-		
-		if help and ( type( help ) == "string" ) and ( help == "PET_BATTLE_HELP" ) then
-			--local good, bad = ArkInventory.PetJournal.AttackList( speciesID, level )
-			--info = string.format( " vs %s", good )
-			ArkInventory.PetJournal.PetBattleHelp( speciesID, level )
-		end
-		
-		local h = string.format( "%s|Hbattlepet:%s:%s:%s:%s:%s:%s:%s|h[%s]|h|r", select( 5, ArkInventory.GetItemQualityColor( rarity ) ), speciesID, level, rarity, fullHealth, power, speed, "", name )
-		
-		if ( not count ) then
-			
-			-- dont do anything
-			
-		else
-			
-			count = ArkInventory.ObjectCountGet( h )
-			
-			if ArkInventory.Table.IsEmpty( count ) then
+			if ( not count ) then
 				
-				info = string.format( "%s- %s", RED_FONT_COLOR_CODE, ArkInventory.Localise["BATTLEPET_OPPONENT_UNKNOWN"] )
+				-- dont do anything
 				
 			else
 				
-				local acn = ArkInventory.PlayerIDAccount( ) 
-				count = ( count[acn] and count[acn].location and count[acn].location[ArkInventory.Const.Location.Pet] ) or 0
+				local numOwned, maxAllowed = C_PetJournal.GetNumCollectedInfo( speciesID )
 				
-				if count >= ArkInventory.Const.MAX_PET_SAVED_SPECIES then
+				if numOwned == 0 then
 					
-					info = string.format( "- %s", ArkInventory.Localise["BATTLEPET_OPPONENT_KNOWN_MAX"] )
+					info = string.format( "%s- %s", RED_FONT_COLOR_CODE, ArkInventory.Localise["NOT_COLLECTED"] )
 					
-				elseif C_PetBattles.IsWildBattle( ) then
+					local h = string.format( "%sbattlepet:%s:%s:%s:%s:%s:%s:%s|h[%s]", select( 5, ArkInventory.GetItemQualityColor( rarity ) ), speciesID, level, rarity, fullHealth, power, speed, "", name )
 					
-					local upgrade = false
+				else
 					
-					for _, pd in ArkInventory.PetJournal.Iterate( ) do
+					if numOwned >= maxAllowed then
 						
-						if ( pd.sd.speciesID == speciesID ) then
-							local q = pd.rarity
-							--ArkInventory.Output( "s=[", speciesID, "], ", h, ", [", rarity, "] / ", pd.link, " [", q, "]" )
-							if ( rarity >= q ) and ( ( fullHealth > pd.maxHealth ) or ( maxPower > pd.maxPower ) or ( maxSpeed > pd.maxSpeed ) ) then
-								upgrade = true
+						info = string.format( "- %s", ArkInventory.Localise["BATTLEPET_OPPONENT_KNOWN_MAX"] )
+						
+					elseif C_PetBattles.IsWildBattle( ) then
+						
+						local upgrade = false
+						
+						for _, pd in ArkInventory.PetJournal.Iterate( ) do
+							
+							if ( pd.sd.speciesID == speciesID ) then
+								local q = pd.rarity
+								--ArkInventory.Output( "s=[", speciesID, "], ", h, ", [", rarity, "] / ", pd.link, " [", q, "]" )
+								if ( rarity >= q ) then
+									upgrade = true
+								end
+								
+								if string.len( info ) < 2 then
+									info = string.format( "- %s ", ArkInventory.Localise["BATTLEPET_OPPONENT_UPGRADE"] )
+									--info = string.format( "- " )
+								end
+								
+								info = string.format( "%s%s %s", info, pd.link, pd.breed )
+								
 							end
-							
-							if string.len( info ) < 2 then
-								info = string.format( "- %s ", ArkInventory.Localise["BATTLEPET_OPPONENT_UPGRADE"] )
-								--info = string.format( "- " )
-							end
-							
-							info = string.format( "%s%s", info, pd.link )
-							
 						end
-					end
-					
-					if not upgrade then
-						info = ""
+						
+						if not upgrade then
+							info = ""
+						end
+						
 					end
 					
 				end
 				
 			end
-			
+		
+			--ArkInventory.Output( YELLOW_FONT_COLOR_CODE, ArkInventory.Localise["BATTLEPET"], " #", i, ": ", h, " ", YELLOW_FONT_COLOR_CODE, info )
+			ArkInventory.Output( YELLOW_FONT_COLOR_CODE, "#", i, ": ", h, breed, " ", YELLOW_FONT_COLOR_CODE, info )
+		
 		end
 		
-		--ArkInventory.Output( YELLOW_FONT_COLOR_CODE, ArkInventory.Localise["BATTLEPET"], " #", i, ": ", h, " ", YELLOW_FONT_COLOR_CODE, info )
-		ArkInventory.Output( YELLOW_FONT_COLOR_CODE, "#", i, ": ", h, " ", YELLOW_FONT_COLOR_CODE, info )
-	
 	end
 	
 end
@@ -1168,9 +1148,10 @@ end
 
 -- runtime
 PetJournal:HookScript( "OnHide", ArkInventory.PetJournal.OnHide )
+PetJournalParent:HookScript( "OnHide", ArkInventory.PetJournal.OnHide )
 
-PetJournalParent:Show( )
-PetJournalParent:Hide( )
+--PetJournalParent:Show( )
+--PetJournalParent:Hide( )
 
 
 
@@ -1185,6 +1166,5 @@ PetJournalParent:Hide( )
 battlepet:1387:1:3:152:12:11:BattlePet-0-000006589760
 battlepet:1387:1:3:155:12:10:0000000000000000
 item:111660:0:0:0:0:0:0:0:90:0:11:0
-
 
 ]]--

@@ -39,7 +39,7 @@
 					<Anchors>
 						<Anchor point="LEFT" x="-2" y="0"/>
 					</Anchors>
-					<Color r=".75" g=".75" b=".75"/>
+<!--					<Color r=".75" g=".75" b=".75"/> -->
 				</Texture>
 			</Layer>
 		</Layers>
@@ -74,7 +74,7 @@
 	</Button>
 
 	<!-- template for each for of breed stats in .breeds frame -->
-	<Frame name="RematchFloatingPetCardBreedTableTemplate" useParentLevel="true" virtual="true">
+	<Frame name="RematchFloatingPetCardBreedTableTemplate" virtual="true">
 		<Size x="132" y="14"/>
 		<Layers>
 			<Layer level="BORDER">
@@ -202,11 +202,19 @@
 					</Anchors>
 					<TexCoords left="0" right="1" top="0.21875" bottom="0.09375"/>
 				</Texture>
-				<FontString parentKey="cantbattle" inherits="GameFontNormalSmall" justifyH="CENTER" justifyV="CENTER" text="BATTLE_PET_CANNOT_BATTLE">
-					<Size x="100" y="50"/>
+				<FontString parentKey="cantbattle" inherits="GameFontNormal" justifyH="CENTER" justifyV="CENTER" text="BATTLE_PET_CANNOT_BATTLE">
+					<Size x="160" y="72"/>
 					<Anchors>
-						<Anchor point="BOTTOM" x="0" y="32"/>
+						<Anchor point="BOTTOM" x="0" y="12"/>
 					</Anchors>
+					<Color r="1" g=".82" b=".5"/>
+				</FontString>
+				<FontString parentKey="isleveling" inherits="GameFontNormal" justifyH="LEFT" justifyV="CENTER">
+					<Size x="160" y="72"/>
+					<Anchors>
+						<Anchor point="BOTTOM" x="0" y="12"/>
+					</Anchors>
+					<Color r="1" g=".82" b=".5"/>
 				</FontString>
 			</Layer>
 		</Layers>
@@ -384,8 +392,15 @@
 				</Scripts>
 			</PlayerModel>
 
+			<PlayerModel parentKey="levelingModel" useParentLevel="true">
+				<Anchors>
+					<Anchor point="TOPRIGHT" x="-4" y="-50"/>
+					<Anchor point="BOTTOMLEFT" relativePoint="BOTTOMRIGHT" x="-139" y="95"/>
+				</Anchors>
+			</PlayerModel>
+
 			<!-- title pet icon in topleft (will be SetPortraitToTexture'd) and overlay circle -->
-			<Button parentKey="icon">
+			<Frame parentKey="icon">
 				<Size x="36" y="36"/>
 				<Anchors>
 					<Anchor point="TOPLEFT" x="6" y="-6"/>
@@ -409,18 +424,23 @@
 						</Texture>
 					</Layer>
 				</Layers>
-			</Button>
+			</Frame>
 
 			<!-- title type icon in topright -->
-			<Button parentKey="petType">
-				<Size x="38" y="38"/>
+			<Frame parentKey="petType">
+				<Size x="36" y="36"/>
 				<Anchors>
-					<Anchor point="TOPRIGHT" x="-4" y="-6"/>
+					<Anchor point="TOPRIGHT" x="-6" y="-6"/>
 				</Anchors>
 				<Layers>
-					<Layer level="ARTWORK">
+					<Layer level="BORDER">
 						<Texture parentKey="icon" setAllPoints="true">
 							<TexCoords left="0.4921875" right="0.796875" top="0.50390625" bottom="0.65625"/>
+						</Texture>
+					</Layer>
+					<Layer level="ARTWORK">
+						<Texture file="Interface\PetBattles\PetBattleHUD" setAllPoints="true">
+							<TexCoords left="0.884765625" right="0.943359375" top="0.681640625" bottom="0.798828125"/>
 						</Texture>
 					</Layer>
 					<Layer level="OVERLAY">
@@ -433,10 +453,10 @@
 						</Texture>
 					</Layer>
 				</Layers>
-			</Button>
+			</Frame>
 
 			<!-- this frame over the title area captures the mouse to flip the card to its back -->
-			<Button>
+			<Button parentKey="titleCapture">
 				<Anchors>
 					<Anchor point="TOPLEFT" x="4" y="-4"/>
 					<Anchor point="BOTTOMRIGHT" relativePoint="TOPRIGHT" x="-4" y="-44"/>
@@ -832,7 +852,9 @@
 				self.back:SetFrameLevel(self.back:GetFrameLevel()+3)
 			</OnLoad>
 			<OnShow>
-				self:RegisterEvent("MODIFIER_STATE_CHANGED")
+				if self.petID~=0 then
+					self:RegisterEvent("MODIFIER_STATE_CHANGED")
+				end
 			</OnShow>
 			<OnHide>
 				Rematch.FloatingPetCardOnHide(self)

@@ -22,7 +22,8 @@ function rematch:InitCommon()
 	settings.LevelingQueue = settings.LevelingQueue or {}
 	RematchSaved = RematchSaved or {}
 
-	rematch.breedable = IsAddOnLoaded("BattlePetBreedID")
+	rematch.breedSource = rematch:FindBreedSource() -- go find a source for breed info
+
 	hooksecurefunc(C_PetJournal,"PickupPet",rematch.events.CURSOR_UPDATE)
 	rematch:RegisterEvent("PET_JOURNAL_LIST_UPDATE")
 
@@ -34,6 +35,9 @@ function rematch:InitCommon()
 	rematch:RegisterEvent("PET_BATTLE_OPENING_START")
 	rematch:RegisterEvent("PET_BATTLE_CLOSE")
 	rematch:RegisterEvent("PLAYER_LOGOUT")
+
+	rematch:RegisterEvent("PET_BATTLE_QUEUE_STATUS")
+	rematch.events:PET_BATTLE_QUEUE_STATUS()
 
 	-- 3.0.11 preparation for WoD
 	if not settings.WoDReady then
@@ -60,6 +64,19 @@ function rematch:InitCommon()
 	end
 	if bindsMoved then
 		SaveBindings(GetCurrentBindingSet())
+	end
+
+	-- 3.2.0 settings.CurrentLevelingPet depreciated; move its petID to top of LevelingQueue
+	if settings.CurrentLevelingPet then
+		local petID = settings.CurrentLevelingPet
+		local queue = settings.LevelingQueue
+		for i=#queue,1,-1 do
+			if queue[i]==petID then
+				tremove(queue,i) -- remove from its position in the queue
+			end
+		end
+		tinsert(queue,1,petID)
+		settings.CurrentLevelingPet = nil
 	end
 
 end
@@ -106,14 +123,18 @@ end
 function rematch.events.PLAYER_LOGOUT()
 	settings.loginFilters = {} -- save filters to loginFilters for next login
 	rematch.roster:SaveFilters(settings.loginFilters)
+	rematch:SanctuarySave() -- save petIDs (and stats) of owned pets in teams and queue
 end
 
 function rematch.events.PET_JOURNAL_LIST_UPDATE()
 	local _,owned = C_PetJournal.GetNumPets()
 	if owned and owned>0 and owned~=rematch.lastOwned then -- if number of owned pets changed
-		rematch.lastOwned = owned
-		rematch:ProcessQueue() -- immediately process the queue
 		rematch:UpdateOwnedPets()
+		if not rematch.lastOwned then -- this is first time pets are valid on login
+			rematch:CheckForChangedPetIDs()
+		end
+		rematch:ProcessQueue() -- process the queue
+		rematch.lastOwned = owned
 	end
 	rematch:StartTimer("UpdateWindow",0,rematch.UpdateWindow)
 end
@@ -132,6 +153,10 @@ function rematch.events.PLAYER_REGEN_ENABLED()
 		rematch:Show()
 		rematch.resummonWindow = nil
 	end
+	if C_PetBattles.IsInBattle() or C_PetBattles.GetPVPMatchmakingInfo() then
+		return -- in pet battle or pvp, come back when those are done
+	end
+	-- at this point the player is neither in combat, battle or pvp
 	if rematch.queueNeedsProcessed then
 		rematch:ProcessQueue()
 		rematch.queueNeedsProcessed = nil
@@ -159,20 +184,48 @@ function rematch.events.PET_BATTLE_OPENING_START()
 	rematch.queueNeedsProcessed = true
 end
 
--- this fires twice usually after a pet battle
--- flags (resummonWindow, queueNeedsProcessed, teamNeedsLoaded) will
--- prevent them from actually running twice
+-- PET_BATTLE_CLOSE fires twice after a pet battle ends
+-- the first time C_PetBattles.IsInBattle() is true, the second time false
+-- however if a pet needs to be swapped the server sends a message that a battle is in progress
+-- so post-battle processing is delayed 0.5 seconds after the second PET_BATTLE_CLOSE
 function rematch.events.PET_BATTLE_CLOSE()
+	if not C_PetBattles.IsInBattle() then
+		C_Timer.After(0.5,rematch.PostBattleProcessing)
+	end
+end
+
+function rematch:PostBattleProcessing()
 	if settings.ShowNotesInBattle then
 		RematchNotesCard:Hide()
 	end
 	rematch.events.PLAYER_REGEN_ENABLED() -- rest of end-of-fight handling identical to leaving combat
 end
 
+function rematch.events.PET_BATTLE_QUEUE_STATUS()
+	if rematch:UpdatePVPStatus() then
+		rematch:UnregisterEvent("PLAYER_TARGET_CHANGED")
+		rematch:UnregisterEvent("UPDATE_MOUSEOVER_UNIT")
+	else
+		C_Timer.After(0.5,rematch.events.PLAYER_REGEN_ENABLED)
+	end
+end
+
+function rematch:UpdatePVPStatus()
+	local button = rematch.toolbar.buttons[4]
+	local oldIcon = button.icon:GetTexture()
+	local queued = C_PetBattles.GetPVPMatchmakingInfo()
+	button.tooltipTitle = queued and LEAVE_QUEUE or FIND_BATTLE
+	button.icon:SetTexture(queued and "Interface\\Icons\\PetBattle_Attack-Down" or "Interface\\Icons\\PetBattle_Attack")
+	if oldIcon~="Interface\\Icons\\INV_Misc_QuestionMark" and oldIcon~=button.icon:GetTexture() then
+		rematch:ShineOnYouCrazy(button,"CENTER")
+	end
+	return queued
+end
+
 --[[ Pet template script handlers ]]
 
 function rematch:PetOnEnter()
-	rematch:ShowFloatingPetCard(rematch:GetPetID(self.petID),self,self.menu=="browserPet")
+	rematch:ShowFloatingPetCard(self.petID,self,self.menu=="browserPet")
 end
 
 function rematch:PetOnLeave()
@@ -192,7 +245,7 @@ function rematch:PetOnClick(button)
 			return receive(self)
 		end
 	end
-	local petID = rematch:GetPetID(self.petID)
+	local petID = self.petID
 	-- send to chat if Shift+Clicked (or whatever CHATLINK modifier they use)
 	if IsModifiedClick("CHATLINK") and type(petID)=="string" then
 		return ChatEdit_InsertLink(C_PetJournal.GetBattlePetLink(petID))
@@ -213,7 +266,7 @@ function rematch:PetOnClick(button)
 end
 
 function rematch:PetOnDoubleClick()
-	local petID = rematch:GetPetID(self.petID)
+	local petID = self.petID
 	if type(petID)=="string" then
 		C_PetJournal.SummonPetByGUID(petID)
 	end
@@ -221,7 +274,7 @@ function rematch:PetOnDoubleClick()
 end
 
 function rematch:PetOnDragStart()
-	if self.petID then
+	if type(self.petID)=="string" then
 		C_PetJournal.PickupPet(self.petID)
 	end
 end
@@ -365,6 +418,10 @@ function rematch:WipePetFrames(pets)
 			end
 		end
 	end
+	for i=4,9 do
+		pets[i] = nil
+	end
+	pets.teamName = nil
 end
 
 --[[ Timer Management ]]
@@ -405,7 +462,11 @@ rematch.timerFrame:SetScript("OnUpdate",function(self,elapsed)
 		times[name] = times[name] - elapsed
 		if times[name] < 0 then
 			tremove(timers,i)
-			rematch.timerFuncs[name]()
+			if rematch.timerFuncs[name] then
+				rematch.timerFuncs[name]()
+			else
+				rematch:print(name,"doesn't have a function")
+			end
 		end
 		tick = true
 	end
@@ -599,14 +660,6 @@ function rematch:ToggleTooltipHide()
 	GameTooltip:Hide()
 end
 
-function rematch:GetPetID(petID)
-	if petID==0 then
-		return rematch:GetCurrentLevelingPet()
-	else
-		return petID
-	end
-end
-
 function rematch:GetPetIDIcon(petID)
 	local speciesID,level,icon
 	if petID==0 then
@@ -676,5 +729,93 @@ end
 
 -- prints the file:line that called the function
 function rematch:debugstack(name)
-	print(name,debugstack():match(".-%.lua:%d+.-%.lua:%d+.-\\.-\\.-\\(.-%.lua:%d+)"),GetTime())
+	rematch:print(name,debugstack():match(".-%.lua:%d+.-%.lua:%d+.-\\.-\\.-\\(.-%.lua:%d+)"),GetTime())
+end
+
+function rematch:print(...)
+	print("\124cffffd200Rematch:\124r",...)
+end
+
+-- returns the breed of the petID
+function rematch:GetBreed(petID)
+	local source = rematch.breedSource
+	if source=="BattlePetBreedID" then
+		return GetBreedID_Journal(petID) or ""
+	elseif source=="PetTracker_Breeds" then
+		return PetTracker:GetBreedIcon((PetTracker.Journal:GetBreed(petID)),.85)
+	elseif source=="LibPetBreedInfo-1.0" then
+		return rematch.breedLib:GetBreedName(rematch.breedLib:GetBreedByPetID(petID)) or ""
+	end
+	return ""
+end
+
+-- returns the addon that will provide breed data
+function rematch:FindBreedSource()
+	local addon
+	for _,name in pairs({"BattlePetBreedID","PetTracker_Breeds","LibPetBreedInfo-1.0"}) do
+		if not addon and IsAddOnLoaded(name) then
+			addon = name
+		end
+	end
+	if not addon then -- one of the sources is not loaded, try loading LibPetBreedInfo separately
+		LoadAddOn("LibPetBreedInfo-1.0")
+		if LibStub then
+			for lib in LibStub:IterateLibraries() do
+				if lib=="LibPetBreedInfo-1.0" then
+					rematch.breedLib = LibStub("LibPetBreedInfo-1.0")
+					addon = lib
+					break
+				end
+			end
+		end
+	end
+	return addon
+end
+
+-- this should be called when pets are dragged to a loadout slot
+-- if the incoming pet is in the queue (but not the topmost pet in queue)
+-- then turn off full sort and set it as the topmost leveling pet
+function rematch:HandleReceivingLevelingPet(petID)
+	if not petID then
+		local slot = self:GetParent():GetID() -- grab petID from journal slot receiving pet
+		if slot and slot>0 and slot<4 then
+			petID = C_PetJournal.GetPetLoadOutInfo(self:GetParent():GetID())
+		end
+	end
+	if rematch:IsPetLeveling(petID) and petID~=rematch:GetCurrentLevelingPet() then
+		if settings.QueueFullSort then
+			if rematch:IsVisible() then
+				local dialog = rematch:ShowDialog("NoFullSort",152,L["Full Sort Was Enabled"],"",true)
+				dialog.text:SetSize(196,96)
+				dialog.text:SetPoint("TOP",0,-20)
+				dialog.text:SetText(L["The Full Sort queue option has been turned off to allow this new pet to be the active leveling pet. You can turn Full Sort back on in the queue menu."])
+				dialog.text:Show()
+			end
+			settings.QueueFullSort = nil
+		end
+		rematch:StartLevelingPet(petID)
+	end
+end
+
+-- CheckForChangedPetIDs() runs on login after pets are loaded.
+-- Occasionally, the server will reassign whole new petIDs to a user.
+-- This uses the sanctuary system in finder.lua to get any changed petIDs.
+function rematch:CheckForChangedPetIDs()
+	-- validate pets in the queue
+	for index,petID in ipairs(settings.LevelingQueue) do
+		local newPetID = rematch:SanctuaryFind(petID)
+		if newPetID then
+			settings.LevelingQueue[index] = newPetID
+		end
+	end
+	-- validate pets within teams
+	for teamName,team in pairs(RematchSaved) do
+		for i=1,3 do
+			local newPetID = rematch:SanctuaryFind(team[i][1])
+			if newPetID then
+				team[i][1] = newPetID
+			end
+		end
+	end
+	rematch:SanctuaryDone()
 end

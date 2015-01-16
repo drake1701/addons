@@ -247,8 +247,8 @@ function ArkInventory.PlayerInfoSet( )
 		
 	else
 		
-		local gn = GetGuildInfo( "player" )
-		--ArkInventory.Output( "IsInGuild=[", IsInGuild( ), "], g=[", gn, "]" )
+		local gn, _, _, grealm = GetGuildInfo( "player" )
+		--ArkInventory.Output( "IsInGuild=[", IsInGuild( ), "], g=[", gn, "], r=[", grealm, "]" )
 		
 		if not gn then
 			
@@ -260,7 +260,7 @@ function ArkInventory.PlayerInfoSet( )
 			
 		else
 			
-			p.guild_id = string.format( "%s%s%s%s", ArkInventory.Const.GuildTag, gn, ArkInventory.Const.PlayerIDTag, r )
+			p.guild_id = string.format( "%s%s%s%s", ArkInventory.Const.GuildTag, gn, ArkInventory.Const.PlayerIDTag, grealm or r )
 			
 		end
 		
@@ -272,20 +272,17 @@ end
 
 function ArkInventory.VaultInfoSet( )
 	
-	local n = GetGuildInfo( "player" )
+	local n, _, _, r = GetGuildInfo( "player" )
 	local cp = ArkInventory.Global.Me.info
 	
 	if n then
 		
-		local _, gr = ArkInventory.IsConnectedRealm( cp.realm, cp.realm )
-		gr = gr or cp.realm
-		
-		local id = string.format( "%s%s%s%s", ArkInventory.Const.GuildTag, n, ArkInventory.Const.PlayerIDTag, gr )
+		local id = string.format( "%s%s%s%s", ArkInventory.Const.GuildTag, n, ArkInventory.Const.PlayerIDTag, r or cp.realm )
 		
 		local g = ArkInventory.db.global.player.data[id].info
 		
 		g.name = n
-		g.realm = gr
+		g.realm = r or cp.realm
 		g.player_id = id
 		g.faction = cp.faction
 		g.faction_local = cp.faction_local
@@ -970,7 +967,7 @@ function ArkInventory.HookMailSend( ... )
 	
 	smd.id = id
 	smd.sender = ArkInventory.Global.Me.info.id
-	smd.age = ArkInventory.ItemAgeUpdate( )
+	smd.age = ArkInventory.TimeAsMinutes( )
 	
 	local name, texture, count
 	for x = 1, ATTACHMENTS_MAX_SEND do
@@ -1016,7 +1013,7 @@ function ArkInventory.HookMailReturn( index )
 	
 	smd.id = id
 	smd.sender = ArkInventory.Global.Me.info.id
-	smd.age = ArkInventory.ItemAgeUpdate( )
+	smd.age = ArkInventory.TimeAsMinutes( )
 	
 	local name, texture, count
 	for x = 1, ATTACHMENTS_MAX_RECEIVE do
@@ -1784,7 +1781,11 @@ function ArkInventory.ScanBag( blizzard_id )
 		
 		if changed_item then
 			
-			i.age = ArkInventory.ItemAgeUpdate( )
+			if i.h then
+				i.age = ArkInventory.TimeAsMinutes( )
+			else
+				i.age = nil
+			end
 			
 			ArkInventory.ItemCategoryGet( i )
 			
@@ -1909,7 +1910,11 @@ function ArkInventory.ScanVault( )
 		
 		if changed_item then
 			
-			i.age = ArkInventory.ItemAgeUpdate( )
+			if i.h then
+				i.age = ArkInventory.TimeAsMinutes( )
+			else
+				i.age = nil
+			end
 			
 			i.h = h
 			i.count = count
@@ -2093,8 +2098,12 @@ function ArkInventory.ScanWearing( )
 
 		if changed_item or i.loc_id == nil then
 		
-			i.age = ArkInventory.ItemAgeUpdate( )
-
+			if i.h then
+				i.age = ArkInventory.TimeAsMinutes( )
+			else
+				i.age = nil
+			end
+			
 			i.loc_id = loc_id
 			i.bag_id = bag_id
 			i.slot_id = slot_id
@@ -2214,7 +2223,12 @@ function ArkInventory.ScanMailInbox( )
 					
 					if changed_item then
 						
-						i.age = ArkInventory.ItemAgeUpdate( )
+						if i.h then
+							i.age = ArkInventory.TimeAsMinutes( )
+						else
+							i.age = nil
+						end
+						
 						i.count = count
 						i.q = ArkInventory.ObjectInfoQuality( h )
 						
@@ -2663,7 +2677,12 @@ function ArkInventory.ScanCurrency( )
 			
 			if changed_item or i.loc_id == nil then
 				
-				i.age = ArkInventory.ItemAgeUpdate( )
+				if i.h then
+					i.age = ArkInventory.TimeAsMinutes( )
+				else
+					i.age = nil
+				end
+				
 				i.q = ArkInventory.ObjectInfoQuality( h )
 				
 				ArkInventory.Frame_Main_DrawStatus( loc_id, ArkInventory.Const.Window.Draw.Refresh )
@@ -2760,7 +2779,11 @@ function ArkInventory.ScanVoidStorage( blizzard_id )
 
 		if changed_item or i.loc_id == nil then
 			
-			i.age = ArkInventory.ItemAgeUpdate( )
+			if i.h then
+				i.age = ArkInventory.TimeAsMinutes( )
+			else
+				i.age = nil
+			end
 			
 			i.loc_id = loc_id
 			i.bag_id = bag_id
@@ -2999,13 +3022,17 @@ function ArkInventory.ScanAuction( massive )
 		
 		if changed_item then
 			
-			i.age = ArkInventory.ItemAgeUpdate( )
-			
 			i.h = h
 			i.count = count
 			i.sb = sb
 			i.q = ArkInventory.ObjectInfoQuality( h )
 			
+			if i.h then
+				i.age = ArkInventory.TimeAsMinutes( )
+			else
+				i.age = nil
+			end
+
 			if duration == 1 then
 				-- Short (less than 30 minutes)
 				i.expires = i.age + 30
@@ -3019,6 +3046,7 @@ function ArkInventory.ScanAuction( massive )
 				-- Very Long (more than 12 hours)
 				i.expires = i.age + 48 * 60
 			end
+			
 			
 			ArkInventory.Frame_Main_DrawStatus( loc_id, ArkInventory.Const.Window.Draw.Refresh )
 			
@@ -3036,7 +3064,7 @@ function ArkInventory.ScanAuctionExpire( )
 	
 	local loc_id, bag_id = ArkInventory.BagID_Internal( blizzard_id )
 	
-	local current_time = ArkInventory.ItemAgeUpdate( )
+	local current_time = ArkInventory.TimeAsMinutes( )
 	
 	local cp = ArkInventory.Global.Me
 	
@@ -3640,24 +3668,18 @@ function ArkInventory.ObjectCountClear( search_id, player_id, loc_id )
 	
 	if (search_id ) and ( player_id ) and (loc_id ) then
 		
-		-- clear the virtual user/locations, then the user
+		-- clear the current user, then move down and do the "shared" user
 		
-		if ( loc_id == ArkInventory.Const.Location.Vault ) then 
-			local cp = ArkInventory.PlayerInfoGet( player_id )
-			ArkInventory.ObjectCountClear( search_id, cp.info.guild_id )
-		elseif ( loc_id == ArkInventory.Const.Location.Pet ) or ( loc_id == ArkInventory.Const.Location.Mount ) then
-			ArkInventory.ObjectCountClear( search_id, ArkInventory.PlayerIDAccount( ) )
+		if player_id == ArkInventory.PlayerIDAccount( ) or ( loc_id == ArkInventory.Const.Location.Vault ) or ( loc_id == ArkInventory.Const.Location.Pet ) or ( loc_id == ArkInventory.Const.Location.Mount ) or ( loc_id == ArkInventory.Const.Location.Toybox ) then
+			ArkInventory.ObjectCountClear( search_id, ArkInventory.Global.Me.info.player_id )
 		end
 		
-		return ArkInventory.ObjectCountClear( search_id, player_id )
-		
 	end
-	
-	--ArkInventory.Output( "ObjectCountClear( ", search_id, ", ", player_id, ", ", loc_id, " )" )	
 	
 	if ( search_id ) and ( player_id ) then
 		
 		-- reset count for a specific item for a specific player
+		--ArkInventory.Output( "ObjectCountClear( ", search_id, ", ", player_id )
 		
 		if ArkInventory.Global.Cache.ItemCountTooltip[player_id] then
 			ArkInventory.Global.Cache.ItemCountTooltip[player_id][search_id] = nil
@@ -3698,6 +3720,7 @@ function ArkInventory.ObjectCountClear( search_id, player_id, loc_id )
 	if ( search_id ) and ( not player_id ) then
 		
 		-- reset count for a specific item for all players
+		--ArkInventory.Output( "ObjectCountClear( ", search_id, " )" )
 		
 		for k, v in pairs( ArkInventory.Global.Cache.ItemCountTooltip ) do
 			v[search_id] = nil
@@ -3709,6 +3732,11 @@ function ArkInventory.ObjectCountClear( search_id, player_id, loc_id )
 		
 		ArkInventory.Global.Cache.ItemCountRaw[search_id] = nil
 		
+		-- erase item/tooltip cache
+		ArkInventory.Table.Clean( ArkInventory.Global.Cache.ItemCountTooltip, nil, true )
+		ArkInventory.Table.Clean( ArkInventory.Global.Cache.ItemCountRaw, nil, true )
+		ArkInventory.Table.Clean( ArkInventory.Global.Cache.ItemCount, nil, true )
+
 		return
 		
 	end
@@ -3716,6 +3744,7 @@ function ArkInventory.ObjectCountClear( search_id, player_id, loc_id )
 	if ( not search_id ) and ( not player_id ) then
 		
 		--ArkInventory.Output( "wipe all item counts" )
+		ArkInventory.Output( "ObjectCountClear( )" )
 		
 		table.wipe( ArkInventory.Global.Cache.ItemCountTooltip )
 		
@@ -3754,7 +3783,7 @@ function ArkInventory.ObjectCountGetRaw( search_id )
 		if pd.info.name then
 			
 			if not d[pid] then
-				d[pid] = { ["vault"] = false, ["location"] = { }, ["total"] = 0, ["faction"] = pd.info.faction, ["realm"] = pd.info.realm }
+				d[pid] = { ["vault"] = false, ["location"] = { }, ["faction"] = pd.info.faction, ["realm"] = pd.info.realm }
 			end
 			
 			--ArkInventory.Output( "rebuild ", search_id, " for ", pid )
@@ -3790,19 +3819,19 @@ function ArkInventory.ObjectCountGetRaw( search_id )
 								
 								-- primary match
 								local oit = ArkInventory.ObjectIDTooltip( sd.h )
-								local match = ( search_id == oit )
+								local matches = ( search_id == oit )
 								
 								-- secondary match
-								if not match and search_alt then
+								if not matches and search_alt then
 									for sa in pairs( search_alt ) do
 										if sa == oit then
-											match = true
+											matches = true
 											break
 										end
 									end
 								end
 								
-								if match then
+								if matches then
 									--ArkInventory.Output( pid, " has ", sd.count, " x ", sd.h, " in loc[", l, "], bag [", b, "] slot [", sn, "]" )
 									c = c + sd.count
 									k = true
@@ -3818,7 +3847,7 @@ function ArkInventory.ObjectCountGetRaw( search_id )
 						
 					end
 					
-					if c> 0 then
+					if c > 0 then
 						
 						if pd.info.class == "GUILD" and l == ArkInventory.Const.Location.Vault then
 							d[pid].vault = true
@@ -3919,7 +3948,7 @@ function ArkInventory.ObjectCountGet( search_id, player_id, just_me, ignore_vaul
 end
 
 function ArkInventory.BattlepetBaseHyperlink( ... )
-	local v = { ... } -- species, level, rarity, maxHealth, power, speed, name (not used)
-	--ArkInventory.Output( "[ ", v[1], " / ", v[2], " / ", v[3], " / ", v[4], " / ", v[5], " / ", v[6], " / ", v[7], " ]" )
-	return string.format( "battlepet:%s:%s:%s:%s:%s:%s:0", v[1] or 0, v[2] or 0, v[3] or 0, v[4] or 0, v[5] or 0, v[6] or 0 )
+	local v = { ... } -- species, level, rarity, maxHealth, power, speed, name (not used), petid
+	--ArkInventory.Output( "[ ", v, " ]" )
+	return string.format( "battlepet:%s:%s:%s:%s:%s:%s:%s:%s", v[1] or 0, v[2] or 0, v[3] or 0, v[4] or 0, v[5] or 0, v[6] or 0, v[7] or "", v[8] or "" )
 end

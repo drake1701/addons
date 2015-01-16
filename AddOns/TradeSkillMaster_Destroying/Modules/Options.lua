@@ -393,7 +393,10 @@ function Options:LoadOptions(container)
 							list = {[2]=ITEM_QUALITY2_DESC, [3]=ITEM_QUALITY3_DESC, [4]=ITEM_QUALITY4_DESC},
 							relativeWidth = 0.5,
 							settingInfo = {TSM.db.global, "deMaxQuality"},
-							tooltip = L["Destroying not list any items above this quality for disenchnting."],
+							tooltip = L["Destroying will not list any items above this quality for disenchanting."],
+							callback = function(self)
+								TSM.GUI:UpdateST()
+							end,
 						},
 						{
 							type = "CheckBox",
@@ -401,6 +404,30 @@ function Options:LoadOptions(container)
 							relativeWidth = 0.49,
 							settingInfo = {TSM.db.global, "includeSoulbound"},
 							tooltip = L["If checked, soulbound items can be destroyed by TSM_Destroying. USE THIS WITH EXTREME CAUTION!"],
+							callback = function(self)
+								TSM.GUI:UpdateST()
+							end,
+						},
+						{
+							type = "EditBox",
+							label = L["Above Custom Price ('0c' to disable)"],
+							settingInfo = { TSM.db.global, "deCustomPrice" },
+							relativeWidth = 0.5,
+							acceptCustom = true,
+							tooltip = L["Only disenchantable items which have a disenchant value above this custom price will be displayed in the destroying window."],
+							callback = function(self)
+								TSM.GUI:UpdateST()
+							end,
+						},
+						{
+							type = "CheckBox",
+							label = L["Above Vendor Sell Price"],
+							relativeWidth = 0.49,
+							settingInfo = {TSM.db.global, "deAboveVendor"},
+							tooltip = L["If checked, Only disenchantable items which have a disenchant value above the vendor sell price will be displayed in the destroying window."],
+							callback = function(self)
+								TSM.GUI:UpdateST()
+							end,
 						},
 					},
 				},

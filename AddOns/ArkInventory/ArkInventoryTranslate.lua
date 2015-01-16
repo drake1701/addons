@@ -203,7 +203,7 @@ end
 
 
 local tooltipTable = {
-	{ "WOW_SKILL_HERBALISM", 22795 }, -- 63122, 85663
+	{ "WOW_SKILL_HERBALISM", 85663 },
 	{ "WOW_SKILL_MINING", 2901 },
 }
 
@@ -356,6 +356,7 @@ frame:SetScript( "OnUpdate",
 				ArkInventory.Frame_Main_Generate( nil, ArkInventory.Const.Window.Draw.Recalculate )
 				ArkInventory.ItemCacheClear( )
 				--ArkInventory.ScanLocation( )
+				ArkInventory.PlayerInfoSet( )
 				
 			end
 			

@@ -271,7 +271,7 @@ function rematch:ShowMenu(name,anchorPoint,relativeTo,relativePoint,anchorXoff,a
 	local uiScale = UIParent:GetEffectiveScale()
 	frame:ClearAllPoints()
 	if type(anchorPoint)=="table" then -- if this subMenu is being anchored to a menu button
-		if menu.reverseAnchor or (anchorPoint:GetRight()+maxWidth)/anchorPoint:GetEffectiveScale() > UIParent:GetRight()/uiScale then
+		if menu.reverseAnchor or (anchorPoint:GetRight()+maxWidth)*anchorPoint:GetEffectiveScale() > UIParent:GetRight()*uiScale then
 			frame:SetPoint("TOPRIGHT",anchorPoint,"TOPLEFT",-2,5)
 			menu.reverseAnchor = true
 		else
@@ -445,7 +445,7 @@ function menu:ButtonOnClick()
 	end
 
 	-- hide the menus unless it's a check, radio, stay flag set or this button opens a subMenu
-	if not (item.check or item.radio or item.stay or item.subMenu) then
+	if item.stay==false or not (item.check or item.radio or item.stay or item.subMenu) then
 		for i=1,#menu.framePool do
 			menu.framePool[i]:Hide()
 		end

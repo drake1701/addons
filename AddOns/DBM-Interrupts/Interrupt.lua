@@ -1,44 +1,35 @@
 local mod = DBM:NewMod("Interrupt Cooldowns", "DBM-Interrupts")
 mod:SetRevision("Revision 5.4.3")
-
 mod:RegisterEvents("SPELL_CAST_SUCCESS")
 mod:SetZone(DBM_DISABLE_ZONE_DETECTION)
 
 function mod:SPELL_CAST_SUCCESS(args)
-	if args.spellId == 47476 then --DK Strangulate
-		DBM:CreatePizzaTimer(60," Strangle"..args.sourceName)
-		end
-	if args.spellId == 47528 then --DK Mind Freeze
-		DBM:CreatePizzaTimer(15," MFreeze"..args.sourceName)
-		end
-	if args.spellId == 96231 then --Paladin Rebuke
-		DBM:CreatePizzaTimer(15," Rebuke"..args.sourceName)
-		end
-	if args.spellId == 106839 then --Druid Skull Bash
-		DBM:CreatePizzaTimer(15," SBash"..args.sourceName)
-		end
-	if args.spellId == 147362 then --Hunter Counter Shot
-		DBM:CreatePizzaTimer(24," CShot"..args.sourceName)
-		end
-	if args.spellId == 34490 then --Hunter Silencing Shot
-		DBM:CreatePizzaTimer(24," SShot"..args.sourceName)
-		end
-	if args.spellId == 2139 then --Mage Counter Spell
-		DBM:CreatePizzaTimer(24," CSpell"..args.sourceName)
-		end
-	if args.spellId == 116705 then --Monk Spear Hand Strike
-		DBM:CreatePizzaTimer(15," SHStrike"..args.sourceName)
-		end
-	if args.spellId == 1766 then --Rogue Kick
-		DBM:CreatePizzaTimer(15," Kick"..args.sourceName)
-		end
-	if args.spellId == 57994 then --Shaman Wind Shear
-		DBM:CreatePizzaTimer(12," WShear"..args.sourceName)
-		end
-	if args.spellId == 19647 then --Felhunter Spell Lock
-		DBM:CreatePizzaTimer(24," SLock"..args.sourceName)
-		end
-	if args.spellId == 6552 then --Warrior Pummel
-		DBM:CreatePizzaTimer(15," Pummel"..args.sourceName)
-		end
+    Spells = {
+        MindFreeze={      "MFreeze",    47528,   15},
+        Strangulate={     "Strangle",   47476,   60},
+        SkullBash={       "SkullB",     106839,  15},
+        SolarBeam={       "SolarB",     78675,   60},
+        CounterShot={     "CounterSh",  147362,  24},
+        SilencingShot={   "SilenceS",   34490,   24},
+        CounterSpell={    "CounterSp",  2139,    24},
+        AvengersShield={  "AvengShld",  31935,   15},
+        Rebuke={          "Rebuke",     96231,   15},
+        Silence={         "Silence",    15487,   45},
+        WindShear={       "WindShr",    57994,   12},
+        SpellLock={       "SpellLk",    19647,   24},
+        OpticalBlast={    "OptBlast",   115782,  24},
+        Pummel={          "Pummel",     6552,    15},
+        SpearHandStrike={ "SHStrike",   116705,  15},
+    }
+    
+    for key, value in pairs(Spells) do
+        Name            = Spells[key][1]
+        ID              = Spells[key][2]
+        Duration        = Spells[key][3]
+        _, _, SpellIcon = GetSpellInfo(args.spellId)
+
+        if args.spellId == ID then
+            DBM.Bars:CreateBar(Duration, Name.."-"..args.sourceName, SpellIcon)
+            end
+        end
 	end

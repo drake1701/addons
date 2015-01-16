@@ -39,8 +39,12 @@ function TSM:RegisterModule()
 	TSM.priceSources = {
 		{ key = "wowuctionMarket", label = L["WoWuction Realm Market Value"], callback = private.GetData, arg = "marketValue" },
 		{ key = "wowuctionMedian", label = L["WoWuction Realm Median Price"], callback = private.GetData, arg = "medianPrice" },
+		{ key = "wowuctionMarketErr", label = L["WoWuction Realm Market STD Deviation"], callback = private.GetData, arg = "marketValueErr" },
+		{ key = "wowuctionMedianErr", label = L["WoWuction Realm Median STD Deviation"], callback = private.GetData, arg = "medianPriceErr" },
 		{ key = "wowuctionRegionMarket", label = L["WoWuction Region Market Value"], callback = private.GetData, arg = "regionMarketValue" },
 		{ key = "wowuctionRegionMedian", label = L["WoWuction Region Median Price"], callback = private.GetData, arg = "regionMedianPrice" },
+		{ key = "wowuctionRegionMarketErr", label = L["WoWuction Region Market STD Deviation"], callback = private.GetData, arg = "regionMarketValueErr" },
+		{ key = "wowuctionRegionMedianErr", label = L["WoWuction Region Median STD Deviation"], callback = private.GetData, arg = "regionMedianPriceErr" },
 	}
 	TSM.moduleAPIs = {
 		{ key = "wowuctionLastScan", callback = "GetLastCompleteScan" },

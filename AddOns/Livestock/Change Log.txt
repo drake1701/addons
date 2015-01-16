@@ -1,3 +1,8 @@
+Version 2.3.5
+
+- Corrected Garrison Ability to support other languages
+- Flying Carpets now only require 300 tailoring
+
 Version 2.3.4
 
 - Support for Dustmane Direwolf and Creeping Carpet

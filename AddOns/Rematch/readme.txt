@@ -5,15 +5,7 @@ Its primary purpose is to store and recall battle pet teams for targets. For ins
 - When you target Aki the Chosen, bring up the Rematch window and hit Save, you can save in her name the pets you have out.
 - When you return to Aki another day, you can target her, bring up the window and it will offer you those saved pets to load.
 
-New in 3.1.8
-
-- Fixed a bug where renaming a team will delete its notes.
-- Pet filter by quantity now filters for 1, 2+ or 3+ Pets instead of 1, 2 or 3 Pets.
-- Leveling queue right-click menu items "Move to Top" and "Move to End" will dismiss menu.
-- Pet filter menu items "Load Filters" and "Save Filters" will dismiss menu.
-- When searching stats, you can abbreviate Health, Power, Speed and Level as H, P, S and L respectively. ie L<25 or s>300.
-- New pet filter "Without Any 25s" under Miscellaneous to filter to all pets without a level 25 variant.
-- Old pet filter "Only Level 25s" moved to Miscellaneous and paired with new "Without Any 25s".
+Note: Some parts of the addon description below have been udpated. They're worth a read if you want more details. Especially regarding leveling pets/queue/preferences and future plans.
 
 How to Use
 
@@ -95,31 +87,50 @@ Leveling Pets
 
 Thanks to suggestions from Behub, Aloek and others, Rematch has a robust system to make leveling pets easy.
 
-In the Pets tab there is a leveling slot with a shiny gold border. You can drag a pet here to mark it as your leveling pet. (You can also right-click a pet elsewhere like in the journal and choose 'Start Leveling')
+In the Pets tab there is a leveling slot with a shiny gold border. You can drag a pet there to mark it as your leveling pet. (You can also right-click a pet elsewhere like in the journal and choose 'Start Leveling')
 
-- Any teams saved with a leveling pet will reserve that pet's slot for future leveling pets.
+- Any teams saved with pets from the leveling pet will reserve those pets' slots for future leveling pets.
 - When you see a shiny gold border around a pet anywhere in Rematch, it means that is a leveling pet.
 
-So if you save teams for various tamers with the leveling pet loaded, when you return to those tamers later with a different leveling pet, it will load that new leveling pet in their saved places.
+So if you save teams for various tamers with a leveling pet, when you return to those tamers later with a different leveling pet, it will load that new leveling pet in their saved places.
 
 The Leveling Queue
 
-In addition to the gold-bordered leveling slot, there is a leveling queue you can store any number of pets that you intend to level.
+In addition to the gold-bordered leveling slot, there is a leveling queue beneath the slot where you can store any number of pets you intend to level.
 
-As soon as your current leveling pet reaches 25 (grats!), if there are any leveling pets waiting it will swap the top-most pet in the queue to the leveling slot.
+- The top-most pet in the queue will always be the same pet that's in leveling slot. Always.
+- You can double-click any pet in the queue to move it up to the leveling slot, making it your active leveling pet.
+- You can also re-order pets in the queue by dragging them around or by right-clicking a pet and using the move options.
+- As soon as a leveling pet reaches 25 (grats!) it will leave the queue.  If there are any leveling pets waiting, it will swap the top-most pet into the leveling slot.
+- If a team is saved with more than one leveling pet, the top-most pets will be loaded for those slots.
 
 From the gear button to the right of the leveling slot you can:
-- Sort the queue by level: Ascending (level 1 to 25), Descending (25 to 1) or Median (closest to level 10.5).
-- Create your own order by dragging pets around and inserting them between other pets, or by right-clicking a pet and choosing the move options.
-- Use the Auto Rotate option to move to a new pet in the queue after each successful pet battle.
-- Fill the queue from pets in the browser. For instance, search "21-24", filter for Rare and hit Fill to add 21-24 rare pets to the leveling queue.
+- Sort the queue by level: Ascending (level 1 to 25), Median (closest to level 10.5), Descending (25 to 1) or Type (Humanoid then Dragonkin etc).
+- While the queue is sorted, all pets except the top-most pet are sorted. This allows sorting the queue and still keeping an active leveling pet at the top you're working on.
+- If Full Sort is enabled, then even the top pet is included in the sort and it can change as pets gain xp or get added to the queue.
+- You can also fill the queue from pets in the browser. For instance, search "21-24", filter for Rare and hit Fill Queue to add 21-24 rare pets to the leveling queue.
 - Empty the queue. It will ask for confirmation before clearing the queue.
-- If you want to switch to another pet for one fight without changing the order, double-click the pet in the queue.  You can drag it to the leveling slot or right-click the pet and choose Start Leveling.
-- If the current leveling pet is loaded, you can navigate around the queue with previous/next buttons when you mouseover the leveling pet.
+
+Leveling Pet Preferences
+
+The queue is also able to prefer some pets over others.
+- If a queued pet is one your character can't load (like a wrong-factioned Moonkin Hatchling), it will skip over that pet and prefer pets you can load.
+- In the queue menu you can check "Prefer Live Pets."  This will make living pets load before any dead ones.
+- Pets that are not preferred will be darkened in the queue.
+- If preferred pets can't be found to fill all leveling slots, the top-most pets in the queue not already chosen will be used to fill the remaining slots.
+- You can globally disable preferences from checking 'No Preferences' in the queue menu.
+
+You can also save teams with some leveling pet preferences that are active only while that team is loaded.
+- When saving a team with a leveling pet, a button in the lower left will allow you to expand the window to assign leveling pet preferences.  These include:
+  - Minimum Health: Any pets with at least this much maximum health will be preferred. (Injured pets will use their maximum health for consideration)
+  - or any Magic & Mechanical: These two types can survive one hit. For opponents that would only get one swipe at your leveling pet, this option will allow all magic and mechanical pets to be preferred.
+  - Maximum Level: Any pets above this level will be skipped, to save from lost xp.  Note that the level can be a partial amount: 23.45 is level 23 and 45% towards the next level.
+- To change the leveling preferences of an existing team, right-click a team that contains a leveling pet and choose 'Leveling Preferences'.
+- Teams with a preference will have a leveling icon to the right of their name. Mouseover of this button will show the preferences in a tooltip. Clicking the button will summon a dialog to change preferences.
 
 Sharing Teams
 
-There are two ways to share battle pet teams when you right-click it in the Teams tab:
+There are two ways to share battle pet teams when you right-click one in the Teams tab:
 
 Send will send a team to someone online on your faction.
 - When a user receives a team that you Send, they'll receive a popup displaying the team with the option to save it.  If they're in combat or they have another team waiting (or a similar dialog up) it will inform you that they're busy and you should try again later.
@@ -128,7 +139,7 @@ Send will send a team to someone online on your faction.
 
 Export will create a WeakAuras-like text string that you can copy to the clipboard.
 - You can paste the team anywhere else: in an email, on forums, in a text file, etc.
-- Any other Rematch user can use this string to Import the same team. The Import button is in the bottomright of the main window.
+- Any other Rematch user can use this string to Import the same team. The Import button is to the left of the search bar in the team tab.
 
 If you receive or import a team that includes pets you don't have, that's fine. They'll be greyed out and only the pets you have will attempt to load. You can keep the team as is for the day when you get the pet, or you can choose to save over it if you find a suitable substitute for the missing pet.
 
@@ -147,26 +158,33 @@ ogether if you choose.
 
 Future plans
 
-With Warlords of Draenor going live, my addon-writing time will have to compete with my WoW-playing time, but there are still plans for this addon.  They're loosely grouped into three priorities:
+My addon-writing time should be picking up again now that holidays are passing. The present plans for Rematch are listed below, loosely grouped into three priorities.
 
 Short term:
-- Set a minimum health and maximum xp for teams with a leveling pet.  So that teams will pull a different pet from the queue (if any available) when the current leveling pet doesn't meet the criterea.
-- Support multiple leveling pets. When saving a team any pet in the queue will mark the slot as a leveling slot. When loading a team with multiple leveling pets it will pull as many pets as needed.
 - Look for multiple sources for breed data.
+- Queue recovery in the event of a server mass petID reassignment.
+- Custom sorting of pets: by power, speed, favorites mixed with rest, reverse sort, etc.
+- Additional leveling pet preferences: vulnerable pet types, maybe resistant types.
+- Mass Export/Import of teams.
+- Somehow save for challenge posts (prompt to save after a successful battle with a non-wild pet?)
+- Allow the window to be resized horizontally the way it can be resized vertically now.
 
 Mid term:
-- Custom sorting: by power, speed, favorites mixed with rest, reverse sort, etc.
-- An alternate view of current pets that stacks them vertically.
-- Pet Treat, Lesser Pet Treat and Safari Hat buttons in the alternate view, with cooldown spinners on the treats to tell how much time is left on the buff.
-- Mass Export/Import of teams.
+- Allow re-ordering teams into an arbitrary order within a group.
+- Re-evaluate UI:
+ - See about making the UI less "dense".
+ - The small square buttons could afford to be wider.
+ - An alternate view of current pets that stacks them vertically.
+- Pet Treat, Lesser Pet Treat and Safari Hat buttons in the collapsed view, with cooldown spinners on the treats to tell how much time is left on the buff.
 - Some alternate method of tagging pets. A "second" favorites at least.
+- A way to pick a new leveling pet while the window is collapsed.
+- A "favorite filters" system.
 
 Long term:
-- Allow the window to be resized horizontally the way it can be resized vertically now.
 - Rework the pet card to get more information on the card, such as breeds owned.
+- Rematch journal companion: maybe throw in the towel and integrate Rematch into the journal.
 - Understudy pet slot on the pet card for loading an alternate pet if that pet is dead or injured.
 - Possibly some method of choosing alternate teams if the saved team has dead or injured pets.
-- Re-evaluate UI. The small square buttons could afford to be wider.
 
 If you have any comments, suggestions or bugs to report feel free to post them here in the comments. Thanks!
 

@@ -11,64 +11,103 @@ function rematch:InitSaveAs()
 	rematch:RegisterEvent("CHAT_MSG_ADDON")
 end
 
-function rematch:ShowSaveDialog(teamName,teamTable,npcID)
+-- this displays a dialog to save a team (must be a table)
+-- if team isn't given, then it will use the team last loaded into team.pets
+-- if fromCurrent is true, then team being is saved from current pets
+function rematch:ShowSaveDialog(team,fromCurrent)
 
 	local dialog = rematch.dialog
 
-	if dialog.name == "SaveTeam" then
-		rematch:HideDialogs()
-		return
-	end
-
 	rematch:ShowDialog("SaveTeam",152,L["Save As..."],L["Save this team?"],rematch.SaveDialogAcceptOnClick)
-
-	dialog.editBox:SetPoint("TOP",0,-20)
-	dialog.editBox:SetText(teamName or L["New Team"])
-	dialog.editBox:SetScript("OnTextChanged",rematch.SaveEditBoxOnTextChanged)
-	dialog.editBox:Show()
 
 	dialog.team:SetPoint("TOP",0,-48)
 	dialog.team:Show()
-	dialog.teamName = teamName
-	dialog.npcID = npcID
-	dialog.originalTeamName = teamName
-	dialog.originalNpcID = npcID
 
-	if teamTable then -- imports and received teams happen from a table
-		rematch:FillPetFramesFromTeam(dialog.team.pets,teamTable)
-	else -- the save button saves by team names
-		rematch:FillPetFramesFromCurrent(dialog.team.pets)
-		local loadedTeam = saved[settings.loadedTeamName]
+	if team then
+		rematch:FillPetFramesFromTeam(dialog.team.pets,team)
 	end
+
+	local pets = dialog.team.pets
+
+	dialog.editBox:SetPoint("TOP",0,-20)
+	dialog.editBox:SetText(pets.teamName)
+	dialog.editBox:SetScript("OnTextChanged",rematch.SaveEditBoxOnTextChanged)
+	dialog.editBox:Show()
 
 	-- tabPicker button appears if user has custom tabs defined--to choose where to save team
 	if #settings.TeamGroups>1 then
 		dialog.tabPicker:Show()
 	end
 
-	RematchTeamCard:Hide()
+	dialog.savingFromCurrent = fromCurrent
 
+	-- if any leveling pets, setup levelingPanel
+	if pets[1].petID==0 or pets[2].petID==0 or pets[3].petID==0 then
+		dialog.hasLeveling = true
+		local panel = dialog.levelingPanel
+--		panel:SetPoint("TOP",0,-120)
+		panel:Show()
+		-- set initial values to controls
+		panel.minHP:SetText(pets[7] or "")
+		panel.allowMM:SetChecked(pets[8] and true)
+		panel.maxXP:SetText(pets[9] or "")
+		if pets[7] or pets[9] then
+			dialog.showLeveling = true -- if any preferences defined, show panel from start
+		end
+		-- make tab on reused editBox jump to minHP (this is cleared when dialogs are repurposed)
+		dialog.editBox:SetScript("OnTabPressed",function(self)
+			if dialog.levelingPanel:IsVisible() then
+				dialog.levelingPanel.minHP:SetFocus(true)
+			end
+		end)
+		-- display toggle button in lower left of dialog
+		dialog.panelToggle:SetPoint("BOTTOMLEFT",3,2)
+		dialog.panelToggle.icon:SetTexture(rematch.levelingIcon)
+		dialog.panelToggle:Show()
+		-- if saving from current pets, show the option 'Save leveling pets as themselves'
+		if not dialog.asThemselves then
+			dialog.asThemselves = CreateFrame("CheckButton",nil,dialog,"UICheckButtonTemplate")
+			rematch:RegisterDialogWidget("asThemselves")
+			dialog.asThemselves:SetSize(26,26)
+			local label = dialog.asThemselves:CreateFontString(nil,"ARTWORK","GameFontHighlightSmall")
+			label:SetPoint("LEFT",dialog.asThemselves,"RIGHT",2,0)
+			label:SetText(L["Save leveling pets as themselves"])
+			dialog.asThemselves.tooltipTitle = L["Save As Themselves"]
+			dialog.asThemselves.tooltipBody = L["Save pets without turning them into leveling pets.\n\nSo loading this team in the future will load these specific pets and not from the queue."]
+			dialog.asThemselves:SetScript("OnEnter",function(self) rematch.ShowTooltip(self) end)
+			dialog.asThemselves:SetScript("OnLeave",function() RematchTooltip:Hide() end)
+			dialog.asThemselves:SetScript("OnClick",rematch.LevelingPanelSaveAsThemselvesOnClick)
+		end
+		dialog.asThemselves:SetChecked(false) -- always default it to off
+		dialog.asThemselves:SetPoint("BOTTOMLEFT",24,40)
+	else
+		dialog.hasLeveling = nil
+	end
+
+	RematchTeamCard:Hide()
 end
 
 function rematch:UpdateSaveDialog()
 	local dialog = rematch.dialog
 	local warnOffset = dialog.warning:IsVisible() and 18 or 0
-	dialog:SetHeight(152 + warnOffset)
+	local pets = dialog.team.pets
+	local showLeveling = dialog.showLeveling and dialog.hasLeveling
+	dialog.levelingPanel:SetShown(showLeveling and true)
+	if dialog.asThemselves then
+		dialog.asThemselves:SetShown(dialog.savingFromCurrent and showLeveling)
+	end
+	dialog:SetHeight(152 + warnOffset + (showLeveling and (dialog.levelingPanel:GetHeight()+(dialog.savingFromCurrent and 24 or 0)) or 0))
 	dialog.team:SetPoint("TOP",0,-48-warnOffset)
+	dialog.levelingPanel:SetPoint("TOP",0,-120-warnOffset)
 end
 
 function rematch:SaveEditBoxOnTextChanged()
 	local teamName = self:GetText()
 	rematch:SetAcceptEnabled(teamName:len()>0)
-	local dialog = self:GetParent()
-	if teamName ~= dialog.originalTeamName then
-		dialog.npcID = nil -- if name is changed, nil the npcID
-	else
-		dialog.npcID = dialog.originalNpcID
-	end
+	local dialog = rematch.dialog
+	dialog.team.pets.teamName = teamName
 	-- loadedTeamName is the loaded team; we need to account for new targeted npcIDs staying
-	dialog.teamName = teamName
-	if saved[teamName] and GetTime()~=dialog.timeShown then -- if name is same as an existing team
+	if saved[teamName] and teamName~=dialog.team.pets.originalTeamName then -- if name is same as an existing team
 		dialog.warning.text:SetText(L["A team already has this name."])
 		dialog.warning:SetPoint("TOP",0,-42)
 		dialog.warning:Show()
@@ -78,84 +117,62 @@ function rematch:SaveEditBoxOnTextChanged()
 	rematch:UpdateSaveDialog()
 end
 
--- fills pets frame from current loadout (save dialogs)
-function rematch:FillPetFramesFromCurrent(pets)
-	rematch:WipePetFrames(pets)
-	local info = rematch.info
-	for i=1,3 do
-		info[1],info[2],info[3],info[4] = C_PetJournal.GetPetLoadOutInfo(i)
-		if info[1] then
-			if rematch:IsCurrentLevelingPet(info[1]) then
-				pets[i].petID = 0
-				pets[i].icon:SetTexture(rematch.levelingIcon)
-				pets[i].leveling:Show()
-			else
-				pets[i].petID = info[1]
-				local _,_,level,_,_,_,_,_,icon = C_PetJournal.GetPetInfoByPetID(info[1])
-				pets[i].icon:SetTexture(icon)
-				if level and level<25 then
-					pets[i].levelBG:Show()
-					pets[i].level:SetText(level)
-					pets[i].level:Show()
-				end
-				if not settings.HideRarityBorders and type(info[1])=="string" then
-					local _,_,_,_,rarity = C_PetJournal.GetPetStats(info[1])
-			    local r,g,b = ITEM_QUALITY_COLORS[rarity-1].r, ITEM_QUALITY_COLORS[rarity-1].g, ITEM_QUALITY_COLORS[rarity-1].b
-					pets[i].border:SetVertexColor(r,g,b,1)
-					pets[i].border:Show()
-				end
-				for j=1,3 do
-					if info[j+1] and info[j+1]>0 then
-						pets[i].abilities[j].abilityID = info[j+1]
-						pets[i].abilities[j].icon:SetTexture((select(3,C_PetBattles.GetAbilityInfoByID(info[j+1]))))
-						pets[i].abilities[j].icon:Show()
-					end
-				end
-			end
-			pets[i].icon:Show()
-		else
-			pets[i].petID = rematch.emptyPetID
-		end
-	end
-end
-
 -- does the final save of a team
-function rematch:SaveTeamFromPetFrames(teamName,npcID,pets)
-	local notes
-	if saved[teamName] then
-		notes = saved[teamName][6] -- save notes if we're about to overwrite team
-	end
-	saved[teamName] = {}
-	saved[teamName][6] = notes
+function rematch:SaveTeamFromPetFrames(pets)
+	saved[pets.teamName] = saved[pets.teamName] or {}
+	local team = saved[pets.teamName]
+	local hasLeveling
 	for i=1,3 do
-		local petID = pets[i].petID or rematch.emptyPetID
+		local petID = pets[i].petID
 		-- petID goes in [1]
-		saved[teamName][i] = {petID}
-		-- abilities goes in [2] through [4]
+		team[i] = {petID}
+		-- note if any leveling pets in this team
+		if petID==0 then
+			hasLeveling = true
+		end
+		-- abilities go in [2] through [4]
 		for j=1,3 do
-			saved[teamName][i][j+1] = pets[i].abilities[j].abilityID or 0
+			team[i][j+1] = pets[i].abilities[j].abilityID or 0
 		end
 		-- speciesID goes in [5]
 		if type(petID)=="string" and petID~=rematch.emptyPetID then
 			local speciesID = C_PetJournal.GetPetInfoByPetID(petID)
 			if speciesID then
-				saved[teamName][i][5] = speciesID
+				team[i][5] = speciesID
 			end
 		elseif type(petID)=="number" and petID~=0 then
-			saved[teamName][i][5] = petID
+			team[i][5] = petID
 		end
 	end
-	if npcID then
-		saved[teamName][4] = npcID
-	end
 	if settings.SelectedTab and settings.SelectedTab>1 then
-		saved[teamName][5] = settings.SelectedTab
+		team[5] = settings.SelectedTab
+	end
+	-- the existing npcID should take precedent over the old one; but we need to be able to fix the npcID too hmm
+	if not team[4] then
+		team[4] = pets[4]
+	end
+	for i=7,9 do -- minHP, allowMM, maxXP
+		if hasLeveling then
+			team[i] = pets[i]
+		else
+			team[i] = nil
+		end
+	end
+	team[5] = settings.SelectedTab>1 and settings.SelectedTab or nil
+	-- if the name was changed by the user, then remove its npcID
+	if pets.originalTeamName ~= pets.teamName then
+		team[4] = nil
+	end
+	if not rematch.dialog.teamNotLoaded then
+		settings.loadedTeamName = pets.teamName
+		settings.loadedNpcID = team[4]
+		rematch:ProcessQueue() -- leveling pet preferences may have changed
 	end
 end
 
 function rematch:SaveDialogAcceptOnClick()
 	local dialog = rematch.dialog
-	local teamName = dialog.teamName
+	local teamName = dialog.team.pets.teamName
 	local npcID = dialog.npcID
 
 	rematch.lastOffered = nil -- "reset" autoload ignoring last target
@@ -173,11 +190,7 @@ function rematch:SaveDialogAcceptOnClick()
 	if askReplace then -- then ask if they want this replaced
 		rematch:ShowReplaceDialog(teamName)
 	else -- otherwise save
-		if not dialog.teamNotLoaded then
-			settings.loadedTeamName = teamName
-			settings.loadedNpcID = npcID
-		end
-		rematch:SaveTeamFromPetFrames(teamName,npcID,dialog.team.pets)
+		rematch:SaveTeamFromPetFrames(dialog.team.pets)
 		rematch:UpdateWindow()
 		rematch:ScrollToTeam(teamName)
 	end
@@ -191,61 +204,46 @@ function rematch:ShowReplaceDialog(teamName)
 		return -- this can only be called from a dialog displaying a team that already exists
 	end
 
-	-- first copy the team in the prior dialog to dialog.backupTeam
-	local backup = dialog.backupTeam
-	for i=1,3 do
-		wipe(backup[i])
-		local petID = dialog.team.pets[i].petID
-		backup[i][1] = petID
-		for j=1,3 do
-			backup[i][j+1] = dialog.team.pets[i].abilities[j].abilityID or 0
-		end
-	end
-
 	-- now show the dialog (which wipes the contents of the team frames!)
 	rematch:ShowDialog("ReplaceTeam",220,teamName,L["Overwrite this team?"],rematch.ReplaceApproved)
-
-	dialog.team:SetPoint("TOP",0,-24)
-	dialog.team:Show()
 
 	if not dialog.replace then
 		dialog.replace = CreateFrame("Frame",nil,dialog,"RematchTeamTemplate")
 		rematch:RegisterDialogWidget("replace")
 		dialog.replace.arrow = dialog.replace:CreateTexture(nil,"ARTWORK")
 		dialog.replace.arrow:SetSize(32,32)
-		dialog.replace.arrow:SetPoint("BOTTOM",dialog.replace,"TOP",0,0)
+		dialog.replace.arrow:SetPoint("TOP",dialog.replace,"BOTTOM",0,0)
 		dialog.replace.arrow:SetTexture("Interface\\Buttons\\UI-MicroStream-Green")
 	end
-	dialog.replace:SetPoint("TOP",dialog.team,"BOTTOM",0,-32)
+	dialog.replace:SetPoint("TOP",0,-24)
 	dialog.replace:Show()
 
-	-- old team is saved[teamName]
-	rematch:FillPetFramesFromTeam(dialog.team.pets,saved[teamName])
-	-- new team is backup saved at start of this function
-	rematch:FillPetFramesFromTeam(dialog.replace.pets,backup)
+	dialog.team:SetPoint("TOP",dialog.replace,"BOTTOM",0,-32)
+	dialog.team:Show()
 
-	dialog.runOnHide = rematch.RestoreSaveInOneFrame
---rematch:ShowSaveDialog(teamName,teamTable,npcID)
--- when hitting cancel, show save dialog with dialog.teamName,backup,dialog.npcID
+	-- old team is saved[teamName] and filled into dialog.replace
+	-- new team is the one from dialog.team from previous dialog
+	rematch:FillPetFramesFromTeam(dialog.replace.pets,saved[teamName])
+
+	dialog.runOnHide = rematch.RestoreSaveInOneFrame -- when hitting cancel, show save dialog
 
 end
 
 -- this is the runOnHide for the replace dialog
 -- one frame after window hides, run RestoreSaveDialog if runOnHide still defined
 function rematch:RestoreSaveInOneFrame()
-	rematch:StartTimer("RestoreSaveDialog",0,rematch.RestoreSaveDialog)
+	C_Timer.After(0,rematch.RestoreSaveDialog)
 end
 
 -- unless the accept button is clicked (that nils the runOnHide), restore
 -- the save dialog that spawned the replace dialog that hid last frame
 function rematch:RestoreSaveDialog()
-	local dialog = rematch.dialog
-	if dialog.runOnHide then -- accept button wasn't hit (esc or cancel)
-		rematch:ShowSaveDialog(dialog.teamName,dialog.backupTeam,dialog.npcID)
+	if rematch.dialog.runOnHide then -- accept button wasn't hit (esc or cancel)
+		rematch:ShowSaveDialog()
 	end
 end
 
--- accept was clicked, nil runOnHide and save the team for reals
+-- accept was clicked, nil runOnHide and save the team for real real
 function rematch:ReplaceApproved()
 	local dialog = rematch.dialog
 	dialog.runOnHide = nil
@@ -253,9 +251,25 @@ function rematch:ReplaceApproved()
 		settings.loadedTeamName = dialog.teamName
 		settings.loadedNpcID = dialog.npcID
 	end
-	rematch:SaveTeamFromPetFrames(dialog.teamName,dialog.npcID,dialog.replace.pets)
+	rematch:SaveTeamFromPetFrames(dialog.team.pets)
 	rematch:UpdateWindow()
 	rematch:ScrollToTeam(dialog.teamName)
+end
+
+-- when an editbox in levelingPanel text changes, update its value in the
+function rematch:LevelingPanelOnTextChanged()
+	local value = self:GetText()
+	local number = tonumber(value)
+	if value:len()==0 or number then
+		rematch.dialog.team.pets[self:GetID()] = number
+	else
+		self:SetText(rematch.dialog.team.pets[self:GetID()] or "")
+	end
+	self.clear:SetShown(value:len()>0)
+end
+
+function rematch:LevelingPanelCheckButtonOnClick()
+	rematch.dialog.team.pets[self:GetID()] = self:GetChecked()
 end
 
 --[[ Import/Export ]]
@@ -266,7 +280,7 @@ function rematch:ShowExportDialog(teamName)
 
 	dialog.team:SetPoint("TOP",0,-24)
 	dialog.team:Show()
-	rematch:FillPetFramesFromTeam(dialog.team.pets,saved[teamName])
+	rematch:FillPetFramesFromTeam(dialog.team.pets,teamName)
 
 	dialog.text:SetSize(180,40)
 	dialog.text:SetPoint("TOP",dialog.team,"BOTTOM",0,-8)
@@ -279,14 +293,12 @@ function rematch:ShowExportDialog(teamName)
 	dialog.multiLine.editBox:SetText(rematch:ConvertTeamToString(teamName))
 	dialog.multiLine.editBox:HighlightText(0)
 
-	dialog.teamName = teamName
-
 	dialog.multiLine.editBox:SetScript("OnTextChanged",rematch.ExportOnTextChanged)
 
 end
 
 function rematch:ExportOnTextChanged()
-	self:SetText(rematch:ConvertTeamToString(rematch.dialog.teamName))
+	self:SetText(rematch:ConvertTeamToString(rematch.dialog.team.pets.teamName))
 	self:HighlightText(0)
 end
 
@@ -343,11 +355,12 @@ end
 
 function rematch:ImportOrReceiveAccept()
 	local dialog = rematch.dialog
-	if saved[dialog.teamName] then
+	local teamName = dialog.team.pets.teamName
+	if saved[teamName] then -- team already exists with this name, show save dialog to replace name
 		dialog.teamNotLoaded = true
-		rematch:ShowSaveDialog(dialog.teamName,dialog.backupTeam,dialog.npcID)
+		rematch:ShowSaveDialog()
 	else
-		rematch:SaveTeamFromPetFrames(dialog.teamName,dialog.npcID,dialog.team.pets)
+		rematch:SaveTeamFromPetFrames(dialog.team.pets)
 		rematch:UpdateWindow()
 		rematch:ScrollToTeam(teamName)
 	end
@@ -357,23 +370,22 @@ function rematch:ImportOnTextChanged()
 	local text = self:GetText()
 	local dialog = rematch.dialog
 
-	local teamName = rematch:ConvertStringToTeam(text,dialog.backupTeam)
-	rematch:SetAcceptEnabled(teamName and true)
+	local team = rematch:ConvertStringToTeam(text)
+	rematch:SetAcceptEnabled(team and true)
+
 	dialog.header.text:SetTextColor(1,.82,0)
 	dialog.warning:Hide()
 	dialog:SetHeight(244)
 
-	if teamName then
-		rematch:FillPetFramesFromTeam(dialog.team.pets,dialog.backupTeam)
-		dialog.teamName = teamName
-		dialog.npcID = dialog.backupTeam[4]
-		if dialog.npcID then
+	if team then
+		rematch:FillPetFramesFromTeam(dialog.team.pets,team)
+		if team[4] then
 			dialog.header.text:SetTextColor(1,1,1)
 		end
 		dialog.header.text:SetText(teamName)
 		dialog.prompt:SetText(L["Save this team?"])
 
-		if saved[teamName] then
+		if saved[team.teamName] then
 			dialog.warning:SetPoint("TOP",dialog.multiLine,"BOTTOM",0,-8)
 			dialog.warning.text:SetText(L["A team already has this name.\nClick \124TInterface\\RaidFrame\\ReadyCheck-Ready:16\124t to choose a name."])
 			dialog.warning:Show()
@@ -386,9 +398,9 @@ function rematch:ImportOnTextChanged()
 	end
 end
 
--- fills teamTable with the team defined in teamString, returning the teamName if it was valid
-function rematch:ConvertStringToTeam(teamString,teamTable)
-	local t=teamTable
+-- fills teamTable with the team defined in teamString, returning the team as a table if it was valid
+function rematch:ConvertStringToTeam(teamString)
+	local t={{},{},{}}
 	local teamName
 	for i=1,3 do
 		t[i]=t[i] or {}
@@ -412,7 +424,8 @@ function rematch:ConvertStringToTeam(teamString,teamTable)
 		end
 		t[4]=t[4]~="0" and tonumber(t[4]) or nil
 		rematch:ValidateTeam(t) -- fill out species IDs with petIDs
-		return teamName
+		t.teamName = teamName
+		return t
 	end
 end
 
@@ -566,10 +579,9 @@ function rematch:HandleReceivedMessage(message,sender)
 		elseif dialog:IsVisible() then
 			rematch:SendMessage("busy",sender)
 		else
-
 			-- user appears ready to receive; now check if it's an actual team
-			local teamName = rematch:ConvertStringToTeam(message,dialog.backupTeam)
-			if teamName then
+			local team = rematch:ConvertStringToTeam(message)
+			if team then
 				-- it's an actual team, send back an ok
 				rematch:SendMessage("ok",sender)
 
@@ -582,20 +594,18 @@ function rematch:HandleReceivedMessage(message,sender)
 
 				dialog.text:SetSize(220,42)
 				dialog.text:SetPoint("TOP",0,-18)
-				dialog.text:SetText(format(L["\124cffffd200%s\124r has sent you a team named \124cffffd200\"%s\"\124r"],sender,teamName))
+				dialog.text:SetText(format(L["\124cffffd200%s\124r has sent you a team named \124cffffd200\"%s\"\124r"],sender,team.teamName))
 				dialog.text:Show()
 
 				dialog.team:SetPoint("TOP",dialog.text,"BOTTOM",0,-4)
 				dialog.team:Show()
-				dialog.teamName = teamName
-				dialog.npcID = dialog.backupTeam[4]
-				rematch:FillPetFramesFromTeam(dialog.team.pets,dialog.backupTeam)
+				rematch:FillPetFramesFromTeam(dialog.team.pets,team)
 
 				if #settings.TeamGroups>1 then
 					dialog.tabPicker:Show()
 				end
 
-				if saved[teamName] then
+				if saved[team.teamName] then
 					dialog.warning:SetPoint("TOP",dialog.team,"BOTTOM",0,-8)
 					dialog.warning.text:SetText(L["A team already has this name.\nClick \124TInterface\\RaidFrame\\ReadyCheck-Ready:16\124t to choose a name."])
 					dialog.warning:Show()
@@ -606,4 +616,41 @@ function rematch:HandleReceivedMessage(message,sender)
 
 		end
 	end
+end
+
+-- used in main.lua for returning a team table to pass to save dialog
+-- if noLeveling is passed, then leveling pets are defined as themselves
+function rematch:CreateTeamFromCurrent(targetName,targetNpcID,noLeveling)
+	local team = {teamName=L["New Team"]}
+	for i=1,3 do
+		team[i] = {C_PetJournal.GetPetLoadOutInfo(i)}
+		if rematch:IsPetLeveling(team[i][1]) and not noLeveling then -- if loadout pet is leveling
+			for j=1,4 do
+				team[i][j] = 0 -- then fill its fields with 0's
+			end
+		end
+	end
+	local teamName = targetName or settings.loadedTeamName
+	if teamName then
+		team.teamName = teamName
+		team[4] = targetNpcID
+	end
+	if saved[teamName] then -- if team already exists,
+		team[4] = team[4] or saved[teamName][4] -- passed targetNpcID takes priority
+		for i=7,9 do -- copy minHP,allowMM and maxXP of saved team (skipping tab and notes)
+			team[i] = saved[teamName][i]
+		end
+	end
+	return team
+end
+
+function rematch:LevelingPanelSaveAsThemselvesOnClick()
+	local dialog = rematch.dialog
+	local teamName = dialog.team.pets.teamName
+	local npcID = dialog.team.pets[4]
+	local team = rematch:CreateTeamFromCurrent(teamName,npcID,self:GetChecked())
+	dialog.levelingPanel.minHP:SetText("")
+	dialog.levelingPanel.allowMM:SetChecked(false)
+	dialog.levelingPanel.maxXP:SetText("")
+	rematch:FillPetFramesFromTeam(dialog.team.pets,team)
 end

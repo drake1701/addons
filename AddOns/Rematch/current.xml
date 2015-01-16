@@ -48,45 +48,58 @@
 
 	<Button name="RematchCurrentPetTemplate" inherits="RematchActivePetSlotTemplate" virtual="true">
 		<Size x="48" y="48"/>
-		<Layers>
-			<Layer level="ARTWORK">
-				<!-- background/border of health and xp bar -->
-				<Texture parentKey="healthBG" file="Interface\Archeology\Arch-Progress-BG">
-					<Size x="43" y="12"/>
-					<Anchors>
-						<Anchor point="TOPLEFT" relativePoint="BOTTOMLEFT" x="2" y="1"/> <!-- y="-2" -->
-					</Anchors>
-					<TexCoords left="0.005859375" right="0.837890625" top="0.046875" bottom="0.640625"/>
-				</Texture>
-				<Texture parentKey="xpBG" file="Interface\Archeology\Arch-Progress-BG">
-					<Size x="43" y="12"/>
-					<Anchors>
-						<Anchor point="TOPLEFT" relativeKey="$parent.healthBG" relativePoint="BOTTOMLEFT" x="0" y="1"/>
-					</Anchors>
-					<TexCoords left="0.005859375" right="0.837890625" top="0.046875" bottom="0.640625"/>
-				</Texture>
-			</Layer>
-			<Layer level="OVERLAY">
-				<!-- actual health and xp bar -->
-				<Texture parentKey="health" file="Interface\TargetingFrame\UI-TargetingFrame-BarFill">
-					<Size x="37" y="6"/>
-					<Anchors>
-						<Anchor point="TOPLEFT" relativeKey="$parent.healthBG" relativePoint="TOPLEFT" x="3" y="-3"/>
-					</Anchors>
-					<TexCoords left="0" right="0.85" top="0" bottom="1"/>
-					<Color r="0" g="0.85" b="0"/>
-				</Texture>
-				<Texture parentKey="xp" file="Interface\TargetingFrame\UI-TargetingFrame-BarFill">
-					<Size x="37" y="6"/>
-					<Anchors>
-						<Anchor point="TOPLEFT" relativeKey="$parent.xpBG" relativePoint="TOPLEFT" x="3" y="-3"/>
-					</Anchors>
-					<TexCoords left="0" right="0.85" top="0" bottom="1"/>
-					<Color r=".2" g=".5" b="1"/>
-				</Texture>
-			</Layer>
-		</Layers>
 		<Frames>
+			<!-- bars frame contains the health and xp bars -->
+			<Frame parentKey="bars" useParentLevel="true" inherits="RematchDragTemplate">
+				<Size x="43" y="24"/>
+				<Anchors>
+					<Anchor point="TOPLEFT" relativePoint="BOTTOMLEFT"/>
+					<Anchor point="BOTTOMRIGHT" relativePoint="BOTTOMRIGHT" x="0" y="-24"/>
+				</Anchors>
+				<Layers>
+					<Layer level="ARTWORK">
+						<!-- background/border of health and xp bar -->
+						<Texture parentKey="healthBG" file="Interface\Archeology\Arch-Progress-BG">
+							<Size x="43" y="12"/>
+							<Anchors>
+								<Anchor point="TOPLEFT" relativePoint="BOTTOMLEFT" x="2" y="1"/> <!-- y="-2" -->
+							</Anchors>
+							<TexCoords left="0.005859375" right="0.837890625" top="0.046875" bottom="0.640625"/>
+						</Texture>
+						<Texture parentKey="xpBG" file="Interface\Archeology\Arch-Progress-BG">
+							<Size x="43" y="12"/>
+							<Anchors>
+								<Anchor point="TOPLEFT" relativeKey="$parent.healthBG" relativePoint="BOTTOMLEFT" x="0" y="1"/>
+							</Anchors>
+							<TexCoords left="0.005859375" right="0.837890625" top="0.046875" bottom="0.640625"/>
+						</Texture>
+					</Layer>
+					<Layer level="OVERLAY">
+						<!-- actual health and xp bar -->
+						<Texture parentKey="health" file="Interface\TargetingFrame\UI-TargetingFrame-BarFill">
+							<Size x="37" y="6"/>
+							<Anchors>
+								<Anchor point="TOPLEFT" relativeKey="$parent.healthBG" relativePoint="TOPLEFT" x="3" y="-3"/>
+							</Anchors>
+							<TexCoords left="0" right="0.85" top="0" bottom="1"/>
+							<Color r="0" g="0.85" b="0"/>
+						</Texture>
+						<Texture parentKey="xp" file="Interface\TargetingFrame\UI-TargetingFrame-BarFill">
+							<Size x="37" y="6"/>
+							<Anchors>
+								<Anchor point="TOPLEFT" relativeKey="$parent.xpBG" relativePoint="TOPLEFT" x="3" y="-3"/>
+							</Anchors>
+							<TexCoords left="0" right="0.85" top="0" bottom="1"/>
+							<Color r=".2" g=".5" b="1"/>
+						</Texture>
+					</Layer>
+				</Layers>
+				<Scripts>
+					<OnEnter>
+						Rematch.CurrentPetOnEnter(self:GetParent(),true)
+					</OnEnter>
+				</Scripts>
+			</Frame>
 			<!-- the three abilities to the right of the pet -->
 			<Button parentArray="abilities" inherits="RematchCurrentAbilityTemplate" id="1">
 				<Anchors>
@@ -145,7 +158,7 @@
 			</Button>
 			<Button parentArray="pets" inherits="RematchCurrentPetTemplate" id="2">
 				<Anchors>
-					<Anchor point="TOPLEFT" x="108" y="-20"/>
+					<Anchor point="TOPLEFT" x="109" y="-20"/>
 				</Anchors>
 			</Button>
 			<Button parentArray="pets" inherits="RematchCurrentPetTemplate" id="3">
@@ -153,42 +166,31 @@
 					<Anchor point="TOPLEFT" x="198" y="-20"/>
 				</Anchors>
 			</Button>
-
-			<!-- the left/right arrow buttons beneath a leveling pet to move around the queue -->
-			<Frame parentKey="levelingNavigator" hidden="true">
-				<Size x="56" y="32"/>
-				<Anchors>
-					<Anchor point="CENTER" relativeTo="UIParent"/>
-				</Anchors>
-				<Frames>
-					<Button parentKey="prev" inherits="RematchToolbarButtonTemplate">
-						<Anchors>
-							<Anchor point="LEFT"/>
-						</Anchors>
-						<Scripts>
-							<OnClick>
-								Rematch:TraverseQueue(true) -- backward
-							</OnClick>
-						</Scripts>
-					</Button>
-					<Button parentKey="next" inherits="RematchToolbarButtonTemplate">
-						<Anchors>
-							<Anchor point="RIGHT"/>
-						</Anchors>
-						<Scripts>
-							<OnClick>
-								Rematch:TraverseQueue()
-							</OnClick>
-						</Scripts>
-					</Button>
-				</Frames>
+			<Button parentKey="swap" frameLevel="10" inherits="RematchToolbarButtonTemplate" hidden="true">
+				<KeyValues>
+					<KeyValue key="defaultIcon" value="Interface\PaperdollInfoFrame\UI-GearManager-Undo"/>
+					<KeyValue key="defaultIcon" value="Interface\Icons\INV_Pet_SwapPet"/>
+				</KeyValues>
 				<Scripts>
+					<PreClick>
+						-- override to not hide dialog
+					</PreClick>
 					<OnUpdate>
-						Rematch.LevelingNavigatorOnUpdate(self,elapsed)
+						if not MouseIsOver(self) and not MouseIsOver(self:GetParent()) then
+							self:Hide()
+						end
 					</OnUpdate>
+					<OnShow>
+						self:GetParent().bars:Hide()
+					</OnShow>
+					<OnHide>
+						self:GetParent().bars:Show()
+					</OnHide>
+					<OnClick>
+						Rematch.ShowLevelingCarouselDialog(self) -- in leveling.lua
+					</OnClick>
 				</Scripts>
-			</Frame>
-
+			</Button>
 		</Frames>
 	</Frame>
 

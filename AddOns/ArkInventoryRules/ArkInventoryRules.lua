@@ -1,6 +1,6 @@
 ﻿-- (c) 2009-2014, all rights reserved.
--- $Revision: 1253 $
--- $Date: 2014-10-23 23:19:49 +1100 (Thu, 23 Oct 2014) $
+-- $Revision: 1288 $
+-- $Date: 2015-01-04 11:08:45 +1100 (Sun, 04 Jan 2015) $
 
 
 local _G = _G
@@ -1636,15 +1636,15 @@ function ArkInventoryRules.Frame_Rules_Table_Refresh( frame )
 		end
 		
 		if not ignore then
-			table.insert( tt, { ["sorted"]=format( "%04i %04i", d.order or 0, k ), ["id"]=k, ["enabled"]=ArkInventory.db.profile.option.rule[k] or false, ["order"]=d.order or 0, ["name"]=d.name or "", ["formula"]=d.formula or "", ["damaged"]=d.damaged or false } )
+			tt[#tt + 1] = { ["sorted"]=format( "%04i %04i", d.order or 0, k ), ["id"]=k, ["enabled"]=ArkInventory.db.profile.option.rule[k] or false, ["order"]=d.order or 0, ["name"]=d.name or "", ["formula"]=d.formula or "", ["damaged"]=d.damaged or false }
 			tc = tc + 1
 		end
 
 	end
-
-
+	
+	
 	FauxScrollFrame_Update( _G[ft .. "Scroll"], tc, rows, height )
-
+	
 	if tc == 0 then
 		return
 	end

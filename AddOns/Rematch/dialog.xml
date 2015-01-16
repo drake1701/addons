@@ -1,5 +1,77 @@
 <Ui>
 
+	<Button name="RematchLevelingCarouselButtonTemplate" inherits="RematchBaseSlotTemplate" virtual="true">
+		<Size x="42" y="42"/>
+		<Layers>
+			<Layer level="ARTWORK">
+				<!-- border is colored for the pet's rarity -->
+				<Texture parentKey="border" file="Interface\AddOns\Rematch\textures\border" hidden="true">
+					<Anchors>
+						<Anchor point="TOPLEFT" x="1" y="-1"/>
+						<Anchor point="BOTTOMRIGHT" x="-1" y="1"/>
+					</Anchors>
+				</Texture>
+			</Layer>
+		</Layers>
+		<Scripts>
+			<OnEnter>
+				Rematch.PetOnEnter(self)
+			</OnEnter>
+			<OnLeave>
+				Rematch.PetOnLeave(self)
+			</OnLeave>
+			<OnClick>
+				Rematch.LevelingCarouselPetOnClick(self)
+			</OnClick>
+		</Scripts>				
+	</Button>
+
+
+	<!-- template for the leveling panel editboxes (really) for entering numbers to fields
+			 when adding new fields, remember to set an id="index_in_team_table" -->
+	<EditBox name="RematchLevelingPanelEditBoxTemplate" inherits="RematchInputBoxTemplate" virtual="true">
+		<Size x="60" y="20"/>
+		<Frames>
+			<Button parentKey="clear" inherits="RematchClearButtonTemplate">
+				<Anchors>
+					<Anchor point="RIGHT" x="6" y="1"/>
+				</Anchors>
+				<Scripts>
+					<OnClick>
+						local parent = self:GetParent()
+						parent:SetText("")
+						parent:SetFocus(true)
+					</OnClick>
+				</Scripts>
+			</Button>
+		</Frames>
+		<Scripts>
+			<OnEnter>
+				Rematch.ShowTooltip(self)
+			</OnEnter>
+			<OnLeave>
+				RematchTooltip:Hide()
+			</OnLeave>
+			<OnEnterPressed>
+				if Rematch.dialog.editBox:IsVisible() then
+					Rematch.dialog.editBox:SetFocus(true)
+				else
+					Rematch.dialog.accept:Click()
+				end
+			</OnEnterPressed>
+			<OnTextChanged>
+				Rematch.LevelingPanelOnTextChanged(self)
+			</OnTextChanged>
+			<OnEscapePressed>
+				if not Rematch.dialog.editBox:IsVisible() then
+					Rematch.dialog.cancel:Click()
+				else
+					Rematch.dialog.editBox:SetFocus(true)
+				end
+			</OnEscapePressed>
+		</Scripts>
+	</EditBox>
+
 	<Frame name="RematchDialog" parent="Rematch" parentKey="dialog" forceAlpha="true" clampedToScreen="true" frameStrata="HIGH" inherits="RematchBaseFrameTemplate,RematchDragTemplate" hidden="true">
 		<Size x="250" y="300"/>
 		<Anchors>
@@ -163,7 +235,11 @@
 						-- nothing: prevent hiding dialog
 					</PreClick>
 					<OnClick>
-						Rematch:ShowMenu("tabPicker","BOTTOMRIGHT",self,"TOPRIGHT",-4,-4,true)
+						if Rematch:IsMenuOpen("tabPicker") then
+							Rematch:HideMenu()
+						else
+							Rematch:ShowMenu("tabPicker","BOTTOMRIGHT",self,"TOPRIGHT",-4,-4,true)
+						end
 					</OnClick>
 					<OnShow>
 						self:SetPoint("BOTTOMRIGHT",self:GetParent().accept,"BOTTOMLEFT",6,0)
@@ -275,6 +351,225 @@
 					</OnClick>
 				</Scripts>
 			</Button>
+
+			<!-- toggle button to show/hide leveling preferences panel -->
+			<Button parentKey="panelToggle" inherits="RematchToolbarButtonTemplate">
+				<Scripts>
+					<PreClick>
+						-- override default PreClick which hides dialog
+					</PreClick>
+					<OnClick>
+						Rematch.dialog.showLeveling = not Rematch.dialog.showLeveling
+						Rematch:UpdateSaveDialog()
+					</OnClick>
+				</Scripts>
+			</Button>
+
+			<!-- levelingPanel displays the min health/max level/etc for leveling pet save dialog -->
+			<Frame parentKey="levelingPanel" useParentLevel="true">
+				<Size x="250" y="120"/>
+				<Layers>
+					<Layer level="BACKGROUND">
+						<!-- horizontal line at top -->
+						<Texture file="Interface\PetBattles\_PetJournalHorizTile" tile="horiz">
+							<Size x="243" y="6"/>
+							<TexCoords left="0" right="1" top="0.0078125" bottom="0.078125"/>
+							<Anchors>
+								<Anchor point="TOP"/>
+							</Anchors>
+						</Texture>
+					</Layer>
+					<Layer level="ARTWORK">
+						<FontString parentKey="title" inherits="GameFontNormal" justifyH="CENTER">
+							<Size x="220" y="0"/>
+							<Anchors>
+								<Anchor point="TOP" x="0" y="-10"/>
+							</Anchors>
+						</FontString>
+						<FontString parentKey="allowMMLabel" inherits="GameFontHighlight" justifyH="RIGHT">
+							<Anchors>
+								<Anchor point="CENTER" relativePoint="TOP" x="20" y="-71"/>
+							</Anchors>
+						</FontString>
+					</Layer>
+				</Layers>
+				<Frames>
+					<!-- 7th entry in team table is minHP -->
+					<EditBox parentKey="minHP" inherits="RematchLevelingPanelEditBoxTemplate" id="7">
+						<Anchors>
+							<Anchor point="TOPRIGHT" x="-42" y="-34"/>
+						</Anchors>
+						<Scripts>
+							<OnTabPressed>
+								self:GetParent().maxXP:SetFocus(true)
+							</OnTabPressed>
+						</Scripts>
+					</EditBox>
+					<!-- 8th entry in team table is allowMM -->
+					<CheckButton parentKey="allowMM" inherits="UICheckButtonTemplate" id="8">
+						<Size x="26" y="26"/>
+						<Anchors>
+							<Anchor point="RIGHT" relativeKey="$parent.allowMMLabel" relativePoint="LEFT" x="-2" y="0"/>
+						</Anchors>
+						<Scripts>
+							<OnClick>
+								Rematch.LevelingPanelCheckButtonOnClick(self)
+							</OnClick>
+							<OnEnter>
+								Rematch.ShowTooltip(self)
+							</OnEnter>
+							<OnLeave>
+								RematchTooltip:Hide()
+							</OnLeave>
+						</Scripts>
+					</CheckButton>
+					<!-- 9th entry in team table is maxXP -->
+					<EditBox parentKey="maxXP" inherits="RematchLevelingPanelEditBoxTemplate" id="9">
+						<Anchors>
+							<Anchor point="TOPRIGHT" x="-42" y="-88"/>
+						</Anchors>
+						<Scripts>
+							<OnTabPressed>
+								if Rematch.dialog.editBox:IsVisible() then
+									Rematch.dialog.editBox:SetFocus(true)
+								else
+									self:GetParent().minHP:SetFocus(true)
+								end
+							</OnTabPressed>
+						</Scripts>
+					</EditBox>
+				</Frames>
+				<Layers>
+					<Layer level="ARTWORK">
+						<FontString parentKey="minHPLabel" inherits="GameFontHighlight" justifyH="RIGHT">
+							<Anchors>
+								<Anchor point="RIGHT" relativeKey="$parent.minHP" relativePoint="LEFT" x="-10" y="1"/>
+							</Anchors>
+						</FontString>
+						<FontString parentKey="maxXPLabel" inherits="GameFontHighlight" justifyH="RIGHT">
+							<Anchors>
+								<Anchor point="RIGHT" relativeKey="$parent.maxXP" relativePoint="LEFT" x="-10" y="1"/>
+							</Anchors>
+						</FontString>
+					</Layer>
+				</Layers>
+			</Frame>
+
+			<!-- levelingCarousel is a carousel UI for picking the top leveling pet -->
+			<Frame parentKey="levelingCarousel" hidden="true" inherits="RematchInsetTemplate">
+				<Size x="170" y="56"/>
+				<Anchors>
+					<Anchor point="CENTER"/>
+				</Anchors>
+				<Frames>
+					<Button parentKey="left" inherits="RematchToolbarButtonTemplate">
+						<Anchors>
+							<Anchor point="RIGHT" relativePoint="LEFT" x="0" y="-2"/>
+						</Anchors>
+						<KeyValues>
+							<KeyValue key="defaultIcon" value="Interface\Icons\misc_arrowleft"/>
+						</KeyValues>
+						<Scripts>
+							<PreClick>
+								-- override to not hide dialog
+							</PreClick>
+							<OnClick>
+								Rematch:LevelingCarouselSpin(-1,0.075)
+							</OnClick>
+						</Scripts>
+					</Button>
+					<Button parentKey="right" inherits="RematchToolbarButtonTemplate">
+						<Anchors>
+							<Anchor point="LEFT" relativePoint="RIGHT" x="0" y="-2"/>
+						</Anchors>
+						<KeyValues>
+							<KeyValue key="defaultIcon" value="Interface\Icons\misc_arrowright"/>
+						</KeyValues>
+						<Scripts>
+							<PreClick>
+								-- override to not hide dialog
+							</PreClick>
+							<OnClick>
+								Rematch:LevelingCarouselSpin(1,0.075)
+							</OnClick>
+						</Scripts>
+					</Button>
+					<ScrollFrame parentKey="carousel">
+						<Anchors>
+							<Anchor point="TOPLEFT" x="6" y="0"/>
+							<Anchor point="BOTTOMRIGHT" x="-6" y="0"/>
+						</Anchors>
+						<ScrollChild>
+							<Frame parentKey="child">
+								<Size x="164" y="56"/>
+								<Frames>
+									<Button parentArray="pets" inherits="RematchLevelingCarouselButtonTemplate">
+										<Size x="42" y="42"/>
+										<Anchors>
+											<Anchor point="CENTER"/>
+										</Anchors>
+										<Layers>
+											<Layer level="ARTWORK" textureSubLevel="1">
+												<!-- gold border shown if pet is the leveling pet -->
+												<Texture parentKey="leveling" file="Interface\PetBattles\PetBattle-GoldSpeedFrame">
+													<Anchors>
+														<Anchor point="TOPLEFT" x="-1" y="1"/>
+														<Anchor point="BOTTOMRIGHT" x="1" y="-1"/>
+													</Anchors>
+													<TexCoords left="0.1171875" right="0.7421875" top="0.1171875" bottom="0.734375"/>
+												</Texture>
+											</Layer>
+											<Layer level="OVERLAY">
+												<!-- background to level -->
+												<Texture parentKey="levelBG" file="Interface\PetBattles\PetJournal">
+													<Size x="18" y="18"/>
+													<Anchors>
+														<Anchor point="BOTTOMRIGHT" x="1" y="-1"/>
+													</Anchors>
+													<TexCoords left="0.06835938" right="0.10937500" top="0.02246094" bottom="0.04296875"/>	
+												</Texture>
+												<!-- level text -->
+												<FontString parentKey="level" font="Fonts\FRIZQT__.TTF" justifyH="CENTER" justifyV="CENTER">
+													<Size x="0" y="12"/>
+													<Anchors>
+														<Anchor point="CENTER" relativePoint="BOTTOMRIGHT" x="-7" y="7"/>
+													</Anchors>
+													<Color r="1" g=".82" b="0"/>
+													<Shadow>
+														<Offset x="1" y="-1"/>
+														<Color r="0" g="0" b="0"/>
+													</Shadow>
+													<FontHeight>
+														<AbsValue val="9"/>
+													</FontHeight>
+												</FontString>
+											</Layer>
+										</Layers>
+									</Button>
+									<Button parentArray="pets" inherits="RematchLevelingCarouselButtonTemplate"/>
+									<Button parentArray="pets" inherits="RematchLevelingCarouselButtonTemplate"/>
+									<Button parentArray="pets" inherits="RematchLevelingCarouselButtonTemplate"/>
+									<Button parentArray="pets" inherits="RematchLevelingCarouselButtonTemplate"/>
+									<Button parentArray="pets" inherits="RematchLevelingCarouselButtonTemplate"/>
+									<Button parentArray="pets" inherits="RematchLevelingCarouselButtonTemplate"/>
+								</Frames>
+							</Frame>
+						</ScrollChild>
+						<Scripts>
+							<OnMouseWheel>
+								local parent = self:GetParent()
+								if not parent:GetScript("OnUpdate") then -- if we're not moving
+									if delta==1 then
+										self:GetParent().left:Click()
+									else
+										self:GetParent().right:Click()
+									end
+								end
+							</OnMouseWheel>
+						</Scripts>
+					</ScrollFrame>
+				</Frames>
+			</Frame>
 
 		</Frames>
 		<Scripts>

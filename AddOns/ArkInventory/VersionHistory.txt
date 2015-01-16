@@ -5,8 +5,7 @@
 *known issues*
  * moving an item from one guild bank tab to another will leave a ghost item behind until you view that tab again (it also increases the tooltip count for that ghost item).
  * windows may end up off screen, if they do then open the config, click on controls, select the tab for the location, click on reposition
- * if you have characters from different connected realms in the same guild the data for that guild can duplicate on each realm
-
+ * crafting with items from the bank (not the reagent bank) will not update the item count for the bank (blizzard restriction, they dont allow access to the bank data unless you are there)
  
 *wiki pages*
  * main wiki page - http://code.google.com/p/arkinventory/w/list
@@ -16,6 +15,23 @@
 
  
  
+*3.04.20 (14-JAN-2015)*
+ * added - new items category
+ * added - config > settings > location > items > new items
+ * added - right click menu off refresh icon for new item reset
+ * added - pet breed information is now displayed on the custom tooltips when the Battle Pet BreedID addon is installed
+ * updated - pet tooltips and code
+ * changed - cosmetic issue with pet and mount totals in the status bar, they will now always show the total count (the option to swap between used/empty is ignored)
+ * changed - translations (mostly around pet text)
+ * fixed - issue with LibDataBroker not having a TOC file so cant be loaded as standalone.  moved it back to being an included library
+
+*3.04.19 (04-JAN-2015)*
+ * changed - minor adjustment to the cleanup/restack code
+ * fixed - item age now defaults to topleft.  if itemlevel is displayed, then itemage it is positioned to center instead
+ * fixed - issue with vault data for characters on different connected realms when in the same guild - you will have to manually erase any existing duplicated vault data
+ * fixed - issue with pet item counts sometimes not updating
+ * fixed - issue with pet scanning code sometimes not re-scanning when it should have
+
 *3.04.18 (21-DEC-2014)*
  * fixed - item counts should now display on the tooltips for work order reagents and quest log items
  * fixed - item age should display if enabled

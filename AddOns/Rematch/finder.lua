@@ -3,6 +3,8 @@
 	(to assign petIDs to missing pets if possible).  It will still serve that
 	role but is now being expanded to track all owned pets all the time.
 
+	The Sanctuary system now handles petIDs that are reassigned since last login.
+
 	Previously, a table of owned petIDs was only generated when it went to find
 	a pet.  Now it will maintain that list at all times for use in other areas
 	(counting unique pets, determining if user owns a 25 of species, etc).
@@ -129,3 +131,99 @@ hooksecurefunc(C_PetJournal,"ClearSearchFilter",function(...)
 		rematch.ownedDefaultSearch = ""
 	end
 end)
+
+--[[ Sanctuary system for restoring petIDs that are reassigned by the server ]]
+
+local livePets = {} -- this will be used for finding the live version of sanctuary pets
+local searchedPets = {} -- this will contain pets already looked for
+
+-- This stores all petIDs in the teams and queue to RematchSettings.SanctuaryPets
+-- To be called on PLAYER_LOGOUT.
+function rematch:SanctuarySave()
+	RematchSettings.SanctuaryPets = {}
+	local sanctuary = RematchSettings.SanctuaryPets
+	local noted = {} -- to prevent re-saving pets already noted
+	local function store(petID)
+		if type(petID)=="string" and not noted[petID] and petID:match("^BattlePet%-%d%-%x") then
+			noted[petID] = true
+			local speciesID,_,level = C_PetJournal.GetPetInfoByPetID(petID)
+			if speciesID then
+				local _,maxHealth,power,speed = C_PetJournal.GetPetStats(petID)
+				tinsert(sanctuary,format("%s,%d,%d,%d,%d,%d",petID,speciesID,level,maxHealth,power,speed))
+			end
+		end
+	end
+	-- save petIDs from teams
+	for _,team in pairs(RematchSaved) do
+		for i=1,3 do
+			store(team[i][1])
+		end
+	end
+	-- save petIDs from the queue
+	for _,petID in pairs(RematchSettings.LevelingQueue) do
+		store(petID)
+	end
+end
+
+-- This will fill livePets with the details of all owned pets of the same
+-- speciesIDs of all sanctuary pets. Only called from SanctuaryFind if needed.
+function rematch:SanctuarySetup()
+	local sanctuary = RematchSettings.SanctuaryPets
+	if not sanctuary or next(livePets) then
+		return -- leave if we have no sanctuary saved or we've already done this setup
+	end
+	-- first create a table for each speciesID in the sanctuary
+	for _,info in ipairs(sanctuary) do
+		local speciesID = info:match(".-,(%d+)")
+		if not livePets[speciesID] and speciesID then
+			livePets[tonumber(speciesID)] = {}
+		end
+	end
+	-- next go through owned pets and add live petIDs to the species tables
+	for _,petID in ipairs(rematch.ownedPets) do
+		local speciesID,_,level = C_PetJournal.GetPetInfoByPetID(petID)
+		if livePets[speciesID] then
+			local _,maxHealth,power,speed = C_PetJournal.GetPetStats(petID)
+			livePets[speciesID][petID] = {level,maxHealth,power,speed}
+		end
+	end
+end
+
+-- This takes a petID (presumably an old one from last login) and if it exists
+-- in the sanctuary, it looks for the live version of the same pet.
+-- Returns the petID if a new one is found, nil otherwise.
+function rematch:SanctuaryFind(petID)
+	local sanctuary = RematchSettings.SanctuaryPets
+	if not sanctuary or not petID or type(petID)~="string" then
+		return -- if petID is nil or not a string, or sanctuary not saved, don't bother doing anything
+	end
+	if type(searchedPets[petID])~="nil" then
+		return searchedPets[petID] -- if pet was already looked for, return last result
+	end
+	if not petID:match("^BattlePet%-%d%-%x") or C_PetJournal.GetPetStats(petID) then
+		searchedPets[petID] = false
+		return -- if this isn't a valid petID or it exists, then mark it looked for and leave
+	end
+	for _,info in ipairs(sanctuary) do -- find petID in the sanctuary
+		local sPetID,sSpeciesID,sLevel,sMaxHealth,sPower,sSpeed = info:match("(.-),(%d+),(%d+),(%d+),(%d+),(%d+)")
+		if sPetID==petID then
+			rematch:SanctuarySetup() -- setup table of relevant speciesIDs
+			if livePets[tonumber(sSpeciesID)] then -- if we have live pets of same species
+				for livePetID,live in pairs(livePets[tonumber(sSpeciesID)]) do -- go through each pet
+					if live[1]==tonumber(sLevel) and live[2]==tonumber(sMaxHealth) and live[3]==tonumber(sPower) and live[4]==tonumber(sSpeed) then
+						searchedPets[petID] = livePetID
+						return livePetID -- found the pet
+					end
+				end
+			end
+			break -- no need to look for other matching petIDs
+		end
+	end
+	searchedPets[petID] = false -- didn't find a new petID
+end
+
+-- Call this when done looking for sanctuary pets, to empty tables.
+function rematch:SanctuaryDone()
+	wipe(livePets)
+	wipe(searchedPets)
+end
