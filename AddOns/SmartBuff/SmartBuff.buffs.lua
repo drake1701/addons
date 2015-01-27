@@ -950,6 +950,8 @@ function SMARTBUFF_InitSpellList()
   AddItem( 43499,  58501,  10); -- Iron Boot Flask
   AddItem( 54653,  75532,  30); -- Darkspear Pride
   AddItem( 54651,  75531,  30); -- Gnomeregan Pride
+  AddItem( 68806,  96312,  60); -- Kalytha's Haunted Locket
+  AddItem(  6662,   8212,  20); -- Elixir of Giant Growth
   
   -- Potions
   SMARTBUFF_POTION = {
