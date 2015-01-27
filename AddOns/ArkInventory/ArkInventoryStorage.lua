@@ -3573,6 +3573,8 @@ function ArkInventory.InventoryIDGet( loc_id, bag_id )
 		
 		if bag_id == ArkInventory.Global.Location[loc_id].tabReagent then
 			
+			return nil
+			
 		elseif bag_id > 1 then
 			
 			return ContainerIDToInventoryID( blizzard_id )

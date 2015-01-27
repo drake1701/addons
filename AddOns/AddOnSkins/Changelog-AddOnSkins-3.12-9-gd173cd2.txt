@@ -1,4 +1,6 @@
 Azilroka:
+	- Total RP3 Skin by mmx428
+	- Details! HotFix
 	- Fixed these Vars
 	- Altoholic
 	- Updating

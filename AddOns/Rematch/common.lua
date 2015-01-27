@@ -772,9 +772,6 @@ function rematch:FindBreedSource()
 	return addon
 end
 
--- this should be called when pets are dragged to a loadout slot
--- if the incoming pet is in the queue (but not the topmost pet in queue)
--- then turn off full sort and set it as the topmost leveling pet
 function rematch:HandleReceivingLevelingPet(petID)
 	if not petID then
 		local slot = self:GetParent():GetID() -- grab petID from journal slot receiving pet
@@ -783,17 +780,27 @@ function rematch:HandleReceivingLevelingPet(petID)
 		end
 	end
 	if rematch:IsPetLeveling(petID) and petID~=rematch:GetCurrentLevelingPet() then
-		if settings.QueueFullSort then
+		local loadedLevelingPets = 0
+		for i=1,3 do
+			loadedLevelingPets = loadedLevelingPets +	(rematch:IsPetLeveling(C_PetJournal.GetPetLoadOutInfo(i)) and 1 or 0)
+		end
+		if (settings.QueueFullSort or (loadedLevelingPets>1 and settings.QueueSortOrder)) then
+			local warning = L["Slotted leveling pets are chosen by the queue.\n\nThe queue is now sorted.\n\nFor greater control, turn off queue sorting."]
 			if rematch:IsVisible() then
-				local dialog = rematch:ShowDialog("NoFullSort",152,L["Full Sort Was Enabled"],"",true)
+				local dialog = rematch:ShowDialog("SlottingLevelingPets",156,LABEL_NOTE,"",true)
 				dialog.text:SetSize(196,96)
 				dialog.text:SetPoint("TOP",0,-20)
-				dialog.text:SetText(L["The Full Sort queue option has been turned off to allow this new pet to be the active leveling pet. You can turn Full Sort back on in the queue menu."])
+				dialog.text:SetText(warning)
 				dialog.text:Show()
+			else
+				rematch:print((warning:gsub("\n\n"," ")))
 			end
-			settings.QueueFullSort = nil
 		end
-		rematch:StartLevelingPet(petID)
+		if not settings.QueueFullSort then
+			rematch:StartLevelingPet(petID)
+		else
+			rematch:StartTimer("ProcessQueue",0.5,rematch.ProcessQueue)
+		end
 	end
 end
 

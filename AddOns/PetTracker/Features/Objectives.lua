@@ -77,7 +77,7 @@ end
 function Objectives:GetUsedHeight()
 	local height = 0
 
-	for i, mod in pairs(ObjectiveTrackerFrame.MODULES) do -- can't trust blizzard value
+	for i, mod in pairs(ObjectiveTrackerFrame.MODULES or {}) do -- can't trust blizzard value
 		if mod.lastBlock then
 			local top, bottom = mod.Header:GetTop(), mod.lastBlock:GetBottom()
 			if top and bottom then

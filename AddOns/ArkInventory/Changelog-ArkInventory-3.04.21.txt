@@ -1,17 +1,30 @@
 ------------------------------------------------------------------------
-r477 | arkayenro | 2015-01-14 01:23:31 +0000 (Wed, 14 Jan 2015) | 10 lines
+r479 | arkayenro | 2015-01-22 10:12:45 +0000 (Thu, 22 Jan 2015) | 6 lines
 Changed paths:
-   A /tags/3.04.20 (from /trunk:476)
+   A /tags/3.04.21 (from /trunk:478)
 
-*3.04.20 (14-JAN-2015)*
- * added - new items category
- * added - config > settings > location > items > new items
- * added - right click menu off refresh icon for new item reset
- * added - pet breed information is now displayed on the custom tooltips when the Battle Pet BreedID addon is installed
- * updated - pet tooltips and code
- * changed - cosmetic issue with pet and mount totals in the status bar, they will now always show the total count (the option to swap between used/empty is ignored)
- * changed - translations (mostly around pet text)
- * fixed - issue with LibDataBroker not having a TOC file so cant be loaded as standalone.  moved it back to being an included library
+*3.04.21 (22-JAN-2015)*
+ * fixed - issue with first bank bag slot not being draggable
+ * fixed - issue with pet breed text when Battle Pet BreedID addon is not installed
+ * fixed - issue with new item glow showing in offline locations
+ * fixed - issue with offline items still fading when the option was disabled
+
+------------------------------------------------------------------------
+r478 | arkayenro | 2015-01-22 09:31:56 +0000 (Thu, 22 Jan 2015) | 6 lines
+Changed paths:
+   M /trunk/ArkInventory.lua
+   M /trunk/ArkInventory.toc
+   M /trunk/ArkInventoryPetJournal.lua
+   M /trunk/ArkInventoryStorage.lua
+   R /trunk/Libs/LibDataBroker-1.1/Changelog-libdatabroker-1-1-v1.1.4.txt
+   R /trunk/Libs/LibDataBroker-1.1/README.textile
+   M /trunk/VersionHistory.txt
+
+*3.04.21 (22-JAN-2015)*
+ * fixed - issue with first bank bag slot not being draggable
+ * fixed - issue with pet breed text when Battle Pet BreedID addon is not installed
+ * fixed - issue with new item glow showing in offline locations
+ * fixed - issue with offline items still fading when the option was disabled
 
 ------------------------------------------------------------------------
 r476 | arkayenro | 2015-01-14 01:13:56 +0000 (Wed, 14 Jan 2015) | 10 lines
@@ -82,37 +95,5 @@ Changed paths:
  * fixed - issue with vault data for characters on different connected realms when in the same guild - you will have to manually erase any existing duplicated vault data
  * fixed - issue with pet item counts sometimes not updating
  * fixed - issue with pet scanning code sometimes not re-scanning when it should have
-
-------------------------------------------------------------------------
-r472 | arkayenro | 2014-12-21 05:47:43 +0000 (Sun, 21 Dec 2014) | 5 lines
-Changed paths:
-   M /trunk/ArkInventory.lua
-   M /trunk/ArkInventory.toc
-   M /trunk/ArkInventory.xml
-   M /trunk/ArkInventoryMenu.lua
-   M /trunk/ArkInventoryRestack.lua
-   M /trunk/VersionHistory.txt
-
-*3.04.18 (21-DEC-2014)*
- * fixed - item counts should now display on the tooltips for work order reagents and quest log items
- * fixed - item age should display if enabled
- * fixed - LDB actions menu
-
-------------------------------------------------------------------------
-r471 | arkayenro | 2014-11-25 12:27:33 +0000 (Tue, 25 Nov 2014) | 6 lines
-Changed paths:
-   M /trunk/.pkgmeta
-   M /trunk/ArkInventory.lua
-   M /trunk/ArkInventory.toc
-   M /trunk/ArkInventoryExternals.xml
-   M /trunk/ArkInventoryLDB.lua
-   M /trunk/ArkInventoryMenu.lua
-   M /trunk/VersionHistory.txt
-
-*3.04.17 (25-NOV-2014)*
- * added - libperiodictable libraries: ClassSpell, CurrencyItems, Gear, GearSet, InstanceLoot, InstanceLootHeroid, InstanceLootLFR, TradeskillLevels, TransmogSet
- * updated - external libraries
- * added - right click menu to cleanup icon to deposit all reagents
- * changed - ldb item tracking counts now include items from the bank
 
 ------------------------------------------------------------------------

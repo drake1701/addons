@@ -127,6 +127,11 @@ function rematch:DialogOnHide()
 	if dialog.teamNotLoaded then
 		rematch:StartTimer("WipeTeamNotLoaded",0.1,rematch.WipeTeamNotLoaded)
 	end
+	self.timeClosed = GetTime()
+end
+
+function rematch:DialogJustClosed()
+	return dialog.timeClosed==GetTime()
 end
 
 -- there are times when teams being saved are not loaded (import, receive)

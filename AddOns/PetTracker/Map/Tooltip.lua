@@ -60,8 +60,13 @@ end
 
 function Tooltip:Display()
 	self:SetShown(self:NumLines() > 0)
-	self:SetHeight(self:GetHeight() + self.NumStrokes * 8)
-	self:SetFrameStrata('FULLSCREEN_DIALOG')
+	if self:IsShown() then
+		local parent = self:GetParent()
+		
+		self:SetHeight(self:GetHeight() + self.NumStrokes * 8)
+		self:SetScale(parent and (1 / parent:GetScale()) or 1)
+		self:SetFrameStrata('FULLSCREEN_DIALOG')
+	end
 end
 
 

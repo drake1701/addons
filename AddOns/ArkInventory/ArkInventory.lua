@@ -1,6 +1,6 @@
 ﻿-- (c) 2006-2014, all rights reserved.
--- $Revision: 1294 $
--- $Date: 2015-01-07 14:57:02 +1100 (Wed, 07 Jan 2015) $
+-- $Revision: 1298 $
+-- $Date: 2015-01-20 23:21:30 +1100 (Tue, 20 Jan 2015) $
 
 
 local _G = _G
@@ -1493,12 +1493,6 @@ ArkInventory.Global = { -- globals
 	
 	Rules = {
 		Enabled = false,
-	},
-	
-	FloatingBattlePetLink = nil,
-	
-	Companion = {
-		MOUNT = { },
 	},
 	
 	Masque = {
@@ -6715,8 +6709,7 @@ function ArkInventory.Frame_Item_Update_Texture( frame )
 		
 		-- item texture
 		local t = i.texture or ArkInventory.ObjectInfoTexture( i.h )
-		local r, g, b = ArkInventory.GetItemQualityColor( 0 )
-		ArkInventory.SetItemButtonTexture( frame, t, r, g, b )
+		ArkInventory.SetItemButtonTexture( frame, t )
 	
 	else
 		
@@ -6939,12 +6932,11 @@ function ArkInventory.Frame_Item_Update_Fade( frame )
 	if not ArkInventory.ValidFrame( frame, true ) then return end
 	
 	local loc_id = frame.ARK_Data.loc_id
-	local action = false
-	local fade = 1
+	local alpha = 1
 	
 	if ArkInventory.Global.Location[loc_id].isOffline and ArkInventory.LocationOptionGet( loc_id, "slot", "offline", "fade" ) then
 		
-		fade = 0.6
+		alpha = 0.6
 		
 	else
 		
@@ -6953,7 +6945,7 @@ function ArkInventory.Frame_Item_Update_Fade( frame )
 			local bag_id = frame.ARK_Data.bag_id
 			local canDeposit, numWithdrawals = select( 4, GetGuildBankTabInfo( bag_id ) )
 			if not canDeposit and numWithdrawals == 0 then
-				fade = 0.6
+				alpha = 0.6
 			end
 		
 		end
@@ -6965,12 +6957,12 @@ function ArkInventory.Frame_Item_Update_Fade( frame )
 		local i = ArkInventory.Frame_Item_GetDB( frame ) or { }
 		local n = string.lower( select( 3, ArkInventory.ObjectInfo( i.h ) ) or "" )
 		if not string.find( n, string.trim( f ) ) then
-			-- drop fade to 0.2 for all non matching items
-			fade = 0.2
+			-- drop alpha to 0.2 for all non matching items
+			alpha = 0.2
 		end
 	end
 	
-	frame:SetAlpha( fade )
+	frame:SetAlpha( alpha )
 	
 end
 
@@ -7048,36 +7040,21 @@ function ArkInventory.Frame_Item_Update_New( frame )
 	local i = ArkInventory.Frame_Item_GetDB( frame )
 	
 	local isNewItem = C_NewItems.IsNewItem( blizzard_id, slot_id )
+	if ArkInventory.Global.Location[loc_id].isOffline then
+		isNewItem = false
+	end
+	
 	local isBattlePayItem = IsBattlePayItem( blizzard_id, slot_id )
 	local battlepayItemTexture = frame.BattlepayItemTexture
 	local newItemTexture = frame.NewItemTexture
 	local flash = frame.flashAnim
 	local newItemAnim = frame.newitemglowAnim
-	
 	local obj = frame.ArkNewText
 	
-	if i and i.h then
+	
+	if obj then
 		
-		if isNewItem then
-			
-			if isBattlePayItem then
-				newItemTexture:Hide( )
-				battlepayItemTexture:Show( )
-			else
-				newItemTexture:SetAtlas( "bags-glow-white" )
-				battlepayItemTexture:Hide( )
-				newItemTexture:Show( )
-			end
-			
-			if not flash:IsPlaying( ) and not newItemAnim:IsPlaying( ) then
-				flash:Play( )
-				newItemAnim:Play( )
-			end
-			
-		end
-		
-		
-		if obj then
+		if i and i.h then
 			
 			if ArkInventory.LocationOptionGet( loc_id, "slot", "age", "show" ) then
 				
@@ -7115,25 +7092,43 @@ function ArkInventory.Frame_Item_Update_New( frame )
 				
 			end
 			
+		else
+			
+			obj:Hide( )
+			
 		end
 		
-		return
+	end
+	
+	
+	if isNewItem then
+		
+		if isBattlePayItem then
+			newItemTexture:Hide( )
+			battlepayItemTexture:Show( )
+		else
+			newItemTexture:SetAtlas( "bags-glow-white" )
+			battlepayItemTexture:Hide( )
+			newItemTexture:Show( )
+		end
+		
+		if not flash:IsPlaying( ) and not newItemAnim:IsPlaying( ) then
+			flash:Play( )
+			newItemAnim:Play( )
+		end
 		
 	else
 		
-		if obj then
-			obj:Hide( )
+		battlepayItemTexture:Hide( )
+		newItemTexture:Hide( )
+		
+		if flash:IsPlaying( ) or newItemAnim:IsPlaying( ) then
+			flash:Stop( )
+			newItemAnim:Stop( )
 		end
 		
 	end
 	
-	battlepayItemTexture:Hide( )
-	newItemTexture:Hide( )
-	
-	if flash:IsPlaying( ) or newItemAnim:IsPlaying( ) then
-		flash:Stop( )
-		newItemAnim:Stop( )
-	end
 	
 end
 
@@ -7370,7 +7365,7 @@ function ArkInventory.Frame_Item_Update_Cooldown( frame, arg1 )
 			if loc_id == ArkInventory.Const.Location.Toybox and i.item then
 				local start, duration, enable = GetItemCooldown( i.item )
 				if ( cooldown and start and duration ) then
-					ArkInventory.Output( "toybox cooldown: ", frame:GetName( ) )
+					--ArkInventory.Output( "toybox cooldown: ", frame:GetName( ) )
 					CooldownFrame_SetTimer( cooldown, start, duration, enable )
 				end
 
@@ -8383,6 +8378,8 @@ function ArkInventory.Frame_Changer_Secondary_OnDragStart( frame )
 	local bag_id = frame.ARK_Data.bag_id
 	local inv_id = ArkInventory.InventoryIDGet( loc_id, bag_id )
 	
+	--ArkInventory.Output( "pick up bag ", loc_id, ".", bag_id, " = ", inv_id )
+	
 	PickupBagFromSlot( inv_id )
 	
 end
@@ -8419,7 +8416,7 @@ function ArkInventory.Frame_Changer_Slot_OnLoad( frame )
 	
 	frame:RegisterForClicks( "LeftButtonUp", "RightButtonUp" )
 	
-	if ( loc_id == ArkInventory.Const.Location.Bag and bag_id > 1 ) or ( loc_id == ArkInventory.Const.Location.Bank and bag_id > 2 ) then
+	if ( loc_id == ArkInventory.Const.Location.Bag and bag_id > 1 ) or ( loc_id == ArkInventory.Const.Location.Bank and bag_id > 1 and bag_id ~= ArkInventory.Global.Location[loc_id].tabReagent ) then
 		frame:RegisterForDrag( "LeftButton" )
 	end
 	

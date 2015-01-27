@@ -28,44 +28,6 @@ TukuiUnitFrames.HighlightBorder = {
 	insets = {top = -2, left = -2, bottom = -2, right = -2}
 }
 
-TukuiUnitFrames.RaidBuffsTracking = {
-	PRIEST = {
-		{6788, "TOPRIGHT", {1, 0, 0}, true},	  -- Weakened Soul
-		{33076, "BOTTOMRIGHT", {0.2, 0.7, 0.2}},  -- Prayer of Mending
-		{139, "BOTTOMLEFT", {0.4, 0.7, 0.2}},     -- Renew
-		{17, "TOPLEFT", {0.81, 0.85, 0.1}, true}, -- Power Word: Shield
-	},
-	DRUID = {
-		{774, "TOPLEFT", {0.8, 0.4, 0.8}},      -- Rejuvenation
-		{155777, "LEFT", {0.8, 0.4, 0.8}},      -- Germination
-		{8936, "TOPRIGHT", {0.2, 0.8, 0.2}},    -- Regrowth
-		{33763, "BOTTOMLEFT", {0.4, 0.8, 0.2}}, -- Lifebloom
-		{48438, "BOTTOMRIGHT", {0.8, 0.4, 0}},  -- Wild Growth
-	},
-	PALADIN = {
-		{53563, "TOPRIGHT", {0.7, 0.3, 0.7}},	        -- Beacon of Light
-		{1022, "BOTTOMRIGHT", {0.2, 0.2, 1}, true}, 	-- Hand of Protection
-		{1044, "BOTTOMRIGHT", {0.89, 0.45, 0}, true},	-- Hand of Freedom
-		{1038, "BOTTOMRIGHT", {0.93, 0.75, 0}, true},	-- Hand of Salvation
-		{6940, "BOTTOMRIGHT", {0.89, 0.1, 0.1}, true},	-- Hand of Sacrifice
-		{114163, "TOPLEFT", {0.81, 0.85, 0.1}, true},	-- Eternal Flame
-		{20925, "TOPLEFT", {0.81, 0.85, 0.1}, true},	-- Sacred Shield
-	},
-	SHAMAN = {
-		{61295, "TOPLEFT", {0.7, 0.3, 0.7}},     -- Riptide
-		{974, "TOPRIGHT", {0.2, 0.7, 0.2}},      -- Earth Shield
-	},
-	MONK = {
-		{119611, "TOPLEFT", {0.8, 0.4, 0.8}},	 -- Renewing Mist
-		{116849, "TOPRIGHT", {0.2, 0.8, 0.2}},	 -- Life Cocoon
-		{124682, "BOTTOMLEFT", {0.4, 0.8, 0.2}}, -- Enveloping Mist
-		{124081, "BOTTOMRIGHT", {0.7, 0.4, 0}},  -- Zen Sphere
-	},
-	ALL = {
-		{14253, "RIGHT", {0, 1, 0}}, -- Abolish Poison
-	},
-}
-
 TukuiUnitFrames.RaidBuffsTrackingPosition = {
 	TOPLEFT = {6, 1},
 	TOPRIGHT = {-6, 1},
@@ -95,8 +57,13 @@ function TukuiUnitFrames:DisableBlizzard()
 		InterfaceOptionsFrameCategoriesButton11:SetScale(0.00001)
 		InterfaceOptionsFrameCategoriesButton11:SetAlpha(0)
 		
-		CompactRaidFrameManager:SetParent(Panels.Hider)
-		CompactUnitFrameProfiles:UnregisterAllEvents()
+		if CompactRaidFrameManager then
+			CompactRaidFrameManager:SetParent(Panels.Hider)
+		end
+		
+		if CompactUnitFrameProfiles then
+			CompactUnitFrameProfiles:UnregisterAllEvents()
+		end
 		
 		for i = 1, MAX_PARTY_MEMBERS do
 			local PartyMember = _G["PartyMemberFrame" .. i]
@@ -695,12 +662,13 @@ function TukuiUnitFrames:EclipseDirection()
 	end
 end
 
-function TukuiUnitFrames:UpdateBossAltPower(minimum, current, maximum)
+function TukuiUnitFrames:UpdateAltPower(minimum, current, maximum)
 	if (not current) or (not maximum) then return end
 	
 	local r, g, b = T.ColorGradient(current, maximum, 0, .8 ,0 ,.8 ,.8 ,0 ,.8 ,0 ,0)
 	
 	self:SetStatusBarColor(r, g, b)
+	self:SetBackdropColor(r * 0.1, g * 0.1, b * 0.1)
 	
 	if self.Value then
 		local Text = self.Value

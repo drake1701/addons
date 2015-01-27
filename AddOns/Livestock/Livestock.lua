@@ -36,7 +36,7 @@ local defaults = {
 	smartcatform = 0, -- enable / disable turning into Cat Form indoors when using Smart Mounting (for druids only)
 	favoritepet = 0, -- index for a user-defined favorite pet
 	waterwalking = 0, -- for shamans to use Water Walking when underwater or not
-	combatforms = 1, -- whether or not combat should switch Smart Mounting for shamans / druids
+	combatforms = 1, -- whether or not combat should switch Smart Mounting for shamans / druids / hunters
 	donotsummoninraid = 0, -- do not automatically summon a pet if you are in a raid
 	movingform = 0, -- check for movement to assume an instant-cast travel form
 	indooraspects = 0, -- Smart Mounting casts AotC / AotP when inside
@@ -574,8 +574,11 @@ function Livestock.RestoreUI(self, elapsed)
 		Livestock.ClickedAutoSummon()
 	end
 	
-	if class ~= "DRUID" and class ~= "SHAMAN" then
+	if class ~= "DRUID" and class ~= "SHAMAN" and class ~= "HUNTER" then
 		LivestockSmartPreferencesFrameToggleCombatFormsText:SetTextColor(0.4, 0.4, 0.4)
+	end
+	
+	if class ~= "DRUID" and class ~= "SHAMAN" then
 		LivestockSmartPreferencesFrameToggleMovingFormsText:SetTextColor(0.4, 0.4, 0.4)
 	end
 	
@@ -851,7 +854,7 @@ function Livestock.CreateStateMaps(self)
 --	6:  Swimming:  Swimming takes precedence over all other settings.  Druids use Aquatic Form in this case, and shaman can select to use Water Walking.
 --	1:  Indoors.  Should do nothing unless the player is a druid and wants to turn into a cat (or a hunter and wants to use aspect of the pact)
 --	2:  Mounted:  Should dismount.  This will get checked later against the safe flight setting to see if the player is flying and shouldn't dismount.
---	3:  In Combat:  Should do nothing, unless the player is a druid or a shaman or a hunter, in which case they should cast Travel Form or Ghost Wolf or AOTC if the combat forms option is selected.
+--	3:  In Combat:  Should do nothing, unless the player is a druid or a shaman or a hunter, in which case they should cast Travel Form or Ghost Wolf or AotC if the combat forms option is selected.
 --	4:  Flyable area, not in combat:  Should summon a random flying mount, with the possibility of druids shifting into flight forms.  If a druid is in a form, they need to cancel it if they're not shifting into a flight form.
 --	5:  Non-flyable area, not in combat;  Should summon a random land mount.  If a druid is in a form, they need to cancel it.
 
@@ -899,6 +902,8 @@ function Livestock.CreateStateMaps(self)
 	local groupaspects = self:GetAttribute("groupaspects")
 	local mountaspects = self:GetAttribute("mountaspects")
 	local zenflight = self:GetAttribute("zenflight")
+	local aotp = self:GetAttribute("aotp")
+	local aotc = self:GetAttribute("aotc")
 	
 	if name == "state-form" or name == "catform" or name == "druidlogic" or name == "worgenlogic" or name == "waterwalkingtoggle" or name == "combatformstoggle" or name == "indooraspects" 
 	   or name == "safeflying" or name == "mountinstealth" or name == "movingform" or name == "movingaspects" or name == "groupaspects" or name == "mountaspects"
@@ -917,7 +922,7 @@ function Livestock.CreateStateMaps(self)
 			elseif class == "HUNTER" then
 				if indooraspects == 1 then
 					self:SetAttribute("type", "spell")
-					self:SetAttribute("spell", ((PlayerInGroup() and groupaspects == 0 and self:GetAttribute("aotp")) or self:GetAttribute("aotc")))
+					self:SetAttribute("spell", ((PlayerInGroup() and groupaspects == 0 and aotp) or aotc))
 				end
 			elseif class == "SHAMAN" then
 				if movingform == 1 then
@@ -936,6 +941,9 @@ function Livestock.CreateStateMaps(self)
 			elseif class == "SHAMAN" and combatformstoggle == 1 then
 				self:SetAttribute("type", "spell")
 				self:SetAttribute("spell", wolfspell)
+			elseif class == "HUNTER" and combatformstoggle == 1 then
+				self:SetAttribute("type", "spell")
+				self:SetAttribute("spell", aotc)
 			end
 			self:SetAttribute("mounttype", nil)
 		elseif value == 4 or value == 5 then

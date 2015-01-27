@@ -28,10 +28,12 @@ rematch.ownedFilters = { flags={}, types={}, sources={} }
 rematch.ownedDefaultSearch = "" -- search text of default pet journal
 rematch.ownedUpdating = nil -- true when updating owned pets
 
+rematch.movesets = nil -- will be table of movesets, max level and speciesID (if filtered)
+rematch.movesetsAt25 = nil -- will be table of speciesID's that have a moveset at 25
+
 -- fills rematch.ownedPets with a list of all owned petIDs sorted by
 -- descending level (and descending rarity)
 function rematch:UpdateOwnedPets()
-
 	-- this function *always* causes PJLU to fire in the next frame;
 	-- since a PJLU can cause other addons to react with their own, we'll unregister
 	-- rematch from the event for 0.1 seconds to ignore its consequences
@@ -62,14 +64,47 @@ function rematch:UpdateOwnedPets()
 	-- fill ownedPets with all owned petIDs
 	wipe(rematch.ownedPets)
 	wipe(rematch.ownedSpeciesAt25) -- in case they cage any 25s
+
+	-- if filter option enabled, indexed by moveset ("123,456,etc"), [1]=max level with moveset, then petIDs or speciesIDs with that moveset
+	if rematch.roster:GetMiscFilter("NoMovesets25") then
+		rematch.movesets = rematch.movesets or {}
+		wipe(rematch.movesets) -- in case any 25s caged or released
+	else
+		rematch.movesets = nil -- don't make or carry this data if movesets not filtered
+		rematch.movesetsAt25 = nil
+	end
+	local movesets = rematch.movesets
+
 	for i=1,C_PetJournal.GetNumPets() do
-		local petID,speciesID,_,_,level = C_PetJournal.GetPetInfoByIndex(i)
+		local petID,speciesID,_,_,level,_,_,_,_,_,_,_,_,_,canBattle = C_PetJournal.GetPetInfoByIndex(i)
 		if petID then
 			tinsert(rematch.ownedPets,petID)
 			if level==25 then
 				rematch.ownedSpeciesAt25[speciesID] = true
 			end
 		end
+		-- moveset system by Zarbuta at curse.com (with some modifications)
+		if canBattle and movesets then
+			local moveset = ""
+			C_PetJournal.GetPetAbilityList(speciesID,rematch.abilityList,rematch.levelList)
+			for _,abilityID in ipairs(rematch.abilityList) do
+				-- moveset is a list of the pet's abilities like "123,456,789,0123,45,678,"
+				moveset = moveset..abilityID..","
+			end
+			if not movesets[moveset] then
+				movesets[moveset] = {0} -- if this moveset not seen yet, create it and set its max level to 0
+			end
+			local set = movesets[moveset]
+			set[1] = max(level,set[1]) -- set level to maximum of this pet's level or existing level
+			if not tContains(set,speciesID) then
+				table.insert(set,speciesID) -- add the speciesID to the moveset
+			end
+		end
+	end
+
+	-- if movesets populated, then update movesetsAt25
+	if movesets then
+		rematch:UpdateMovesetsAt25(true)
 	end
 
 	-- restore filters to their backed-up state
@@ -131,6 +166,47 @@ hooksecurefunc(C_PetJournal,"ClearSearchFilter",function(...)
 		rematch.ownedDefaultSearch = ""
 	end
 end)
+
+-- when ownedPets is populated, ownedSpeciesAt25 is too; but there it only happens
+-- when pets are added/removed.  This function goes through and updates whether
+-- any species reached 25.  To be called UPDATE_SUMMONPETS_ACTION (leveling.lua)
+function rematch:UpdateOwnedSpeciesAt25()
+	local speciesAt25 = rematch.ownedSpeciesAt25
+	for _,petID in pairs(rematch.ownedPets) do
+		local speciesID,_,level = C_PetJournal.GetPetInfoByPetID(petID)
+		if level==25 then
+			speciesAt25[speciesID] = true
+		end
+	end
+	-- if movesets exists, then update movesets at 25
+	local movesets = rematch.movesets
+	if movesets then
+		for set,info in pairs(movesets) do
+			for i=2,#info do
+				if speciesAt25[info[i]] then
+					set[1] = 25
+				end
+			end
+		end
+		rematch:UpdateMovesetsAt25()
+	end
+end
+
+-- called from UpdateOwnedPets and UpdateOwnedSpeciesAt25, fills rematch.movesetsAt25
+-- with speciesIDs that have a moveset at 25
+function rematch:UpdateMovesetsAt25(clear)
+	rematch.movesetsAt25 = rematch.movesetsAt25 or {}
+	if clear then
+		wipe(rematch.movesetsAt25)
+	end
+	for _,info in pairs(rematch.movesets) do
+		if info[1]==25 then
+			for i=2,#info do
+				rematch.movesetsAt25[info[i]] = true
+			end
+		end
+	end
+end
 
 --[[ Sanctuary system for restoring petIDs that are reassigned by the server ]]
 

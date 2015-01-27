@@ -174,7 +174,7 @@ function Journal:Update()
 	end
 
 	if self.Map:IsShown() then
-		SetMapByID(tamer.zone)
+		SetMapByID(tamer:GetZone())
 		self.Map:GetScrollChild():UpdateTiles()
 		self.Spot:Show()
 

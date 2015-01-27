@@ -60,6 +60,7 @@ end
 
 -- this event is required to catch when pets gain xp
 function rematch.events.UPDATE_SUMMONPETS_ACTION()
+	rematch:UpdateOwnedSpeciesAt25()
 	rematch:StartTimer("ProcessQueue",0.5,rematch.ProcessQueue)
 end
 
@@ -171,11 +172,14 @@ function rematch:ProcessQueue(noToast,outgoingPetID)
 
 	-- fill levelingLoadouts with the petIDs in the slots they're currently loaded (if any)
 	-- this is later used to verify the proper leveling petIDs are loaded (or to load new ones to these slots)
+	local loadedTeam = RematchSaved[settings.loadedTeamName]
 	for i=1,3 do
 		levelingLoadouts[i] = nil
 		local petID = C_PetJournal.GetPetLoadOutInfo(i)
-		if petID==outgoingPetID then
-			levelingLoadouts[i] = true
+		if loadedTeam and loadedTeam[i][1]==petID then
+			-- pets are saved as themselves in this slot, don't replace it
+		elseif petID==outgoingPetID then
+			levelingLoadouts[i] = true -- special case for outgoing pet (it's not in queue)
 		else
 			for j=1,#levelingQueue do
 				if petID==levelingQueue[j] then
@@ -944,7 +948,7 @@ function rematch:LevelingCarouselResizePets()
 	local pets = frame.carousel.child.pets
   local x1 = frame:GetCenter()
   for i=1,7 do
-    local x2 = pets[i]:GetCenter()
+    local x2 = pets[i]:GetCenter() or x1
     local size = 42 * (1-(math.abs(x2-x1)/frame:GetWidth()))
     pets[i]:SetSize(size,size)
   end
@@ -1023,6 +1027,7 @@ end
 
 -- when the green check is clicked
 function rematch:LevelingCarouselAccept()
+	settings.QueueFullSort = nil
 	rematch:StartLevelingPet(workingQueue[rematch.dialog.levelingCarousel.offset])
 end
 

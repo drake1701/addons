@@ -1,6 +1,6 @@
 ClamStacker = LibStub("AceAddon-3.0"):NewAddon("ClamStacker", "AceConsole-3.0", "AceEvent-3.0")
 local L = LibStub("AceLocale-3.0"):GetLocale("ClamStacker", false)
-local version = "1.6.26"
+local version = "1.6.27"
 
 local debugFrame = tekDebug and tekDebug:GetFrame("ClamStacker")
 
@@ -573,6 +573,7 @@ local clamItemIds = Set {
 73792,
 73792, --Stolen Present
 77501, --Blue Blizzcon Bag
+77952, --Elementium Gem Cluster
 77956, --Spectral Mount Crate
 78890,
 78891,
@@ -888,14 +889,15 @@ local clamItemIds = Set {
 116431, --Garrison Blueprint: Frostwall Tavern, Level 2
 116432, --Garrison Blueprint: Frostwall Tavern, Level 3
 116761, --Winter Veil Gift
-116762, --Stolen Present
 116764, --Small Pouch of Coins
 116980, --Invader's Forgotten Treasure
 117392, --Loot-filled pumpkin
 118193, --Mysterious Shining Lockbox
 118215, --Book of Garrison Blueprints
 118473, --Small Sack of Salvaged Goods
-118697, --Big Bag of Pet Supplies
+118529, --Cache of Highmaul Treasures
+118530, --Cache of Highmaul Treasures
+118531, --Cache of Highmaul Treasures
 118759, --Alchemy Experiment
 118924, --Cache of Arms
 118925, --Plundered Booty
@@ -921,6 +923,8 @@ local clamItemIds = Set {
 119201, --Jewelcrafting Payment
 120151, --Gleaming Ashmaul Strongbox
 120170, -- Partially-Digested Bag
+120301, --Armor Enhancement Token
+120302, --Weapon Enhancement Token
 120319, --Invader's Damaged Cache
 120320, --Invader's Abandoned Sack
 120322, --Klinking Stacked Card Deck

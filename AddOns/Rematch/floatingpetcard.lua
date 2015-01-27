@@ -38,7 +38,7 @@ rematch.vulnerabilities = {{4,5},{1,3},{6,8},{5,2},{8,7},{2,9},{9,10},{10,1},{3,
 -- petID can be a speciesID; fromBrowser will turn on searchHits for the reason the pet is listed
 function rematch:ShowFloatingPetCard(petID,relativeTo,fromBrowser)
 
-	if rematch:MenuJustClosed() then
+	if rematch:MenuJustClosed() or rematch:DialogJustClosed() then
 		return -- if mouse happens to be over a pet just as menu closes, don't show card
 	end
 

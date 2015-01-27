@@ -43,6 +43,11 @@ TukuiConfig["itIT"] = {
 			["Desc"] = "Derp",
 		},
 		
+		["EquipBorder"] = {
+			["Name"] = "Equipped Item Border",
+			["Desc"] = "Display Green Border on Equipped Items",
+		},
+
 		["HotKey"] = {
 			["Name"] = "Hotkeys",
 			["Desc"] = "Display Hotkey text on buttons",
@@ -633,6 +638,11 @@ TukuiConfig["itIT"] = {
 			["Desc"] = "Only display our debuffs on the target frame",
 		},
 		
+		["OnlySelfBuffs"] = {
+			["Name"] = "Display My Buffs Only",
+			["Desc"] = "Only display our buffs on the target frame",
+		},
+		
 		["DarkTheme"] = {
 			["Name"] = "Dark Theme",
 			["Desc"] = "If enabled, unit frames will be a dark color with class colored power bars",
@@ -678,9 +688,9 @@ TukuiConfig["itIT"] = {
 			["Desc"] = "Display debuffs on boss frames",
 		},
 		
-		["BossAltPowerText"] = {
-			["Name"] = "Boss AltPower Text",
-			["Desc"] = "Display boss altpower text values on altpower bar",
+		["AltPowerText"] = {
+			["Name"] = "AltPower Text",
+			["Desc"] = "Display altpower text values on altpower bar",
 		},
 		
 		["Font"] = {

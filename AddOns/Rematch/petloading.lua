@@ -4,7 +4,7 @@ local rematch = Rematch
 local settings
 local saved
 
-local DEBUG = false
+local DEBUG = nil
 local function debugp(...) if DEBUG then print(...) end end
 
 -- loadin is a team table filled with the pets and abilities to load
@@ -40,7 +40,7 @@ function rematch:LoadLoadIn()
 		loadout[1],loadout[2],loadout[3],loadout[4] = C_PetJournal.GetPetLoadOutInfo(slot)
 		-- pet slot
 		if loadin[slot][1] and loadin[slot][1] ~= loadout[1] then
-			debugp("loading pet slot",slot,":",loadin[slot][1])
+			debugp("loading pet slot",slot,":",loadin[slot][1],(select(8,C_PetJournal.GetPetInfoByPetID(loadin[slot][1]))))
 			if slot==1 then
 				rematch:SummonedPetMayChange()
 			end
@@ -131,8 +131,8 @@ function rematch:LoadTeam(teamName)
 					end
 				end
 			end
-		elseif settings.EmptyMissing then
-			loadin[i][1] = rematch.emptyPetID
+--		elseif settings.EmptyMissing then
+--			loadin[i][1] = rematch.emptyPetID
 		end
 	end
 

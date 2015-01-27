@@ -79,10 +79,6 @@ function TukuiUnitFrames:Target()
 	
 	Power.frequentUpdates = true
 	
-	--[[Power.colorPower = true
-	Power.frequentUpdates = true
-	Power.colorDisconnected = true]]
-	
 	if DarkTheme then
 		Power.colorTapping = true
 		Power.colorClass = true
@@ -98,6 +94,32 @@ function TukuiUnitFrames:Target()
 	end
 
 	Power.PostUpdate = TukuiUnitFrames.PostUpdatePower
+	
+	local AltPowerBar = CreateFrame("StatusBar", nil, self)
+	AltPowerBar:Height(8)
+	AltPowerBar:SetStatusBarTexture(C.Medias.Normal)
+	AltPowerBar:GetStatusBarTexture():SetHorizTile(false)
+	AltPowerBar:SetStatusBarColor(0, 0, 0)
+	AltPowerBar:SetPoint("LEFT")
+	AltPowerBar:SetPoint("RIGHT")
+	AltPowerBar:SetPoint("BOTTOM", Health, "BOTTOM", 0, 0)
+	AltPowerBar:SetBackdrop({
+		bgFile = C.Medias.Blank, 
+		edgeFile = C.Medias.Blank, 
+		tile = false, tileSize = 0, edgeSize = T.Scale(1), 
+		insets = { left = 0, right = 0, top = T.Scale(-1), bottom = 0}
+	})
+	AltPowerBar:SetBackdropColor(0, 0, 0)
+	AltPowerBar:SetBackdropBorderColor(0, 0, 0)
+	AltPowerBar:SetFrameLevel(Health:GetFrameLevel() + 1)
+	
+	if C.UnitFrames.AltPowerText then
+		AltPowerBar.Value = AltPowerBar:CreateFontString(nil, "OVERLAY")
+		AltPowerBar.Value:SetFontObject(Font)
+		AltPowerBar.Value:Point("CENTER", 0, 0)
+	end
+	
+	AltPowerBar.PostUpdate = TukuiUnitFrames.UpdateAltPower
 	
 	if C.UnitFrames.Portrait then
 		local Portrait = CreateFrame("PlayerModel", nil, Health)
@@ -160,13 +182,13 @@ function TukuiUnitFrames:Target()
 	
 	if (C.UnitFrames.CastBar) then
 		local CastBar = CreateFrame("StatusBar", "TukuiTargetCastBar", self)
-		CastBar:SetStatusBarTexture(C.Medias.Normal)
+		CastBar:SetStatusBarTexture(CastTexture)
 		CastBar:SetFrameLevel(6)
 		CastBar:SetInside(Panel)
 
 		CastBar.Background = CastBar:CreateTexture(nil, "BORDER")
 		CastBar.Background:SetAllPoints(CastBar)
-		CastBar.Background:SetTexture(CastTexture)
+		CastBar.Background:SetTexture(C.Medias.Normal)
 		CastBar.Background:SetVertexColor(0.15, 0.15, 0.15)
 
 		CastBar.Time = CastBar:CreateFontString(nil, "OVERLAY")
@@ -196,7 +218,7 @@ function TukuiUnitFrames:Target()
 
 		if (C.UnitFrames.CastBarLatency) then
 			CastBar.SafeZone = CastBar:CreateTexture(nil, "ARTWORK")
-			CastBar.SafeZone:SetTexture(C.Medias.Normal)
+			CastBar.SafeZone:SetTexture(CastTexture)
 			CastBar.SafeZone:SetVertexColor(0.69, 0.31, 0.31, 0.75)
 		end
 
@@ -261,6 +283,7 @@ function TukuiUnitFrames:Target()
 		Buffs.PostCreateIcon = TukuiUnitFrames.PostCreateAura
 		Buffs.PostUpdateIcon = TukuiUnitFrames.PostUpdateAura
 		Buffs.PostUpdate = TukuiUnitFrames.UpdateDebuffsHeaderPosition
+		Buffs.onlyShowPlayer = C.UnitFrames.OnlySelfBuffs
 
 		Debuffs.spacing = 2
 		Debuffs.initialAnchor = "TOPRIGHT"
@@ -363,6 +386,7 @@ function TukuiUnitFrames:Target()
 	self.Health.bg = Health.Background
 	self.Power = Power
 	self.Power.bg = Power.Background
+	self.AltPowerBar = AltPowerBar
 	self.RaidIcon = RaidIcon
 	self.Threat = Threat
 end

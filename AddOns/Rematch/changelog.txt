@@ -1,3 +1,12 @@
+01/18/2015 version 3.2.6
+- Added new sort options to the pet browser filter: Health, Power, Speed, Reverse Sort and Favorites First.
+- When a non-standard sort is active, Sort is included in the filter reset button at the bottom of the pet browser.
+- Added new option 'Don't reset sort with filters' to not reset the sort when the aforemention reset button is clicked.
+- New pet filter 'Moveset Not At 25' under Miscellaneous to list pets that don't share the moveset of a pet already at max level. (credit: Zarbuta at curse.com)
+- Changed 'Strong Vs' filter to require a pet to have a strong attack vs all chosen types instead of any.
+- Added new option 'Inclusive "Strong Vs" filter' for anyone who wants the old 'Strong Vs' behavior back.
+- Fixed a bug with leveling pets from the queue loading in place of leveling pets saved as themselves.
+
 01/10/2015 version 3.2.5
 - Fix for lua error on login from 3.2.3->3.2.4.
 

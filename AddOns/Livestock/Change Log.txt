@@ -1,3 +1,7 @@
+Version 2.3.6
+
+- Added Aspect of the Cheetah to combat forms
+
 Version 2.3.5
 
 - Corrected Garrison Ability to support other languages

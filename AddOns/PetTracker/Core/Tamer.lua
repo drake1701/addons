@@ -52,13 +52,17 @@ function Tamer:Display()
 end
 
 function Tamer:GetZoneTitle()
-	local name = GetMapNameByID(self.zone)
+	local name = GetMapNameByID(self:GetZone())
 	local continent = Addon.ContinentByZone[name]
 	if continent == 'Draenor' and self:GetLevel() < 25 then
 		continent = 'Outland'
 	end
 
 	return name .. (continent and (', ' .. continent) or '')
+end
+
+function Tamer:GetZone()
+	return self.zone == 971 and UnitFactionGroup('player') == 'Horde' and 976 or self.zone
 end
 
 function Tamer:GetCompleteState()

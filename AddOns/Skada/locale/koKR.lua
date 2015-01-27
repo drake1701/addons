@@ -9,6 +9,7 @@ L["Absorbs"] = "흡수"
 L["Absorbs and healing"] = "흡수량과 치유량"
 L["Absorb spells"] = "흡수 주문"
 L["Active time"] = "활동 시간"
+-- L["Activity"] = ""
 L["A damage meter."] = "데미지 미터기입니다."
 L["Adds a background frame under the bars. The height of the background frame determines how many bars are shown. This will override the max number of bars setting."] = "바 아래의 배경 프레임을 추가합니다. 배경 프레임의 높이가 얼마나 많은 바가 표시될지를 결정합니다. 바의 최대 수 설정보다 우선합니다." -- Needs review
 L["Aggressive combat detection"] = "적극적인 전투 감지"

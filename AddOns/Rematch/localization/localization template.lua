@@ -18,6 +18,17 @@
 local _,L = ...
 if GetLocale()=="????" then
 
+	-- New or changed strings in 3.2.6:
+	L["Reverse Sort"]
+	L["Favorites First"]
+	L["Don't reset sort with filters"]
+	L["When a non-standard sort is chosen, don't reset it when clicking the filter reset button at the bottom of the pet browser.\n\n\124cffffd200Note:\124r If 'Reset filters on login' is enabled, sort will still be reset on login regardless of this option."]
+	L["Inclusive \"Strong Vs\" filter"]
+	L["When filtering Strong Vs multiple types, list pets that have an ability that's strong vs one of the chosen types, instead of requiring at least one ability to be strong vs each chosen type."]
+	L["Reset all pet browser filters (including sort) when logging in."]
+	L["Moveset Not At 25"]
+	L["Slotted leveling pets are chosen by the queue.\n\nThe queue is now sorted.\n\nFor greater control, turn off queue sorting."]
+
 	-- New or changed strings in 3.2.3:
 	L["The Full Sort queue option has been turned off to allow this new pet to be the active leveling pet. You can turn Full Sort back on in the queue menu."]
 

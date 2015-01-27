@@ -315,11 +315,22 @@ function rmf:SetRarity(value)
 end
 
 function rmf:GetSort()
-	return C_PetJournal.GetPetSortParameter()==self.index
+	return rematch.roster.sortOrder.order==self.index
 end
 function rmf:SetSort()
-	C_PetJournal.SetPetSortParameter(self.index)
-	rematch:UpdateBrowser()
+	rematch.roster:SetSort("order",self.index)
+end
+function rmf:GetFavoritesFirst()
+	return not rematch.roster.sortOrder.mixFavorites
+end
+function rmf:SetFavoritesFirst(value)
+	rematch.roster:SetSort("mixFavorites",not value)
+end
+function rmf:GetReverseSort()
+	return rematch.roster.sortOrder.reverse
+end
+function rmf:SetReverseSort(value)
+	rematch.roster:SetSort("reverse",value)
 end
 
 function rmf:HighlightMenu()
@@ -383,7 +394,7 @@ menu.menus["browserFilter"] = {
 	{ text=SOURCES, subMenu="browserSources", arg=roster.IsSourcesFilterClear, highlight=rmf.HighlightMenu },
 	{ text=RARITY, subMenu="browserRarity", arg=roster.IsRarityFilterClear, highlight=rmf.HighlightMenu },
 	{ text=MISCELLANEOUS, subMenu="browserMisc", arg=roster.IsMiscFilterClear, highlight=rmf.HighlightMenu },
-	{ text=RAID_FRAME_SORT_LABEL, subMenu="browserSort" },
+	{ text=RAID_FRAME_SORT_LABEL, subMenu="browserSort", arg=roster.CanDefaultSort, highlight=rmf.HighlightMenu },
 	{ text=L["Load Filters"], hide=rmf.HideLoadFilters, func=rmf.LoadFilters },
 	{ text=L["Save Filters"], func=rmf.SaveFilters  },
 	{ text=L["Reset All"], stay=true, func=rematch.ResetAllBrowserFilters },
@@ -420,6 +431,13 @@ menu.menus["browserSort"] = {
 	{ text=LEVEL, radio=true, index=LE_SORT_BY_LEVEL, value=rmf.GetSort, func=rmf.SetSort },
 	{ text=RARITY, radio=true, index=LE_SORT_BY_RARITY, value=rmf.GetSort, func=rmf.SetSort },
 	{ text=TYPE, radio=true, index=LE_SORT_BY_PETTYPE, value=rmf.GetSort, func=rmf.SetSort },
+	{ text=PET_BATTLE_STAT_HEALTH, radio=true, index=5, value=rmf.GetSort, func=rmf.SetSort },
+	{ text=PET_BATTLE_STAT_POWER, radio=true, index=6, value=rmf.GetSort, func=rmf.SetSort },
+	{ text=PET_BATTLE_STAT_SPEED, radio=true, index=7, value=rmf.GetSort, func=rmf.SetSort },
+	{ spacer=true },
+	{ text=L["Reverse Sort"], check=true, value=rmf.GetReverseSort, func=rmf.SetReverseSort },
+	{ text=L["Favorites First"], check=true, value=rmf.GetFavoritesFirst, func=rmf.SetFavoritesFirst },
+	{ text=RESET, stay=true, disable=rematch.roster.CanDefaultSort, func=rematch.roster.ResetSort },
 }
 
 menu.menus["browserMisc"] = {
@@ -434,6 +452,7 @@ menu.menus["browserMisc"] = {
 	{ spacer=true },
 	{ text=L["Only Level 25s"], radio=true, var="Level25", value=rmf.GetMiscFilter, func=rmf.SetMiscFilter },
 	{ text=L["Without Any 25s"], radio=true, var="None25", value=rmf.GetMiscFilter, func=rmf.SetMiscFilter },
+	{ text=L["Moveset Not At 25"], radio=true, var="NoMovesets25", value=rmf.GetMiscFilter, func=rmf.SetMiscFilter },
 	{ spacer=true },
 	{ text=L["1 Pet"], radio=true, var="Qty1", value=rmf.GetMiscFilter, func=rmf.SetMiscFilter },
 	{ text=L["2+ Pets"], radio=true, var="Qty2", value=rmf.GetMiscFilter, func=rmf.SetMiscFilter },

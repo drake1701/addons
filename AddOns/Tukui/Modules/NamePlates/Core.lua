@@ -20,13 +20,15 @@ end
 function Plates:GetColor()
 	local Colors = T["Colors"]
 	local Red, Green, Blue = Plates:RoundColors(self.Health:GetStatusBarColor())
-
+	
 	for Class, _ in pairs(RAID_CLASS_COLORS) do
+		local AltBlue = Blue
+		
 		if Class == "MONK" then
-			Blue = Blue - 0.01
+			AltBlue = AltBlue - 0.01
 		end
 
-		if RAID_CLASS_COLORS[Class].r == Red and RAID_CLASS_COLORS[Class].g == Green and RAID_CLASS_COLORS[Class].b == Blue then
+		if RAID_CLASS_COLORS[Class].r == Red and RAID_CLASS_COLORS[Class].g == Green and RAID_CLASS_COLORS[Class].b == AltBlue then
 			Red, Green, Blue = unpack(Colors.class[Class])
 			
 			self.IsClass = true
@@ -42,22 +44,22 @@ function Plates:GetColor()
 		Red, Green, Blue = unpack(Colors.tapped)
 		
 		self.IsFriend = false
-	elseif Green + Blue == 0 then
+	elseif Green + Blue <= 0 then
 		-- Hostile
 		Red, Green, Blue = unpack(Colors.reaction[2])
 		
 		self.IsFriend = false
-	elseif Red + Blue == 0 then
+	elseif Red + Blue <= 0 then
 		-- Friendly NPC
 		Red, Green, Blue = unpack(Colors.reaction[5])
 		
 		self.IsFriend  = true
-	elseif Red + Green + Blue >= 1.58 then
+	elseif Red + Green + Blue >= 1.95 then
 		-- Neutral NPC
 		Red, Green, Blue = unpack(Colors.reaction[4])
 		
 		self.IsFriend  = false
-	elseif Red + Green == 0 then
+	elseif Red + Green <= 0 then
 		-- Friendly Player
 		Red, Green, Blue = unpack(Colors.reaction[5])
 		
@@ -73,19 +75,25 @@ function Plates:GetColor()
 end
 
 function Plates:UpdateCastBar()
+	local Red, Blue, Green = self:GetStatusBarColor()
 	local Minimum, Maximum = self:GetMinMaxValues()
 	local Current = self:GetValue()
+	local Shield = self.Shield
+	
+	if Shield:IsShown() then
+		self.NewCast:SetStatusBarColor(222/255, 95/255,  95/255)
+		self.NewCast.Background:SetTexture((222/255) * .15, (95/255) * .15, (95/255) * .15)
+	else
+		self.NewCast:SetStatusBarColor(Red, Blue, Green)
+		self.NewCast.Background:SetTexture(Red * .15, Blue * .15, Green * .15)	
+	end
 	
 	self.NewCast:SetMinMaxValues(Minimum, Maximum)
 	self.NewCast:SetValue(Current)
 end
 
 function Plates:CastOnShow()
-	local Red, Blue, Green = self:GetStatusBarColor()
-
 	self.NewCast:Show()
-	self.NewCast:SetStatusBarColor(Red, Blue, Green)
-	self.NewCast.Background:SetTexture(Red * .15, Blue * .15, Green * .15)
 	self:SetScript("OnUpdate", Plates.UpdateCastBar)
 end
 
@@ -99,6 +107,10 @@ function Plates:CastOnHide()
 end
 
 function Plates:OnShow()
+	if not self:IsShown() then
+		return
+	end
+	
 	local Colors = T["Colors"]
 	local Name = self.Name:GetText() or "Unknown"
 	local Level = self.Level:GetText() or ""
@@ -271,7 +283,7 @@ function Plates:Skin(obj)
 	Plate.Cast.NewCast = Plate.NewCast
 	
 	-- OnShow Execution
-	Plate:HookScript("OnShow", self.OnShow)
+	Plate:HookScript("OnUpdate", self.OnShow)
 	Plate.Cast:HookScript("OnShow", self.CastOnShow)
 	Plate.Cast:HookScript("OnHide", self.CastOnHide)
 	self.OnShow(Plate)

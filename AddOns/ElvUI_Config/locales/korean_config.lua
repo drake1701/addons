@@ -98,17 +98,17 @@ L["Visibility State"] = "표시 자동전환 조건"
 L["Width Multiplier"] = "배경 가로길이 배율"
 L[ [=[This works like a macro, you can run different situations to get the actionbar to page differently.
  Example: '[combat] 2;']=] ] = [=[이곳에 작성한 조건(예를 들어 전투여부)에 따라 이 행동단축바의 페이지를 자동으로 전환시킬 수 있습니다.
- 
+
 매크로처럼 작성하세요.
- 
+
 |cff2eb7e4< 예시 >|r
 |cffceff00[combat]2;1|r
  : 전투에 돌입하면 2번 페이지로 변경, 전투가 끝나면 1번 페이지로 변경 ]=]
 L[ [=[This works like a macro, you can run different situations to get the actionbar to show/hide differently.
  Example: '[combat] show;hide']=] ] = [=[이곳에 작성한 조건(예를 들어 전투여부)에 따라 이 행동단축바를 자동으로 숨기거나 표시할 수 있게 해줍니다.
- 
+
 매크로처럼 작성하세요.
- 
+
 |cff2eb7e4< 예시 >|r
 |cffceff00[combat]show;hide|r
  : 전투에 돌입하면 표시, 전투가 끝나면 숨김]=]
@@ -552,6 +552,7 @@ L["Bags Only"] = true;
 L["Bank Only"] = true;
 L["Both"] = true;
 L["Cursor Anchor"] = "툴팁을 마우스에 표시"
+L["Custom Faction Colors"] = true;
 L["Display guild ranks if a unit is guilded."] = "길드명과 함께 길드 등급도 표시합니다."
 L["Display how many of a certain item you have in your possession."] = "현재 툴팁으로 보고있는 아이템을 여러개 갖고 있다면 갯수를 표시합니다."
 L["Display player titles."] = "이름에 칭호도 표시합니다."

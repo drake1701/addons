@@ -79,7 +79,7 @@ function rematch:MouseIsOverMenu()
 end
 
 function rematch:MenuJustClosed()
-	return menu.timeMenuClosed==GetTime()
+	return menu.timeClosed==GetTime()
 end
 
 function rematch:RefreshAllMenus()
@@ -366,7 +366,7 @@ function menu:FrameOnHide()
 			menu.framePool[i]:Hide()
 		end
 	end
-	menu.timeMenuClosed = GetTime()
+	menu.timeClosed = GetTime()
 end
 
 -- this should only run for the first-level frame also

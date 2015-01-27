@@ -25,7 +25,14 @@ local roster = rematch.roster
 roster.toughTable = {8,4,2,9,1,10,5,3,6,7} -- types that indexed types are tough vs
 roster.strongTable = {4,1,6,5,8,2,9,10,3,7} -- types that indexed types are strong vs
 
-roster.pets = {} -- table of pet indexes, created in GenerateIndexes, owned or missing, regardless of filters
+roster.sortOrder = {} -- the details of the sort, ie {order=1, reverse=true, mixFavorites=true}
+-- sortStats/Names/Favorites/Missing are for sort optimization and only filled during custom sorts
+roster.sortStats = {} -- indexed by petID/speciesID, the stat/value of each pet for primary sort
+roster.sortNames = {} -- indexed by petID/speciesID, the name of the pet for sort optimization
+roster.sortFavorites = {} -- indexed by petID, pets that are favorited (improves speed 87% o.O)
+roster.sortMissing = {} -- indexed by speciesID, pets that are missing
+
+roster.pets = {} -- table of sorted petIDs or speciesID after filters are applied
 roster.abilityList = rematch.abilityList -- reusable table for C_PetJournal.GetAbilityList
 roster.levelList = rematch.levelList -- passed to C_PetJournal.GetAbilityList (prevents a ton of garbage creation)
 roster.typeFilter = {nil,{},{}} -- 1=type, 2=strong, 3=tough
@@ -36,7 +43,8 @@ roster.miscGroups = {	Tradable=L["Tradable"], NotTradable=L["Tradable"], -- radi
 											CanBattle=L["Battle"], CantBattle=L["Battle"],
 											Qty1=L["Quantity"], Qty2=L["Quantity"], Qty3=L["Quantity"],
 											Favorite=L["Favorite"], CurrentZone=L["Zone"],
-											InATeam=L["Team"], NotInATeam=L["Team"], Level25=L["Level"], None25=L["Level"] }
+											InATeam=L["Team"], NotInATeam=L["Team"], Level25=L["Level"], None25=L["Level"],
+											NoMovesets25=L["Level"] }
 
 roster.searchStatRanges = {} -- Level={1,24} Speed={300,305} Health={1400,nil} Power={nil,100}
 roster.searchStat = {} -- [1]=stat like "Speed", [2]=operator like ">", [3]=value like 278
@@ -45,14 +53,11 @@ roster.searchStatMasks = { [PET_BATTLE_STAT_HEALTH:lower()]="Health", -- transla
 													 [PET_BATTLE_STAT_SPEED:lower()]="Speed",
 													 [LEVEL:lower()]="Level",
 													 ["health"]="Health", -- english for unlocalized versions
-													 ["power"]="Power",
-													 ["speed"]="Speed",
-													 ["level"]="Level",
-													 ["h"]="Health",
-													 ["p"]="Power",
-													 ["s"]="Speed",
-													 ["l"]="Level",
+													 ["power"]="Power", ["speed"]="Speed", ["level"]="Level",
+													 ["h"]="Health", ["p"]="Power", ["s"]="Speed", ["l"]="Level",
 													}
+
+local C_PetJournal = C_PetJournal
 
 function roster:Updated()
 	rematch:StartTimer("UpdateWindow",0,rematch.UpdateWindow)
@@ -66,17 +71,6 @@ end
 -- returns a petID/speciesID by roster index
 function roster:GetPetByIndex(index)
 	return roster.pets[index]
-end
-
-function roster:GetPetNameByIndex(index)
-	local customName,realName,_
-	local petID = roster.pets[index]
-	if type(petID)=="string" then
-		_,customName,_,_,_,_,_,realName = C_PetJournal.GetPetInfoByPetID(roster.pets[index])
-	elseif type(petID)=="number" then
-		realName = C_PetJournal.GetPetInfoBySpeciesID(petID)
-	end
-	return customName or realName
 end
 
 -- this populates roster.pets with petIDs or speciesIDs depending on current filters
@@ -98,14 +92,25 @@ function roster:Update()
 		rematch:ValidateAllTeams()
 	end
 
+	local customSort = not roster:CanDefaultSort() and roster.sortOrder.order
+
 	-- gather pets
 	for i=1,C_PetJournal.GetNumPets() do
-		local candidate = roster:FilterPetByIndex(i,checkStrong,checkTough,checkRarity,checkStats,checkMisc)
+		local candidate,sortStat,isFavorite,speciesName = roster:FilterPetByIndex(i,checkStrong,checkTough,checkRarity,checkStats,checkMisc,customSort)
 		if candidate then
 			tinsert(roster.pets,candidate)
+			if customSort then -- only note sort stats if a custom sort happening
+				roster.sortStats[candidate] = sortStat or nil
+				roster.sortFavorites[candidate] = isFavorite or nil
+				roster.sortNames[candidate] = speciesName
+				if type(candidate)=="number" then
+					roster.sortMissing[candidate] = true
+				end
+			end
 		end
 	end
 
+	roster:Sort()
 end
 
 --[[ Search box ]]
@@ -352,6 +357,14 @@ function roster:SetMiscFilter(variable,value)
 		end
 	end
 	roster.miscFilter[variable] = value
+	if variable=="NoMovesets25" then
+		if value then
+			rematch:UpdateOwnedPets() -- populate (or nil) moveset tables
+		else
+			rematch.movesets = nil
+			rematch.movesetsAt25 = nil
+		end
+	end
 	roster:Updated()
 end
 
@@ -371,6 +384,8 @@ end
 
 function roster:ClearMiscFilter()
 	wipe(roster.miscFilter)
+	rematch.movesets = nil
+	rematch.movesetsAt25 = nil
 	roster:Updated()
 end
 
@@ -387,15 +402,25 @@ function roster:FilterPetType(speciesID,petType,mode)
 			end
 		end
 	elseif mode==2 then
-		for i=1,#roster.abilityList do
-			local abilityType, noHints = select(7,C_PetBattles.GetAbilityInfoByID(roster.abilityList[i]))
+		local vsAny = RematchSettings.StrongVsAny
+		local info = rematch.info
+		wipe(info)
+		-- fill info with abilityTypes present on the pet
+		for _,abilityID in ipairs(roster.abilityList) do
+			local abilityType, noHints = select(7,C_PetBattles.GetAbilityInfoByID(abilityID))
 			if not noHints then
-				for typeIndex in pairs(roster.typeFilter[2]) do
-					if roster.strongTable[typeIndex] == abilityType then
-						return true
-					end
-				end
+				info[abilityType] = true
 			end
+		end
+		for attackType in pairs(roster.typeFilter[2]) do
+			if vsAny and info[roster.strongTable[attackType]] then
+				return true -- if inclusive filter, return true on first ability that has a strong attack
+			elseif not vsAny and not info[roster.strongTable[attackType]] then
+				return false -- if not inclusive filter, return false on first ability that doesn't have a strong attack
+			end
+		end
+		if not vsAny then
+			return true -- if not inclusive and we made it this far, return true; all strong vs attacks present
 		end
 	else -- normal type
 		return true -- we use all filtered pets for normal
@@ -425,13 +450,11 @@ function roster:FilterSearchText(...)
 end
 
 -- returns the petID or speciesID if pet journal index should be listed in browser
--- if checkType is true, a test for type is also applied
--- if searchText is true, a test for searchMask is also applied
-function roster:FilterPetByIndex(index,checkStrong,checkTough,checkRarity,checkStats,checkMisc)
+function roster:FilterPetByIndex(index,checkStrong,checkTough,checkRarity,checkStats,checkMisc,customSort)
 
 	local maxHealth, power, speed, rarity, _ -- filled if GetPetStats needed
 	local	petID, speciesID, owned, customName, level, favorite, _, speciesName, _, petType, _, source, description, isWild, canBattle, isTradable, _, obtainable = C_PetJournal.GetPetInfoByIndex(index)
-	C_PetJournal.GetPetAbilityList(speciesID, roster.abilityList, roster.levelList)
+	local abilitiesPulled
 
 	if not canBattle and RematchSettings.OnlyBattlePets then
 		return false
@@ -480,6 +503,9 @@ function roster:FilterPetByIndex(index,checkStrong,checkTough,checkRarity,checkS
 			return false
 		end
 		if roster:GetMiscFilter("None25") and rematch.ownedSpeciesAt25[speciesID] then
+			return false
+		end
+		if roster:GetMiscFilter("NoMovesets25") and rematch.movesetsAt25[speciesID] then
 			return false
 		end
 		-- check for Qty1-3
@@ -532,6 +558,10 @@ function roster:FilterPetByIndex(index,checkStrong,checkTough,checkRarity,checkS
 		end
 	end
 	if checkStrong then
+		if not abilitiesPulled then
+			C_PetJournal.GetPetAbilityList(speciesID, roster.abilityList, roster.levelList)
+			abilitiesPulled = true
+		end
 		if not roster:FilterPetType(speciesID,petType,2) then
 			return false
 		end
@@ -570,17 +600,41 @@ function roster:FilterPetByIndex(index,checkStrong,checkTough,checkRarity,checkS
 
 	-- if there's a legitimate text search string
 	if roster.searchText then
+		if not abilitiesPulled then
+			C_PetJournal.GetPetAbilityList(speciesID, roster.abilityList, roster.levelList)
+			abilitiesPulled = true
+		end
 		if not roster:FilterSearchText(customName,speciesName,source) then
 			return false
 		end
 	end
 
-	return petID or speciesID,favorite
+	local sortStat
+	if customSort then -- skip this string of spaghetti if no customSort
+		if customSort==1 then
+			sortStat = speciesName
+		elseif customSort==2 then
+			sortStat = level
+		elseif customSort==4 then
+			sortStat = petType
+		elseif petID then -- then rest of the sorts are only valid for owned pets
+			if not maxHealth then -- and require stats (get them if not gotten already)
+				_, maxHealth, power, speed, rarity = C_PetJournal.GetPetStats(petID)
+			end
+			if customSort==3 then
+				sortStat = rarity
+			elseif customSort==5 then
+				sortStat = maxHealth
+			elseif customSort==6 then
+				sortStat = power
+			elseif customSort==7 then
+				sortStat = speed
+			end
+		end
+	end
+
+	return petID or speciesID, sortStat, favorite, speciesName
 end
-
---[[ Sorting ]]
-
--- NYI
 
 --[[ filterResults ]]
 
@@ -616,6 +670,9 @@ function roster:GetFilterResults()
 			filters = filters..group..", "
 		end
 	end
+	if not roster:CanDefaultSort() and not RematchSettings.DontResetSort then
+		filters = filters..L["Sort, "]
+	end
 
 	filters = filters:gsub(", $","")
 
@@ -630,6 +687,9 @@ function roster:ClearAllFilters()
 	C_PetJournal.AddAllPetSourcesFilter()
 	C_PetJournal.SetFlagFilter(LE_PET_JOURNAL_FLAG_COLLECTED,true)
 	C_PetJournal.SetFlagFilter(LE_PET_JOURNAL_FLAG_NOT_COLLECTED,true)
+	if not RematchSettings.DontResetSort then
+		roster:ResetSort()
+	end
 end
 
 
@@ -678,7 +738,10 @@ function roster:SaveFilters(filters)
 		end
 	end
 	-- save sort
-	filters.sorting = C_PetJournal.GetPetSortParameter()
+	filters.sortOrder = {}
+	for k,v in pairs(roster.sortOrder) do
+		filters.sortOrder[k] = v
+	end
 end
 
 function roster:LoadFilters(filters)
@@ -729,6 +792,134 @@ function roster:LoadFilters(filters)
 		end
 	end
 	-- load sort
-	C_PetJournal.SetPetSortParameter(filters.sorting)
+	wipe(roster.sortOrder)
+	if type(filters.sorting)=="number" then
+		roster.sortOrder.order = filters.sorting
+	elseif type(filters.sortOrder)=="table" then
+		for k,v in pairs(filters.sortOrder) do
+			roster.sortOrder[k] = v
+		end
+	end
+	roster:SetSort()
 	roster:Updated()
+end
+
+--[[ Sort ]]
+
+-- Sets one of the sortOrder keys:
+--	order: 1-7 (1=name, 2=level, 3=rarity, 4=type, 5=health, 6=power, 7=speed)
+--  reverse: boolean
+--  mixFavorites: boolean
+function roster:SetSort(key,value)
+	local order = roster.sortOrder
+	if key then
+		order[key] = value or nil
+	end
+	if key=="order" then
+		order.reverse = nil
+	end
+	order.order = order.order or C_PetJournal.GetPetSortParameter()
+	if roster:CanDefaultSort() then
+		wipe(roster.sortStats) -- no need to hang onto this data if default is sorting
+		wipe(roster.sortNames)
+		wipe(roster.sortFavorites)
+		wipe(roster.sortMissing)
+		C_PetJournal.SetPetSortParameter(order.order)
+	end
+	roster:Updated()
+end
+
+-- if a custom sort is enabled, then sorts roster.pets to the desired sort
+function roster:Sort()
+	if roster:CanDefaultSort() then
+		return -- default is handling sort, gtfo here
+	end
+
+	local sortStats = roster.sortStats
+	local sortNames = roster.sortNames
+	local sortFavorites = roster.sortFavorites
+	local sortMissing = roster.sortMissing
+
+	local order = roster.sortOrder.order
+	local sortDescending = order~=1 and order~=4 -- all but name and type sorts are descending
+	if roster.sortOrder.reverse then
+		sortDescending = not sortDescending
+	end
+
+	-- sorts by name, and to ensure stable sorts, if names match, sorts by petID itself
+	local function nameSort(e1,e2)
+		local ne1 = sortNames[e1]
+		local ne2 = sortNames[e2]
+		if ne1==ne2 then
+			return e1<e2
+		else
+			return ne1<ne2
+		end
+	end
+
+	local function mainSort(e1,e2)
+		-- owned pets are string petIDs, they come before missing pets which are numbered speciesIDs.
+		local me1 = sortMissing[e1]
+		local me2 = sortMissing[e2]
+		if me1 and not me2 then
+			return false
+		elseif not me1 and me2 then
+			return true
+		end
+		-- this is the primary sort
+		local se1 = sortStats[e1]
+		local se2 = sortStats[e2]
+		if se1 and not se2 then
+			return true
+		elseif not se1 and se2 then
+			return false
+		elseif not se1 and not se2 then
+			return nameSort(e1,e2) -- neither pet has a stat, sort by name
+		elseif se1>se2 then
+			if sortDescending then
+				return true
+			else
+				return false
+			end
+		elseif se1<se2 then
+			if sortDescending then
+				return false
+			else
+				return true
+			end
+		else -- se1==se2
+			return nameSort(e1,e2)
+		end
+	end
+
+	if roster.sortOrder.mixFavorites then
+		table.sort(roster.pets,mainSort)
+	else
+		table.sort(roster.pets,function(e1,e2)
+			local fe1 = sortFavorites[e1]
+			local fe2 = sortFavorites[e2]
+			if fe1 and not fe2 then
+				return true
+			elseif not fe1 and fe2 then
+				return false
+			else
+				return mainSort(e1,e2)
+			end
+		end)
+	end
+
+end
+
+-- returns true if the current sortOrder can be handled by the default UI
+function roster:CanDefaultSort()
+	local order = roster.sortOrder
+	order.order = order.order or C_PetJournal.GetPetSortParameter()
+	return order.order<5 and not order.reverse and not order.mixFavorites
+end
+
+-- restores the sort to something the default UI can handle; the last default sort chosen
+function roster:ResetSort()
+	wipe(roster.sortOrder)
+	roster.sortOrder.order = C_PetJournal.GetPetSortParameter()
+	roster:SetSort()
 end

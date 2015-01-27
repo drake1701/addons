@@ -52,13 +52,14 @@ sb4:SetScript("OnClick", function()
 	LivestockSettings.combatforms = 1 - LivestockSettings.combatforms
 	LivestockComboButton:SetAttribute("combatformstoggle",LivestockSettings.combatforms)
 end)
+if class ~= "DRUID" and class ~= "SHAMAN" and class ~= "HUNTER" then sb4:Disable() end
 
 local sb5 = Recompense.CreateButtonAndText("LivestockSmartPreferencesFrameToggleMovingForms", smartprefs, 5, -136, "LivestockSmartPreferencesFrameToggleMovingFormsText")
 sb5:SetScript("OnClick", function() 
 	LivestockSettings.movingform = 1 - LivestockSettings.movingform
 	LivestockComboButton:SetAttribute("movingform",LivestockSettings.movingform)
 end)
-if class ~= "DRUID" and class ~= "SHAMAN" then sb5:Disable() sb4:Disable() end
+if class ~= "DRUID" and class ~= "SHAMAN" then sb5:Disable() end
 
 local sb6 = Recompense.CreateButtonAndText("LivestockSmartPreferencesFrameToggleSmartCatForm", smartprefs, 5, -154, "LivestockSmartPreferencesFrameSmartCatFormText")
 sb6:SetScript("OnClick", function()

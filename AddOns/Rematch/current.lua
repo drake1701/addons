@@ -21,8 +21,8 @@ end
 function rematch:CurrentPetOnReceiveDrag()
 	local petID = rematch:GetCursorPetID()
 	if petID then
-		rematch:HandleReceivingLevelingPet(petID)
 		rematch:LoadPetSlot(self:GetID(),petID)
+		rematch:HandleReceivingLevelingPet(petID)
 		ClearCursor()
 	end
 end
@@ -137,9 +137,14 @@ function rematch:UpdateCurrentPets()
 end
 
 function rematch:UpdateCurrentLevelingBorders()
+	local loadedTeam = settings.loadedTeamName and RematchSaved[settings.loadedTeamName]
 	for i=1,3 do
 		local petID = C_PetJournal.GetPetLoadOutInfo(i)
-		rematch.current.pets[i].leveling:SetShown(rematch:IsPetLeveling(petID))
+		if loadedTeam and loadedTeam[i][1]==petID then
+			rematch.current.pets[i].leveling:Hide()
+		else
+			rematch.current.pets[i].leveling:SetShown(rematch:IsPetLeveling(petID))
+		end
 	end
 end
 

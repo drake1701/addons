@@ -44,6 +44,11 @@ TukuiConfig["zhCN"] = {
 			["Desc"] = "Derp",
 		},
 		
+		["EquipBorder"] = {
+			["Name"] = "Equipped Item Border",
+			["Desc"] = "Display Green Border on Equipped Items",
+		},
+
 		["HotKey"] = {
 			["Name"] = "快捷键",
 			["Desc"] = "在快捷键上显示名字",
@@ -628,6 +633,11 @@ TukuiConfig["zhCN"] = {
 			["Name"] = "只显示我造成的减益",
 			["Desc"] = "在目标框架上只显示我造成的减益效果",
 		},
+
+		["OnlySelfBuffs"] = {
+			["Name"] = "Display My Buffs Only",
+			["Desc"] = "Only display our buffs on the target frame",
+		},
 		
 		["DarkTheme"] = {
 			["Name"] = "黑暗主题",
@@ -674,9 +684,9 @@ TukuiConfig["zhCN"] = {
 			["Desc"] = "在首领框架上显示buff和debuff",
 		},
 		
-		["BossAltPowerText"] = {
-			["Name"] = "Boss AltPower Text",
-			["Desc"] = "Display boss altpower text values on altpower bar",
+		["AltPowerText"] = {
+			["Name"] = "AltPower Text",
+			["Desc"] = "Display altpower text values on altpower bar",
 		},
 		
 		["Font"] = {

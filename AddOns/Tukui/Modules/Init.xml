@@ -61,6 +61,7 @@
 	<Script file="Maps\Core.lua"/>
 	<Script file="Maps\Minimap.lua"/>
 	<Script file="Maps\Zonemap.lua"/>
+	<Script file="Maps\Worldmap.lua"/>
 	
 	<!-- Data Text -->
 	<Script file="DataTexts\Core.lua"/>
@@ -100,6 +101,7 @@
 	
 	<!-- UnitFrames -->
 	<Script file="UnitFrames\Core.lua"/>
+	<Script file="UnitFrames\Tracking.lua"/>
 	<Script file="UnitFrames\Tags.lua"/>
 	<Script file="UnitFrames\Classes\Warrior.lua"/>
 	<Script file="UnitFrames\Classes\Paladin.lua"/>
