@@ -124,7 +124,7 @@
 				<Anchor point="TOPLEFT" x="74" y="-1"/>
 				<Anchor point="BOTTOMRIGHT" x="-1" y="0"/>
 			</Anchors>
-			<TexCoords left="0.49804688" right="0.90625000" top="0.17480469" bottom="0.21972656"/>
+			<TexCoords left="0.59804688" right="0.80625000" top="0.17480469" bottom="0.21972656"/>
 		</HighlightTexture>
 		<Scripts>
 			<OnLoad>
@@ -270,9 +270,10 @@
 		<Frames>
 
 			<EditBox parentKey="searchBox" name="$parentSearchBox" inherits="RematchSearchBoxTemplate">
-				<Size x="206" y="20"/>
+				<Size x="0" y="20"/>
 				<Anchors>
-					<Anchor point="BOTTOMLEFT" relativePoint="TOPLEFT" x="36" y="4"/> <!-- re-anchored in options.lua -->
+					<Anchor point="BOTTOMLEFT" relativePoint="TOPLEFT" x="36" y="4"/> <!-- bottomleft re-anchored in options.lua -->
+					<Anchor point="BOTTOMRIGHT" relativePoint="TOPRIGHT" x="0" y="4"/>
 				</Anchors>
 				<Scripts>
 					<OnTextChanged>
@@ -283,6 +284,11 @@
 
 			<Button parentKey="import" inherits="RematchToolbarButtonTemplate">
 				<!-- this is anchored in options.lua rematch.optionsFunc.AutoAlways() -->
+				<KeyValues>
+					<KeyValue key="defaultIcon" value="Interface\Icons\INV_Inscription_RunescrollOfFortitude_Blue"/>
+					<KeyValue key="tooltipTitle" value="Import"/>
+					<KeyValue key="stretchy" value="true"/>
+				</KeyValues>
 				<Scripts>
 					<OnClick>
 						Rematch:ShowImportDialog()

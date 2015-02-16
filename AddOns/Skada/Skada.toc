@@ -5,12 +5,12 @@
 ## Notes-zhTW: 模組化的傷害統計。
 ## Notes-deDE: Ein Damage-Meter.
 ## Notes-frFR: Un damage meter.
-## Notes-zhCN: 伤害统计
+## Notes-zhCN: 模块化伤害统计。
 ## Author: Zarnivoop
-## Version: 1.4-28
+## Version: r607
 ## SavedVariables: SkadaDB
 ## SavedVariablesPerCharacter: SkadaPerCharDB
-## X-Curse-Packaged-Version: 1.4-28
+## X-Curse-Packaged-Version: r607
 ## X-Curse-Project-Name: Skada Damage Meter
 ## X-Curse-Project-ID: skada
 ## X-Curse-Repository-ID: wow/skada/mainline

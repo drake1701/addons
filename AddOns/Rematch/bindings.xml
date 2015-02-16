@@ -11,4 +11,7 @@
 	<Binding name="REMATCH_TEAMS" category="ADDONS">
 		Rematch:ToggleTab("TEAMS")
 	</Binding>
+	<Binding name="REMATCH_TOGGLENOTES" category="ADDONS">
+		Rematch:ToggleNotes()
+	</Binding>
 </Bindings>

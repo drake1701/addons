@@ -54,10 +54,6 @@ function rematch:InitTeams()
 
 	card:SetFrameLevel(4)
 	card.lockFrame:SetFrameLevel(1)
-
-	teams.import.icon:SetTexture("Interface\\Icons\\INV_Inscription_RunescrollOfFortitude_Blue")
-	teams.import.tooltipTitle = L["Import"]
-
 end
 
 function rematch:UpdateTeams()
@@ -375,6 +371,7 @@ function rematch:UpdateTeamList()
 	local scrollFrame = teams.list.scrollFrame
 	local offset = HybridScrollFrame_GetOffset(scrollFrame)
 	local buttons = scrollFrame.buttons
+	local width = scrollFrame:GetWidth()-17
 
 	scrollFrame.stepSize = floor(scrollFrame:GetHeight()*.65)
 
@@ -387,6 +384,7 @@ function rematch:UpdateTeamList()
 			button.name:SetText(teamName)
 			button.teamName = teamName
 			button.index = index
+			button:SetWidth(width)
 			if teamName==settings.loadedTeamName then
 				button.back:SetGradientAlpha("VERTICAL",.35,.65,1,1, .35,.65,1,0)
 			else

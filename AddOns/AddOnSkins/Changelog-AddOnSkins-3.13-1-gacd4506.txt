@@ -1,0 +1,2 @@
+Azilroka:
+	- Keep WeakAura Changes Local

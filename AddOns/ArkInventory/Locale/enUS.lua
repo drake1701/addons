@@ -363,13 +363,15 @@ if not L then return end
 	
 	L["CONFIG_SETTINGS_ITEMS_PADDING_TEXT"] = "set the amount of space to add between item slots"
 	L["CONFIG_SETTINGS_ITEMS_HIDDEN"] = "Show hidden"
-	L["CONFIG_SETTINGS_ITEMS_HIDDEN_TEXT"] = "show hidden categories"
+	L["CONFIG_SETTINGS_ITEMS_HIDDEN_TEXT"] = "toggle hidden categories and stacks"
 	L["CONFIG_SETTINGS_ITEMS_FADE"] = "Fade offline"
 	L["CONFIG_SETTINGS_ITEMS_FADE_TEXT"] = "fade offline items"
 	L["CONFIG_SETTINGS_ITEMS_TINT_USABLE"] = "Tint Unusable"
 	L["CONFIG_SETTINGS_ITEMS_TINT_USABLE_TEXT"] = "tint unusable items red"
 	L["CONFIG_SETTINGS_ITEMS_ITEMLEVEL_SHOW"] = "Item Level"
 	L["CONFIG_SETTINGS_ITEMS_ITEMLEVEL_SHOW_TEXT"] = "show item level for equippable items"
+	L["CONFIG_SETTINGS_ITEMS_COMPRESS"] = "Stack Limit"
+	L["CONFIG_SETTINGS_ITEMS_COMPRESS_TEXT"] = "only show the first x stacks of an item and hide the rest (use show hidden items to temporarily see all stacks)\nset to zero to always display all stacks\n\nNote: displayed stacks may not be the newest or largest"
 	
 	L["CONFIG_SETTINGS_ITEMS_COOLDOWN_SHOW_TEXT"] = "Display cooldowns for items in the %1$s window"
 	L["CONFIG_SETTINGS_ITEMS_COOLDOWN_GLOBAL"] = "Update on GCD"
@@ -412,6 +414,8 @@ if not L then return end
 	L["CONFIG_SETTINGS_EMPTY_STATUS"] = "Display Format"
 	L["CONFIG_SETTINGS_EMPTY_FIRST"] = "First Only"
 	L["CONFIG_SETTINGS_EMPTY_FIRST_TEXT"] = "only show the first x amount of empty slots of each type (may require a refresh to update)\n\nset to zero to show all empty slots"
+	L["CONFIG_SETTINGS_EMPTY_POSITION"] = "Sort Position"
+	L["CONFIG_SETTINGS_EMPTY_POSITION_TEXT"] = "Enabled: Empty slots are sorted first alphabetically\n\nDisabled: empty slots are sorted last alphabetically"
 	
 	
 -- sorting

@@ -587,7 +587,6 @@ GTFO.SpellID["175752"] = {
 	--desc = "Slag Breath (Ogron Hauler)";
 	sound = 3;
 	meleeOnly = true;
-	test = true;
 };
 
 GTFO.SpellID["175765"] = {
@@ -602,16 +601,36 @@ GTFO.SpellID["159520"] = {
 	sound = 3;
 };
 
+GTFO.SpellID["175329"] = {
+	--desc = "Kromog's Fury (Kromog)";
+	sound = 3;
+};
+
 -- Gruul
 -- TODO: Inferno Slice - fail when hit while debuffed?
--- TODO: Overwhelming Blows - non-tank fail?
 -- TODO: Flare (Heroic) - fail if avoidable
--- TODO: Shatter - fail if you get hit by allies
 
 GTFO.SpellID["155301"] = {
 	--desc = "Overhead Smash (Gruul)";
 	sound = 3;
-	test = true;
+};
+
+GTFO.SpellID["155078"] = {
+	--desc = "Overwhelming Blows (Gruul)";
+	sound = 3;
+	tankSound = 0;
+};
+
+GTFO.SpellID["155530"] = {
+	--desc = "Shatter (Gruul)";
+	-- TODO: Improve fail/FF alert
+	soundFunction = function() -- Warn only if you get hit more than once if debuffed
+		if (GTFO_FindEvent("GruulShatter")) then
+			return 3;
+		end
+		GTFO_AddEvent("GruulShatter", 5);
+		return 0;
+	end
 };
 
 -- Oregorger
@@ -627,6 +646,16 @@ GTFO.SpellID["155900"] = {
 	sound = 3;
 };
 
+GTFO.SpellID["156446"] = {
+	--desc = "Blast Wave (Slag Behemoth)";
+	sound = 3;
+};
+
+GTFO.SpellID["156349"] = {
+	--desc = "Volcanic Bomb (Slag Behemoth)";
+	sound = 3;
+};
+
 GTFO.SpellID["155187"] = {
 	--desc = "Bomb (Foreman Feldspar)";
 	sound = 3;
@@ -634,9 +663,30 @@ GTFO.SpellID["155187"] = {
 };
 
 -- Beastlord Darmac
--- TODO: Pin Down - spear impact
 -- TODO: Cannonball Barrage - avoidable?
 -- TODO: Heavy Smash - non-tank fail
+
+GTFO.SpellID["154960"] = {
+	--desc = "Pinned Down (Beastlord Darmac)";
+	sound = 3;
+	applicationOnly = true;
+};
+
+GTFO.SpellID["155061"] = {
+	--desc = "Rend and Tear (Beastlord Darmac)";
+	sound = 3;
+	tankSound = 0;
+	applicationOnly = true;
+	meleeOnly = true;
+};
+
+GTFO.SpellID["162283"] = {
+	--desc = "Rend and Tear (Beastlord Darmac)";
+	sound = 3;
+	tankSound = 0;
+	applicationOnly = true;
+	meleeOnly = true;
+};
 
 GTFO.SpellID["163182"] = {
 	--desc = "Crushing Slam (Iron Smith)";
@@ -644,10 +694,27 @@ GTFO.SpellID["163182"] = {
 	tankSound = 0;
 };
 
--- Flamebender Ka'graz
--- TODO: Charring Breath - non-tank fail, tank fail if debuffed
--- TODO: Magma Monsoon - avoidable?
--- TODO: Devastating Slam - non-tank fail
+GTFO.SpellID["178179"] = {
+	--desc = "Lava Blast (Iron Flametwister)";
+	sound = 3;
+};
+
+GTFO.SpellID["156018"] = {
+	--desc = "Devastating Slam (Aknor Steelbringer)";
+	sound = 3;
+	tankSound = 0;
+};
+
+GTFO.SpellID["163633"] = {
+	--desc = "Magma Monsoon (Flamebender Ka'graz)";
+	sound = 3;
+};
+
+GTFO.SpellID["155074"] = {
+	--desc = "Charring Breath (Flamebender Ka'graz)";
+	sound = 3;
+	tankSound = 0;
+};
 
 GTFO.SpellID["158140"] = {
 	--desc = "Pulverize (Hans'gar and Franzok)";
@@ -671,11 +738,8 @@ GTFO.SpellID["156554"] = {
 -- TODO: Slag Bomb - Avoidable?
 -- TODO: Volatile Fire - Avoidable?
 
--- Kromog
-
-GTFO.SpellID["156713"] = {
+GTFO.SpellID["157055"] = {
 	--desc = "Thundering Blows (Kromog)";
-	test = true; -- Not sure if this works, untested
 	soundFunction = function() -- Warn only on the first hit
 		if (GTFO_FindEvent("ThunderingFail")) then
 			return 0;
@@ -691,11 +755,25 @@ GTFO.SpellID["156713"] = {
 GTFO.SpellID["161923"] = {
 	--desc = "Rune of Crushing Earth (Kromog)";
 	sound = 3;
-	tankSound = 0; -- Could be off-tank's job to clear these?
+};
+
+GTFO.SpellID["157247"] = {
+	--desc = "Reverberations (Kromog)";
+	sound = 3;
+};
+
+GTFO.SpellID["162349"] = {
+	--desc = "Fists of Stone (Kromog)";
+	sound = 3;
+	tankSound = 0;
+};
+
+GTFO.SpellID["157659"] = {
+	--desc = "Rippling Smash (Kromog)";
+	sound = 3;
 };
 
 -- TODO: Slam 156704 - fail if too close? 
--- TODO: Reverberations 157247 - avoidable?
 -- TODO: Call of the Mountain
 
 -- The Iron Maidens
@@ -730,11 +808,23 @@ GTFO.SpellID["158009"] = {
 
 -- Blackhand
 -- TODO: Demolition - distance fail?
--- TODO: Impaling Throw - non-tank fail
--- TODO: Slag Bomb - avoidable?
--- TODO: Battering Ram - non-tank fail
 -- TODO: Explosive Round - avoidable?
 -- TODO: Slag Eruption - ?
+
+GTFO.SpellID["156044"] = {
+	--desc = "Slag Bomb (Blackhand)";
+	sound = 3;
+};
+
+GTFO.SpellID["156107"] = {
+	--desc = "Impaling Throw (Blackhand)";
+	sound = 3;
+};
+
+GTFO.SpellID["156646"] = {
+	--desc = "Battering Ram (Blackhand)";
+	sound = 3;
+};
 
 -- ************
 -- * Highmaul *
@@ -772,7 +862,12 @@ GTFO.SpellID["160952"] = {
 };
 
 GTFO.SpellID["161218"] = {
-	--desc = "Ravenous Bloodmaw (Kargath Bladefist, Heroic)";
+	--desc = "Maul (Ravenous Bloodmaw, Heroic)";
+	sound = 3;
+};
+
+GTFO.SpellID["162514"] = {
+	--desc = "Maul (Ravenous Bloodmaw, Heroic)";
 	sound = 3;
 };
 
@@ -897,5 +992,14 @@ GTFO.SpellID["158648"] = {
 
 GTFO.SpellID["174437"] = {
 	--desc = "Nether Font (Gorian High Sorcerer)";
+	sound = 3;
+};
+
+-- *******************
+-- * Brawler's Guild *
+-- *******************
+
+GTFO.SpellID["135891"] = {
+	--desc = "Uninvited (Boom Room Bouncer)";
 	sound = 3;
 };

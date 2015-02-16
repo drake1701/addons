@@ -139,15 +139,21 @@ function UF:Update_TargetFrame(frame, db)
 			health.colorClass = true
 			health.colorReaction = true
 		end
+		if self.db['colors'].forcehealthreaction == true then
+			health.colorClass = false
+			health.colorReaction = true
+		end
 
 		--Position
 		health:ClearAllPoints()
 		health:Point("TOPRIGHT", frame, "TOPRIGHT", -BORDER, -BORDER)
 
-		if USE_INSET_POWERBAR or POWERBAR_DETACHED then
+		if POWERBAR_DETACHED then
 			health:Point("BOTTOMLEFT", frame, "BOTTOMLEFT", BORDER, BORDER)
 		elseif USE_POWERBAR_OFFSET then
 			health:Point("BOTTOMLEFT", frame, "BOTTOMLEFT", BORDER+POWERBAR_OFFSET, BORDER+POWERBAR_OFFSET)
+		elseif USE_INSET_POWERBAR then
+			health:Point("BOTTOMLEFT", frame, "BOTTOMLEFT", BORDER, BORDER)
 		elseif USE_MINI_POWERBAR then
 			health:Point("BOTTOMLEFT", frame, "BOTTOMLEFT", BORDER, BORDER + (POWERBAR_HEIGHT/2))
 		else

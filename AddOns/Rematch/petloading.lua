@@ -250,6 +250,7 @@ function rematch:LoadingDone(unsuccessful)
 	end
 
 	rematch.automaticallyShownForTeamName = nil
+	rematch.lastNotedTeam = nil
 
 	-- if any pets are species (petID is a number), show a dialog to warn pet is missing
 	if not settings.DontWarnMissing and team then

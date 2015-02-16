@@ -1052,8 +1052,12 @@ function ArkInventory.MenuItemOpen( frame )
 								end
 								
 							elseif ( class == "spell" ) then
-							
-								ArkInventory.Lib.Dewdrop:AddLine( "text", string.format( "%s: %s%s", ArkInventory.Localise["MENU_ITEM_DEBUG_TYPE"], LIGHTYELLOW_FONT_COLOR_CODE, string.lower( i.type ) ) )
+								
+								-- mounts
+								
+								local md = ArkInventory.MountJournal.GetMount( i.index )
+								
+								ArkInventory.Lib.Dewdrop:AddLine( "text", string.format( "%s: %s%s", ArkInventory.Localise["MENU_ITEM_DEBUG_TYPE"], LIGHTYELLOW_FONT_COLOR_CODE, md.mt or ArkInventory.Localise["UNKNOWN"] ) )
 								
 								ArkInventory.Lib.Dewdrop:AddLine( )
 								
@@ -3731,6 +3735,9 @@ function ArkInventory.MenuRefreshOpen( frame )
 	
 	assert( frame, "code error: frame argument is missing" )
 
+	local loc_id = frame:GetParent( ):GetParent( ).ARK_Data.loc_id
+	local cp = ArkInventory.LocationPlayerInfoGet( loc_id )
+	
 	if ArkInventory.Lib.Dewdrop:IsOpen( frame ) then
 		
 		ArkInventory.Lib.Dewdrop:Close( )
@@ -3772,6 +3779,24 @@ function ArkInventory.MenuRefreshOpen( frame )
 							ArkInventory.Frame_Main_Generate( nil, ArkInventory.Const.Window.Draw.Recalculate )
 						end
 					)
+					
+					ArkInventory.Lib.Dewdrop:AddLine( )
+					
+					ArkInventory.Lib.Dewdrop:AddLine(
+						"text", string.format( "%s: %s", ArkInventory.Localise["ITEMS"], ArkInventory.Localise["CONFIG_SETTINGS_ITEMS_HIDDEN"] ),
+						"tooltipTitle", ArkInventory.Localise["CONFIG_SETTINGS_ITEMS_HIDDEN_TEXT"],
+						"closeWhenClicked", true,
+						"checked", ArkInventory.LocationOptionGet( loc_id, "slot", "ignorehidden" ),
+						"func", function( )
+							local v = ArkInventory.LocationOptionGet( loc_id, "slot", "ignorehidden" )
+							ArkInventory.LocationOptionSet( loc_id, "slot", "ignorehidden", not v )
+							ArkInventory.Frame_Main_Generate( nil, ArkInventory.Const.Window.Draw.Recalculate )
+						end
+					)
+					
+					
+					
+					
 					
 					ArkInventory.Lib.Dewdrop:AddLine( )
 					

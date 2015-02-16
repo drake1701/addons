@@ -21,9 +21,6 @@ function rematch:InitNotes()
 		card:SetSize(settings.NotesWidth,settings.NotesHeight)
 	end
 	SetPortraitToTexture(card.icon,"Interface\\Icons\\INV_Scroll_03")
-	card.undo.tooltipTitle = L["Undo"]
-	card.undo.tooltipBody = L["Revert to the last saved notes. Changes are saved when leaving these notes."]
-	card.undo.icon:SetTexture("Interface\\PaperDollInfoFrame\\UI-GearManager-Undo")
 	rematch:HookScript("OnShow",rematch.UpdateNotesESCability)
 	rematch:HookScript("OnHide",rematch.UpdateNotesESCability)
 end
@@ -53,6 +50,7 @@ function rematch:ShowNotesCard(teamName,force)
 		card.scrollFrame.editBox:SetText(saved[6] or "")
 		card.title:SetText(teamName)
 		card.scrollFrame.editBox:SetCursorPosition(0)
+		card.save:Hide()
 		rematch:UpdateNotesCardLock()
 		card:Show()
 	end
@@ -79,9 +77,10 @@ function rematch:LockNotesCard(teamName,button)
 end
 
 function rematch:NotesCardOnHide()
-	card.locked = nil
 	rematch:NotesCardSave()
 	rematch:UpdateNotesESCability()
+	card.locked = nil
+	card.teamName = nil
 end
 
 -- when hiding (or switching to another note) we save the contents
@@ -120,6 +119,9 @@ function rematch:NotesCardUndo()
 	card.scrollFrame.editBox:SetText(RematchSaved[card.teamName][6] or "")
 	card.scrollFrame.editBox:SetCursorPosition(0)
 	card.undo:Hide()
+	if not card.scrollFrame.editBox:HasFocus() then
+		card.save:Hide()
+	end
 end
 
 function rematch:NotesCardOnTextChanged()
@@ -156,3 +158,16 @@ function rematch:UpdateNotesESCability()
 		end
 	end
 end
+
+-- toggles locked card on/off screen for currently loaded team
+function rematch:ToggleNotes()
+	local loadedTeam = RematchSettings.loadedTeamName
+	if card:IsVisible() then
+	  card:Hide()
+	elseif RematchSaved[loadedTeam] then
+		card.teamName = nil
+	  Rematch:ShowNotesCard(loadedTeam)
+	  Rematch:LockNotesCard(loadedTeam)
+	end
+end
+

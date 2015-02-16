@@ -1,6 +1,6 @@
 ﻿-- (c) 2006-2014, all rights reserved.
--- $Revision: 1298 $
--- $Date: 2015-01-20 23:21:30 +1100 (Tue, 20 Jan 2015) $
+-- $Revision: 1305 $
+-- $Date: 2015-02-06 22:02:22 +1100 (Fri, 06 Feb 2015) $
 
 
 local _G = _G
@@ -949,7 +949,7 @@ ArkInventory.Const = { -- constants
 		["a"] = 0x02, -- air
 		["s"] = 0x04, -- water surface
 		["u"] = 0x08, -- underwater
-		["x"] = 0x00, -- ignored
+		["x"] = 0x00, -- ignored / unknown
 	},
 	
 	booleantable = { true, false },
@@ -1473,6 +1473,7 @@ ArkInventory.Global = { -- globals
 		ItemCountTooltip = { },
 		Default = { }, -- key generated via ObjectIDCacheCategory( )
 		Rule = { }, -- key generated via ObjectIDCacheRule( )
+		StackCompress = { },
 	},
 	
 	Thread = {
@@ -1957,6 +1958,7 @@ ArkInventory.Const.DatabaseDefaults.profile = {
 						["icon"] = true,
 						["border"] = true,
 						["clump"] = false,
+						["position"] = true,
 					},
 					["data"] = ArkInventory.Const.Slot.Data,
 					["pad"] = 4,
@@ -2003,6 +2005,7 @@ ArkInventory.Const.DatabaseDefaults.profile = {
 							["b"] = 0,
 						},
 					},
+					["compress"] = 0,
 				},
 				["sort"] = {
 					["open"] = true,
@@ -2843,16 +2846,30 @@ function ArkInventory.ItemSortKeyGenerate( i, bar_id )
 		
 		-- item name
 		t = "!"
-		if i.h and sorting.active.name then
+		if sorting.active.name then
 			
-			t = v2
-			if i.cn and ( i.cn ~= "" ) then
-				t = string.format( "%s %s", t, i.cn )
-			end
-			t = t or "!"
-			
-			if sorting.reversed then
-				t = ArkInventory.ReverseName( t )
+			if i.h then
+				
+				t = v2
+				if i.cn and ( i.cn ~= "" ) then
+					t = string.format( "%s %s", t, i.cn )
+				end
+				t = t or "!"
+				
+				if sorting.reversed then
+					t = ArkInventory.ReverseName( t )
+				end
+				
+			else
+				
+				if ArkInventory.LocationOptionGet( i.loc_id, "slot", "empty", "position" ) then
+					-- first alphabetically (default)
+					t = "!"
+				else
+					-- last alphabetically
+					t = "_"
+				end
+				
 			end
 			
 		end
@@ -5386,6 +5403,7 @@ function ArkInventory.Frame_Container_CalculateBars( frame, Layout )
 	local ignore = false
 	local hidden = false
 	local show_all = false
+	local stack_compress = ArkInventory.LocationOptionGet( loc_id, "slot", "compress" )
 	
 	if ArkInventory.Global.Mode.Edit or ArkInventory.LocationOptionGet( loc_id, "slot", "ignorehidden" ) then
 		-- show everything if in edit mode or the user wants us to ignore the hidden flag
@@ -5397,6 +5415,18 @@ function ArkInventory.Frame_Container_CalculateBars( frame, Layout )
 	local new_reset = ArkInventory.Global.NewItemResetTime or new_cutoff
 	
 	-- /run ArkInventory.Global.NewItemResetTime = ArkInventory.TimeAsMinutes( )
+	
+
+	if stack_compress > 0 then  -- stack compression
+		
+		if not ArkInventory.Global.Cache.StackCompress[loc_id] then
+			ArkInventory.Global.Cache.StackCompress[loc_id] = { }
+		else
+			table.wipe( ArkInventory.Global.Cache.StackCompress[loc_id] )
+		end
+		
+	end
+	
 	
 	-- the basics, just stick the items into their appropriate bars (cpu intensive, so yield when in combat)
 	local yieldcount = 1
@@ -5414,6 +5444,7 @@ function ArkInventory.Frame_Container_CalculateBars( frame, Layout )
 				ignore = true
 			end
 			
+			
 			if not ignore then
 				
 				cat_id = ArkInventory.ItemCategoryGet( i )
@@ -5426,17 +5457,46 @@ function ArkInventory.Frame_Container_CalculateBars( frame, Layout )
 				
 				--ArkInventory.Output( "loc=[", loc_id, "], bag=[", bag_id, "], slot=[", slot_id, "], cat=[", cat_id, "], bar_id=[", bar_id, "]" )
 				
-				if firstempty > 0 and not i.h and bar_id > 0 then
+				if not show_all then
 					
-					if not firstemptyshown[bag.type] then
-						firstemptyshown[bag.type] = 0
+					-- no point doing this is show all is enabled
+					
+					if firstempty > 0 and not i.h and bar_id > 0 then
+						
+						if not firstemptyshown[bag.type] then
+							firstemptyshown[bag.type] = 0
+						end
+						
+						if firstemptyshown[bag.type] < firstempty then
+							firstemptyshown[bag.type] = firstemptyshown[bag.type] + 1
+						else
+							bar_id = 0 - bar_id
+						end
+						
 					end
 					
-					if firstemptyshown[bag.type] < firstempty then
-						firstemptyshown[bag.type] = firstemptyshown[bag.type] + 1
-					else
-						bar_id = 0 - bar_id
+					if stack_compress > 0 and i.h and bar_id > 0 then
+						
+						local stack_size = select( 10, ArkInventory.ObjectInfo( i.h ) )
+						
+						if stack_size > 1 then
+							
+							local key = ArkInventory.ObjectIDTooltip( i.h )
+							
+							if not ArkInventory.Global.Cache.StackCompress[loc_id][key] then
+								ArkInventory.Global.Cache.StackCompress[loc_id][key] = 0
+							end
+							
+							if ArkInventory.Global.Cache.StackCompress[loc_id][key] < stack_compress then
+								ArkInventory.Global.Cache.StackCompress[loc_id][key] = ArkInventory.Global.Cache.StackCompress[loc_id][key] + 1
+							else
+								bar_id = 0 - bar_id
+							end
+							
+						end
+					
 					end
+					
 					
 				end
 				
@@ -5452,7 +5512,7 @@ function ArkInventory.Frame_Container_CalculateBars( frame, Layout )
 				end
 				
 				if ( show_all ) or ( not hidden ) then
-				
+					
 					bar_id = abs( bar_id )
 					
 					-- create the bar

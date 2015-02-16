@@ -55,7 +55,8 @@
 				</Texture>
 			</Layer>
 			<Layer level="ARTWORK">
-				<FontString parentKey="name" inherits="RematchListFont">
+				<FontString parentKey="name" inherits="RematchListFont" justifyH="LEFT" justifyV="CENTER">
+					<Size x="0" y="20"/>
 					<Anchors>
 						<Anchor point="LEFT" relativeKey="$parent.check" relativePoint="RIGHT" x="2" y="0"/>
 					</Anchors>

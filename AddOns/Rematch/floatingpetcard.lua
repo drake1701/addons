@@ -15,6 +15,9 @@ do
 	card.back.strongAbilities:SetText(L["abilities"])
 	card.main.slotted:SetText(L["This pet is currently slotted."])
 	card.isleveling:SetText(L["When this team loads, your active leveling pet will go in this spot."])
+	if GetLocale()=="ruRU" then
+		card.back.description:SetFont("Fonts\\FRIZQT___CRY.TTF",14)
+	end
 end
 
 -- desturates floating pet cards that are not owned
@@ -161,6 +164,10 @@ function rematch:ShowFloatingPetCard(petID,relativeTo,fromBrowser)
 					end
 				end
 			end
+			-- show searchHit border around abilities that match a similarFilter
+			if fromBrowser and roster.similarFilter[rematch.abilityList[i]] then
+				card.abilities[index].searchHit:Show()
+			end
 		end
 		card.cantbattle:Hide()
 		card.isleveling:Hide()
@@ -225,6 +232,7 @@ function rematch:ShowFloatingPetCard(petID,relativeTo,fromBrowser)
 		else -- this is not a pet we own, hide stats
 			SetCardDesaturate(true)
 			card.stats:Hide()
+			card.main.slotted:Hide()
 		end
 
 	else -- this pet can't battle

@@ -56,8 +56,8 @@
 				</Texture>
 				<FontString parentKey="name" font="RematchListFont" justifyH="LEFT" justifyV="CENTER">
 					<Anchors>
-						<Anchor point="TOPLEFT" x="57" y="-2"/>
-						<Anchor point="BOTTOMRIGHT" x="-17" y="2"/>
+						<Anchor point="TOPLEFT" x="57" y="-3"/>
+						<Anchor point="BOTTOMRIGHT" x="-17" y="1"/>
 					</Anchors>
 				</FontString>
 				<FontString parentKey="level" inherits="SystemFont_Outline_Small">
@@ -71,23 +71,24 @@
 				</FontString>
 				<FontString parentKey="breed" inherits="SystemFont_Tiny">
 					<Anchors>
-						<Anchor point="BOTTOMRIGHT" x="-5" y="4"/>
+						<Anchor point="CENTER" relativePoint="RIGHT" x="-14" y="-1"/>
 					</Anchors>
 				</FontString>
-				<Texture parentKey="leveling" file="Interface\AddOns\Rematch\textures\marker">
+				<Texture parentKey="leveling" file="Interface\AddOns\Rematch\textures\preference">
 					<Size x="18" y="18"/>
 					<Anchors>
-						<Anchor point="TOPRIGHT" x="-2" y="-2"/>
+						<Anchor point="CENTER" relativePoint="RIGHT" x="-32" y="-1"/>
 					</Anchors>
+					<TexCoords left="0.25" right="0.75" top="0.25" bottom="0.75"/>
 				</Texture>
 			</Layer>
 		</Layers>
 		<HighlightTexture file="Interface\PetBattles\PetJournal" setAllPoints="true" alphaMode="BLEND">
 			<Anchors>
-				<Anchor point="TOPLEFT" x="30" y="-1"/>
-				<Anchor point="BOTTOMRIGHT" x="0" y="0"/>
+				<Anchor point="TOPLEFT" x="32" y="0"/>
+				<Anchor point="BOTTOMRIGHT" x="-3" y="1"/>
 			</Anchors>
-			<TexCoords left="0.49804688" right="0.90625000" top="0.17480469" bottom="0.21972656"/>
+			<TexCoords left="0.59804688" right="0.80625000" top="0.17480469" bottom="0.21972656"/>
 		</HighlightTexture>
 		<Scripts>
 			<OnLoad>
@@ -161,7 +162,7 @@
 	<Frame name="RematchBrowser" parentKey="browser" parent="RematchDrawer" useParentLevel="true" inherits="RematchDragTemplate" hidden="false">
 		<Anchors>
 			<Anchor point="TOPLEFT" x="3" y="-3"/>
-			<Anchor point="BOTTOMRIGHT" relativePoint="BOTTOMLEFT" x="203" y="3"/>
+			<Anchor point="BOTTOMRIGHT" x="-87" y="3"/>
 		</Anchors>
 		<Layers>
 			<Layer level="BORDER">
@@ -175,10 +176,44 @@
 		</Layers>
 		<Frames>
 
-			<EditBox parentKey="searchBox" name="$parentSearchBox" inherits="RematchSearchBoxTemplate">
-				<Size x="140" y="20"/>
+			<!-- typebar toggle button to left of search box -->
+			<Button parentKey="toggle" inherits="RematchToolbarButtonTemplate">
 				<Anchors>
-					<Anchor point="TOPLEFT" x="31" y="-1"/>
+					<Anchor point="TOPLEFT" x="-3" y="4"/>
+				</Anchors>
+				<KeyValues>
+					<KeyValue key="defaultIcon" value="Interface\AddOns\Rematch\textures\typetoggle"/>
+					<KeyValue key="stretchy" value="true"/>
+				</KeyValues>
+				<Scripts>
+					<OnClick>
+						Rematch.ToggleTypeBar(self)
+					</OnClick>
+				</Scripts>
+			</Button>
+
+			<!-- filter menu button to right of search box -->
+			<Button parentKey="filter" inherits="RematchToolbarButtonTemplate">
+				<Anchors>
+					<Anchor point="TOPRIGHT" x="1" y="4"/>
+				</Anchors>
+				<KeyValues>
+					<KeyValue key="defaultIcon" value="Interface\Icons\INV_Misc_Spyglass_03"/>
+					<KeyValue key="stretchy" value="true"/>
+					<KeyValue key="nopreclick" value="true"/>
+				</KeyValues>
+				<Scripts>
+					<OnClick>
+						Rematch.BrowserFilterButtonOnClick(self)
+					</OnClick>
+				</Scripts>
+			</Button>
+
+			<EditBox parentKey="searchBox" name="$parentSearchBox" inherits="RematchSearchBoxTemplate">
+				<Size x="0" y="20"/>
+				<Anchors>
+					<Anchor point="TOPLEFT" relativeKey="$parent.toggle" relativePoint="TOPRIGHT" x="2" y="-5"/>
+					<Anchor point="TOPRIGHT" relativeKey="$parent.filter" relativePoint="TOPLEFT" x="2" y="-5"/>
 				</Anchors>
 				<Scripts>
 					<OnTextChanged>
@@ -196,35 +231,11 @@
 				</Scripts>
 			</EditBox>
 
-			<Button parentKey="filter" inherits="RematchToolbarButtonTemplate">
-				<Anchors>
-					<Anchor point="TOPRIGHT" x="1" y="4"/>
-				</Anchors>
-				<Scripts>
-					<PreClick>
-						-- remove template PreClick to hide menu
-					</PreClick>
-					<OnClick>
-						Rematch.BrowserFilterButtonOnClick(self)
-					</OnClick>
-				</Scripts>
-			</Button>
-
-			<Button parentKey="toggle" inherits="RematchToolbarButtonTemplate">
-				<Anchors>
-					<Anchor point="TOPLEFT" x="-3" y="4"/>
-				</Anchors>
-				<Scripts>
-					<OnClick>
-						Rematch.ToggleTypeBar(self)
-					</OnClick>
-				</Scripts>
-			</Button>
-
 			<Frame parentKey="typeBar">
-				<Size x="197" y="30"/>
+				<Size x="196" y="30"/>
 				<Anchors>
 					<Anchor point="TOPLEFT" x="0" y="-40"/>
+					<Anchor point="TOPRIGHT" x="-4" y="-40"/>
 				</Anchors>
 				<Backdrop edgeFile="Interface\Tooltips\UI-Tooltip-Border" tile="true">
 					<EdgeSize val="12"/>
@@ -267,29 +278,20 @@
 					<Button parentArray="tabs" inherits="RematchTypeTabTemplate" text="TYPE" id="1">
 						<Size x="54" y="16"/>
 						<Anchors>
-							<Anchor point="BOTTOMLEFT" relativePoint="TOPLEFT" x="2" y="-2"/>
+							<Anchor point="BOTTOMLEFT" relativePoint="TOPLEFT" x="3" y="-2"/>
 						</Anchors>
 					</Button>
-					<Button parentArray="tabs" inherits="RematchTypeTabTemplate" id="2">
-						<Size x="66" y="16"/>
-						<Anchors>
-							<Anchor point="BOTTOMLEFT" relativePoint="TOPLEFT" x="51" y="-2"/>
-						</Anchors>
-					</Button>
-					<Button parentArray="tabs" inherits="RematchTypeTabTemplate" id="3">
-						<Size x="66" y="16"/>
-						<Anchors>
-							<Anchor point="BOTTOMLEFT" relativePoint="TOPLEFT" x="112" y="-2"/>
-						</Anchors>
-					</Button>
+					<Button parentArray="tabs" inherits="RematchTypeTabTemplate" id="2"/>
+					<Button parentArray="tabs" inherits="RematchTypeTabTemplate" id="3"/>
 				</Frames>
 			</Frame>
 
 			<!-- bar across bottom with Pets: Owned/Filtered status -->
 			<Frame parentKey="resultsBar" inherits="RematchInsetTemplate,RematchDragTemplate">
-				<Size x="194" y="20"/>
+				<Size x="0" y="20"/>
 				<Anchors>
 					<Anchor point="BOTTOMLEFT" x="1" y="1"/>
+					<Anchor point="BOTTOMRIGHT" x="-5" y="1"/>
 				</Anchors>
 				<Layers>
 					<Layer level="ARTWORK">

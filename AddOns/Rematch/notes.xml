@@ -72,15 +72,43 @@
 			</Layer>
 		</Layers>
 		<Frames>
-			<!-- undo button appears when editBox contents differs from team's saved notes -->
-			<Button parentKey="undo" inherits="RematchToolbarButtonTemplate" hidden="true">
+			<!-- save button appears while editBox has focus -->
+			<Button parentKey="save" inherits="RematchToolbarButtonTemplate">
 				<Anchors>
 					<Anchor point="TOPRIGHT" x="-2" y="-3"/>
 				</Anchors>
+				<KeyValues>
+					<KeyValue key="defaultIcon" value="Interface\AddOns\Rematch\textures\save"/>
+					<KeyValue key="tooltipTitle" value="SAVE"/>
+				</KeyValues>
+				<Scripts>
+					<OnClick>
+						Rematch:NotesCardSave()
+						RematchNotesCard.scrollFrame.editBox:ClearFocus(true)
+						self:Hide()
+					</OnClick>
+				</Scripts>
+			</Button>
+			<!-- undo button appears when editBox contents differs from team's saved notes -->
+			<Button parentKey="undo" inherits="RematchToolbarButtonTemplate" hidden="true">
+				<Anchors>
+					<Anchor point="RIGHT" relativeKey="$parent.save" relativePoint="LEFT" x="6" y="0"/>
+				</Anchors>
+				<KeyValues>
+					<KeyValue key="defaultIcon" value="Interface\PaperDollInfoFrame\UI-GearManager-Undo"/>
+					<KeyValue key="tooltipTitle" value="Undo"/>
+					<KeyValue key="tooltipBody" value="Revert to the last saved notes. Changes are saved when leaving these notes."/>
+				</KeyValues>
 				<Scripts>
 					<OnClick>
 						Rematch:NotesCardUndo()
 					</OnClick>
+					<OnShow>
+						self:GetParent().title:SetPoint("TOPRIGHT",-54,-2)
+					</OnShow>
+					<OnHide>
+						self:GetParent().title:SetPoint("TOPRIGHT",-32,-2)
+					</OnHide>
 				</Scripts>
 			</Button>
 			<!-- the scrollable notes section -->
@@ -106,6 +134,12 @@
 							<OnTextChanged>
 								Rematch.NotesCardOnTextChanged(self)
 							</OnTextChanged>
+							<OnEditFocusGained>
+								RematchNotesCard.save:Show()
+							</OnEditFocusGained>
+							<OnEditFocusLost>
+								RematchNotesCard.save:SetShown(RematchNotesCard.undo:IsVisible())
+							</OnEditFocusLost>
 						</Scripts>
 					</EditBox>
 				</ScrollChild>

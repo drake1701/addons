@@ -1,0 +1,23 @@
+## Interface: 60000
+## Title: World Boss Status
+## Version: 4.5
+## Author: Ludius of Caelestrasz-US
+## Notes: World Boss Status keeps track of the world bosses that you have defeated and bonus roll currencies on all your characters.
+## SavedVariables: WorldBossStatusDB
+## X-Curse-Packaged-Version: v4.5
+## X-Curse-Project-Name: World Boss Status
+## X-Curse-Project-ID: world-boss-status
+## X-Curse-Repository-ID: wow/world-boss-status/mainline
+
+embeds.xml
+
+enUS.lua
+deDE.lua
+itIT.lua
+koKR.lua
+esES.lua
+ruRU.lua
+zhCN.lua
+zhTW.lua
+
+WorldBossStatus.lua

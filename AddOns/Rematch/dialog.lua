@@ -35,8 +35,6 @@ dialog.widgets = { "text", "slot", "editBox", "team", "warning", "tabPicker", "m
 
 function rematch:InitDialog()
 	saved = RematchSaved
-	dialog.accept.icon:SetTexture("Interface\\AddOns\\Rematch\\textures\\yes")
-	dialog.cancel.icon:SetTexture("Interface\\AddOns\\Rematch\\textures\\no")
 	dialog:SetFrameLevel(3)
 	dialog.blackout:SetFrameLevel(1)
 end

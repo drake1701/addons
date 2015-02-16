@@ -123,10 +123,11 @@
 				<Anchors>
 					<Anchor point="TOPRIGHT" x="3" y="3"/>
 				</Anchors>
+				<KeyValues>
+					<KeyValue key="defaultIcon" value="Interface\Icons\INV_Misc_EngGizmos_30"/>
+					<KeyValue key="nopreclick" value="true"/>
+				</KeyValues>
 				<Scripts>
-					<PreClick>
-						-- remove template PreClick to hide menu
-					</PreClick>
 					<OnClick>
 						Rematch.LevelingQueueFilterButtonOnClick(self)
 					</OnClick>

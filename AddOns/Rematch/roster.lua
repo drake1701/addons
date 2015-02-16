@@ -38,6 +38,7 @@ roster.levelList = rematch.levelList -- passed to C_PetJournal.GetAbilityList (p
 roster.typeFilter = {nil,{},{}} -- 1=type, 2=strong, 3=tough
 roster.rarityFilter = {} -- 1-4 poor-rare filter
 roster.miscFilter = {} -- miscellaneous extra filters
+roster.similarFilter = {}
 roster.miscGroups = {	Tradable=L["Tradable"], NotTradable=L["Tradable"], -- radio button groups
 											Leveling=L["Leveling"], NotLeveling=L["Leveling"], -- and filter result tag
 											CanBattle=L["Battle"], CantBattle=L["Battle"],
@@ -60,7 +61,9 @@ roster.searchStatMasks = { [PET_BATTLE_STAT_HEALTH:lower()]="Health", -- transla
 local C_PetJournal = C_PetJournal
 
 function roster:Updated()
-	rematch:StartTimer("UpdateWindow",0,rematch.UpdateWindow)
+	if not rematch.isSizing then
+		rematch:StartTimer("UpdateWindow",0,rematch.UpdateWindow)
+	end
 end
 
 -- returns number of pets in roster
@@ -129,6 +132,7 @@ function roster:SetSearch(text)
 			roster.searchMask = rematch:DesensitizedText(roster.searchText)
 		end
 	end
+
 	roster:Updated()
 end
 
@@ -389,6 +393,34 @@ function roster:ClearMiscFilter()
 	roster:Updated()
 end
 
+--[[ Similar Filter ]]
+
+function roster:SetSimilarFilter(speciesID,abilityID)
+	wipe(roster.similarFilter)
+	rematch:ClearSearchBox(rematch.drawer.browser.searchBox)
+	roster:ClearAllFilters()
+	if abilityID then
+		roster.similarFilter[abilityID] = true
+		roster.similarLimit = 1
+	else
+		C_PetJournal.GetPetAbilityList(speciesID, roster.abilityList, roster.levelList)
+		for _,abilityID in ipairs(roster.abilityList) do
+			roster.similarFilter[abilityID] = true
+		end
+		roster.similarLimit = 3
+	end
+	roster:Updated()
+end
+
+function roster:IsSimilarFilterClear()
+	return not next(roster.similarFilter)
+end
+
+function roster:ClearSimilarFilter()
+	wipe(roster.similarFilter)
+	roster:Updated()
+end
+
 --[[ Filtering ]]
 
 -- returns true if the speciesID has a petType we want to show
@@ -609,6 +641,27 @@ function roster:FilterPetByIndex(index,checkStrong,checkTough,checkRarity,checkS
 		end
 	end
 
+	-- if anything in similarFilter, then count abilities used by similarFilter and return false if not enough
+	if next(roster.similarFilter) then
+		if not abilitiesPulled then
+			C_PetJournal.GetPetAbilityList(speciesID, roster.abilityList, roster.levelList)
+			abilitiesPulled = true
+		end
+		local count = 0
+		for _,abilityID in ipairs(roster.abilityList) do
+			if roster.similarFilter[abilityID] then
+				count = count + 1
+				if count>= roster.similarLimit then
+					break -- no need to keep counting, already reached limit
+				end
+			end
+		end
+		if count<roster.similarLimit then
+			return false -- not enough similar abilities
+		end
+	end
+
+	-- if there's a custom sort, we want to return relevant stats
 	local sortStat
 	if customSort then -- skip this string of spaghetti if no customSort
 		if customSort==1 then
@@ -641,6 +694,9 @@ end
 function roster:GetFilterResults()
 	local filters = L["Filters: \124cffffffff"]
 
+	if not roster:IsSimilarFilterClear() then
+		filters = filters..L["Similar, "]
+	end
 	if roster.searchText or next(roster.searchStatRanges) then
 		filters = filters..L["Search, "]
 	end
@@ -684,6 +740,7 @@ function roster:ClearAllFilters()
 	roster:ClearRarityFilter()
 	roster:SetSearch("")
 	roster:ClearMiscFilter()
+	roster:ClearSimilarFilter()
 	C_PetJournal.AddAllPetSourcesFilter()
 	C_PetJournal.SetFlagFilter(LE_PET_JOURNAL_FLAG_COLLECTED,true)
 	C_PetJournal.SetFlagFilter(LE_PET_JOURNAL_FLAG_NOT_COLLECTED,true)

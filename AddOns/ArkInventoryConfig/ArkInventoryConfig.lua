@@ -3114,6 +3114,27 @@ function ArkInventory.ConfigInternalSettings( path )
 						end
 					end,
 				},
+				compress = {
+					order = 800,
+					name = ArkInventory.Localise["CONFIG_SETTINGS_ITEMS_COMPRESS"],
+					desc = ArkInventory.Localise["CONFIG_SETTINGS_ITEMS_COMPRESS_TEXT"],
+					type = "range",
+					min = 0,
+					max = 5,
+					step = 1,
+					get = function( info )
+						local loc_id = ConfigGetNodeArg( info, #info - 2 )
+						return ArkInventory.LocationOptionGetReal( loc_id, "slot", "compress" ) or 0
+					end,
+					set = function( info, v )
+						local loc_id = ConfigGetNodeArg( info, #info - 2 )
+						local v = math.floor( v )
+						if v < 0 then v = 0 end
+						if v > 5 then v = 5 end
+						ArkInventory.LocationOptionSetReal( loc_id, "slot", "compress", v )
+						ArkInventory.Frame_Main_Generate( nil, ArkInventory.Const.Window.Draw.Recalculate )
+					end,
+				},
 				
 				cooldown = {
 					order = 550,
@@ -3350,18 +3371,6 @@ function ArkInventory.ConfigInternalSettings( path )
 							order = 50,
 							name = ArkInventory.Localise["CONFIG_SETTINGS_EMPTY_FIRST"],
 							desc = ArkInventory.Localise["CONFIG_SETTINGS_EMPTY_FIRST_TEXT"],
---[[
-							type = "toggle",
-							get = function( info )
-								local loc_id = ConfigGetNodeArg( info, #info - 3 )
-								return ArkInventory.LocationOptionGetReal( loc_id, "slot", "empty", "first" )
-							end,
-							set = function( info, v )
-								local loc_id = ConfigGetNodeArg( info, #info - 3 )
-								ArkInventory.LocationOptionSetReal( loc_id, "slot", "empty", "first", v )
-								ArkInventory.Frame_Main_Generate( nil, ArkInventory.Const.Window.Draw.Recalculate )
-							end,
-]]--
 							type = "range",
 							min = 0,
 							max = 5,
@@ -3376,6 +3385,21 @@ function ArkInventory.ConfigInternalSettings( path )
 								if v < 0 then v = 0 end
 								if v > 5 then v = 5 end
 								ArkInventory.LocationOptionSetReal( loc_id, "slot", "empty", "first", v )
+								ArkInventory.Frame_Main_Generate( nil, ArkInventory.Const.Window.Draw.Recalculate )
+							end,
+						},
+						sortorder = {
+							order = 70,
+							name = ArkInventory.Localise["CONFIG_SETTINGS_EMPTY_POSITION"],
+							desc = ArkInventory.Localise["CONFIG_SETTINGS_EMPTY_POSITION_TEXT"],
+							type = "toggle",
+							get = function( info )
+								local loc_id = ConfigGetNodeArg( info, #info - 3 )
+								return ArkInventory.LocationOptionGetReal( loc_id, "slot", "empty", "position" )
+							end,
+							set = function( info, v )
+								local loc_id = ConfigGetNodeArg( info, #info - 3 )
+								ArkInventory.LocationOptionSetReal( loc_id, "slot", "empty", "position", v )
 								ArkInventory.Frame_Main_Generate( nil, ArkInventory.Const.Window.Draw.Recalculate )
 							end,
 						},

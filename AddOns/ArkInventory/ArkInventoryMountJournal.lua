@@ -291,7 +291,7 @@ function ArkInventory.MountJournal.Scan( )
 				--ArkInventory.Output( i, " = ", spell, " / ", string.format("%.12f",spell) )
 				
 				c[i].mt = journal.types[spell] or mt or ArkInventory.Const.MountTypes["x"]
-				c[i].mto = c[i].mt -- save original mount type (user corrections can override this value)
+				c[i].mto = c[i].mt -- save original mount type (user corrections can override the other value)
 				
 			end
 			
@@ -346,7 +346,6 @@ function ArkInventory.MountJournal.ApplyUserCorrections( )
 	end
 	
 end
-
 
 
 function ArkInventory:LISTEN_MOUNTJOURNAL_RELOAD( event )

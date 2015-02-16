@@ -1,3 +1,28 @@
+
+02/04/2015 version 3.3.0
+- The Rematch window can now be resized horizontally.
+- A new button to open/close a sidebar added to the main window.
+- More buttons! Safari Hat, Lesser Pet Treats and Pet Treats added to the sidebar.
+- Find Battle button moved to the sidebar.
+- 'Find Similar' pet menu item will clear all filters first.
+- Double-clicking an ability anywhere in Rematch will switch to the pet browser and list all pets with that ability.
+- Pet spell and item tooltips update in realtime.
+- Size of text from 'Larger list text' option increased slightly.
+- Leveling indicators in pet browser and journal have a new icon.
+- Potential fix for ruRU text issues.
+- deDE localization updated by Zreptil at curse.com.
+- ruRU localization by Himeric at curse.com.
+
+01/27/2015 version 3.2.7
+- New "Find Similar" option in browser pet menu to list all pets, owned or not, with at least three of the same abilities.
+- Double-clicking an ability on a pet card while the pet browser is open will list all pets, owned or not, that share that ability.
+- New key binding to show/hide the current team's notes.
+- New option under 'Show notes in battle' -> 'Only once per team' to show notes only the first time entering a battle after loading (or reloading) a team.
+- When the notes editbox has focus, a save button will appear to save changes and clear the focus.
+- New option 'Show ability numbers' to show the 1 and 2 numbers on the ability flyout.
+- Ability buttons and flyout made a little bigger.
+- deDE localization updated by Zreptil at curse.com.
+
 01/18/2015 version 3.2.6
 - Added new sort options to the pet browser filter: Health, Power, Speed, Reverse Sort and Favorites First.
 - When a non-standard sort is active, Sort is included in the filter reset button at the bottom of the pet browser.

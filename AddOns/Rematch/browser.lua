@@ -11,8 +11,10 @@ browser.typeMode = 1 -- 1=type, 2=strong, 3=tough
 
 function rematch:InitBrowser()
 	settings = RematchSettings
+
+	-- position typebar buttons
 	for i=1,10 do
-		browser.typeBar.buttons[i]:SetPoint("LEFT",browser.typeBar,"LEFT",(i-1)*19+3,0)
+		browser.typeBar.buttons[i]:SetPoint("CENTER",browser.typeBar,"CENTER",(i-1)*19+3-89,0)
 		browser.typeBar.buttons[i].icon:SetTexture("Interface\\Icons\\Icon_PetFamily_"..PET_TYPE_SUFFIX[i])
 	end
 
@@ -25,6 +27,10 @@ function rematch:InitBrowser()
 			tabs[k].selected[e]:SetVertexColor(unpack(v))
 		end
 	end
+	-- anchor tab 2 to 1 and 3 to 2
+	for i=2,3 do
+		tabs[i]:SetPoint("BOTTOMLEFT",tabs[i-1],"BOTTOMRIGHT",-5,0)
+	end
 
 	browser.resultsBar.petsLabel:SetText(L["Pets:"])
 	browser.resultsBar.ownedLabel:SetText(L["Owned:"])
@@ -33,10 +39,13 @@ function rematch:InitBrowser()
 	local scrollFrame = browser.list.scrollFrame
 	scrollFrame.update = rematch.UpdateBrowserList
 	HybridScrollFrame_CreateButtons(scrollFrame, "RematchBrowserListButtonTemplate")
+	for _,button in ipairs(scrollFrame.buttons) do
+		button.leveling:SetPoint("CENTER",button,"RIGHT",rematch.breedSource and -32 or -12,-1)
+	end
 
-	browser.filter.icon:SetTexture("Interface\\Icons\\INV_Misc_Spyglass_03")
-	browser.filter.icon:SetTexCoord(1,0,0,1)
-	browser.toggle.icon:SetTexture("Interface\\AddOns\\Rematch\\textures\\typetoggle")
+	browser.filter.icon:SetTexCoord(0.925,0.075,0.075,0.925) -- flip spyglass icon around
+
+
 end
 
 function rematch:BrowserFilterButtonOnClick()
@@ -123,12 +132,30 @@ function rematch:UpdateTypeBar()
 		else
 			typeBar.clear:Hide()
 		end
-		browser.list:SetPoint("TOPLEFT",typeBar,"BOTTOMLEFT",2,-2)
+		browser.list:SetPoint("TOPLEFT",browser,"TOPLEFT",2,-70)
 		browser.typeBar:Show()
 	else -- typeBar not used
 		browser.list:SetPoint("TOPLEFT",browser,"TOPLEFT",2,-25)
 		browser.typeBar:Hide()
 	end
+end
+
+-- the typebar is anchored to stretch, this function adjusts the components within
+function rematch:TypeBarResize()
+	local typeBar = browser.typeBar
+	local tabs = typeBar.tabs
+	local width = typeBar:GetWidth()
+	-- widen tabs to a % of typebar's width
+	tabs[1]:SetWidth(width*0.27551)
+	tabs[2]:SetWidth(width*0.33673)
+	tabs[3]:SetWidth(width*0.33673)
+
+	local adjust = width/10.3157895 -- (static is 19)
+	local offset = width*0.06122449 -- offset from left
+	for i=1,10 do
+		typeBar.buttons[i]:SetPoint("CENTER",typeBar,"LEFT",(i-1)*adjust+offset,0)
+	end
+
 end
 
 --[[ Search Box ]]
@@ -177,7 +204,6 @@ end
 
 -- this updates the HybridScrollFrame with roster's pets, the big list of pets
 function rematch:UpdateBrowserList()
---	rematch:debugstack("UpdateBrowserList")
 	local numData = roster:GetNumPets()
 	local scrollFrame = browser.list.scrollFrame
 	local offset = HybridScrollFrame_GetOffset(scrollFrame)
@@ -221,13 +247,14 @@ function rematch:UpdateBrowserList()
 				end
 		    button.type:SetDesaturated(false)
 		    button.name:SetTextColor(1,.82,.2)
-				button.leveling:SetShown(rematch:IsPetLeveling(petID))
+				local isLeveling = rematch:IsPetLeveling(petID)
+				button.leveling:SetShown(isLeveling)
 				if rematch.breedSource then
 					button.breed:SetText(rematch:GetBreed(petID))
-					button.name:SetPoint("BOTTOMRIGHT",-24,2)
+					button.name:SetPoint("BOTTOMRIGHT",isLeveling and -42 or -24,2)
 				else
 					button.breed:SetText("")
-					button.name:SetPoint("BOTTOMRIGHT",-8,2)
+					button.name:SetPoint("BOTTOMRIGHT",isLeveling and -22 or -8,2)
 				end
 			elseif type(petID)=="number" then -- an unowned species
 				local name,icon,petType = C_PetJournal.GetPetInfoBySpeciesID(petID)
@@ -240,6 +267,7 @@ function rematch:UpdateBrowserList()
 		    button.rarity:Hide()
 		    button.icon:SetDesaturated(true)
 		    button.type:SetDesaturated(true)
+				button.icon:SetVertexColor(1,1,1)
 		    button.name:SetTextColor(.8,.8,.8)
 				button.breed:SetText("")
 				button.name:SetPoint("BOTTOMRIGHT",-8,2)

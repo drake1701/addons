@@ -60,6 +60,9 @@
 			<OnClick>
 				Rematch.FloatingPetCardAbilityOnClick(self)
 			</OnClick>
+			<OnDoubleClick>
+				Rematch.AbilityOnDoubleClick(self)
+			</OnDoubleClick>
 		</Scripts>
 	</Button>
 
@@ -915,16 +918,7 @@
 					</Anchors>
 					<TexCoords left="0.79687500" right="0.49218750" top="0.50390625" bottom="0.65625000"/>
 				</Texture>
-				<FontString parentKey="name" font="Fonts\FRIZQT__.TTF" outline="NORMAL" justifyH="CENTER" justifyV="CENTER" text="A Very Long Ability Name Goes Here It Is a Very Long Name Like Really Long">
-					<Shadow>
-						<Offset>
-							<AbsDimension x="1" y="-1"/>
-						</Offset>
-						<Color r="0" g="0" b="0"/>
-					</Shadow>
-					<FontHeight>
-						<AbsValue val="13"/>
-					</FontHeight>
+				<FontString parentKey="name" inherits="SystemFont_Shadow_Med1_Outline" justifyH="CENTER" justifyV="CENTER">
 					<Color r="1" g=".82" b=".5"/>
 					<Size x="170" y="36"/>
 					<Anchors>

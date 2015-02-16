@@ -132,19 +132,12 @@
 					<TexCoords left="0.06835938" right="0.10937500" top="0.02246094" bottom="0.04296875"/>	
 				</Texture>
 				<!-- level text -->
-				<FontString parentKey="level" font="Fonts\FRIZQT__.TTF" justifyH="CENTER" justifyV="CENTER">
+				<FontString parentKey="level" font="SystemFont_Tiny" justifyH="CENTER" justifyV="CENTER">
 					<Size x="0" y="12"/>
 					<Anchors>
 						<Anchor point="CENTER" relativePoint="BOTTOMRIGHT" x="-7" y="7"/>
 					</Anchors>
 					<Color r="1" g=".82" b="0"/>
-					<Shadow>
-						<Offset x="1" y="-1"/>
-						<Color r="0" g="0" b="0"/>
-					</Shadow>
-					<FontHeight>
-						<AbsValue val="9"/>
-					</FontHeight>
 				</FontString>
 			</Layer>
 		</Layers>
@@ -221,7 +214,28 @@
 				</Texture>
 			</Layer>
 			<Layer level="BORDER">
-				<Texture file="Interface\AddOns\Rematch\textures\button-border" setAllPoints="true"/>
+				<Texture file="Interface\AddOns\Rematch\textures\button-border">
+					<Size x="8" y="32"/>
+					<Anchors>
+						<Anchor point="LEFT"/>
+					</Anchors>
+					<TexCoords left="0" right="0.25" top="0" bottom="1"/>
+				</Texture>
+				<Texture file="Interface\AddOns\Rematch\textures\button-border">
+					<Size x="8" y="32"/>
+					<Anchors>
+						<Anchor point="RIGHT"/>
+					</Anchors>
+					<TexCoords left="0.75" right="1" top="0" bottom="1"/>
+				</Texture>
+				<Texture file="Interface\AddOns\Rematch\textures\button-border">
+					<Size x="0" y="32"/>
+					<Anchors>
+						<Anchor point="LEFT" x="8" y="0"/>
+						<Anchor point="RIGHT" x="-8" y="0"/>
+					</Anchors>
+					<TexCoords left="0.25" right="0.75" top="0" bottom="1"/>
+				</Texture>
 			</Layer>
 			<Layer level="ARTWORK">
 				<Texture parentKey="leveling" file="Interface\PetBattles\PetBattle-GoldSpeedFrame" hidden="true">
@@ -232,12 +246,46 @@
 					<TexCoords left="0.1171875" right="0.7421875" top="0.1171875" bottom="0.734375"/>
 				</Texture>
 			</Layer>
+			<Layer level="HIGHLIGHT">
+				<Texture file="Interface\AddOns\Rematch\textures\button-border" alphaMode="ADD">
+					<Size x="8" y="32"/>
+					<Anchors>
+						<Anchor point="LEFT"/>
+					</Anchors>
+					<TexCoords left="0" right="0.25" top="0" bottom="1"/>
+				</Texture>
+				<Texture file="Interface\AddOns\Rematch\textures\button-border" alphaMode="ADD">
+					<Size x="8" y="32"/>
+					<Anchors>
+						<Anchor point="RIGHT"/>
+					</Anchors>
+					<TexCoords left="0.75" right="1" top="0" bottom="1"/>
+				</Texture>
+				<Texture file="Interface\AddOns\Rematch\textures\button-border" alphaMode="ADD">
+					<Size x="0" y="32"/>
+					<Anchors>
+						<Anchor point="LEFT" x="8" y="0"/>
+						<Anchor point="RIGHT" x="-8" y="0"/>
+					</Anchors>
+					<TexCoords left="0.25" right="0.75" top="0" bottom="1"/>
+				</Texture>
+			</Layer>
 		</Layers>
-		<HighlightTexture file="Interface\AddOns\Rematch\textures\button-border" alphaMode="ADD"/>
 		<Scripts>
 			<OnLoad>
+				-- do stuff from KeyValues
 				if self.defaultIcon then
 					self.icon:SetTexture(self.defaultIcon)
+					self.defaultIcon = nil
+				end
+				if self.stretchy then
+					Rematch.stretchyButtons = Rematch.stretchyButtons or {}
+					table.insert(Rematch.stretchyButtons,self)
+					self.stretchy = nil
+				end
+				if self.nopreclick then
+					self:SetScript("PreClick",nil)
+					self.nopreclick = nil
 				end
 			</OnLoad>
 			<PreClick>
@@ -519,7 +567,7 @@
 		<Size x="60" y="60"/>
 		<Backdrop bgFile="Interface\ChatFrame\ChatFrameBackground" edgeFile="Interface\Tooltips\UI-Tooltip-Border" tile="true">
 			<BackgroundInsets>
-				<AbsInset left="2" right="2" top="2" bottom="2"/>
+				<AbsInset left="3" right="3" top="3" bottom="3"/>
 			</BackgroundInsets>
 			<EdgeSize val="16"/>
 			<TileSize val="32"/>
@@ -527,7 +575,7 @@
 			<BorderColor r="0.5" g="0.42" b="0"/>
 		</Backdrop>
 		<Layers>
-			<Layer level="BORDER">
+			<Layer level="BACKGROUND" textureSubLevel="1">
 				<Texture file="Interface\Common\ShadowOverlay-Corner">
 					<Anchors>
 						<Anchor point="TOPLEFT" x="3" y="-3"/>
@@ -564,6 +612,9 @@
 			<OnClick>
 				Rematch.AbilityOnClick(self)
 			</OnClick>
+			<OnDoubleClick>
+				Rematch.AbilityOnDoubleClick(self)
+			</OnDoubleClick>
 		</Scripts>
 	</Button>
 
@@ -660,25 +711,26 @@
 		<Layers>
 			<Layer level="BACKGROUND">
 				<Texture parentArray="backdrop" file="Interface\AddOns\Rematch\textures\button-backdrop">
-					<Size x="16" y="32"/>
+					<Size x="8" y="32"/>
 					<Anchors>
 						<Anchor point="LEFT"/>
 					</Anchors>
 					<Color r="1" g="1" b="1" a=".5"/>
-					<TexCoords left="0" right="0.5" top="0" bottom="1"/>
+					<TexCoords left="0" right="0.25" top="0" bottom="1"/>
 				</Texture>
 				<Texture parentArray="backdrop" file="Interface\AddOns\Rematch\textures\button-backdrop">
-					<Size x="16" y="32"/>
+					<Size x="8" y="32"/>
 					<Anchors>
 						<Anchor point="RIGHT"/>
 					</Anchors>
 					<Color r="1" g="1" b="1" a=".5"/>
-					<TexCoords left="0.5" right="1" top="0" bottom="1"/>
+					<TexCoords left="0.75" right="1" top="0" bottom="1"/>
 				</Texture>
 				<Texture parentArray="backdrop" file="Interface\AddOns\Rematch\textures\button-backdrop">
-					<Size x="32" y="32"/>
+					<Size x="0" y="32"/>
 					<Anchors>
-						<Anchor point="CENTER"/>
+						<Anchor point="LEFT" x="8" y="0"/>
+						<Anchor point="RIGHT" x="-8" y="0"/>
 					</Anchors>
 					<Color r="1" g="1" b="1" a=".5"/>
 					<TexCoords left="0.25" right="0.65" top="0" bottom="1"/>
@@ -709,7 +761,7 @@
 					<TexCoords left="0.5" right="1" top="0" bottom="1"/>
 				</Texture>
 				<Texture parentArray="border" file="Interface\AddOns\Rematch\textures\button-border">
-					<Size x="32" y="32"/>
+					<Size x="34" y="32"/>
 					<Anchors>
 						<Anchor point="CENTER"/>
 					</Anchors>
@@ -750,9 +802,8 @@
 	</Button>
 
 	<!-- this font is used in Browser, Teams and Options; used to toggle between
-			 SystemFont_Shadow_Small2 or SystemFont_Shadow_Small  -->
+			 GameFontHighlight or SystemFont_Shadow_Small  -->
 	<Font name="RematchListFont" inherits="SystemFont_Shadow_Small" virtual="true"/>
-
 
 	<EditBox name="RematchSearchBoxTemplate" inherits="SearchBoxTemplate" virtual="true">
 		<Scripts>

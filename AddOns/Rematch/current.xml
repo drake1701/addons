@@ -1,7 +1,7 @@
 <Ui>
 
 	<Button name="RematchLoadoutAbilityTemplate" inherits="RematchBaseSlotTemplate" virtual="true">
-		<Size x="24" y="24"/>
+		<Size x="26" y="26"/>
 		<Layers>
 			<Layer level="OVERLAY">
 				<FontString parentKey="level" inherits="SystemFont_Shadow_Med3" hidden="true">
@@ -22,11 +22,13 @@
 			<OnClick>
 				Rematch.CurrentAbilityOnClick(self)
 			</OnClick>
+			<OnDoubleClick>
+				Rematch.AbilityOnDoubleClick(self)
+			</OnDoubleClick>
 		</Scripts>
 	</Button>
 
 	<Button name="RematchCurrentAbilityTemplate" inherits="RematchLoadoutAbilityTemplate" virtual="true">
-		<Size x="24" y="24"/>
 		<Layers>
 			<Layer level="OVERLAY">
 				<FontString parentKey="level" inherits="SystemFont_Shadow_Med3" hidden="true">
@@ -103,7 +105,7 @@
 			<!-- the three abilities to the right of the pet -->
 			<Button parentArray="abilities" inherits="RematchCurrentAbilityTemplate" id="1">
 				<Anchors>
-					<Anchor point="TOPLEFT" relativePoint="TOPRIGHT" x="2" y="4"/>
+					<Anchor point="TOPLEFT" relativePoint="TOPRIGHT" x="2" y="5"/>
 				</Anchors>
 			</Button>
 			<Button parentArray="abilities" inherits="RematchCurrentAbilityTemplate" id="2">
@@ -113,7 +115,7 @@
 			</Button>
 			<Button parentArray="abilities" inherits="RematchCurrentAbilityTemplate" id="3">
 				<Anchors>
-					<Anchor point="TOPLEFT" relativePoint="TOPRIGHT" x="2" y="-46"/>
+					<Anchor point="TOPLEFT" relativePoint="TOPRIGHT" x="2" y="-47"/>
 				</Anchors>
 			</Button>
 		</Frames>
@@ -129,8 +131,12 @@
 
 	<Frame parentKey="current" parent="Rematch" useParentLevel="true">
 		<Anchors>
-			<Anchor point="TOPLEFT" x="3" y="-3"/>
-			<Anchor point="BOTTOMRIGHT" relativePoint="TOPRIGHT" x="-3" y="-100"/>
+			<Anchor point="TOPLEFT" relativeKey="$parent.sidebar" relativePoint="TOPRIGHT"/>
+			<!-- when changing height of current, also change:
+						- anchor to separator here (BOTTOMRIGHT y offset minus 3)
+						- sidebar in main.xml (same BOTTOMRIGHT y offset)
+						- COLLAPSED_HEIGHT in main.lua (abs(BOTTOMRIGHT y offset) plus 34)-->
+			<Anchor point="BOTTOMRIGHT" relativePoint="TOPRIGHT" x="-3" y="-108"/>
 		</Anchors>
 		<Layers>
 			<Layer level="BACKGROUND">
@@ -143,38 +149,68 @@
 				<Texture file="Interface\PetBattles\_PetJournalHorizTile" tile="horiz">
 					<Size x="0" y="6"/>
 					<Anchors>
-						<Anchor point="BOTTOMLEFT" x="0" y="-3"/>
-						<Anchor point="BOTTOMRIGHT" x="0" y="-3"/>
+						<!-- when changing current height: adjust this -111 too (current y bottom offset - 3) -->
+						<Anchor point="BOTTOMLEFT" relativeTo="Rematch" relativePoint="TOPLEFT" x="3" y="-111"/>
+						<Anchor point="BOTTOMRIGHT" relativeTo="Rematch" relativePoint="TOPRIGHT" x="-3" y="-111"/>
 					</Anchors>
 					<TexCoords left="0" right="1" top="0.0078125" bottom="0.078125"/>
+				</Texture>
+				<!-- doodad in topleft corner -->
+				<Texture parentArray="doodads" file="Interface\Collections\Collections" alpha="0.5">
+					<Size x="46" y="35"/>
+					<Anchors>
+						<Anchor point="TOPLEFT" x="2" y="-2"/>
+					</Anchors>
+					<TexCoords left="0.06640625" right="0.244140625" top="0.63671875" bottom="0.90625"/>
+				</Texture>
+				<!-- doodad in topright corner -->
+				<Texture parentArray="doodads" file="Interface\Collections\Collections" alpha="0.5">
+					<Size x="46" y="35"/>
+					<Anchors>
+						<Anchor point="TOPRIGHT" x="-2" y="-2"/>
+					</Anchors>
+					<TexCoords left="0.244140625" right="0.06640625" top="0.63671875" bottom="0.90625"/>
+				</Texture>
+				<!-- doodad in bottomright corner -->
+				<Texture parentArray="doodads" file="Interface\Collections\Collections" alpha="0.5">
+					<Size x="46" y="35"/>
+					<Anchors>
+						<Anchor point="BOTTOMRIGHT" x="-2" y="2"/>
+					</Anchors>
+					<TexCoords left="0.244140625" right="0.06640625" top="0.90625" bottom="0.63671875"/>
+				</Texture>
+				<!-- doodad in bottomleft corner -->
+				<Texture parentArray="doodads" file="Interface\Collections\Collections" alpha="0.5">
+					<Size x="46" y="35"/>
+					<Anchors>
+						<Anchor point="BOTTOMLEFT" x="2" y="2"/>
+					</Anchors>
+					<TexCoords left="0.06640625" right="0.244140625" top="0.90625" bottom="0.63671875"/>
 				</Texture>
 			</Layer>
 		</Layers>
 		<Frames>
 			<Button parentArray="pets" inherits="RematchCurrentPetTemplate" id="1">
 				<Anchors>
-					<Anchor point="TOPLEFT" x="20" y="-20"/>
+					<Anchor point="CENTER" x="-103" y="5"/>
 				</Anchors>
 			</Button>
 			<Button parentArray="pets" inherits="RematchCurrentPetTemplate" id="2">
 				<Anchors>
-					<Anchor point="TOPLEFT" x="109" y="-20"/>
+					<Anchor point="CENTER" x="-14" y="5"/>
 				</Anchors>
 			</Button>
 			<Button parentArray="pets" inherits="RematchCurrentPetTemplate" id="3">
 				<Anchors>
-					<Anchor point="TOPLEFT" x="198" y="-20"/>
+					<Anchor point="CENTER" x="75" y="5"/>
 				</Anchors>
 			</Button>
 			<Button parentKey="swap" frameLevel="10" inherits="RematchToolbarButtonTemplate" hidden="true">
 				<KeyValues>
-					<KeyValue key="defaultIcon" value="Interface\PaperdollInfoFrame\UI-GearManager-Undo"/>
 					<KeyValue key="defaultIcon" value="Interface\Icons\INV_Pet_SwapPet"/>
+					<KeyValue key="nopreclick" value="true"/>
 				</KeyValues>
 				<Scripts>
-					<PreClick>
-						-- override to not hide dialog
-					</PreClick>
 					<OnUpdate>
 						if not MouseIsOver(self) and not MouseIsOver(self:GetParent()) then
 							self:Hide()
@@ -192,10 +228,15 @@
 				</Scripts>
 			</Button>
 		</Frames>
+		<Scripts>
+			<OnSizeChanged>
+				Rematch.CurrentOnSizeChanged(self)
+			</OnSizeChanged>
+		</Scripts>
 	</Frame>
 
 	<Frame name="RematchAbilityFlyout" enableMouse="true" frameLevel="10" hidden="true">
-		<Size x="56" y="32"/>
+		<Size x="60" y="34"/>
 		<Backdrop bgFile="Interface\ChatFrame\ChatFrameBackground" edgeFile="Interface\Tooltips\UI-Tooltip-Border" tile="true">
 			<BackgroundInsets>
 				<AbsInset left="3" right="3" top="3" bottom="3"/>
@@ -221,6 +262,22 @@
 				<Anchors>
 					<Anchor point="RIGHT" x="-4" y="0"/>
 				</Anchors>
+				<Frames>
+					<Frame parentKey="number" hidden="true">
+						<Size x="10" y="12"/>
+						<Anchors>
+							<Anchor point="BOTTOMLEFT" x="3" y="3"/>
+						</Anchors>
+						<Layers>
+							<Layer level="OVERLAY">
+								<Texture>
+									<Color r="0" g="0" b="0" a="0.65"/>
+								</Texture>
+								<FontString inherits="GameFontHighlightSmall" text="1" setAllPoints="true"/>
+							</Layer>
+						</Layers>
+					</Frame>
+				</Frames>
 				<Scripts>
 					<OnClick>
 						Rematch.FlyoutButtonOnClick(self)
@@ -231,6 +288,22 @@
 				<Anchors>
 					<Anchor point="LEFT" x="4" y="0"/>
 				</Anchors>
+				<Frames>
+					<Frame parentKey="number" hidden="true">
+						<Size x="10" y="12"/>
+						<Anchors>
+							<Anchor point="BOTTOMLEFT" x="3" y="3"/>
+						</Anchors>
+						<Layers>
+							<Layer level="OVERLAY">
+								<Texture>
+									<Color r="0" g="0" b="0" a="0.65"/>
+								</Texture>
+								<FontString inherits="GameFontHighlightSmall" text="2" setAllPoints="true"/>
+							</Layer>
+						</Layers>
+					</Frame>
+				</Frames>
 				<Scripts>
 					<OnClick>
 						Rematch.FlyoutButtonOnClick(self)

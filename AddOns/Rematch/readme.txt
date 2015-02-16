@@ -5,8 +5,6 @@ Its primary purpose is to store and recall battle pet teams for targets. For ins
 - When you target Aki the Chosen, bring up the Rematch window and hit Save, you can save in her name the pets you have out.
 - When you return to Aki another day, you can target her, bring up the window and it will offer you those saved pets to load.
 
-Note: Some parts of the addon description below have been udpated. They're worth a read if you want more details. Especially regarding leveling pets/queue/preferences and future plans.
-
 How to Use
 
 You can summon the Rematch window several ways:
@@ -189,7 +187,7 @@ Long term:
 If you have any comments, suggestions or bugs to report feel free to post them here in the comments. Thanks!
 
 Special thanks to those providing translations to other clients!
-deDE: Tonyleila at wowinterface (Leilameda at EU-Anetheron)
+deDE: Tonyleila at wowinterface and Zreptil at curse
 zhCN: Zkpjy at wowinterface
 zhTW: Leg883 at curse
 esES and esMX: Phanx at curse

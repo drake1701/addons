@@ -25,7 +25,7 @@ rematch.optionsList = {
 	{ "check", "LargeWindow", L["Larger window"], L["Make the Rematch window larger for easier viewing."] },
 	{ "check", "LargeFont", L["Larger list text"], L["Make the text in the scrollable lists (pets, teams and options) a little bigger."], nil, true },
 	{ "check", "LockPosition", L["Lock window position"], L["Prevent the Rematch window from being dragged unless Shift is held."] },
-	{ "check", "LockHeight", L["Lock window height"], L["Prevent the window's height from being resized with the resize grip along the bottom of the expanded window."] },
+	{ "check", "LockHeight", L["Lock window size"], L["Prevent the window from being resized with the resize grip along the edge of the window."] },
 	{ "check", "StayForBattle", L["Stay for pet battle"], L["When a pet battle begins, keep Rematch on screen instead of hiding it. Note: the window will still close on player combat."] },
 	{ "check", "GrowDownward", L["Reverse pullout"], L["When the Pets or Teams tab is opened, expand the window down the screen instead of up."] },
 	{ "check", "ReverseDialog", L["Reverse dialog direction"], L["This setting controls which side of the Rematch window popup dialogs will appear.\n\nRegardless of this setting, when the window is expanded, unless the 'Show dialogs at side' option is checked, they will appear in the middle of the window.\n\n\Otherwise:\n\n\124cffffd200When this option is disabled:\124r Dialogs will appear in the direction that the pullout drawer grows.\n\n\124cffffd200When this option is enabled:\124r Dialogs will appear in the opposite direction that the pullout drawer grows."] },
@@ -48,12 +48,14 @@ rematch.optionsList = {
 	{ "check", "UseTypeBar", L["Use type bar"], L["Show the tabbed bar near the top of the pet browser to filter pet types, pets that are strong or tough vs chosen types."] },
 	{ "check", "OnlyBattlePets", L["Only battle pets"], L["Never list pets that can't battle in the pet browser, such as Guild Heralds. Note: most filters like rarity, level or stats will not include non-battle pets already."] },
 	{ "check", "ListRealNames", L["List real names"], L["Even if a pet has been renamed, list each pet by its real name."] },
-	{ "check", "StrongVsAny", L["Inclusive \"Strong Vs\" filter"]..newOption, L["When filtering Strong Vs multiple types, list pets that have an ability that's strong vs one of the chosen types, instead of requiring at least one ability to be strong vs each chosen type."] },
+	{ "check", "StrongVsAny", L["Inclusive \"Strong Vs\" filter"], L["When filtering Strong Vs multiple types, list pets that have an ability that's strong vs one of the chosen types, instead of requiring at least one ability to be strong vs each chosen type."] },
 	{ "check", "ResetFilters", L["Reset filters on login"], L["Reset all pet browser filters (including sort) when logging in."] },
-	{ "check", "DontResetSort", L["Don't reset sort with filters"]..newOption, L["When a non-standard sort is chosen, don't reset it when clicking the filter reset button at the bottom of the pet browser.\n\n\124cffffd200Note:\124r If 'Reset filters on login' is enabled, sort will still be reset on login regardless of this option."] },
+	{ "check", "DontResetSort", L["Don't reset sort with filters"], L["When a non-standard sort is chosen, don't reset it when clicking the filter reset button at the bottom of the pet browser.\n\n\124cffffd200Note:\124r If 'Reset filters on login' is enabled, sort will still be reset on login regardless of this option."] },
 	{ "header", nil, MISCELLANEOUS },
-	{ "check", "RealAbilityIcons", L["Use actual ability icons"]..newOption, L["In the pet card, display the actual icon of each ability instead of an icon showing the ability's type."], nil, true },
+	{ "check", "ShowAbilityNumbers", L["Show ability numbers"], L["In the ability flyout, show the numbers 1 and 2 to help with the common notation such as \"Pet Name 122\" to know which abilities to use."], nil, true },
+	{ "check", "RealAbilityIcons", L["Use actual ability icons"], L["In the pet card, display the actual icon of each ability instead of an icon showing the ability's type."], nil, true },
 	{ "check", "ShowNotesInBattle", L["Show notes in battle"], L["If the loaded team has notes, display and lock the notes when you enter a pet battle."] },
+	{ "check", "ShowNotesOnce", L["Only once per team"], L["Only display notes automatically the first time entering battle, until another team is loaded."], "ShowNotesInBattle" },
 	{ "check", "HideRarityBorders", L["Hide rarity borders"], L["Hide the colored borders to indicate rarity around current pets and pets on the team cards."] },
 	{ "check", "DisableShare", L["Disable sharing"], L["Disable the Send button and also block any incoming pets sent by others. Import and Export still work."] },
 	{ "check", "JumpToTeam", L["Jump to key"], L["While the mouse is over the team list or pet browser, hitting a key will jump to the next team or pet that begins with that letter."] },
@@ -100,9 +102,7 @@ function rematch:InitOptions()
 end
 
 function rematch:ToggleOptions()
-
 	local drawerMode = rematch:GetDrawerMode()
-
 	if drawerMode=="OPTIONS" then
 		settings.DrawerMode = settings.oldDrawerMode
 		settings.oldDrawerMode = nil
@@ -111,7 +111,6 @@ function rematch:ToggleOptions()
 		settings.DrawerMode = "OPTIONS"
 	end
 	rematch:UpdateWindow()
-
 end
 
 function rematch:UpdateOptionsList()
@@ -323,7 +322,7 @@ end
 
 function rematch.optionsFunc.LargeFont()
 	if settings.LargeFont then
-		RematchListFont:SetFontObject("SystemFont_Shadow_Small2")
+		RematchListFont:SetFontObject("GameFontHighlight")
 	else
 		RematchListFont:SetFontObject("SystemFont_Shadow_Small")
 	end
@@ -335,18 +334,16 @@ function rematch.optionsFunc.AutoAlways()
 	local searchBox = rematch.drawer.teams.searchBox
 
 	import:ClearAllPoints()
-	if settings.AutoAlways then
+	if settings.AutoAlways then -- AutoAlways enabled, move import button to main toolbar
 		import:SetParent(rematch.toolbar)
 		import:SetPoint("TOPRIGHT",reload)
 		reload:Hide()
-		searchBox:SetWidth(236)
 		searchBox:SetPoint("BOTTOMLEFT",rematch.drawer.teams,"TOPLEFT",6,4)
-	else
+	else -- AutoAlways disabled, move import button to left of team search box
 		import:SetParent(rematch.drawer.teams)
 		import:SetPoint("TOPLEFT",rematch.drawer,0,1)
 		reload:Show()
-		searchBox:SetWidth(213)
-		searchBox:SetPoint("BOTTOMLEFT",rematch.drawer.teams,"TOPLEFT",29,4)
+		searchBox:SetPoint("BOTTOMLEFT",import,"BOTTOMRIGHT",2,7)
 	end
 
 end
@@ -381,6 +378,13 @@ function rematch.optionsFunc.RealAbilityIcons()
 		end
 	end
 end
+
+function rematch.optionsFunc.ShowAbilityNumbers()
+	for i=1,2 do
+		RematchAbilityFlyout.ability[i].number:SetShown(settings.ShowAbilityNumbers)
+	end
+end
+
 
 -- migrate any teams saved in Pet Battle Teams, whose name doesn't already exist, into Rematch
 function rematch:MigratePBT(over)
@@ -540,9 +544,10 @@ function rematch:UpdateLevelingMarkers()
 				if not icon then
 					self.buttons[i].rematchLevelingPet = self.buttons[i]:CreateTexture(nil,"ARTWORK")
 					icon = self.buttons[i].rematchLevelingPet
-					icon:SetSize(32,32)
+					icon:SetSize(24,24)
 					icon:SetPoint("RIGHT",-6,0)
-					icon:SetTexture("Interface\\AddOns\\Rematch\\textures\\marker")
+					icon:SetTexture("Interface\\AddOns\\Rematch\\textures\\preference")
+					icon:SetTexCoord(0.25,0.75,0.25,0.75)
 				end
 				showIcon = true
 			end

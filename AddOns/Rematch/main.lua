@@ -5,57 +5,34 @@ local settings
 local saved
 
 -- these don't need declared, but they're important enough to merit early mention
-rematch.targetName = nil -- name/npc ID of current target
-rematch.targetNpcID = nil
---settings.loadedTeamName = nil -- name/npc ID of last team loaded
---settings.loadedNpcID = nil
+-- rematch.targetName = nil -- name/npc ID of current target
+-- rematch.targetNpcID = nil
+-- settings.loadedTeamName = nil -- name/npc ID of last team loaded
+-- settings.loadedNpcID = nil
+-- rematch.inBottomHalf = nil -- whether center of main frame is in lower half of screen
+-- rematch.inLeftHalf = nil -- whether center of main frame is in left half of screen
 
-local COLLAPSED_HEIGHT = 134
+local COLLAPSED_HEIGHT = 142 -- when changing current area height change this too
 local EXPANDED_HEIGHT = 450
-
-rematch.inBottomHalf = nil -- whether center of main frame is in lower half of screen
-rematch.inLeftHalf = nil -- whether center of main frame is in left half of screen
+local DEFAULT_WIDTH = 296
 
 function rematch:InitMain()
-
 	settings = RematchSettings
 	saved = RematchSaved
 
-	-- setup buttons along bottom of main window
-	for index,info in pairs({
-		-- { icon, tooltip (string or func), OnClick func, noHide }
-		{"Interface\\AddOns\\Rematch\\textures\\save",SAVE,rematch.ToolbarSaveOnClick,true}, -- Icons\\INV_Misc_Bag_09",SAVE},
-		{"Interface\\Icons\\ability_monk_roll",L["Reload"],rematch.ReloadTeam},
-		{"Interface\\Icons\\Trade_Engineering",L["Options"],rematch.ToggleOptions},
-		{"Interface\\Icons\\PetBattle_Attack",FIND_BATTLE,rematch.ToolbarFindBattleOnClick},
-		{"Interface\\Icons\\inv_misc_bandage_05"},
-		{"Interface\\Icons\\spell_misc_petheal"},
-	}) do
-		rematch.toolbar.buttons[index].icon:SetTexture(info[1])
-		rematch.toolbar.buttons[index].tooltipTitle = info[2]
-		if info[3] then
-			rematch.toolbar.buttons[index]:SetScript("OnClick",info[3])
-		end
-		if info[4] then -- disable PreClick so these buttons can act as a toggle
-			rematch.toolbar.buttons[index]:SetScript("PreClick",nil)
-		end
-	end
-
 	rematch.toolbar.petsTab:SetText(PETS)
 	rematch.toolbar.teamsTab:SetText(L["Teams"])
-
-	rematch:SetUserPlaced(0)
-	rematch:SetWidth(296)
-
+	rematch:SetUserPlaced(false)
 	rematch.notesButton:SetFrameLevel(rematch.header:GetFrameLevel()+3)
 	rematch.notesButton:RegisterForClicks("AnyUp")
 
-	settings = RematchSettings
+	rematch.sidebar.lessertreat:RegisterForClicks("AnyUp")
+	rematch.sidebar.treat:RegisterForClicks("AnyUp")
+
 	if not settings.X then
 		rematch:SaveFramePosition()
 	end
 	rematch:SetFramePosition()
-
 end
 
 function rematch:Toggle()
@@ -263,28 +240,126 @@ function rematch.events:BAG_UPDATE()
 end
 
 function rematch:UpdatePetHealButton()
-	rematch.toolbar.buttons[6].cooldownContainer.cooldown:SetCooldown(GetSpellCooldown(125439))
+	rematch.toolbar.heal.cooldownContainer.cooldown:SetCooldown(GetSpellCooldown(125439))
 end
 
 function rematch:UpdateBandageButton()
 	local count = GetItemCount(86143)
 	local vertex = count==0 and .5 or 1
-	rematch.toolbar.buttons[5].vertex = vertex
-	rematch.toolbar.buttons[5].icon:SetVertexColor(vertex,vertex,vertex)
-	rematch.toolbar.buttons[5].count:SetText(GetItemCount(86143))
+	rematch.toolbar.bandage.vertex = vertex
+	rematch.toolbar.bandage.icon:SetVertexColor(vertex,vertex,vertex)
+	rematch.toolbar.bandage.count:SetText(count)
+
+	rematch:UpdateSideBarButtons() -- piggybacking onto this event from BAG_UPDATE
 end
 
+-- this is for any button that contains a spell or item that should show a real tooltip:
+-- heal, bandage, treat, lessertreat, safari
 function rematch:HealButtonOnEnter()
 	GameTooltip:SetOwner(self,"ANCHOR_NONE")
 	if self:GetAttribute("type")=="spell" then
-		GameTooltip:SetSpellByID(125439) -- self:GetAttribute("spell")) -- 125439)
+		GameTooltip:SetSpellByID(self:GetAttribute("spell"))
 	else
---		local itemID = tonumber(self:GetAttribute("item"):match("item:(%d+)"))
-		GameTooltip:SetItemByID(86143) -- itemID) -- 86143)
+		local itemID = tonumber((self:GetAttribute("item") or ""):match("item:(%d+)"))
+		if itemID then
+			GameTooltip:SetItemByID(itemID)
+		end
+		if (itemID==98112 or itemID==98114) then -- if one of the treats and we have some to cast
+			local petID = C_PetJournal.GetSummonedPetGUID()
+			if GetItemCount(itemID)>0 then
+				local spell = GetItemSpell(itemID)
+				local index, buff, found = 1
+				repeat
+					buff = UnitBuff("player",index)
+					if buff==spell then
+						GameTooltip:SetUnitBuff("player",index)
+						found = true
+					end
+					index = index + 1
+				until not buff or found
+				if not found then -- treat buff isn't found
+					if not petID then -- if pet is not out, left click will summon a pet
+						GameTooltip:AddLine(format("\124TInterface\\TutorialFrame\\UI-Tutorial-Frame:12:12:0:0:512:512:10:65:228:283\124t \124cff88bbff%s",rematch:GetLevelingPick(1) and L["Summon a leveling pet."] or L["Summon a favorite pet."]))
+					elseif SpellIsTargeting() then -- if pet is out and spell targeting
+						GameTooltip:AddLine(format("\124TInterface\\TutorialFrame\\UI-Tutorial-Frame:12:12:0:0:512:512:89:144:228:283\124t \124cff88bbff%s",L["Target treat onto the pet."]))
+					else -- if pet is out and spell targeting not happening
+						GameTooltip:AddLine(format("\124TInterface\\TutorialFrame\\UI-Tutorial-Frame:12:12:0:0:512:512:10:65:228:283\124t \124cff88bbff%s",L["Cast this treat."]))
+					end
+				end
+			end
+			if petID then
+				GameTooltip:AddLine(format("\124TInterface\\TutorialFrame\\UI-Tutorial-Frame:12:12:0:0:512:512:10:65:330:385\124t \124cff88bbff%s",L["Dismiss the summoned pet."]))
+			end
+		end
 	end
+	GameTooltip:SetBackdropBorderColor(0.5,0.41,0)
 	GameTooltip:Show()
 	rematch:SmartAnchor(GameTooltip,self)
+
+	-- this timer calls this onenter again in half a second; the onleave stops the timer
+	-- this causes a bit of garbage creation but is forgivable for the effects (cooldown timers
+	-- count down in the tooltip and left/right click instructions update)
+	self.tooltipTimer = C_Timer.NewTimer(0.5,function() rematch.HealButtonOnEnter(self) end)
 end
+
+function rematch:HealButtonOnLeave()
+	if self.tooltipTimer then
+		self.tooltipTimer:Cancel() -- stop tooltip updating itself
+	end
+	GameTooltip:Hide()
+	RematchTooltip:Hide()
+end
+
+function rematch:UpdateSafariHat()
+	local hasHat = GetItemCount(92738)>0
+	local spell = GetItemSpell(92738)
+	local wearing = UnitBuff("player",spell)
+	local safari = rematch.sidebar.safari
+	safari.icon:SetTexture(wearing and "Interface\\AddOns\\Rematch\\textures\\nosafari" or "Interface\\Icons\\INV_Helm_Cloth_PetSafari_A_01")
+	local vertex = hasHat and 1 or 0.35
+	safari.vertex = vertex
+	safari.icon:SetVertexColor(vertex,vertex,vertex)
+	if wearing then
+		safari:SetAttribute("type","cancelaura")
+		safari:SetAttribute("unit","player")
+		safari:SetAttribute("spell",spell)
+	else
+		safari:SetAttribute("type","item")
+	end
+end
+
+function rematch:UpdateTreatButton(button)
+	local treat = button:GetAttribute("item")
+	local count = GetItemCount(treat)
+	local vertex = count==0 and 0.5 or 1
+	button.vertex = vertex
+	button.icon:SetVertexColor(vertex,vertex,vertex)
+	button.count:SetText(count)
+
+	local spell = GetItemSpell(treat)
+	if spell then
+		local _,_,_,_,_,duration,expiration = UnitBuff("player",spell)
+		if duration then
+			button.cooldownContainer.cooldown:SetCooldown(expiration-duration,duration)
+			return
+		end
+	end
+	button.cooldownContainer.cooldown:Hide()
+end
+
+-- updates the sidebar buttons (safari hat, treats) if sidebar is up
+function rematch:ActuallyUpdateSideBarButtons()
+	if rematch.sidebar:IsVisible() then
+		rematch:UpdateSafariHat()
+		rematch:UpdateTreatButton(rematch.sidebar.lessertreat)
+		rematch:UpdateTreatButton(rematch.sidebar.treat)
+	end
+end
+
+function rematch.events.UNIT_AURA()
+	rematch:StartTimer("UpdateSideBarButtons",0.1,rematch.ActuallyUpdateSideBarButtons)
+end
+rematch.UpdateSideBarButtons = rematch.events.UNIT_AURA
 
 --[[ Frame movement ]]
 
@@ -308,11 +383,27 @@ function rematch:FrameStopMoving()
 end
 
 function rematch:FrameStartSizing()
+	local grip = self:GetID() -- 1=height 2=width 3=both
+
+	local width = rematch:GetWidth()
+	local height = rematch:GetHeight()
+
+	if grip==1 then
+		rematch:SetMinResize(width,332)
+		rematch:SetMaxResize(width,700)
+	elseif grip==2 then
+		rematch:SetMinResize(296,height)
+		rematch:SetMaxResize(500,height)
+	else
+		rematch:SetMinResize(296,332)
+		rematch:SetMaxResize(500,700)
+	end
+
 	rematch:HideFloatingPetCard(true)
 	rematch:HideDialogs()
 	rematch.isSizing = true
 	rematch:StartSizing()
-	rematch:ResizeGripHighlight()
+	rematch.ResizeGripHighlight(self)
 end
 
 function rematch:FrameStopSizing()
@@ -321,34 +412,33 @@ function rematch:FrameStopSizing()
 		rematch:StopMovingOrSizing()
 		rematch:SaveFramePosition()
 		rematch:SetFramePosition()
-		rematch:ResizeGripUnhighlight()
+		rematch.ResizeGripUnhighlight(self)
 	end
 end
 
 function rematch:ResizeGripHighlight()
-	rematch.drawer.resizeGrip.gripLine1:SetVertexColor(1,1,1)
-	rematch.drawer.resizeGrip.gripLine2:SetVertexColor(1,1,1)
+	self.grip:SetAlpha(1)
 end
 
 function rematch:ResizeGripUnhighlight()
-	rematch.drawer.resizeGrip.gripLine1:SetVertexColor(0.75,0.75,0.75)
-	rematch.drawer.resizeGrip.gripLine2:SetVertexColor(0.75,0.75,0.75)
+	self.grip:SetAlpha(0.5)
 end
 
 function rematch:SaveFramePosition()
 	local mainScale = rematch:GetEffectiveScale()
 	local uiScale = UIParent:GetEffectiveScale()
-	local mx,my = rematch.toolbar.buttons[5]:GetCenter()
+	local mx = rematch:GetCenter()
+	local my = settings.GrowDownward and rematch:GetTop() or rematch:GetBottom()
 	local ux,uy = UIParent:GetCenter()
 	rematch.inLeftHalf = (mx*mainScale)<(ux*uiScale)
 	rematch.inBottomHalf = (my*mainScale)<(uy*uiScale)
 	settings.X = rematch:GetLeft()
-	settings.Y = settings.GrowDownward and rematch:GetTop() or rematch:GetBottom()
+	settings.Y = my -- settings.GrowDownward and rematch:GetTop() or rematch:GetBottom()
 	if rematch.drawer:IsVisible() then
 		settings.Height = rematch:GetHeight()
-	elseif not settings.Height then
-		settings.Height = EXPANDED_HEIGHT
 	end
+	settings.Height = settings.Height or EXPANDED_HEIGHT
+	settings.Width = rematch:GetWidth() or DEFAULT_WIDTH
 end
 
 function rematch:SetFramePosition()
@@ -381,7 +471,7 @@ function rematch:SetToolbarTabState(tab,state)
 	local backdrop = state and "Interface\\AddOns\\Rematch\\textures\\tab-backdrop" or "Interface\\AddOns\\Rematch\\textures\\button-backdrop"
 	local border = state and "Interface\\AddOns\\Rematch\\textures\\tab-border" or "Interface\\AddOns\\Rematch\\textures\\button-border"
 	for i=1,3 do
-		tab.backdrop[i]:SetTexture(backdrop)
+--		tab.backdrop[i]:SetTexture(backdrop)
 		tab.border[i]:SetTexture(border)
 		tab.highlight[i]:SetTexture(border)
 	end
@@ -395,6 +485,7 @@ function rematch:SetToolbarTabState(tab,state)
 	tab.selected:SetPoint("CENTER",0,4-grow*8)
 end
 
+--[[ this is the main function to update the window ]]
 function rematch:UpdateWindow()
 --	rematch:debugstack("UpdateWindow")
 
@@ -410,7 +501,6 @@ function rematch:UpdateWindow()
 	else
 		rematch.header.text:SetText(L["Current Battle Pets"])
 	end
---	rematch.header.text:SetText(settings.loadedTeamName or L["Current Battle Pets"])
 	if settings.loadedNpcID then
 		rematch.header.text:SetTextColor(1,1,1)
 	else
@@ -425,32 +515,42 @@ function rematch:UpdateWindow()
 	local drawerMode = rematch:GetDrawerMode()
 	local drawerOpen = drawerMode and true
 
-	rematch:SetToolbarTabState(rematch.toolbar.petsTab,drawerMode=="PETS")
-	rematch:SetToolbarTabState(rematch.toolbar.teamsTab,drawerMode=="TEAMS")
-	rematch.toolbar.petsTab.selected:SetShown(drawerMode=="PETS")
-	rematch.toolbar.teamsTab.selected:SetShown(drawerMode=="TEAMS")
-	rematch.toolbar.petsTab:SetNormalFontObject(drawerMode=="PETS" and "GameFontHighlightSmall" or "GameFontNormalSmall")
-	rematch.toolbar.teamsTab:SetNormalFontObject(drawerMode=="TEAMS" and "GameFontHighlightSmall" or "GameFontNormalSmall")
+	local toolbar = rematch.toolbar
+
+	rematch:SetToolbarTabState(toolbar.petsTab,drawerMode=="PETS")
+	rematch:SetToolbarTabState(toolbar.teamsTab,drawerMode=="TEAMS")
+	toolbar.petsTab.selected:SetShown(drawerMode=="PETS")
+	toolbar.teamsTab.selected:SetShown(drawerMode=="TEAMS")
+	toolbar.petsTab:SetNormalFontObject(drawerMode=="PETS" and "GameFontHighlightSmall" or "GameFontNormalSmall")
+	toolbar.teamsTab:SetNormalFontObject(drawerMode=="TEAMS" and "GameFontHighlightSmall" or "GameFontNormalSmall")
 
 	rematch.toolbar:ClearAllPoints()
+	rematch:SetWidth(settings.Width or DEFAULT_WIDTH)
 	if drawerOpen then -- if drawer is open, move toolbar as needed
 		rematch:SetHeight(settings.Height or EXPANDED_HEIGHT)
 		rematch.drawer.separator:ClearAllPoints()
+		local currentHeight = rematch.current:GetHeight()
+		toolbar:ClearAllPoints()
 		if settings.GrowDownward then -- toolbar is at top just below current pets
-			rematch.toolbar:SetPoint("TOP",rematch.current,"BOTTOM")
-			rematch.drawer:SetPoint("TOPLEFT",rematch.toolbar,"BOTTOMLEFT")
+			toolbar:SetPoint("TOPLEFT",rematch,"TOPLEFT",3,-currentHeight-3)
+			toolbar:SetPoint("TOPRIGHT",rematch,"TOPRIGHT",-3,-currentHeight-3)
+			rematch.drawer:SetPoint("TOPLEFT",toolbar,"BOTTOMLEFT")
 			rematch.drawer:SetPoint("BOTTOMRIGHT",rematch,"BOTTOMRIGHT",-3,3)
-			rematch.drawer.separator:SetPoint("BOTTOM",rematch.toolbar,"BOTTOM",0,-2)
+			rematch.drawer.separator:SetPoint("BOTTOMLEFT",toolbar,0,-2)
+			rematch.drawer.separator:SetPoint("BOTTOMRIGHT",toolbar,0,-2)
 		else -- toolbar is along bottom
-			rematch.toolbar:SetPoint("BOTTOM",0,2)
-			rematch.drawer:SetPoint("TOPLEFT",rematch.current,"BOTTOMLEFT")
-			rematch.drawer:SetPoint("BOTTOMRIGHT",rematch.toolbar,"TOPRIGHT")
-			rematch.drawer.separator:SetPoint("BOTTOM",rematch.drawer,"BOTTOM",0,-3)
+			toolbar:SetPoint("BOTTOMLEFT",3,2)
+			toolbar:SetPoint("BOTTOMRIGHT",-3,2)
+			rematch.drawer:SetPoint("TOPLEFT",rematch,"TOPLEFT",3,-currentHeight-4)
+			rematch.drawer:SetPoint("BOTTOMRIGHT",toolbar,"TOPRIGHT")
+			rematch.drawer.separator:SetPoint("BOTTOMLEFT",rematch.drawer,0,-3)
+			rematch.drawer.separator:SetPoint("BOTTOMRIGHT",rematch.drawer,0,-3)
 		end
 		rematch.drawer:Show()
 	else -- if drawer isn't open
 		rematch:SetHeight(COLLAPSED_HEIGHT)
-		rematch.toolbar:SetPoint("BOTTOM",0,2)
+		toolbar:SetPoint("BOTTOMLEFT",3,2)
+		toolbar:SetPoint("BOTTOMRIGHT",-3,2)
 		rematch.drawer:Hide()
 	end
 
@@ -475,15 +575,26 @@ function rematch:UpdateWindow()
 		rematch:UpdateOptionsList()
 	end
 
-	rematch.drawer.resizeGrip:SetShown(not settings.LockHeight)
+	rematch.drawer.resizeHeightGrip:SetShown(not settings.LockHeight)
+	rematch.drawer.resizeWidthGrip:SetShown(not settings.LockHeight)
+	rematch.drawer.resizeAllGrip:SetShown(not settings.LockHeight)
+	rematch.resizeCollapsedGrip:SetShown(not drawerOpen and not settings.LockHeight)
 
-	rematch:SetToolbarButtonEnabled(rematch.toolbar.buttons[2],(settings.loadedTeamName and saved[settings.loadedTeamName]) and true)
+	rematch:SetToolbarButtonEnabled(toolbar.reload,(settings.loadedTeamName and saved[settings.loadedTeamName]) and true)
 
 	rematch:UpdatePetHealButton()
 	rematch:UpdateBandageButton()
+	rematch:UpdateSideBarButtons()
 
 	rematch:SaveFramePosition()
 	rematch:SetFramePosition()
+
+	local showSideBar = settings.ShowSideBar and true
+	rematch.sidebar:SetShown(showSideBar)
+	rematch.current:SetPoint("TOPLEFT",rematch.sidebar,showSideBar and "TOPRIGHT" or "TOPLEFT")
+--	rematch.toolbar.toggle.icon:SetTexCoord(showSideBar and 0.925 or 0.075,showSideBar and 0.075 or 0.925,0.075,0.925)
+
+	rematch:OnSizeChanged() -- adjust width of stretchyButtons
 end
 
 --[[ ESCable system ]]
@@ -625,3 +736,58 @@ SlashCmdList["REMATCH"] = function(msg)
 	end
 end
 SLASH_REMATCH1 = "/rematch"
+
+-- when main window sizes, go through all stretchy buttons and adjust width based on window width
+function rematch:OnSizeChanged()
+	-- at 296 width, each of six button widths is 32: 296-(32*6)=104, or rW-(bW*6)=104
+	local width = abs((104-self:GetWidth())/6) -- solve bW above when rW changes
+	for _,button in pairs(rematch.stretchyButtons) do
+		button:SetWidth(width)
+	end
+
+	-- adjust sidebar to width of button
+	rematch.sidebar:SetWidth(width)
+end
+
+function rematch:ToggleSideBar()
+	settings.ShowSideBar = not settings.ShowSideBar
+	rematch:UpdateWindow()
+end
+
+-- for both lesser pet treat and pet treat
+-- if a pet isn't out and buff needed, it will summon the topmost pet from the queue and not cast
+-- if a pet is out and button is right-clicked, it will dismiss the pet and not cast
+-- otherwise it will make the button cast the treat
+function rematch:SideBarTreatPreClick(button)
+
+	rematch.HideDialogs() -- since this preclick is an override of the template
+
+	local petID = C_PetJournal.GetSummonedPetGUID()
+	local treat = self:GetAttribute("item")
+
+	self:SetAttribute("type","stop") -- this button will stopcasting unless told otherwise
+
+	-- on right-click of treat, dismiss pet
+	if button=="RightButton" then
+		if petID then
+			C_PetJournal.SummonPetByGUID(petID)
+		end
+		return
+	end
+
+	if GetItemCount(treat)==0 or UnitBuff("player",GetItemSpell(treat)) then
+		return -- buff is already up, do nothing when clicked
+	end
+
+	if not petID then -- pet isn't out and we have treats
+		petID = rematch:GetLevelingPick(1) -- grab top pet from queue
+		if petID then -- if there's a pet in the queue, summon top-most one
+			C_PetJournal.SummonPetByGUID(petID)
+		else -- otherwise summon a random favorite
+			C_PetJournal.SummonRandomPet(false)
+		end
+		return
+	end
+	-- if we get this far, allow this click to cast the treat
+	self:SetAttribute("type","item")
+end

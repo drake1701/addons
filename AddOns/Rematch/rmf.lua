@@ -351,6 +351,14 @@ function rmf:HideCanBattle()
 	return settings.OnlyBattlePets
 end
 
+function rmf:FindSimilar()
+	local speciesID = menu.subject
+	if type(speciesID)=="string" then
+		speciesID = C_PetJournal.GetPetInfoByPetID(speciesID)
+	end
+	roster:SetSimilarFilter(speciesID)
+end
+
 function rmf:HideLoadFilters()
 	return not settings.savedFilters and true
 end
@@ -501,6 +509,7 @@ menu.menus["browserPet"] = {
 	{ text=L["Add to Leveling Queue"], hide=rmf.HideAddToQueue, func=rmf.AddToQueue },
 	{ text=L["Stop Leveling"], hide=rmf.HideStopLeveling, func=rmf.StopLeveling },
 	{ text=rmf.SummonOrDismissText, hide=rmf.MissingPet, func=rmf.Summon },
+	{ text=L["Find Similar"], func=rmf.FindSimilar },
 	{ text=BATTLE_PET_RENAME, hide=rmf.MissingPet, func=rmf.RenamePet },
 	{ text=rmf.FavoriteText, hide=rmf.MissingPet, func=rmf.FavoritePet },
 	{ text=BATTLE_PET_RELEASE, hide=rmf.HideRelease, func=rmf.ReleasePet },

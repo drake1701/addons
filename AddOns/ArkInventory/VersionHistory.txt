@@ -15,6 +15,12 @@
 
  
  
+*3.04.22 (06-JAN-2015)*
+ * added - right click menu off refresh icon to toggle display of hidden categories/stacks
+ * added - config > settings > location > items > limit stacks (range from 0 to 5, 0 will show all stacks, 1-5 will only show that many stacks of an item and hide the rest, toggle show hidden to temporarily see all hidden stacks) - note: displayed stack count does not increase to cater for the hidden stacks
+ * added - rule function: mounttype | mtype ( "L" = land, "A" = flying, "S" = water surface, "U" = underwater, "X" = ignored/unknown)
+ * added - config > settings > location > items > empty slots > sort position (Enabled: Empty slots are sorted first alphabetically | Disabled: empty slots are sorted last alphabetically)
+
 *3.04.21 (22-JAN-2015)*
  * fixed - issue with first bank bag slot not being draggable
  * fixed - issue with pet breed text when Battle Pet BreedID addon is not installed

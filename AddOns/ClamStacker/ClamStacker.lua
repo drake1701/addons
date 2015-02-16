@@ -898,6 +898,7 @@ local clamItemIds = Set {
 118529, --Cache of Highmaul Treasures
 118530, --Cache of Highmaul Treasures
 118531, --Cache of Highmaul Treasures
+118697, --Big Bag of Pet Supplies
 118759, --Alchemy Experiment
 118924, --Cache of Arms
 118925, --Plundered Booty

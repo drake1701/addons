@@ -1,17 +1,41 @@
 <!-- the main window -->
-
 <Ui>
 
+	<!-- template for the four resize grips (height, width, all and collapsed) -->
+	<Frame name="RematchResizeGripTemplate" frameStrata="LOW" virtual="true">
+		<Scripts>
+			<OnEnter>
+				Rematch.ResizeGripHighlight(self)
+			</OnEnter>
+			<OnLeave>
+				Rematch.ResizeGripUnhighlight(self)
+			</OnLeave>
+			<OnShow>
+				Rematch.ResizeGripUnhighlight(self)
+			</OnShow>
+			<OnMouseDown>
+				Rematch.FrameStartSizing(self)
+			</OnMouseDown>
+			<OnMouseUp>
+				Rematch.FrameStopSizing(self)
+			</OnMouseUp>
+		</Scripts>
+	</Frame>
+
+	<!-- due to stretchy nature of buttons, cooldown needs a container to cover the icon only -->
+	<Frame name="RematchCooldownContainerTemplate" useParentLevel="true" virtual="true">
+		<Size x="20" y="20"/>
+		<Anchors>
+			<Anchor point="CENTER" x="-1" y="0"/> <!-- TOPLEFT" relativeKey="$parent.icon" -->
+		</Anchors>
+		<Frames>
+			<Cooldown parentKey="cooldown" setAllPoints="true" inherits="CooldownFrameTemplate"/>
+		</Frames>
+	</Frame>
+
+	<!-- the main window -->
 	<Frame name="Rematch" parent="UIParent" frameStrata="MEDIUM" clampedToScreen="true" movable="true" resizable="true" inherits="RematchBaseFrameTemplate,RematchDragTemplate" hidden="true">
 		<Size x="296" y="136"/>
-		<ResizeBounds>
-			<minResize>
-				<AbsDimension x="296" y="319"/>
-			</minResize>
-			<maxResize>
-				<AbsDimension x="296" y="700"/>
-			</maxResize>
-		</ResizeBounds>
 		<Anchors>
 			<Anchor point="CENTER"/>
 		</Anchors>
@@ -79,10 +103,8 @@
 
 			<!-- toolbar with pet/team tabs and save/import/etc buttons -->
 			<Frame parentKey="toolbar" useParentLevel="true">
-				<Size x="290" y="32"/>
-				<Anchors>
-					<Anchor point="BOTTOM" x="0" y="3"/>
-				</Anchors>
+				<Size x="0" y="32"/>
+				<!-- anchored in UpdateWindow -->
 				<Layers>
 					<Layer level="BACKGROUND" textureSubLevel="-1">
 						<Texture file="Interface\FrameGeneral\UI-Background-Rock" horizTile="true" vertTile="true">
@@ -103,35 +125,91 @@
 					</Layer>
 				</Layers>
 				<Frames>
+
 					<!-- save -->
-					<Button parentArray="buttons" inherits="RematchToolbarButtonTemplate">
+					<Button parentKey="save" parentArray="buttons" inherits="RematchToolbarButtonTemplate">
 						<Anchors>
 							<Anchor point="BOTTOMRIGHT" x="0" y="0"/>
 						</Anchors>
+						<KeyValues>
+							<KeyValue key="defaultIcon" value="Interface\AddOns\Rematch\textures\save"/>
+							<KeyValue key="stretchy" value="true"/>
+							<KeyValue key="tooltipTitle" value="SAVE"/>
+							<KeyValue key="nopreclick" value="true"/>
+						</KeyValues>
+						<Scripts>
+							<OnClick>
+								Rematch.ToolbarSaveOnClick(self)
+							</OnClick>
+						</Scripts>
 					</Button>
-					<!-- import -->
-					<Button parentArray="buttons" inherits="RematchToolbarButtonTemplate">
+					<!-- reload -->
+					<Button parentKey="reload" parentArray="buttons" inherits="RematchToolbarButtonTemplate">
 						<Anchors>
-							<Anchor point="BOTTOMRIGHT" x="-26" y="0"/>
+							<Anchor point="RIGHT" relativeKey="$parent.save" relativePoint="LEFT" x="6" y="0"/>
 						</Anchors>
+						<KeyValues>
+							<KeyValue key="defaultIcon" value="Interface\Icons\ability_monk_roll"/>
+							<KeyValue key="stretchy" value="true"/>
+							<KeyValue key="tooltipTitle" value="Reload"/>
+						</KeyValues>
+						<Scripts>
+							<OnClick>
+								Rematch.ReloadTeam(self)
+							</OnClick>
+						</Scripts>
 					</Button>
 					<!-- options -->
 					<Button parentArray="buttons" inherits="RematchToolbarButtonTemplate">
 						<Anchors>
-							<Anchor point="BOTTOMRIGHT" x="-52" y="0"/>
+							<Anchor point="RIGHT" relativeKey="$parent.reload" relativePoint="LEFT" x="6" y="0"/>
 						</Anchors>
+						<KeyValues>
+							<KeyValue key="defaultIcon" value="Interface\Icons\Trade_Engineering"/>
+							<KeyValue key="stretchy" value="true"/>
+							<KeyValue key="tooltipTitle" value="Options"/>
+						</KeyValues>
+						<Scripts>
+							<OnClick>
+								Rematch.ToggleOptions(self)
+							</OnClick>
+						</Scripts>
 					</Button>
-					<!-- find battle -->
-					<Button parentArray="buttons" inherits="RematchToolbarButtonTemplate">
+
+					<!-- heal button -->
+					<Button parentKey="heal" parentArray="buttons" inherits="RematchToolbarButtonTemplate,SecureActionButtonTemplate">
 						<Anchors>
-							<Anchor point="BOTTOMLEFT" x="52" y="0"/>
+							<Anchor point="BOTTOMLEFT"/>
 						</Anchors>
+						<KeyValues>
+							<KeyValue key="defaultIcon" value="Interface\Icons\spell_misc_petheal"/>
+							<KeyValue key="stretchy" value="true"/>
+						</KeyValues>
+						<Attributes>
+							<Attribute name="type" value="spell"/>
+							<Attribute name="spell" value="125439"/>
+						</Attributes>
+						<Frames>
+							<Frame parentKey="cooldownContainer" inherits="RematchCooldownContainerTemplate"/>
+						</Frames>
+						<Scripts>
+							<OnEnter>
+								Rematch.HealButtonOnEnter(self)
+							</OnEnter>
+							<OnLeave>
+								Rematch.HealButtonOnLeave(self)
+							</OnLeave>
+						</Scripts>
 					</Button>
-					<!-- bandage -->
-					<Button parentArray="buttons" inherits="RematchToolbarButtonTemplate,SecureActionButtonTemplate">
+					<!-- bandage button -->
+					<Button parentKey="bandage" parentArray="buttons" inherits="RematchToolbarButtonTemplate,SecureActionButtonTemplate">
 						<Anchors>
-							<Anchor point="BOTTOMLEFT" x="26" y="0"/>
+							<Anchor point="LEFT" relativeKey="$parent.heal" relativePoint="RIGHT" x="-6" y="0"/>
 						</Anchors>
+						<KeyValues>
+							<KeyValue key="defaultIcon" value="Interface\Icons\inv_misc_bandage_05"/>
+							<KeyValue key="stretchy" value="true"/>
+						</KeyValues>
 						<Attributes>
 							<Attribute name="type" value="item"/>
 							<Attribute name="item" value="item:86143"/>
@@ -140,7 +218,7 @@
 							<Layer level="OVERLAY">
 								<FontString parentKey="count" inherits="SystemFont_Outline_Small">
 									<Anchors>
-										<Anchor point="CENTER"/>
+										<Anchor point="BOTTOMRIGHT" relativePoint="CENTER" x="12" y="-9"/>
 									</Anchors>
 								</FontString>
 							</Layer>
@@ -150,37 +228,23 @@
 								Rematch.HealButtonOnEnter(self)
 							</OnEnter>
 							<OnLeave>
-								GameTooltip:Hide()
+								Rematch.HealButtonOnLeave(self)
 							</OnLeave>
 						</Scripts>
 					</Button>
-					<!-- heal -->
-					<Button parentArray="buttons" inherits="RematchToolbarButtonTemplate,SecureActionButtonTemplate">
+					<!-- sidebar toggle button -->
+					<Button parentKey="toggle" parentArray="buttons" inherits="RematchToolbarButtonTemplate">
 						<Anchors>
-							<Anchor point="BOTTOMLEFT" x="0" y="0"/>
+							<Anchor point="LEFT" relativeKey="$parent.bandage" relativePoint="RIGHT" x="-6" y="0"/>
 						</Anchors>
-						<Attributes>
-							<Attribute name="type" value="spell"/>
-							<Attribute name="spell" value="125439"/>
-						</Attributes>
-						<Frames>
-							<Frame parentKey="cooldownContainer">
-								<Size x="18" y="18"/>
-								<Anchors>
-									<Anchor point="CENTER"/>
-								</Anchors>
-								<Frames>
-									<Cooldown parentKey="cooldown" setAllPoints="true" inherits="CooldownFrameTemplate"/>
-								</Frames>
-							</Frame>
-						</Frames>
+						<KeyValues>
+							<KeyValue key="defaultIcon" value="Interface\Icons\INV_Misc_Bag_07_Blue"/>
+							<KeyValue key="stretchy" value="true"/>
+						</KeyValues>
 						<Scripts>
-							<OnEnter>
-								Rematch.HealButtonOnEnter(self)
-							</OnEnter>
-							<OnLeave>
-								GameTooltip:Hide()
-							</OnLeave>
+							<OnClick>
+								Rematch.ToggleSideBar(self)
+							</OnClick>
 						</Scripts>
 					</Button>
 
@@ -197,7 +261,207 @@
 				</Frames>
 			</Frame>
 
-			<Frame parentKey="drawer" name="RematchDrawer" useParentLevel="true">
+			<Frame parentKey="sidebar" useParentLevel="true" hidden="true">
+				<Size x="32" y="0"/>
+				<Anchors>
+					<Anchor point="TOPLEFT" relativeTo="Rematch" relativePoint="TOPLEFT" x="3" y="-3"/>
+					<!-- when changing current height: adjust this -108 too (current bottom y offset) -->
+					<Anchor point="BOTTOMLEFT" relativeTo="Rematch" relativePoint="TOPLEFT" x="3" y="-108"/>
+				</Anchors>
+				<Layers>
+					<Layer level="BACKGROUND">
+						<Texture file="Interface\FrameGeneral\UI-Background-Rock" horizTile="true" vertTile="true">
+							<Anchors>
+								<Anchor point="TOPLEFT"/>
+								<Anchor point="BOTTOMRIGHT"/>
+							</Anchors>
+						</Texture>
+					</Layer>
+					<Layer level="BORDER">
+						<Texture file="Interface\PetBattles\!BattleSlotFrame-Left" vertTile="true">
+							<Anchors>
+								<Anchor point="TOPLEFT" relativePoint="TOPRIGHT" x="-12" y="-1"/>
+								<Anchor point="BOTTOMRIGHT" relativePoint="BOTTOMRIGHT" x="4" y="1"/>
+							</Anchors>
+							<TexCoords left="1" right="0" top="0" bottom="1"/>
+						</Texture>
+					</Layer>
+				</Layers>
+				<Frames>
+					<Button parentKey="safari" parentArray="buttons" inherits="RematchToolbarButtonTemplate,SecureActionButtonTemplate">
+						<Anchors>
+							<Anchor point="BOTTOMLEFT" x="0" y="-1"/>
+						</Anchors>
+						<KeyValues>
+							<KeyValue key="defaultIcon" value="Interface\Icons\INV_Helm_Cloth_PetSafari_A_01"/>
+							<KeyValue key="stretchy" value="true"/>
+						</KeyValues>
+						<Attributes>
+							<Attribute name="item" value="item:92738"/>
+						</Attributes>
+						<Scripts>
+							<OnEnter>
+								Rematch.HealButtonOnEnter(self)
+							</OnEnter>
+							<OnLeave>
+								Rematch.HealButtonOnLeave(self)
+							</OnLeave>
+						</Scripts>
+					</Button>
+					<Button parentKey="lessertreat" parentArray="buttons" inherits="RematchToolbarButtonTemplate,SecureActionButtonTemplate">
+						<Anchors>
+							<Anchor point="BOTTOMLEFT" x="0" y="24"/>
+						</Anchors>
+						<KeyValues>
+							<KeyValue key="defaultIcon" value="Interface\Icons\INV_Misc_Food_53"/>
+							<KeyValue key="stretchy" value="true"/>
+						</KeyValues>
+						<Attributes>
+							<Attribute name="item" value="item:98112"/>
+						</Attributes>
+						<Layers>
+							<Layer level="OVERLAY">
+								<FontString parentKey="count" inherits="SystemFont_Outline_Small">
+									<Anchors>
+										<Anchor point="BOTTOMRIGHT" relativePoint="CENTER" x="12" y="-9"/>
+									</Anchors>
+								</FontString>
+							</Layer>
+						</Layers>
+						<Frames>
+							<Frame parentKey="cooldownContainer" inherits="RematchCooldownContainerTemplate"/>
+						</Frames>
+						<Scripts>
+							<PreClick>
+								Rematch.SideBarTreatPreClick(self,button)
+							</PreClick>
+							<OnEnter>
+								Rematch.HealButtonOnEnter(self)
+							</OnEnter>
+							<OnLeave>
+								Rematch.HealButtonOnLeave(self)
+							</OnLeave>
+						</Scripts>
+					</Button>
+					<Button parentKey="treat" parentArray="buttons" inherits="RematchToolbarButtonTemplate,SecureActionButtonTemplate">
+						<Anchors>
+							<Anchor point="BOTTOMLEFT" x="0" y="49"/>
+						</Anchors>
+						<KeyValues>
+							<KeyValue key="defaultIcon" value="Interface\Icons\INV_Misc_Food_65"/>
+							<KeyValue key="stretchy" value="true"/>
+						</KeyValues>
+						<Attributes>
+							<Attribute name="item" value="item:98114"/>
+						</Attributes>
+						<Layers>
+							<Layer level="OVERLAY">
+								<FontString parentKey="count" inherits="SystemFont_Outline_Small">
+									<Anchors>
+										<Anchor point="BOTTOMRIGHT" relativePoint="CENTER" x="12" y="-9"/>
+									</Anchors>
+								</FontString>
+							</Layer>
+						</Layers>
+						<Frames>
+							<Frame parentKey="cooldownContainer" inherits="RematchCooldownContainerTemplate"/>
+						</Frames>
+						<Scripts>
+							<PreClick>
+								Rematch.SideBarTreatPreClick(self,button)
+							</PreClick>
+							<OnEnter>
+								Rematch.HealButtonOnEnter(self)
+							</OnEnter>
+							<OnLeave>
+								Rematch.HealButtonOnLeave(self)
+							</OnLeave>
+						</Scripts>
+					</Button>
+					<Button parentKey="findbattle" parentArray="buttons" inherits="RematchToolbarButtonTemplate">
+						<KeyValues>
+							<KeyValue key="stretchy" value="true"/>
+						</KeyValues>
+						<Anchors>
+							<Anchor point="BOTTOMLEFT" x="0" y="74"/>
+						</Anchors>
+						<Scripts>
+							<OnClick>
+								Rematch.ToolbarFindBattleOnClick(self)
+							</OnClick>
+						</Scripts>
+					</Button>
+				</Frames>
+				<Scripts>
+					<OnShow>
+						-- only need to watch this event while sidebar is up
+						Rematch:RegisterUnitEvent("UNIT_AURA","player")
+						Rematch:ActuallyUpdateSideBarButtons()
+					</OnShow>
+					<OnHide>
+						Rematch:UnregisterEvent("UNIT_AURA")
+					</OnHide>
+				</Scripts>
+			</Frame>
+
+			<!-- vertical resize grip down right side of window to change width -->
+			<Frame parentKey="resizeCollapsedGrip" inherits="RematchResizeGripTemplate" id="2">
+				<Anchors>
+					<Anchor point="TOPLEFT" relativeTo="Rematch" relativePoint="TOPRIGHT" x="-2" y="0"/>
+					<Anchor point="BOTTOMRIGHT" relativeTo="Rematch" relativePoint="BOTTOMRIGHT" x="10" y="0"/>
+				</Anchors>
+				<Layers>
+					<Layer level="BACKGROUND">
+						<!-- the grey background down this vertical grip -->
+						<Texture>
+							<Anchors>
+								<Anchor point="TOPLEFT" x="0" y="-4"/>
+								<Anchor point="BOTTOMRIGHT" x="-4" y="4"/>
+							</Anchors>
+							<Color r="0.1" g="0.1" b="0.1"/>
+						</Texture>
+					</Layer>
+					<Layer level="BORDER">
+						<Texture parentKey="grip">
+							<Anchors>
+								<Anchor point="TOPLEFT" x="3" y="-16"/>
+								<Anchor point="BOTTOMRIGHT" x="-7" y="16"/>
+							</Anchors>
+							<Color r="0.35" g="0.35" b="0.35"/>
+						</Texture>
+						<!-- topright corner of border -->
+						<Texture parentKey="top" file="Interface\Tooltips\UI-Tooltip-Border">
+							<Size x="16" y="16"/>
+							<Anchors>
+								<Anchor point="TOPRIGHT"/>
+							</Anchors>
+							<Color r="0.5" g="0.42" b="0"/>
+							<TexCoords left="0.625" right="0.75" top="0" bottom="1"/>
+						</Texture>
+						<!-- right border -->
+						<Texture file="Interface\Tooltips\UI-Tooltip-Border">
+							<Size x="16" y="0"/>
+							<Anchors>
+								<Anchor point="TOPRIGHT" x="0" y="-16"/>
+								<Anchor point="BOTTOMRIGHT" x="0" y="16"/>
+							</Anchors>
+							<Color r=".5" g="0.42" b="0"/>
+							<TexCoords left="0.375" right="0.5" top="0" bottom="1"/>
+						</Texture>
+						<!-- bottomright corner of border -->
+						<Texture file="Interface\Tooltips\UI-Tooltip-Border">
+							<Size x="16" y="16"/>
+							<Anchors>
+								<Anchor point="BOTTOMRIGHT"/>
+							</Anchors>
+							<Color r="0.5" g="0.41" b="0"/>
+							<TexCoords left="0.875" right="1" top="0" bottom="1"/>
+						</Texture>
+					</Layer>
+				</Layers>
+			</Frame>
+
+			<Frame parentKey="drawer" name="RematchDrawer">
 				<Layers>
 					<Layer level="BACKGROUND" textureSubLevel="-1">
 						<Texture file="Interface\FrameGeneral\UI-Background-Rock" horizTile="true" vertTile="true" setAllPoints="true"/>
@@ -207,93 +471,145 @@
 							<TexCoords left="1" right="0" top="0" bottom="1"/>
 						</Texture>
 					</Layer>
-					<Layer level="BORDER">
+					<Layer level="OVERLAY">
 						<!-- separator below current pets -->
 						<Texture parentKey="separator" file="Interface\PetBattles\_PetJournalHorizTile" tile="horiz">
-							<Size x="290" y="6"/>
+							<Size x="0" y="6"/>
 							<TexCoords left="0" right="1" top="0.0078125" bottom="0.078125"/>
 						</Texture>
 					</Layer>
 				</Layers>
 				<Frames>
-					<Frame parentKey="resizeGrip" frameStrata="LOW">
-						<Size x="298" y="12"/>
+					<!-- horizontal resize grip across bottom to change height -->
+					<Frame parentKey="resizeHeightGrip" inherits="RematchResizeGripTemplate" id="1">
 						<Anchors>
-							<Anchor point="TOP" relativeTo="Rematch" relativePoint="BOTTOM" x="0" y="2"/>
+							<Anchor point="TOPLEFT" relativeTo="Rematch" relativePoint="BOTTOMLEFT" x="16" y="2"/>
+							<Anchor point="BOTTOMRIGHT" relativeTo="Rematch" relativePoint="BOTTOMRIGHT" x="-16" y="-10"/>
 						</Anchors>
 						<Layers>
-							<Layer level="BORDER">
-								<Texture parentKey="left" file="Interface\Tooltips\UI-Tooltip-Border">
-									<Size x="16" y="16"/>
-									<Anchors>
-										<Anchor point="BOTTOMLEFT"/>
-									</Anchors>
-									<Color r="1" g="0.82" b="0"/>
-									<TexCoords left="0.75" right="0.8671875" top="0" bottom="1"/>
-								</Texture>
-								<Texture parentKey="right" file="Interface\Tooltips\UI-Tooltip-Border">
-									<Size x="16" y="16"/>
-									<Anchors>
-										<Anchor point="BOTTOMRIGHT"/>
-									</Anchors>
-									<Color r="1" g="0.82" b="0"/>
-									<TexCoords left="0.875" right="1" top="0" bottom="1"/>
-								</Texture>
-								<Texture file="Interface\Tooltips\UI-Tooltip-Border">
-									<Size x="0" y="12"/>
-									<Anchors>
-										<Anchor point="BOTTOMLEFT" relativeKey="$parent.left" relativePoint="BOTTOMRIGHT"/>
-										<Anchor point="BOTTOMRIGHT" relativeKey="$parent.right" relativePoint="BOTTOMLEFT"/>
-									</Anchors>
-									<Color r="1" g="0.82" b="0"/>
-									<TexCoords left="0.8125" right="0.9296875" top="0.25" bottom="1"/>
-								</Texture>
-								<Texture parentKey="gripLine1" file="Interface\Tooltips\UI-Tooltip-Border">
-									<Size x="0" y="8"/>
-									<Anchors>
-										<Anchor point="BOTTOMLEFT" x="8" y="4"/>
-										<Anchor point="BOTTOMRIGHT" x="-8" y="4"/>
-									</Anchors>
-									<Color r=".75" g=".75" b=".75"/>
-									<TexCoords left="0.8125" right="0.9296875" top="0.25" bottom="1"/>
-								</Texture>
-								<Texture parentKey="gripLine2" file="Interface\Tooltips\UI-Tooltip-Border">
-									<Size x="0" y="8"/>
-									<Anchors>
-										<Anchor point="BOTTOMLEFT" x="8" y="7"/>
-										<Anchor point="BOTTOMRIGHT" x="-8" y="7"/>
-									</Anchors>
-									<Color r=".75" g=".75" b=".75"/>
-									<TexCoords left="0.8125" right="0.9296875" top="0.25" bottom="1"/>
-								</Texture>
-							</Layer>
+							<!-- the grey background across this horizontal grip -->
 							<Layer level="BACKGROUND">
 								<Texture>
 									<Anchors>
-										<Anchor point="TOPLEFT" x="3" y="0"/>
-										<Anchor point="BOTTOMRIGHT" x="-3" y="3"/>
+										<Anchor point="TOPLEFT" x="4" y="0"/>
+										<Anchor point="BOTTOMRIGHT" x="16" y="4"/>
 									</Anchors>
 									<Color r="0.1" g="0.1" b="0.1"/>
 								</Texture>
 							</Layer>
+							<Layer level="BORDER">
+								<!-- bar across grip to highlight -->
+								<Texture parentKey="grip">
+									<Anchors>
+										<Anchor point="TOPLEFT" x="16" y="-3"/>
+										<Anchor point="BOTTOMRIGHT" x="0" y="7"/>
+									</Anchors>
+									<Color r="0.35" g="0.35" b="0.35"/>
+								</Texture>
+								<!-- bottomleft corner border -->
+								<Texture file="Interface\Tooltips\UI-Tooltip-Border">
+									<Size x="16" y="16"/>
+									<Anchors>
+										<Anchor point="BOTTOMLEFT"/>
+									</Anchors>
+									<Color r="0.5" g="0.41" b="0"/>
+									<TexCoords left="0.75" right="0.8671875" top="0" bottom="1"/>
+								</Texture>
+								<!-- bottom border -->
+								<Texture file="Interface\Tooltips\UI-Tooltip-Border">
+									<Size x="0" y="16"/>
+									<Anchors>
+										<Anchor point="BOTTOMLEFT" x="16" y="0"/>
+										<Anchor point="BOTTOMRIGHT" x="10" y="0"/>
+									</Anchors>
+									<Color r="0.5" g="0.41" b="0"/>
+									<TexCoords left="0.8125" right="0.9296875" top="0" bottom="1"/>
+								</Texture>
+							</Layer>
 						</Layers>
-						<Scripts>
-							<OnEnter>
-								Rematch:ResizeGripHighlight()
-							</OnEnter>
-							<OnLeave>
-								Rematch:ResizeGripUnhighlight()
-							</OnLeave>
-							<OnHide>
-								Rematch:ResizeGripUnhighlight()
-							</OnHide>
-							<OnMouseDown>
-								Rematch:FrameStartSizing()
-							</OnMouseDown>
-							<OnMouseUp>
-								Rematch:FrameStopSizing()
-							</OnMouseUp>
-						</Scripts>
+					</Frame>
+					<!-- vertical resize grip down right side of window to change width -->
+					<Frame parentKey="resizeWidthGrip" inherits="RematchResizeGripTemplate" id="2">
+						<Anchors>
+							<Anchor point="TOPLEFT" relativeTo="Rematch" relativePoint="TOPRIGHT" x="-2" y="-16"/>
+							<Anchor point="BOTTOMRIGHT" relativeTo="Rematch" relativePoint="BOTTOMRIGHT" x="10" y="16"/>
+						</Anchors>
+						<Layers>
+							<Layer level="BACKGROUND">
+								<!-- the grey background down this vertical grip -->
+								<Texture>
+									<Anchors>
+										<Anchor point="TOPLEFT" x="0" y="-4"/>
+										<Anchor point="BOTTOMRIGHT" x="-4" y="-16"/>
+									</Anchors>
+									<Color r="0.1" g="0.1" b="0.1"/>
+								</Texture>
+							</Layer>
+							<Layer level="BORDER">
+								<Texture parentKey="grip">
+									<Anchors>
+										<Anchor point="TOPLEFT" x="3" y="-16"/>
+										<Anchor point="BOTTOMRIGHT" x="-7" y="0"/>
+									</Anchors>
+									<Color r="0.35" g="0.35" b="0.35"/>
+								</Texture>
+								<!-- topright corner of border -->
+								<Texture parentKey="top" file="Interface\Tooltips\UI-Tooltip-Border">
+									<Size x="16" y="16"/>
+									<Anchors>
+										<Anchor point="TOPRIGHT"/>
+									</Anchors>
+									<Color r="0.5" g="0.42" b="0"/>
+									<TexCoords left="0.625" right="0.75" top="0" bottom="1"/>
+								</Texture>
+								<!-- right border -->
+								<Texture file="Interface\Tooltips\UI-Tooltip-Border">
+									<Size x="16" y="0"/>
+									<Anchors>
+										<Anchor point="TOPRIGHT" x="0" y="-16"/>
+										<Anchor point="BOTTOMRIGHT" x="0" y="-10"/>
+									</Anchors>
+									<Color r=".5" g="0.42" b="0"/>
+									<TexCoords left="0.375" right="0.5" top="0" bottom="1"/>
+								</Texture>
+							</Layer>
+						</Layers>
+					</Frame>
+					<!-- corner resize grip to resize both width and height at same time -->
+					<Frame parentKey="resizeAllGrip" inherits="RematchResizeGripTemplate" id="3">
+						<Size x="32" y="32"/>
+						<Anchors>
+							<Anchor point="BOTTOMRIGHT" relativeTo="Rematch" relativePoint="BOTTOMRIGHT" x="10" y="-10"/>
+						</Anchors>
+						<Layers>
+							<Layer level="BACKGROUND">
+								<!-- the grey background behind this corner grip -->
+								<Texture parentKey="back">
+									<Anchors>
+										<Anchor point="TOPLEFT" relativePoint="CENTER"/>
+										<Anchor point="BOTTOMRIGHT" x="-4" y="4"/>
+									</Anchors>
+									<Color r=".1" g=".1" b=".1"/>
+								</Texture>
+							</Layer>
+							<Layer level="BORDER">
+								<Texture parentKey="grip" file="Interface\ChatFrame\UI-ChatIM-SizeGrabber-Up" alpha="0.5">
+									<Size x="12" y="12"/>
+									<Anchors>
+										<Anchor point="BOTTOMRIGHT" x="-5" y="5"/>
+									</Anchors>
+								</Texture>
+								<!-- bottomright corner of border -->
+								<Texture file="Interface\Tooltips\UI-Tooltip-Border">
+									<Size x="16" y="16"/>
+									<Anchors>
+										<Anchor point="BOTTOMRIGHT"/>
+									</Anchors>
+									<Color r="0.5" g="0.41" b="0"/>
+									<TexCoords left="0.875" right="1" top="0" bottom="1"/>
+								</Texture>
+							</Layer>
+						</Layers>
 					</Frame>
 				</Frames>
 				<Scripts>
@@ -317,6 +633,9 @@
 			<OnHide>
 				Rematch.OnHide(self)
 			</OnHide>
+			<OnSizeChanged>
+				Rematch.OnSizeChanged(self)
+			</OnSizeChanged>
 		</Scripts>
 	</Frame>
 

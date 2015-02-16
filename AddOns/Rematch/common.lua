@@ -15,6 +15,7 @@ BINDING_NAME_REMATCH_WINDOW = L["Toggle Window"]
 BINDING_NAME_REMATCH_AUTOLOAD = L["Toggle Auto Load"]
 BINDING_NAME_REMATCH_PETS = L["Toggle Pets"]
 BINDING_NAME_REMATCH_TEAMS = L["Toggle Teams"]
+BINDING_NAME_REMATCH_TOGGLENOTES = L["Toggle Notes"]
 
 function rematch:InitCommon()
 	RematchSettings = RematchSettings or {}
@@ -173,7 +174,10 @@ end
 
 function rematch.events.PET_BATTLE_OPENING_START()
 	if settings.ShowNotesInBattle and settings.loadedTeamName and RematchSaved[settings.loadedTeamName] and RematchSaved[settings.loadedTeamName][6] then
-		rematch:ShowNotesCard(settings.loadedTeamName,true)
+		if not settings.ShowNotesOnce or rematch.lastNotedTeam~=settings.loadedTeamName then
+			rematch:ShowNotesCard(settings.loadedTeamName,true)
+			rematch.lastNotedTeam = settings.loadedTeamName
+		end
 	end
 	if not settings.StayForBattle then
 		rematch.resummonWindow = rematch:IsVisible()
@@ -211,7 +215,7 @@ function rematch.events.PET_BATTLE_QUEUE_STATUS()
 end
 
 function rematch:UpdatePVPStatus()
-	local button = rematch.toolbar.buttons[4]
+	local button = rematch.sidebar.findbattle
 	local oldIcon = button.icon:GetTexture()
 	local queued = C_PetBattles.GetPVPMatchmakingInfo()
 	button.tooltipTitle = queued and LEAVE_QUEUE or FIND_BATTLE
@@ -292,6 +296,14 @@ function rematch:AbilityOnClick()
 	end
 end
 
+function rematch:AbilityOnDoubleClick()
+	if self.abilityID then
+		rematch:HideDialogs()
+		RematchSettings.DrawerMode="PETS"
+		rematch.roster:SetSimilarFilter(nil,self.abilityID)
+	end
+end
+
 --[[ ListTemplate script handlers ]]
 
 function rematch:ListScrollToTop(frame)
@@ -347,10 +359,30 @@ function rematch:ListOnLoad()
 end
 
 function rematch:ListOnSizeChanged()
+	local scrollFrame = self.scrollFrame
 	-- stepSize moved to the update functions
-	rematch:StartTimer(self.scrollFrame:GetName(),0.1,self.scrollFrame.update)
+	-- do an immediate width adjustment on buttons
+	C_Timer.After(0,function() rematch:ListResizeButtons(scrollFrame) end)
+	rematch:StartTimer(scrollFrame:GetName(),0.1,scrollFrame.update)
 end
 
+function rematch:ListResizeButtons(scrollFrame)
+	local width = scrollFrame:GetWidth()
+	for i=1,#scrollFrame.buttons do
+		scrollFrame.buttons[i]:SetWidth(width-17)
+	end
+	-- if resizing browser, then also reposition typebar buttons
+	if scrollFrame==rematch.drawer.browser.list.scrollFrame then
+		rematch:TypeBarResize() -- in browser.lua
+	end
+	-- if resizing options, also extend hitrectinset of checkbuttons and name fontstring width
+	if scrollFrame==rematch.drawer.options.list.scrollFrame then
+		for i=1,#scrollFrame.buttons do
+			scrollFrame.buttons[i].check:SetHitRectInsets(-24,-width+50,0,0)
+			scrollFrame.buttons[i].name:SetWidth(width-49) -- -17-32 (scrollbar+checkbutton+spacing)
+		end
+	end
+end
 
 --[[ Other template script handlers ]]
 
@@ -378,7 +410,8 @@ end
 
 function rematch:ToolbarButtonOnEnter()
 	if self.tooltipTitle then
-		rematch:ShowTooltip(self.tooltipTitle,self.tooltipBody)
+		local title = _G[self.tooltipTitle] or L[self.tooltipTitle]
+		rematch:ShowTooltip(title,self.tooltipBody)
 		RematchTooltip:ClearAllPoints()
 		RematchTooltip:SetPoint("BOTTOM",self,"TOP",0,-2)
 	end
@@ -742,7 +775,7 @@ function rematch:GetBreed(petID)
 	if source=="BattlePetBreedID" then
 		return GetBreedID_Journal(petID) or ""
 	elseif source=="PetTracker_Breeds" then
-		return PetTracker:GetBreedIcon((PetTracker.Journal:GetBreed(petID)),.85)
+		return PetTracker:GetBreedIcon((PetTracker.Journal:GetBreed(petID)),.95)
 	elseif source=="LibPetBreedInfo-1.0" then
 		return rematch.breedLib:GetBreedName(rematch.breedLib:GetBreedByPetID(petID)) or ""
 	end

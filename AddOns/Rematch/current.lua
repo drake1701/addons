@@ -16,6 +16,17 @@ function rematch:InitCurrent()
 	-- there's no event for when loadout pets change (really!) so we hooksecurefunc them
 	hooksecurefunc(C_PetJournal,"SetAbility",rematch.StartPetsChanging)
 	hooksecurefunc(C_PetJournal,"SetPetLoadOutInfo",rematch.StartPetsChanging)
+
+	-- adjust the color of the doodads in the corners
+	for i=1,4 do
+		rematch.current.doodads[i]:SetDesaturated(true)
+		if i<3 then -- top ones are lighter
+			rematch.current.doodads[i]:SetVertexColor(1,.82,0)
+		else -- bottom ones are darker (1,.82,0 divided by 5)
+			rematch.current.doodads[i]:SetVertexColor(.2,.164,0)
+		end
+	end
+
 end
 
 function rematch:CurrentPetOnReceiveDrag()
@@ -270,4 +281,11 @@ function rematch:FillFlyout(petSlot,abilitySlot)
 			button.canUse = nil
 		end
 	end
+end
+
+function rematch:CurrentOnSizeChanged()
+	-- position current pets 1 and 3 roughly equidistant between pet 2 and edge
+	local offset = min((self:GetWidth()/2+34)/2,110) -- don't allow offset to go above 110
+	self.pets[1]:SetPoint("CENTER",self,"CENTER",-offset-14,6)
+	self.pets[3]:SetPoint("CENTER",self,"CENTER",offset-14,6)
 end
