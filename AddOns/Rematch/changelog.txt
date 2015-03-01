@@ -1,3 +1,57 @@
+02/24/2015 version 3.3.6
+- Fix for journal interaction when other addons load the journal during their loading process.
+
+02/24/2015 version 3.3.5
+- Restored Rematch's interaction with default Pet Journal.
+- Importing PetBattleTeam teams will attempt to reconstruct the team as it imports if the petIDs are bad.
+- deDE localization updated by Zreptil at curse.com.
+
+02/24/2015 version 3.3.4
+- New leveling pet preference 'Expected damage taken' adjusts minimum health by the type of damage the leveling pet is expected to endure. For instance: if expecting a dragonkin attack the minimum health of magic pets is increased 50% and the minimum health of undead pets is decreased by 33%.
+- Loaded teams with a leveling preference active will have an icon beside their name in the titlebar at the top of the window.
+- Added 'Leveling Preference' to the right-click menu on the titlebar if a team is loaded with a leveling pet.
+- The Rematch window can now only be moved with the left mouse button.
+- New option 'Show after pet battle' to automatically show the Rematch window when leaving a pet battle.
+- New option group 'Battle Options' includes the above option and a few other pre-existing battle-related options.
+- Slotted pets that are injured have a faint red tint around edges of their icon.
+- Fixed bug where 'Prefer live pets' option was active when 'No Preferences' also active.
+- Fixed bug where choosing a sort in the default journal wouldn't be remembered on next login.
+- Fixed bug causing 'Unload Team' to show up in right-click menu of notes in the team list.
+- deDE localization updated by Zreptil at curse.com.
+- toc updated for 6.1 patch.
+
+02/20/2015 version 3.3.3
+- Actual fix for stack overflow error caused by "Keep current pet on new sort" option - thanks Zreptil!
+
+02/19/2015 version 3.3.2
+- Fix for queue sort by time not "forgetting" pets removed from the queue.
+- Potential fix for a stack overflow error in leveling.lua:832.
+- deDE localization updated by Zreptil at curse.com.
+
+02/18/2015 version 3.3.1
+- The queue behavior is simplified and made less aggressive:
+  - There is no longer an "unsorted" order of pets. When pets are sorted, that's their new order until you move them around or sort them again.
+  - The "keep all but top-most pet sorted" concept is gone, except for 'Keep current pet on new sort' in options.
+  - Sorting pets is a one-time action. You can drag pets around to any order after sorting.
+  - 'Full Sort' is gone and replaced with 'Active Sort'.
+  - The order of pets during an Active Sort can change as they gain xp or get added/removed from the queue.
+  - You cannot rearrange or move pets around while Active Sort is enabled.
+  - When a user manually slots a pet from deeper in the queue, the queue will now leave it alone. Specifically:
+  - Manually slotted pets from the queue will have a silver border (instead of gold) to mark their left-alone status.
+  - When a team is saved or loaded, silver-bordered pets will return to gold-bordered and the queue will resume control of the affected pets/slots.
+- New queue sort order: Time, to sort pets in the order they were added to the queue.
+- 'Find Similar' added to more pet menus.
+- When a team is loaded, right-click on the team name at the top of window to set notes, delete notes or unload the loaded team.
+- Removed sub-option 'Even alerts' under 'Hide tooltip'.
+- Removed option 'Keep sort when emptied'.
+- Moved 'Prefer Live Pets' from queue menu to options panel.
+- Queue pet menu items 'Move To Top' and 'Move To End' no longer dismisses the menu.
+- Start Leveling added back to the queue pet menu.
+- Potential fix for ruRU text on back of pet cards.
+- Fix for lua error when loading an old team with empty slots.
+- Fix for lua error while moveset pet filter enabled.
+- Fix for possible lua error relating to the safari hat.
+- deDE localization updated by Zreptil at curse.com.
 
 02/04/2015 version 3.3.0
 - The Rematch window can now be resized horizontally.

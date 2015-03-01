@@ -291,6 +291,10 @@ Outfitter.Douchebags =
 	{
 		Leyton = true,
 	},
+	["SilverHand"] =
+	{
+		Dainbramaged = true,
+	},
 }
 
 ----------------------------------------
@@ -1395,6 +1399,8 @@ function Outfitter:RegenDisabled(pEvent)
 	if self.OutfitBar then
 		self.OutfitBar:AdjustAlpha()
 	end
+
+	self.OutfitStack:UpdateOutfitDisplay()
 end
 
 function Outfitter:RegenEnabled(pEvent)
@@ -1405,6 +1411,8 @@ function Outfitter:RegenEnabled(pEvent)
 	if self.OutfitBar then
 		self.OutfitBar:AdjustAlpha()
 	end
+
+	self.OutfitStack:UpdateOutfitDisplay()
 end
 
 function Outfitter:PlayerDead(pEvent)
@@ -2105,13 +2113,15 @@ function Outfitter:InitializeOutfitMenu(pFrame, pOutfit)
 			end
 		elseif UIDROPDOWNMENU_MENU_VALUE == "DISPLAY" then
 			self:AddCategoryMenuItem(self.cHelm)
-			self:AddMenuItem(pFrame, self.cDontChange, "IGNOREHELM", pOutfit.ShowHelm == nil, UIDROPDOWNMENU_MENU_LEVEL)
+			self:AddMenuItem(pFrame, self.cDontChange, "IGNOREHELM", pOutfit.ShowHelm == nil and not pOutfit.ShowHelmInCombat, UIDROPDOWNMENU_MENU_LEVEL)
 			self:AddMenuItem(pFrame, self.cShow, "SHOWHELM", pOutfit.ShowHelm == true, UIDROPDOWNMENU_MENU_LEVEL)
+			self:AddMenuItem(pFrame, self.cShowInCombat, "SHOWHELMINCOMBAT", pOutfit.ShowHelmInCombat == true, UIDROPDOWNMENU_MENU_LEVEL)
 			self:AddMenuItem(pFrame, self.cHide, "HIDEHELM", pOutfit.ShowHelm == false, UIDROPDOWNMENU_MENU_LEVEL)
 			
 			self:AddCategoryMenuItem(self.cCloak)
-			self:AddMenuItem(pFrame, self.cDontChange, "IGNORECLOAK", pOutfit.ShowCloak == nil, UIDROPDOWNMENU_MENU_LEVEL)
+			self:AddMenuItem(pFrame, self.cDontChange, "IGNORECLOAK", pOutfit.ShowCloak == nil and not pOutfit.ShowCloakInCombat, UIDROPDOWNMENU_MENU_LEVEL)
 			self:AddMenuItem(pFrame, self.cShow, "SHOWCLOAK", pOutfit.ShowCloak == true, UIDROPDOWNMENU_MENU_LEVEL)
+			self:AddMenuItem(pFrame, self.cShowInCombat, "SHOWCLOAKINCOMBAT", pOutfit.ShowCloakInCombat == true, UIDROPDOWNMENU_MENU_LEVEL)
 			self:AddMenuItem(pFrame, self.cHide, "HIDECLOAK", pOutfit.ShowCloak == false, UIDROPDOWNMENU_MENU_LEVEL)
 			
 			self:AddCategoryMenuItem(self.cPlayerTitle)
@@ -2302,13 +2312,15 @@ function Outfitter:AddOutfitMenu(pMenu, pMenuID, pLevel, pOutfit)
 			end
 		elseif pMenuID == "DISPLAY" then
 			pMenu:AddCategoryItem(self.cHelm)
-			pMenu:AddNormalItem(self.cDontChange, "IGNOREHELM", nil, pOutfit.ShowHelm == nil)
+			pMenu:AddNormalItem(self.cDontChange, "IGNOREHELM", nil, pOutfit.ShowHelm == nil and not pOutfit.ShowHelmInCombat)
 			pMenu:AddNormalItem(self.cShow, "SHOWHELM", nil, pOutfit.ShowHelm == true)
+			pMenu:AddNormalItem(self.cShowInCombat, "SHOWHELMINCOMBAT", nil, pOutfit.ShowHelmInCombat == true)
 			pMenu:AddNormalItem(self.cHide, "HIDEHELM", nil, pOutfit.ShowHelm == false)
 			
 			pMenu:AddCategoryItem(self.cCloak)
-			pMenu:AddNormalItem(self.cDontChange, "IGNORECLOAK", nil, pOutfit.ShowCloak == nil)
+			pMenu:AddNormalItem(self.cDontChange, "IGNORECLOAK", nil, pOutfit.ShowCloak == nil and not pOutfit.ShowCloakInCombat)
 			pMenu:AddNormalItem(self.cShow, "SHOWCLOAK", nil, pOutfit.ShowCloak == true)
+			pMenu:AddNormalItem(self.cShowInCombat, "SHOWCLOAKINCOMBAT", nil, pOutfit.ShowCloakInCombat == true)
 			pMenu:AddNormalItem(self.cHide, "HIDECLOAK", nil, pOutfit.ShowCloak == false)
 			
 			pMenu:AddCategoryItem(self.cPlayerTitle)
@@ -4728,14 +4740,14 @@ function Outfitter:UpdateShapeshiftState()
 	
 	local vActiveForm
 	
-	--self:TestMessage("Outfitter:UpdateShapeshiftState(): %d forms", vNumForms)
+	--self:DebugMessage("Outfitter:UpdateShapeshiftState(): %d forms", vNumForms)
 	for vIndex = 1, vNumForms do
 		local vTexture, vName, vIsActive, vIsCastable = GetShapeshiftFormInfo(vIndex)
 		local _
 		
 		_, _, vTexture = vTexture:find("([^\\]+)$")
 		
-		--self:TestMessage("%d: %s texture = %s (%d) %s", vIndex, vName, vTexture, vTexture:len(), vIsActive and "ACTIVE" or "not active")
+		--self:DebugMessage("%d: %s texture = %s (%d) %s", vIndex, vName, vTexture, vTexture:len(), vIsActive and "ACTIVE" or "not active")
 		
 		local vShapeshiftInfo = self.cShapeshiftTextureInfo[vTexture]
 		
@@ -4785,7 +4797,7 @@ function Outfitter:UpdateShapeshiftInfo(pShapeshiftInfo, pIsActive)
 	
 	--
 	
-	--Outfitter:TestMessage("Outfitter:UpdateShapeshiftInfo(%s, %s)", tostring(pShapeshiftInfo.ID), tostring(pIsActive))
+	--Outfitter:DebugMessage("Outfitter:UpdateShapeshiftInfo(%s, %s)", tostring(pShapeshiftInfo.ID), tostring(pIsActive))
 	--Outfitter:DebugStack()
 	
 	if self.SpecialState[pShapeshiftInfo.ID] == nil then
@@ -6279,36 +6291,56 @@ end
 
 function Outfitter.OutfitMenuActions:SHOWHELM(pOutfit)
 	pOutfit.ShowHelm = true
+	pOutfit.ShowHelmInCombat = nil
+	self.OutfitStack:UpdateOutfitDisplay()
+	self:OutfitSettingsChanged(pOutfit)
+end
+
+function Outfitter.OutfitMenuActions:SHOWHELMINCOMBAT(pOutfit)
+	pOutfit.ShowHelm = nil
+	pOutfit.ShowHelmInCombat = true
 	self.OutfitStack:UpdateOutfitDisplay()
 	self:OutfitSettingsChanged(pOutfit)
 end
 
 function Outfitter.OutfitMenuActions:HIDEHELM(pOutfit)
 	pOutfit.ShowHelm = false
+	pOutfit.ShowHelmInCombat = nil
 	self.OutfitStack:UpdateOutfitDisplay()
 	self:OutfitSettingsChanged(pOutfit)
 end
 
 function Outfitter.OutfitMenuActions:IGNOREHELM(pOutfit)
 	pOutfit.ShowHelm = nil
+	pOutfit.ShowHelmInCombat = nil
 	self.OutfitStack:UpdateOutfitDisplay()
 	self:OutfitSettingsChanged(pOutfit)
 end
 
 function Outfitter.OutfitMenuActions:SHOWCLOAK(pOutfit)
 	pOutfit.ShowCloak = true
+	pOutfit.ShowCloakInCombat = nil
+	self.OutfitStack:UpdateOutfitDisplay()
+	self:OutfitSettingsChanged(pOutfit)
+end
+
+function Outfitter.OutfitMenuActions:SHOWCLOAKINCOMBAT(pOutfit)
+	pOutfit.ShowCloak = nil
+	pOutfit.ShowCloakInCombat = true
 	self.OutfitStack:UpdateOutfitDisplay()
 	self:OutfitSettingsChanged(pOutfit)
 end
 
 function Outfitter.OutfitMenuActions:HIDECLOAK(pOutfit)
 	pOutfit.ShowCloak = false
+	pOutfit.ShowCloakInCombat = nil
 	self.OutfitStack:UpdateOutfitDisplay()
 	self:OutfitSettingsChanged(pOutfit)
 end
 
 function Outfitter.OutfitMenuActions:IGNORECLOAK(pOutfit)
 	pOutfit.ShowCloak = nil
+	pOutfit.ShowCloakInCombat = nil
 	self.OutfitStack:UpdateOutfitDisplay()
 	self:OutfitSettingsChanged(pOutfit)
 end
@@ -6929,247 +6961,9 @@ function Outfitter:WearingOutfit(pOutfit)
 end
 
 function Outfitter:CheckDatabase()
-	local vOutfit
-	
-	if not self.Settings.Version then
-		self.Settings.Version = 1
-	end
-	
-	-- Versions 1 and 2 both simply add class outfits
-	-- so just reinitialize those
-	
-	if self.Settings.Version < 3 then
-		self:InitializeClassOutfits()
-		self.Settings.Version = 3
-	end
-	
-	-- Version 4 sets the BGDisabled flag for the mounted outfit
-	
-	if self.Settings.Version < 4 then
-		local vRidingOutfit = self:GetOutfitByScriptID("Riding")
-		
-		if vRidingOutfit then
-			vRidingOutfit.BGDisabled = true
-		end
-		
-		self.Settings.Version = 4
-	end
-	
-	-- Version 5 adds moonkin form, just reinitialize class outfits
-
-	if self.Settings.Version < 5 then
-		self:InitializeClassOutfits()
-		self.Settings.Version = 5
-	end
-	
-	-- Make sure all outfits have an associated category ID
-	
-	if self.Settings.Outfits then
-		for vCategoryID, vOutfits in pairs(self.Settings.Outfits) do
-			for vIndex, vOutfit in ipairs(vOutfits) do
-				vOutfit.CategoryID = vCategoryID
-			end
-		end
-	end
-	
-	-- Version 6 and 7 adds item sub-code and enchantment codes
-	-- (7 tries to clean up failed updates from 6)
-	
-	if self.Settings.Version < 7 then
-		self.SchedulerLib:ScheduleTask(5, Outfitter.UpdateDatabaseItemCodes, Outfitter)
-		
-		self.Settings.Version = 7
-	end
-	
-	-- Version 8 removes the old style cloak/helm settings
-	
-	if self.Settings.Version < 8 then
-		self.Settings.HideHelm = nil
-		self.Settings.HideCloak = nil
-		self.Settings.Version = 8
-	end
-	
-	-- Version 9 converts old SpecialIDs to ScriptIDs
-	-- and removes the parial and special categories
-	
-	if self.Settings.Version < 9 then
-		local vUpdatedOutfits = {}
-		local vDeletedOutfits = {}
-		
-		local vPreservedOutfits =
-		{
-			Battle = true,
-			Defensive = true,
-			Berserker = true,
-			
-			Bear = true,
-			Cat = true,
-			Aquatic = true,
-			Travel = true,
-			Moonkin = true,
-			Tree = true,
-			Prowl = true,
-			Flight = true,
-
-			Shadowform = true,
-
-			Stealth = true,
-
-			GhostWolf = true,
-
-			Monkey = true,
-			Hawk = true,
-			Cheetah = true,
-			Pack = true,
-			Beast = true,
-			Wild = true,
-			Viper = true,
-			Dragonhawk = true,
-			Feigning = true,
-			
-			Evocate = true,
-			
-			ArgentDawn = true,
-
-			Battleground = true,
-		}
-		
-		for _, vOutfit in ipairs(self.Settings.Outfits.Special) do
-			if vOutfit:IsEmpty()
-			and not vPreservedOutfits[vOutfit.SpecialID] then
-				table.insert(vDeletedOutfits, vOutfit)
-			else
-				vOutfit.ScriptID = vOutfit.SpecialID
-				vOutfit.SpecialID = nil
-				
-				table.insert(vUpdatedOutfits, vOutfit)
-			end
-		end
-		
-		--
-		
-		for _, vOutfit in ipairs(self.Settings.Outfits.Partial) do
-			vOutfit.IsAccessory = nil
-			table.insert(vUpdatedOutfits, vOutfit)
-		end
-		
-		--
-		
-		for _, vOutfit in ipairs(vUpdatedOutfits) do
-			self:OutfitSettingsChanged(vOutfit)
-		end
-		
-		for _, vOutfit in ipairs(vDeletedOutfits) do
-			self:DeleteOutfit(vOutfit)
-		end
-		
-		self.Settings.Outfits.Special = nil
-		self.Settings.Outfits.Partial = nil
-		
-		self.Settings.Version = 9
-	end
-	
-	-- Version 10 eliminates the ScriptEvents field and moves
-	-- it to the source instead
-	
-	if self.Settings.Version < 10 then
-		for vCategoryID, vOutfits in pairs(self.Settings.Outfits) do
-			for vIndex, vOutfit in ipairs(vOutfits) do
-				if vOutfit.Script and vOutfit.ScriptEvents then
-					vOutfit.Script = "-- $EVENTS "..vOutfit.ScriptEvents.."\n"..vOutfit.Script
-				end
-				vOutfit.ScriptEvents = nil
-			end
-		end
-		
-		self.Settings.Version = 10
-	end
-	
-	-- Version 11 prevents scripted outfits from being treated as complete outfits
-	
-	if self.Settings.Version < 11 then
-		self:CheckOutfitCategories()
-		self.Settings.Version = 11
-	end
-	
-	-- Version 12 moves the BGDisabled, AQDisabled and NaxxDisabled flags to
-	-- the script settings for the riding outfiZt
-	
-	if self.Settings.Version < 12 then
-		local vRidingOutfit = self:GetOutfitByScriptID("Riding")
-		
-		if vRidingOutfit then
-			if not vRidingOutfit.ScriptSettings then
-				vRidingOutfit.ScriptSettings = {}
-			end
-			
-			vRidingOutfit.ScriptSettings.DisableAQ40 = vRidingOutfit.AQDisabled
-			vRidingOutfit.ScriptSettings.DisableBG = vRidingOutfit.BGDisabled
-			vRidingOutfit.ScriptSettings.DisableNaxx = vRidingOutfit.NaxxDisabled
-			
-			vRidingOutfit.AQDisabled = nil
-			vRidingOutfit.BGDisabled = nil
-			vRidingOutfit.NaxxDisabled = nil
-		end
-		
-		self.Settings.Version = 12
-	end
-	
-	-- Version 13 adds the LayerIndex table
-	
-	if self.Settings.Version < 13 then
-		self.Settings.LayerIndex = {}
-		self.Settings.Version = 13
-	end
-	
-	-- Version 14 updates all outfits with InvType fields
-	
-	if self.Settings.Version < 14 then
-		self.SchedulerLib:ScheduleTask(5, Outfitter.UpdateInvTypes, Outfitter)
-		
-		self.Settings.Version = 14
-	end
-	
-	-- Version 15 allows scripted outfits to be complete outfits
-	
-	if self.Settings.Version < 15 then
-		self:CheckOutfitCategories()
-		self.Settings.Version = 15
-	end
-	
-	-- Version 16 adds the RecentCompleteOutfits list to the settings
-	
-	if self.Settings.Version < 16 then
-		self.Settings.RecentCompleteOutfits = {}
-		self.Settings.Version = 16
-	end
-	
-	-- Version 17 updates all outfits with SubType fields
-	
-	if self.Settings.Version < 17 then
-		self.SchedulerLib:ScheduleTask(5, Outfitter.UpdateSubTypes, Outfitter)
-		
-		self.Settings.Version = 17
-	end
-	
-	-- Version 18 converts all outfits JewelCode fields to Gem fields
-	
+	-- Just reset if they're running a really old version
 	if self.Settings.Version < 18 then
-		if self.Settings.Outfits then
-			for vCategoryID, vOutfits in pairs(self.Settings.Outfits) do
-				for vIndex, vOutfit in ipairs(vOutfits) do
-					if vOutfit.Items then
-						for vInventorySlot, vItemInfo in pairs(vOutfit.Items) do
-							vItemInfo.Gem1 = vItemInfo.JewelCode1 and Outfitter.cUniqueGemEnchantIDs[vItemInfo.JewelCode1]
-							vItemInfo.Gem2 = vItemInfo.JewelCode2 and Outfitter.cUniqueGemEnchantIDs[vItemInfo.JewelCode2]
-							vItemInfo.Gem3 = vItemInfo.JewelCode3 and Outfitter.cUniqueGemEnchantIDs[vItemInfo.JewelCode3]
-						end
-					end
-				end
-			end
-		end
-		
-		self.Settings.Version = 18
+		self:Reset()
 	end
 	
 	-- Remove ranged slot (WoW patch 5)
@@ -7551,7 +7345,7 @@ function Outfitter:DepositOutfitToVoidStorage(pOutfit, pUniqueItemsOnly)
 	vInventoryCache:ResetIgnoreItemFlags()
 	local vEquipmentChangeList = self:BuildUnequipChangeList(vUnequipOutfit, vInventoryCache)
 	if not vEquipmentChangeList then
-		Outfitter:TestMessage("No items to store")
+		Outfitter:DebugMessage("No items to store")
 		return
 	end
 	
@@ -7569,12 +7363,12 @@ function Outfitter:DepositOutfitToVoidStorage(pOutfit, pUniqueItemsOnly)
 		
 		-- No more slots
 		if not vDepositIndex then
-			Outfitter:TestMessage("No empty void storage slots")
+			Outfitter:DebugMessage("No empty void storage slots")
 			break
 		end
 		
 		-- Move the item
-		Outfitter:TestMessage("Moving item to deposit slot %s", tostring(vDepositIndex))
+		Outfitter:DebugMessage("Moving item to deposit slot %s", tostring(vDepositIndex))
 		self:PickupItemLocation(vEquipmentChange.FromLocation)
 		ClickVoidTransferDepositSlot(vDepositIndex, false)
 		vItemIDByDepositSlot[vDepositIndex] = vEquipmentChange.Item.Code
@@ -8684,7 +8478,7 @@ function Outfitter:SummonCompanionByGUID(pID, pDelay)
 	self.SummonPetID = pID
 	self.DismissPetID = nil
 	if pDelay then
-		Outfitter.SchedulerLib:ScheduleTask(2, self.SynchronizeCompanionState, self)
+		Outfitter.SchedulerLib:ScheduleTask(pDelay or 2, self.SynchronizeCompanionState, self)
 	else
 		self:SynchronizeCompanionState()
 	end
@@ -8714,7 +8508,7 @@ function Outfitter:DismissCompanionByGUID(pID, pDelay)
 	
 	-- Synchronize the state or schedule synchronization if desired
 	if pDelay then
-		Outfitter.SchedulerLib:ScheduleTask(2, self.SynchronizeCompanionState, self)
+		Outfitter.SchedulerLib:ScheduleTask(pDelay or 2, self.SynchronizeCompanionState, self)
 	else
 		self:SynchronizeCompanionState()
 	end

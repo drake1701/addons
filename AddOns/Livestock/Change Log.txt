@@ -1,3 +1,11 @@
+Version 2.3.8
+
+- Fixed Nagrand garrison mounts
+
+Version 2.3.7
+
+- Added support for Chauffeured Mekgineer's Chopper and Chauffeured Mechano-Hog
+
 Version 2.3.6
 
 - Added Aspect of the Cheetah to combat forms

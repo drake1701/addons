@@ -1,6 +1,6 @@
 ClamStacker = LibStub("AceAddon-3.0"):NewAddon("ClamStacker", "AceConsole-3.0", "AceEvent-3.0")
 local L = LibStub("AceLocale-3.0"):GetLocale("ClamStacker", false)
-local version = "1.6.27"
+local version = "1.6.28"
 
 local debugFrame = tekDebug and tekDebug:GetFrame("ClamStacker")
 
@@ -932,6 +932,7 @@ local clamItemIds = Set {
 120323, --Bulging Stacked Card Deck
 120324, --Bursting Stacked Card Deck
 120325, --Overflowing Stacked Card Deck
+122535, --Traveler's Pet Supplies
 }
 
 local openableInStacks = {

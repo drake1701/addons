@@ -147,7 +147,7 @@
 				</Texture>
 				<!-- wood background to abilities -->
 				<Texture parentKey="abilitiesBG" file="Interface\Store\Store-Main">
-					<Size x="192" y="84"/>
+					<Size x="192" y="85"/>
 					<Anchors>
 						<Anchor point="BOTTOMLEFT" x="4" y="4"/>
 					</Anchors>
@@ -788,6 +788,13 @@
 					<Layer level="ARTWORK">
 						<FontString parentKey="description" font="Fonts\skurri.ttf" justifyH="LEFT">
 							<FontHeight val="14"/>
+							<Color r="0" g="0" b="0"/>
+							<Anchors>
+								<Anchor point="TOPLEFT" relativeKey="$parent.lineSourceBG" relativePoint="BOTTOMLEFT" x="12" y="-2"/>
+								<Anchor point="BOTTOMRIGHT" relativeKey="$parent.lineTakenBG" relativePoint="TOPRIGHT" x="-12" y="2"/>
+							</Anchors>
+						</FontString>
+						<FontString parentKey="descriptionAlt" inherits="SystemFont_Med1" justifyH="LEFT" hidden="true">
 							<Color r="0" g="0" b="0"/>
 							<Anchors>
 								<Anchor point="TOPLEFT" relativeKey="$parent.lineSourceBG" relativePoint="BOTTOMLEFT" x="12" y="-2"/>

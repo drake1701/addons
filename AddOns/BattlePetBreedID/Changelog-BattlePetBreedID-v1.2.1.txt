@@ -1,8 +1,0 @@
-2014-12-29  MMOSimca  <MMOSimca@gmail.com>
-
-[003656e2b295] [v1.2.1]
-* BreedTooltips.lua:
-
-Added collision detection for the tooltip that PetBattleMaster uses.
-
-

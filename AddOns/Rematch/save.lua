@@ -54,6 +54,7 @@ function rematch:ShowSaveDialog(team,fromCurrent)
 		if pets[7] or pets[9] then
 			dialog.showLeveling = true -- if any preferences defined, show panel from start
 		end
+		rematch:PreferencesExpectedUpdate()
 		-- make tab on reused editBox jump to minHP (this is cleared when dialogs are repurposed)
 		dialog.editBox:SetScript("OnTabPressed",function(self)
 			if dialog.levelingPanel:IsVisible() then
@@ -75,7 +76,7 @@ function rematch:ShowSaveDialog(team,fromCurrent)
 			dialog.asThemselves.tooltipTitle = L["Save As Themselves"]
 			dialog.asThemselves.tooltipBody = L["Save pets without turning them into leveling pets.\n\nSo loading this team in the future will load these specific pets and not from the queue."]
 			dialog.asThemselves:SetScript("OnEnter",function(self) rematch.ShowTooltip(self) end)
-			dialog.asThemselves:SetScript("OnLeave",function() RematchTooltip:Hide() end)
+			dialog.asThemselves:SetScript("OnLeave",rematch.HideTooltip)
 			dialog.asThemselves:SetScript("OnClick",rematch.LevelingPanelSaveAsThemselvesOnClick)
 		end
 		dialog.asThemselves:SetChecked(false) -- always default it to off
@@ -151,7 +152,7 @@ function rematch:SaveTeamFromPetFrames(pets)
 	if not team[4] then
 		team[4] = pets[4]
 	end
-	for i=7,9 do -- minHP, allowMM, maxXP
+	for i=7,10 do -- minHP, allowMM, maxXP, expected (MAX_TEAM_FIELDS is 10)
 		if hasLeveling then
 			team[i] = pets[i]
 		else
@@ -163,6 +164,7 @@ function rematch:SaveTeamFromPetFrames(pets)
 	if pets.originalTeamName ~= pets.teamName then
 		team[4] = nil
 	end
+	wipe(settings.ManuallySlotted)
 	if not rematch.dialog.teamNotLoaded then
 		settings.loadedTeamName = pets.teamName
 		settings.loadedNpcID = team[4]
@@ -258,6 +260,7 @@ end
 
 -- when an editbox in levelingPanel text changes, update its value in the
 function rematch:LevelingPanelOnTextChanged()
+	rematch:HideTooltip()
 	local value = self:GetText()
 	local number = tonumber(value)
 	if value:len()==0 or number then
@@ -637,13 +640,14 @@ function rematch:CreateTeamFromCurrent(targetName,targetNpcID,noLeveling)
 	end
 	if saved[teamName] then -- if team already exists,
 		team[4] = team[4] or saved[teamName][4] -- passed targetNpcID takes priority
-		for i=7,9 do -- copy minHP,allowMM and maxXP of saved team (skipping tab and notes)
+		for i=7,10 do -- copy minHP,allowMM,maxXP and expected of saved team (skipping tab and notes) MAX_TEAM_FIELDS is 10
 			team[i] = saved[teamName][i]
 		end
 	end
 	return team
 end
 
+-- checkbox to save pets as themselves
 function rematch:LevelingPanelSaveAsThemselvesOnClick()
 	local dialog = rematch.dialog
 	local teamName = dialog.team.pets.teamName

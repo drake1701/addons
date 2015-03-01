@@ -217,6 +217,7 @@ BINDING_NAME_OUTFITTER_ENABLEAUTOMATION = "Enable automatic changes"
 BINDING_NAME_OUTFITTER_DISABLEAUTOMATION = "Disable automatic changes"
 
 Outfitter.cShow = "Show"
+Outfitter.cShowInCombat = "Show in combat"
 Outfitter.cHide = "Hide"
 Outfitter.cDontChange = "Don't change"
 

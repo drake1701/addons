@@ -10,10 +10,13 @@
 		[7] = minHP, - nil or minimum health preference
 		[8] = allowMM, nil or true to allow low-health magic and mechanical
 		[9] = maxXP, - nil or maximum level preference
+		[10]= expected, -- nil or damage type expected (1-10 pet type)
 	}
 
 	petID of 0 notes a leveling pet.
 ]]
+
+local MAX_TEAM_FIELDS = 10
 
 local _,L = ...
 local rematch = Rematch
@@ -615,7 +618,7 @@ function rematch:FillPetFramesFromTeam(pets,team,teamName)
 	end
 
 	-- copy other info (npcID, notes, etc) to frames' parent table
-	for i=4,9 do
+	for i=4,MAX_TEAM_FIELDS do
 		pets[i] = team[i]
 	end
 	pets.teamName = teamName
@@ -667,7 +670,7 @@ function rematch:RenameAccept()
 	local newTeamName = dialog.editBox:GetText()
 	if newTeamName and saved[oldTeamName] and oldTeamName~=newTeamName then
 		saved[newTeamName] = {}
-		for i=1,9 do
+		for i=1,MAX_TEAM_FIELDS do
 			if i<=3 then
 				saved[newTeamName][i] = {}
 				for j=1,5 do

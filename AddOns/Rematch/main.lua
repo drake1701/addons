@@ -20,11 +20,14 @@ function rematch:InitMain()
 	settings = RematchSettings
 	saved = RematchSaved
 
+	rematch.header.text:SetJustifyH("LEFT")
 	rematch.toolbar.petsTab:SetText(PETS)
 	rematch.toolbar.teamsTab:SetText(L["Teams"])
 	rematch:SetUserPlaced(false)
 	rematch.notesButton:SetFrameLevel(rematch.header:GetFrameLevel()+3)
 	rematch.notesButton:RegisterForClicks("AnyUp")
+	rematch.preferencesButton:SetFrameLevel(rematch.header:GetFrameLevel()+3)
+	rematch.preferencesButton:RegisterForClicks("AnyUp")
 
 	rematch.sidebar.lessertreat:RegisterForClicks("AnyUp")
 	rematch.sidebar.treat:RegisterForClicks("AnyUp")
@@ -124,6 +127,29 @@ function rematch:ToolbarTabOnClick()
 	local mode = self:GetID()==1 and "PETS" or "TEAMS"
 	settings.DrawerMode = settings.DrawerMode~=mode and mode or nil
 	rematch:UpdateWindow()
+end
+
+function rematch:HeaderOnClick(button)
+	if button=="RightButton" and settings.loadedTeamName then
+		rematch:SetMenuSubject(settings.loadedTeamName)
+		rematch:ShowMenu("headerMenu","cursor")
+	end
+end
+
+function rematch:HeaderButtonOnClick(button)
+	if button=="RightButton" and settings.loadedTeamName then
+		-- right-click of both notes and preferences opens the headerMenu
+		rematch:SetMenuSubject(settings.loadedTeamName)
+		rematch:ShowMenu("headerMenu","cursor")
+	elseif self==rematch.preferencesButton then -- preferences button
+		if rematch:IsDialogOpen("EditPreferences") then -- close if it's open
+			rematch:HideDialogs()
+		else -- open preferences dialog if it's not open
+			Rematch.EditPreferences(self,RematchSettings.loadedTeamName)
+		end
+	else -- this is a notes button, do its lock card thing on left click
+		Rematch.LockNotesCard(self,RematchSettings.loadedTeamName,button)
+	end
 end
 
 --[[ targeting ]]
@@ -313,7 +339,7 @@ end
 function rematch:UpdateSafariHat()
 	local hasHat = GetItemCount(92738)>0
 	local spell = GetItemSpell(92738)
-	local wearing = UnitBuff("player",spell)
+	local wearing = spell and UnitBuff("player",spell)
 	local safari = rematch.sidebar.safari
 	safari.icon:SetTexture(wearing and "Interface\\AddOns\\Rematch\\textures\\nosafari" or "Interface\\Icons\\INV_Helm_Cloth_PetSafari_A_01")
 	local vertex = hasHat and 1 or 0.35
@@ -364,8 +390,8 @@ rematch.UpdateSideBarButtons = rematch.events.UNIT_AURA
 --[[ Frame movement ]]
 
 -- from the OnMouseDown
-function rematch:FrameStartMoving()
-	if not settings.LockPosition or IsShiftKeyDown() then
+function rematch:FrameStartMoving(button)
+	if button=="LeftButton" and (not settings.LockPosition or IsShiftKeyDown()) then
 		rematch:HideMenu()
 		rematch.isMoving = true
 		rematch:StartMoving()
@@ -493,19 +519,48 @@ function rematch:UpdateWindow()
 		return
 	end
 
-	local hasNotes = (saved[settings.loadedTeamName] and saved[settings.loadedTeamName][6]) and true
-
-	rematch.notesButton:SetShown(hasNotes)
+	-- sets header text and color
 	if settings.loadedTeamName then
-		rematch.header.text:SetText(format("%s%s",hasNotes and "     " or "",settings.loadedTeamName))
+		rematch.header.text:SetText(settings.loadedTeamName)
+		RematchDraggableHeader:GetHighlightTexture():SetAlpha(1)
 	else
 		rematch.header.text:SetText(L["Current Battle Pets"])
+		RematchDraggableHeader:GetHighlightTexture():SetAlpha(0) -- hide highlight if no team loaded
 	end
 	if settings.loadedNpcID then
 		rematch.header.text:SetTextColor(1,1,1)
 	else
 		rematch.header.text:SetTextColor(1,.82,0)
 	end
+
+	local team = saved[settings.loadedTeamName]
+
+	-- add notes and preferences buttons to header buttonFrame if needed
+	local buttonFrame = rematch.header.buttonFrame
+	buttonFrame:ClearAllPoints()
+	local team = saved[settings.loadedTeamName]
+	local hasNotes = (team and team[6]) and true
+	local hasPreferences = (team and (team[7] or team[9]) and not settings.QueueNoPreferences) and true
+	local width = 0 -- width of buttonFrame that extends beyond right of text
+	if hasNotes or hasPreferences then
+		width = (hasNotes and hasPreferences) and 39 or 18
+		buttonFrame:SetPoint("LEFT",rematch.header.text,"RIGHT")
+		buttonFrame:SetWidth(width)
+		buttonFrame:Show()
+		if hasNotes then
+			rematch.notesButton:SetPoint("RIGHT",buttonFrame,"RIGHT",8,0)
+		end
+		if hasPreferences then
+			rematch.preferencesButton:SetPoint("RIGHT",buttonFrame,"RIGHT",hasNotes and -13 or 8,0)
+		end
+	else
+		buttonFrame:SetPoint("RIGHT",rematch.header.text,"RIGHT")
+		buttonFrame:Hide()
+	end
+	rematch.notesButton:SetShown(hasNotes)
+	rematch.preferencesButton:SetShown(hasPreferences)
+
+	rematch.header:SetPoint("CENTER",rematch,"TOP",-width/2,-3) -- nudge header back to center
 
 	rematch:HideFloatingPetCard(true)
 
@@ -580,7 +635,7 @@ function rematch:UpdateWindow()
 	rematch.drawer.resizeAllGrip:SetShown(not settings.LockHeight)
 	rematch.resizeCollapsedGrip:SetShown(not drawerOpen and not settings.LockHeight)
 
-	rematch:SetToolbarButtonEnabled(toolbar.reload,(settings.loadedTeamName and saved[settings.loadedTeamName]) and true)
+	rematch:SetToolbarButtonEnabled(toolbar.reload,team and true)
 
 	rematch:UpdatePetHealButton()
 	rematch:UpdateBandageButton()
@@ -592,7 +647,6 @@ function rematch:UpdateWindow()
 	local showSideBar = settings.ShowSideBar and true
 	rematch.sidebar:SetShown(showSideBar)
 	rematch.current:SetPoint("TOPLEFT",rematch.sidebar,showSideBar and "TOPRIGHT" or "TOPLEFT")
---	rematch.toolbar.toggle.icon:SetTexCoord(showSideBar and 0.925 or 0.075,showSideBar and 0.075 or 0.925,0.075,0.925)
 
 	rematch:OnSizeChanged() -- adjust width of stretchyButtons
 end

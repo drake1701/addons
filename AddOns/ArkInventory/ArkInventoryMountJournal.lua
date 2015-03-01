@@ -380,4 +380,5 @@ end
 
 -- runtime
 MountJournal:HookScript( "OnHide", ArkInventory.MountJournal.OnHide )
+--CollectionsJournal:HookScript( "OnHide", ArkInventory.MountJournal.OnHide )
 --ArkInventory.MountJournal.FilterActionBackup( )

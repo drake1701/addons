@@ -245,6 +245,12 @@ GTFO.SpellID["176871"] = {
 	sound = 1;
 };
 
+GTFO.SpellID["167687"] = {
+	--desc = "Solar Breath (Rukhmar)";
+	sound = 1;
+	tankSound = 0;
+};
+
 --TODO: Acid Breath (Drov the Ruiner) - avoidable?
 
 -- **************
@@ -762,7 +768,6 @@ GTFO.SpellID["162663"] = {
 GTFO.SpellID["154989"] = {
 	--desc = "Inferno Breath (Beastlord Darmac)";
 	sound = 1;
-	tankSound = 0; -- Avoidable by tank?
 	applicationOnly = true;
 };
 
@@ -785,6 +790,11 @@ GTFO.SpellID["155499"] = {
 
 GTFO.SpellID["156823"] = {
 	--desc = "Superheated Scrap (Beastlord Darmac)";
+	sound = 1;
+};
+
+GTFO.SpellID["155657"] = {
+	--desc = "Flame Infusion (Pack Beast)";
 	sound = 1;
 };
 

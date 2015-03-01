@@ -1,4 +1,4 @@
-## Interface: 60000
+## Interface: 60100
 ## Title: Worgen Auto Transform
 ## Notes: Automatically transforms you into your human form after combat.
 ## SavedVariables: EAutoTransformDB

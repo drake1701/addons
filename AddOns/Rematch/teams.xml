@@ -111,7 +111,7 @@
 						Rematch.PreferencesOnEnter(self) -- defined in leveling.lua
 					</OnEnter>
 					<OnLeave>
-						RematchTooltip:Hide()
+						Rematch.HideTooltip(self)
 					</OnLeave>
 					<OnClick>
 						Rematch.EditPreferences(self)

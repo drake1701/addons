@@ -1,4 +1,4 @@
-## Interface: 60000
+## Interface: 60100
 ## Title: MogIt: SetTransmog
 ## Version: 1.3.2
 ## Notes: Transmogrify full MogIt wishlist sets in one go.

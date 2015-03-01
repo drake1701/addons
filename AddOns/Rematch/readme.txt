@@ -103,9 +103,8 @@ In addition to the gold-bordered leveling slot, there is a leveling queue beneat
 - If a team is saved with more than one leveling pet, the top-most pets will be loaded for those slots.
 
 From the gear button to the right of the leveling slot you can:
-- Sort the queue by level: Ascending (level 1 to 25), Median (closest to level 10.5), Descending (25 to 1) or Type (Humanoid then Dragonkin etc).
-- While the queue is sorted, all pets except the top-most pet are sorted. This allows sorting the queue and still keeping an active leveling pet at the top you're working on.
-- If Full Sort is enabled, then even the top pet is included in the sort and it can change as pets gain xp or get added to the queue.
+- Sort the queue by level: Ascending (level 1 to 25), Median (closest to level 10.5), Descending (25 to 1), Type (Humanoid then Dragonkin etc), or Time (earliest pets added to the queue to latest).
+- If Active Sort is enabled, then the pets are kept sorted and they can change position as pets gain xp or get added to the queue.
 - You can also fill the queue from pets in the browser. For instance, search "21-24", filter for Rare and hit Fill Queue to add 21-24 rare pets to the leveling queue.
 - Empty the queue. It will ask for confirmation before clearing the queue.
 

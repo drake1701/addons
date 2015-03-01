@@ -662,6 +662,12 @@ GTFO.SpellID["155187"] = {
 	ignoreSelfInflicted = true;
 };
 
+GTFO.SpellID["162672"] = {
+	--desc = "Goring Swipe (Ornery Ironhoof)";
+	sound = 3;
+	tankSound = 0;
+};
+
 -- Beastlord Darmac
 -- TODO: Cannonball Barrage - avoidable?
 -- TODO: Heavy Smash - non-tank fail

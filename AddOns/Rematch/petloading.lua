@@ -122,7 +122,7 @@ function rematch:LoadTeam(teamName)
 			loadin[i][1] = levelingPick
 			levelingPickIndex = levelingPickIndex + 1
 		elseif type(petID)=="string" then
-			if not C_PetJournal.PetIsRevoked(petID) then
+			if petID~=rematch.emptyPetID and not C_PetJournal.PetIsRevoked(petID) then
 				loadin[i][1] = petID
 				for j=1,3 do
 					local abilityID = team[i][j+1]
@@ -265,6 +265,8 @@ function rematch:LoadingDone(unsuccessful)
 			rematch:ShowMissingDialog(settings.loadedTeamName)
 		end
 	end
+
+	wipe(settings.ManuallySlotted)
 
 	rematch:ProcessQueue() -- team change may mean leveling pet preferences changed
 

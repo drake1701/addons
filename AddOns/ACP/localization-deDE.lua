@@ -63,7 +63,7 @@ if (GetLocale() == "deDE") then
 	["Reload your User Interface?"] = "Interface neu laden?",
 	["Remove from current selection"] = "Aus der aktuellen Auswahl entfernen",
 	Rename = "Umbenennen",
-	-- ["Resurse-ToolTip"] = "",
+	["Resurse-ToolTip"] = "Wenn ein Addon aktiviert wird, versuche die dazugehörigen Addons ebenfalls zu aktivieren.",
 	Save = "Speichern",
 	["Save the current addon list to [%s]?"] = "Die aktuelle Addonliste als [%s] speichern?",
 	["Set "] = "Set",

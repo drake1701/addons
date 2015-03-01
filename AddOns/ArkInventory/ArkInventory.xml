@@ -2015,6 +2015,8 @@
 	
 	<Frame name="ARKINV_Frame14" inherits="ARKINV_TemplateFrameMain" id="14" /> <!-- toybox -->
 	
+	<Frame name="ARKINV_Frame15" inherits="ARKINV_TemplateFrameMain" id="15" /> <!-- heirloom -->
+	
 <!-- END OF ADD ON FRAME -->
 	
 	<GameTooltip name="ARKINV_ScanTooltip" inherits="ArkScanTooltipTemplate" />

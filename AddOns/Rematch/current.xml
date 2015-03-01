@@ -50,9 +50,29 @@
 
 	<Button name="RematchCurrentPetTemplate" inherits="RematchActivePetSlotTemplate" virtual="true">
 		<Size x="48" y="48"/>
+		<Animations>
+			<!-- playing this makes the dead red X texture pulse slightly -->
+			<AnimationGroup parentKey="deadPulse" looping="REPEAT">
+				<Scale childKey="dead" scaleX="1.1" scaleY="1.1" duration="0.5" smoothing="IN_OUT" order="1"/>
+				<Scale childKey="dead" scaleX="0.9" scaleY="0.9" duration="0.5" smoothing="IN_OUT" order="2"/>
+			</AnimationGroup>
+		</Animations>
+		<Layers>
+			<Layer level="ARTWORK">
+				<!-- red tint around edge of icon for when pet is injured -->
+				<Texture parentKey="blood" file="Interface\ContainerFrame\Bags">
+					<Anchors>
+						<Anchor point="TOPLEFT" relativeKey="$parent.icon"/>
+						<Anchor point="BOTTOMRIGHT" relativeKey="$parent.icon"/>
+					</Anchors>
+					<TexCoords left="0.55078125" right="0.68359375" top="0.6640625" bottom="0.9296875"/>
+					<Color r="1" g="0" b="0" a="0.75"/>
+				</Texture>
+			</Layer>
+		</Layers>
 		<Frames>
 			<!-- bars frame contains the health and xp bars -->
-			<Frame parentKey="bars" useParentLevel="true" inherits="RematchDragTemplate">
+			<Frame parentKey="bars" useParentLevel="true" inherits="RematchDragTemplate" hidden="true">
 				<Size x="43" y="24"/>
 				<Anchors>
 					<Anchor point="TOPLEFT" relativePoint="BOTTOMLEFT"/>

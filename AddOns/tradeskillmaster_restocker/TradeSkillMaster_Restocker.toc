@@ -1,4 +1,4 @@
-## Interface: 60000
+## Interface: 60100
 ## Title: |cff00ff00TradeSkillMaster_Restocker|r
 ## Notes: Adds a restocking UI to TSM to allow you to quickly monitor inventory of specified items.
 ## Author: ShaddamV

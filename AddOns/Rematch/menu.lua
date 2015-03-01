@@ -202,7 +202,7 @@ function rematch:ShowMenu(name,anchorPoint,relativeTo,relativePoint,anchorXoff,a
 			end
 
 			-- show/set checkboxes and radio buttons
-			if item.check or item.radio then
+			if menu:GetValue(item,item.check) or menu:GetValue(item,item.radio) then
 				button.check:SetPoint("LEFT",padding,1)
 				padding = padding + 18
 				button.isChecked = menu:GetValue(item,item.value)

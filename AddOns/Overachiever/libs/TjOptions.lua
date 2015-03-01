@@ -10,7 +10,7 @@
 --  See TjOptions.txt for documentation.
 --
 
-local THIS_VERSION = 0.43
+local THIS_VERSION = 0.44
 
 if (not TjOptions or TjOptions.Version < THIS_VERSION) then
   TjOptions = TjOptions or {};
@@ -671,6 +671,7 @@ if (not TjOptions or TjOptions.Version < THIS_VERSION) then
     panel.LoadVariables = LoadVariables
     panel.IsChangeInProgress = IsChangeInProgress
     panel:SetScript("OnShow", funcOnShow)
+	panel:Hide() -- Need this or OnShow won't trigger when we expect it to the first time since it's actually already "shown"
     if (parent and Panels[parent] and (isDefaultInGroup or not Panels[parent].TjOpt_panel)) then
       Panels[parent].TjOpt_panel = panel;
     end
@@ -700,6 +701,7 @@ if (not TjOptions or TjOptions.Version < THIS_VERSION) then
     panel.SetSound = SetSound
     panel:SetSound(sound)
     panel:SetScript("OnShow", OpenGroup)
+	panel:Hide() -- Need this or OnShow won't trigger when we expect it to the first time since it's actually already "shown"
     if (parent and Panels[parent] and (isDefaultInGroup or not Panels[parent].TjOpt_panel)) then
       Panels[parent].TjOpt_panel = panel;
     end

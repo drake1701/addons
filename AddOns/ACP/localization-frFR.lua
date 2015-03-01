@@ -7,7 +7,7 @@ if (GetLocale() == "frFR") then
 
 {
 	["ACP: Some protected addons aren't loaded. Reload now?"] = "ACP: Certains addons ne sont pas chargés. Recharger maintenant?",
-	["Active Embeds"] = "Intégrés actifs", -- Needs review
+	["Active Embeds"] = "Intégrés actifs",
 	AddOns = "Addons",
 	["Addon <%s> not valid"] = "Addon <%s> invalide",
 	["Addons [%s] Loaded."] = "Addons [%s] chargés.",
@@ -59,12 +59,12 @@ if (GetLocale() == "frFR") then
 	["Recursive Enable is now %s"] = "L'activation récursive est maintenant %s",
 	Reload = "Rechargement",
 	ReloadUI = "Recharger",
-	["Reload your User Interface?"] = "Recharger l'interface utilisateur?",
+	["Reload your User Interface?"] = "Recharger l'interface utilisateur ?",
 	["Remove from current selection"] = "Enlever de la sélection courante",
 	Rename = "Renommer ",
-	["Resurse-ToolTip"] = "À l'activation d'un addon, tenter d'activer tout autres addons dont il dépend.", -- Needs review
+	["Resurse-ToolTip"] = "À l'activation d'un addon, essayer d'activer tout autre addon dont il dépend.",
 	Save = "Sauver ",
-	["Save the current addon list to [%s]?"] = "Sauver la liste actuelle dans [%s]?",
+	["Save the current addon list to [%s]?"] = "Sauver la liste actuelle dans [%s] ?",
 	["Set "] = "Set ",
 	Sets = "Sets",
 	Status = "Statut",

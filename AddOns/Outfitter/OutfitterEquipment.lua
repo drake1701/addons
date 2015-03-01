@@ -1296,10 +1296,18 @@ function Outfitter.OutfitStack:UpdateOutfitDisplay()
 			vShowHelm = vOutfit.ShowHelm
 		end
 		
+		if vOutfit.ShowHelmInCombat then
+			vShowHelm = Outfitter.InCombat or false
+		end
+
 		if vOutfit.ShowCloak ~= nil then
 			vShowCloak = vOutfit.ShowCloak
 		end
 		
+		if vOutfit.ShowCloakInCombat then
+			vShowCloak = Outfitter.InCombat or false
+		end
+
 		if vOutfit.ShowTitleID ~= nil then
 			vShowTitleID = vOutfit.ShowTitleID
 		end

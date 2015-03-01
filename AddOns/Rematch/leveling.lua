@@ -8,11 +8,18 @@ local queue = rematch.drawer.queue
 -- settings.LevelingQueue is the master "unordered" list of petIDs
 
 local levelingQueue -- will be settings.LevelingQueue, with the current leveling pet at top
-local workingQueue = {} -- the live queue, with the current leveling pet at top
 local levelingLoadouts = {} -- indexed 1-3 loadout slots that contain a leveling pet and the petID within
 local topLevelingPicks = {} -- top three leveling pets to load
 local levelingPets = {} -- for faster lookups, this is all leveling pets in the queue indexed by petID
 local skippedLevelingPicks = {} -- picks that we last skipped (indexed by petID)
+
+rematch.sortIcons = {
+	"Interface\\Icons\\misc_arrowlup", -- 1 = ascending
+	"Interface\\Icons\\misc_arrowdown", -- 2 = descending
+	"Interface\\Icons\\Ability_Hunter_FocusedAim", -- 3 = median
+	"Interface\\Icons\\Icon_UpgradeStone_Beast_Uncommon", -- 4 = type
+	"Interface\\Icons\\Spell_Holy_BorrowedTime" -- 5 = time
+}
 
 rematch.levelingIcon = "Interface\\AddOns\\Rematch\\textures\\leveling"
 
@@ -25,8 +32,8 @@ function rematch:InitLeveling()
 	queue.levelingSlot.menu = "levelingSlot"
 	queue.resultsBar.label:SetText(L["Queued:"])
 	queue.filter.icon:SetTexture("Interface\\Icons\\INV_Misc_EngGizmos_30")
-	queue.title.label:SetText(L["Leveling:"])
-	queue.title.sortLabel:SetText(L["Sort:"])
+	queue.title.label:SetText(L["Leveling"])
+	queue.title.sortLabel:SetText(L["Active"])
 
 	-- setup queue list scrollFrame
 	local scrollFrame = queue.list.scrollFrame
@@ -40,13 +47,21 @@ function rematch:InitLeveling()
 	panel.title:SetText(L["Leveling Pet Preferences"])
 	panel.minHPLabel:SetText(L["Minimum Health"])
 	panel.maxXPLabel:SetText(L["Maximum Level"])
-	panel.allowMMLabel:SetText(L["Or any \124TInterface\\PetBattles\\PetIcon-Magical:20:20:0:0:128:256:102:63:129:168\124t & \124TInterface\\PetBattles\\PetIcon-Mechanical:20:20:0:0:128:256:102:63:129:168\124t"])
+	panel.allowMMLabel:SetText(format("%s %s & %s",L["Or any"],rematch:PetTypeAsText(6),rematch:PetTypeAsText(10)))
 	panel.minHP.tooltipTitle = L["Minimum Health"]
 	panel.minHP.tooltipBody = L["This is the minimum health preferred for a leveling pet."]
 	panel.allowMM.tooltipTitle = panel.allowMMLabel:GetText():gsub("20:20","16:16") -- shrink icons from 20x20 to 16x16
 	panel.allowMM.tooltipBody = L["Allow low-health Magic and Mechanical pets to ignore the Minimum Health, since their racials allow them to often survive a hit that would ordinarily kill them."]
 	panel.maxXP.tooltipTitle = L["Maximum Level"]
 	panel.maxXP.tooltipBody = L["This is the maximum level preferred for a leveling pet.\n\nLevels can be partial amounts. Level 23.45 is level 23 with 45% xp towards level 24."]
+	panel.expected.label:SetText(L["Expected damage taken"])
+	for i=1,10 do
+		panel.expected.buttons[i]:SetScript("OnClick",rematch.PreferencesExpectedOnClick)
+		panel.expected.buttons[i]:SetScript("OnEnter",rematch.PreferencesExpectedOnEnter)
+		panel.expected.buttons[i]:SetScript("OnLeave",rematch.HideTooltip)
+		panel.expected.buttons[i].icon:SetTexture("Interface\\Icons\\Icon_PetFamily_"..PET_TYPE_SUFFIX[i])
+		panel.expected.buttons[i]:SetPoint("BOTTOMLEFT",(i-1)*19,0)
+	end
 
 	-- setup levelingCarousel
 	local pets = rematch.dialog.levelingCarousel.carousel.child.pets
@@ -94,7 +109,7 @@ function rematch:PetCanLevel(petID)
 end
 
 function rematch:GetCurrentLevelingPet()
-	return workingQueue[1]
+	return levelingQueue[1]
 end
 
 -- returns the petID of the indexed pick (top 3 pets to load for leveling pets)
@@ -109,18 +124,27 @@ end
 -- takes a petID and returns true if it's a valid candidate for topLevelingPicks
 function rematch:IsPetPickable(petID)
 	local health = C_PetJournal.GetPetStats(petID)
-	if C_PetJournal.PetIsSummonable(petID) or (health and health<1 and not settings.QueueSkipDead) then
+	if C_PetJournal.PetIsSummonable(petID) or (health and health<1 and (not settings.QueueSkipDead or settings.QueueNoPreferences)) then
 		-- passed first test, pet is summonable (or has health and QueueSkipDead not enabled)
 		local team = RematchSaved[settings.loadedTeamName]
 		if team and not settings.QueueNoPreferences then
-			local minHP, allowMM, maxXP = team[7], team[8], team[9]
-			if minHP and health<minHP then
+			local minHP, allowMM, maxXP, expected = team[7], team[8], team[9], team[10]
+			if minHP then
 				local petType = select(10,C_PetJournal.GetPetInfoByPetID(petID))
-				if not ((petType==6 or petType==10) and allowMM) then
-					return false -- if minHP defined, health is less than minHP and allowMM not enabled, failed
+				if team[10] then -- expected damage defined, adjust minHP for expected damage
+					if rematch.hintsOffense[team[10]][1]==petType then
+						minHP = minHP*1.5
+					elseif rematch.hintsOffense[team[10]][2]==petType then
+						minHP = minHP*2/3
+					end
+				end
+				if health<minHP then
+					if not ((petType==6 or petType==10) and allowMM) then
+						return false -- if minHP defined, health is less than minHP and allowMM not enabled, failed
+					end
 				end
 			end
-			if maxXP and levelingPets[petID]%100>maxXP then
+			if maxXP and levelingPets[petID]>maxXP then
 				return false -- if maxXP defined and pet's level.xp is greater, failed
 			end
 		end
@@ -137,8 +161,7 @@ end
 	3) Go through levelingQueue and:
 	  a) remove any pets that can't level (25 or missing)
 	  b) fill levelingPets with valid leveling pets and their level
-	  c) fill workingQueue to be sorted
-	4) Sort workingQueue
+	4) Sort levelingQueue if FullSort and there's a QueueSortOrder
 	5) Fill topLevelingPicks and skippedLevelingPicks
 	6) Go through loadouts and load any topLevelingPicks that aren't loaded
 	7) If top-most leveling pet changes, send a toast (unless noToast true)
@@ -163,7 +186,7 @@ function rematch:ProcessQueue(noToast,outgoingPetID)
 
 	-- if there's an existing queue (possible leveling pet loaded), there's a chance a pet needs loaded, which
 	-- can't happen in combat, battle or pvp.
-	if (InCombatLockdown() or C_PetBattles.IsInBattle() or C_PetBattles.GetPVPMatchmakingInfo()) and #workingQueue>0 then
+	if (InCombatLockdown() or C_PetBattles.IsInBattle() or C_PetBattles.GetPVPMatchmakingInfo()) and #levelingQueue>0 then
 		rematch.queueNeedsProcessed = true -- or we need to swap while in a pet battle
 		return
 	end
@@ -177,54 +200,45 @@ function rematch:ProcessQueue(noToast,outgoingPetID)
 		levelingLoadouts[i] = nil
 		local petID = C_PetJournal.GetPetLoadOutInfo(i)
 		if loadedTeam and loadedTeam[i][1]==petID then
-			-- pets are saved as themselves in this slot, don't replace it
+			-- pets are saved as themselves in this slot, don't replace it (do nothing)
+		elseif settings.ManuallySlotted[petID] then
+			-- pet was manually slotted, leave it alone
 		elseif petID==outgoingPetID then
-			levelingLoadouts[i] = true -- special case for outgoing pet (it's not in queue)
-		else
-			for j=1,#levelingQueue do
-				if petID==levelingQueue[j] then
-					levelingLoadouts[i] = petID
-					break
-				end
-			end
+			-- special case for outgoing pet (it's not in queue) to replace
+			levelingLoadouts[i] = true
+		elseif tContains(levelingQueue,petID) then
+			-- otherwise if pet is in the queue, mark it for replacement
+			-- (need to tContains since new pets can be added to table before this)
+			levelingLoadouts[i] = petID
 		end
 	end
 
 	local oldLevelingPetID = rematch:GetCurrentLevelingPet()
 
 	-- go through levelingQueue and remove pets that are 25, don't exist or are duplicates,
-	-- add the remaining ones to workingQueue and levelingPets (level.xp in latter)
+	-- add the remaining ones to levelingPets (level.xp in latter)
 	wipe(levelingPets)
-	wipe(workingQueue)
 	for i=#levelingQueue,1,-1 do
 		local petID = levelingQueue[i]
 		local canLevel,level = rematch:PetCanLevel(petID)
 		if canLevel and not levelingPets[petID] then
-			table.insert(workingQueue,1,petID)
-			levelingPets[petID] = i*100+level -- xxxyy.yy where xxx is original queue index, yy.yy is pet level
+			levelingPets[petID] = level -- level can be partial (23.5 is level 23 and 50% towards 24)
 		else
-			table.remove(levelingQueue,i)
+			table.remove(levelingQueue,i) -- if pet can't level or already in queue, remove this entry
 		end
 	end
 
-	-- workingQueue sorted here if there's a sort order
-	if settings.QueueSortOrder then
-		if settings.QueueFullSort then -- if FullSort enabled, do a simple full sort
-			table.sort(workingQueue,rematch.WorkingQueueFullSort)
-		elseif oldLevelingPetID and not levelingPets[oldLevelingPetID] then
-			-- if FullSort not enabled, and top-most pet is no longer queued, then the next
-			-- top-most pet should be from the top of a full sort.  First do that full sort:
-			table.sort(workingQueue,rematch.WorkingQueueFullSort)
-			-- now move top-most workingQueue petID to top of levelingQueue also
-			local petID = workingQueue[1]
-			if petID then
-				rematch:RemoveFromQueue(petID)
-				table.insert(levelingQueue,1,petID)
-			end
-		else
-			-- otherwise do a normal sort
-			table.sort(workingQueue,rematch.WorkingQueueSort)
+	-- remove pets that are no longer leveling from timeline
+	local timeline = settings.LevelingTimeline
+	for i=#timeline,1,-1 do
+		if not levelingPets[timeline[i]] then
+			tremove(timeline,i)
 		end
+	end
+
+	-- levelingQueue sorted here if there's a sort order
+	if settings.QueueFullSort and settings.QueueSortOrder then
+		rematch:SortQueue()
 	end
 
 	-- populate topLevelingPicks
@@ -232,8 +246,8 @@ function rematch:ProcessQueue(noToast,outgoingPetID)
 	wipe(topLevelingPicks)
 	wipe(skippedLevelingPicks)
 	-- pick out preferred pets first and save which pets are skipped
-	for i=1,#workingQueue do
-		local petID = workingQueue[i]
+	for i=1,#levelingQueue do
+		local petID = levelingQueue[i]
 		if rematch:IsPetPickable(petID) then
 			if pickIndex<=3 then
 				topLevelingPicks[pickIndex] = petID
@@ -244,10 +258,10 @@ function rematch:ProcessQueue(noToast,outgoingPetID)
 		end
 	end
 	-- if top 3 picks not made, get top-most that aren't already picked
-	for i=1,#workingQueue do
+	for i=1,#levelingQueue do
 		if pickIndex <= 3 then
-			if not tContains(topLevelingPicks,workingQueue[i]) then
-				topLevelingPicks[pickIndex] = workingQueue[i]
+			if not tContains(topLevelingPicks,levelingQueue[i]) then
+				topLevelingPicks[pickIndex] = levelingQueue[i]
 				pickIndex = pickIndex + 1
 			end
 		else
@@ -285,30 +299,61 @@ function rematch:ProcessQueue(noToast,outgoingPetID)
 
 end
 
--- this does a full sort between e1 and e2
-function rematch.WorkingQueueFullSort(e1,e2)
+-- sorts the queue based on current settings
+function rematch:SortQueue()
+	local petID = rematch:GetCurrentLevelingPet()
+	if settings.QueueSortOrder==5 then -- sort by time
+		local timeline = settings.LevelingTimeline
+		-- copy timeline to levelingQueue
+		if #timeline==#levelingQueue then
+			for i=1,#timeline do
+				levelingQueue[i] = timeline[i]
+			end
+		end
+	else -- sort orders 1-4 do the sort by level
+		table.sort(settings.LevelingQueue,rematch.LevelingQueueSort)
+	end
+	if settings.KeepCurrentOnSort and petID then
+		rematch:RemoveFromQueue(petID)
+		rematch:InsertIntoLevelingQueue(petID,1) -- move old leveling pet back to top if KeepCurrentOnSort enabled
+	end
+end
+
+-- This does a full sort between e1 and e2 (petIDs)
+-- Levels sort by level, then name, then petID.
+-- Type sorts by type, then ascending level, then name, then petID.
+function rematch.LevelingQueueSort(e1,e2)
 	local order = settings.QueueSortOrder
 
+	local name1, name2, type1, type2
+
 	if order==4 then -- for type sort
-		local petType1 = select(10,C_PetJournal.GetPetInfoByPetID(e1))
-		local petType2 = select(10,C_PetJournal.GetPetInfoByPetID(e2))
-		if petType1 < petType2 then
+		name1,_,type1 = select(8,C_PetJournal.GetPetInfoByPetID(e1))
+		name2,_,type2 = select(8,C_PetJournal.GetPetInfoByPetID(e2))
+		if type1 < type2 then
 			return true
-		elseif petType1 > petType2 then
+		elseif type1 > type2 then
 			return false
 		end
 		-- if petType1 == petType2, continue to sort by level
 	end
 
-	local hash = levelingPets
-	local level1 = hash[e1]%100
-	local level2 = hash[e2]%100
+	local level1 = levelingPets[e1]
+	local level2 = levelingPets[e2]
 	if order==3 then -- for median sort, levels are distance from 10.5
 		level1 = abs(level1-10.5)
 		level2 = abs(level2-10.5)
 	end
-	if level1==level2 then -- if levels are the same, return sort by their original queue index
-		return floor(hash[e1]/100)<floor(hash[e2]/100)
+	if level1==level2 then -- if levels are the same, sort by their name next
+		if not name1 then
+			name1 = select(8,C_PetJournal.GetPetInfoByPetID(e1))
+			name2 = select(8,C_PetJournal.GetPetInfoByPetID(e2))
+		end
+		if name1==name2 then -- if names are the same, sort by the petID for a stable sort
+			return e1<e2
+		else
+			return name1<name2
+		end
 	else
 		if order==2 then -- if descending, higher levels first
 			return level1>level2
@@ -316,18 +361,6 @@ function rematch.WorkingQueueFullSort(e1,e2)
 			return level1<level2
 		end
 	end
-end
-
--- this is a normal sort
-function rematch.WorkingQueueSort(e1,e2)
-	-- if e1 or e2 is top-most in queue, keep it top-most
-	if e1==workingQueue[1] then
-		return true
-	elseif e2==workingQueue[1] then
-		return false
-	end
-	-- for all other pairs do a full sort
-	return rematch.WorkingQueueFullSort(e1,e2)
 end
 
 --[[ Leveling Slot ]]
@@ -347,6 +380,19 @@ function rematch:UpdateLevelingSlot()
 	slot.level:SetShown(petID and true)
 end
 
+function rematch:LevelingQueueMouseoverWarning(petID)
+	local canLevel = rematch:PetCanLevel(petID)
+	if not canLevel then
+		rematch:ShowTooltip(L["\124TInterface\\Buttons\\UI-GroupLoot-Pass-Up:16\124t This pet can't level"],nil,true)
+	elseif settings.QueueFullSort then
+		if rematch:IsPetLeveling(petID) then
+			rematch:ShowTooltip(L["\124TInterface\\Buttons\\UI-GroupLoot-Pass-Up:16\124t Active Sort is enabled"],L["This pet is already in the queue.\n\nYou can't rearrange the order of pets while the queue is actively sorted."],true)
+		else
+			rematch:ShowTooltip(L["\124TInterface\\DialogFrame\\UI-Dialog-Icon-AlertNew:16\124t Active Sort is enabled"],L["The queue is actively sorted. This pet will be sorted with the rest."],true)
+		end
+	end
+end
+
 function rematch:LevelingSlotOnEnter()
 	local cursorType,petID = GetCursorInfo()
 	local canLevel = cursorType=="battlepet" and rematch:PetCanLevel(petID)
@@ -362,12 +408,7 @@ function rematch:LevelingSlotOnEnter()
 		HelpPlateTooltip:Show()
 	else
 		if cursorType=="battlepet" then
-			if not canLevel then
-				rematch:ShowTooltip(L["\124TInterface\\Buttons\\UI-GroupLoot-Pass-Up:16\124t This pet can't level"],nil,true)
-			end
-			if canLevel and settings.QueueSortOrder and settings.QueueFullSort then
-				rematch:ShowTooltip(L["\124TInterface\\Buttons\\UI-GroupLoot-Pass-Up:16\124t The queue is in \124cffffffffFull Sort\124r mode."],L["You can't choose the active leveling pet while the queue is fully sorted."],true)
-			end
+			rematch:LevelingQueueMouseoverWarning(petID)
 		end
 		rematch:ShowFloatingPetCard(self.petID,self)
 	end
@@ -386,6 +427,7 @@ function rematch:LevelingSlotOnReceiveDrag()
 	local petID = rematch:GetCursorPetID()
 	if rematch:PetCanLevel(petID) and (not rematch:IsPetLeveling(petID) or not settings.QueueFullSort) then
 		rematch:StartLevelingPet(petID)
+		RematchTooltip:Hide()
 		ClearCursor()
 	end
 end
@@ -437,7 +479,8 @@ function rematch:StartLevelingPet(petID)
 		rematch:AddLevelingPet(petID)
 	else
 		rematch:RemoveFromQueue(petID)
-		tinsert(levelingQueue,1,petID)
+		rematch:InsertIntoLevelingQueue(petID,1)
+--		tinsert(levelingQueue,1,petID)
 		rematch:MaybeSlotNewLevelingPet(petID)
 		rematch:ProcessQueue(true)
 		if queue:IsVisible() then
@@ -460,13 +503,14 @@ function rematch:AddLevelingPet(petID)
 		return
 	end
 	if not tContains(levelingQueue,petID) then
-		tinsert(levelingQueue,petID)
+		rematch:InsertIntoLevelingQueue(petID)
+--		tinsert(levelingQueue,petID)
 	end
 	rematch:MaybeSlotNewLevelingPet(petID)
 	rematch:ProcessQueue(true)
 	if queue:IsVisible() then
-		for i=1,#workingQueue do
-			if workingQueue[i]==petID then
+		for i=1,#levelingQueue do
+			if levelingQueue[i]==petID then
 				rematch:ListScrollToIndex(queue.list.scrollFrame,i)
 				queue.shinePetID = petID
 				return
@@ -479,7 +523,7 @@ end
 
 function rematch:UpdateQueueList()
 
-	local numData = #workingQueue
+	local numData = #levelingQueue
 	local scrollFrame = queue.list.scrollFrame
 	local offset = HybridScrollFrame_GetOffset(scrollFrame)
 	local buttons = scrollFrame.buttons
@@ -493,7 +537,7 @@ function rematch:UpdateQueueList()
 		local index = i + offset
 		local button = buttons[i]
 		if ( index <= numData) then
-			button.petID = workingQueue[index]
+			button.petID = levelingQueue[index]
 			button.index = index
 			local petID = button.petID
 			local onCursor = petOnCursor==petID
@@ -572,18 +616,11 @@ function rematch:QueueListOnEnter()
 	end
 	local cursorType,petID = GetCursorInfo()
 	if cursorType=="battlepet" then
-		if settings.QueueSortOrder and rematch:IsPetLeveling(petID) then
-			rematch:ShowTooltip(L["\124TInterface\\Buttons\\UI-GroupLoot-Pass-Up:16\124t The queue is sorted"],L["This pet is already in the queue. Pets can't move while the queue is sorted"],true)
-			return -- can't reorder leveling pets while queue has a sort order
-		elseif rematch:PetCanLevel(petID) then
-			if settings.QueueSortOrder then
-				rematch:ShowTooltip(L["\124TInterface\\DialogFrame\\UI-Dialog-Icon-AlertNew:16\124t The queue is sorted"],L["This pet will be added to the end of the unsorted queue."],true)
-			end
+		rematch:LevelingQueueMouseoverWarning(petID)
+		if rematch:PetCanLevel(petID) then
 			queue.list.scrollFrame.insertLine.timer = 1 -- start immediately
 			queue.list.scrollFrame.insertLine.parent = self
 			queue.list.scrollFrame.insertLine:Show()
-		else
-			rematch:ShowTooltip(L["\124TInterface\\Buttons\\UI-GroupLoot-Pass-Up:16\124t This pet can't level"],nil,true)
 		end
 	end
 end
@@ -603,7 +640,7 @@ function rematch:QueueListOnDoubleClick()
 	rematch:HideFloatingPetCard(true)
 end
 
-function rematch:GetUnsortedQueuePosition(petID)
+function rematch:GetQueuePosition(petID)
 	for i=1,#levelingQueue do
 		if levelingQueue[i]==petID then
 			return i
@@ -659,9 +696,9 @@ function rematch:QueueListOnReceiveDrag()
 			RematchTooltip:Hide()
 			return
 		elseif rematch:PetCanLevel(petID) then
-			if settings.QueueSortOrder and rematch:IsPetLeveling(petID) then
+			if settings.QueueFullSort and rematch:IsPetLeveling(petID) then
 				return -- can't reorder queue when there's a sort order
-			elseif self==queue.list.scrollFrame.emptyCapture or settings.QueueSortOrder then
+			elseif self==queue.list.scrollFrame.emptyCapture then -- or settings.QueueFullSort then
 				ClearCursor()
 				rematch:RemoveFromQueue(petID)
 				rematch:AddLevelingPet(petID) -- emptyCapture click/drags always add to end of queue
@@ -678,11 +715,13 @@ function rematch:QueueListOnReceiveDrag()
 						end
 					end
 					-- then insert petID into the queue at the dragged index
-					tinsert(levelingQueue,index,petID)
+					rematch:InsertIntoLevelingQueue(petID,index)
+--					tinsert(levelingQueue,index,petID)
 					-- and process the queue
 					rematch:ProcessQueue(true)
 					queue.list.scrollFrame.insertLine:Hide()
 					queue.shinePetID = petID
+					RematchTooltip:Hide()
 				end
 			end
 			rematch:UpdateLevelingMarkers()
@@ -720,48 +759,29 @@ end
 function rematch:UpdateQueueTitle()
 	local title = queue.title
 	local order = settings.QueueSortOrder
-	local sorting = order and true
+	local sorting = (order and settings.QueueFullSort) and true
 	title.label:SetShown(not sorting)
 	title.sortLabel:SetShown(sorting)
 	title.sorted:SetShown(sorting)
-	title.rotate:SetShown(sorting and settings.QueueFullSort)
 	title.clear:SetShown(sorting)
-	if order==1 then -- ascending
-		title.sorted:SetTexture("Interface\\Minimap\\Minimap-QuestArrow")
-		title.sorted:SetTexCoord(0.075,0.925,0.075,0.925)
-	elseif order==2 then -- descending
-		title.sorted:SetTexture("Interface\\Minimap\\Minimap-QuestArrow")
-		title.sorted:SetTexCoord(0.075,0.925,0.925,0.075)
-	elseif order==3 then -- median
---		title.sorted:SetTexture("Interface\\Buttons\\UI-StopButton")
---		title.sorted:SetTexCoord(0,1,0,1)
-		title.sorted:SetTexture("Interface\\Minimap\\ObjectIcons")
-		title.sorted:SetTexCoord(0,0.125,0.125,0.25)
-	elseif order==4 then -- type
-		title.sorted:SetTexture("Interface\\Minimap\\ObjectIcons")
-		title.sorted:SetTexCoord(0.5,0.625,0.5,0.625)
+	if sorting then
+		title.sorted:SetTexture(rematch.sortIcons[order])
 	end
 end
 
 function rematch:ClearQueueSort()
 	settings.QueueFullSort = nil
-	settings.QueueSortOrder = nil
 	rematch:SortOrderChanged()
 end
 
 function rematch:EmptyQueue()
 	wipe(settings.LevelingQueue)
-	if not settings.KeepQueueSort then
-		rematch:ClearQueueSort() -- does a ProcessQueue
-	else
-		rematch:ProcessQueue(true)
-	end
+	rematch:ClearQueueSort() -- does a ProcessQueue
 end
 
 -- adds one of each species listed in the browser (confirm dialog is in rmf)
 function rematch:FillQueue(countOnly,fillMore)
 	local roster = rematch.roster
-	local rawQueue = settings.LevelingQueue
 	local scratch = rematch.info
 	rematch:ProcessQueue(true)
 	roster:Update()
@@ -777,7 +797,8 @@ function rematch:FillQueue(countOnly,fillMore)
 				scratch[speciesID]=1
 			elseif rematch:PetCanLevel(petID) and not scratch[speciesID] and (fillMore or not rematch.ownedSpeciesAt25[speciesID]) then
 				if not countOnly then
-					table.insert(rawQueue,petID)
+					rematch:InsertIntoLevelingQueue(petID)
+--					table.insert(levelingQueue,petID)
 				end
 				count = count + 1
 				scratch[speciesID]=1
@@ -787,7 +808,7 @@ function rematch:FillQueue(countOnly,fillMore)
 	if countOnly then
 		return count
 	end
-	rematch:MaybeSlotNewLevelingPet(rawQueue[1],rawQueue[2],rawQueue[3])
+	rematch:MaybeSlotNewLevelingPet(levelingQueue[1],levelingQueue[2],levelingQueue[3])
 	rematch:ProcessQueue(true)
 	rematch:UpdateLevelingMarkers()
 	rematch:ShineOnYouCrazy(queue.resultsBar.count,"CENTER")
@@ -828,7 +849,16 @@ end
 -- if in a pet battle displays a dialog saying the queue can't change and returns true
 -- to be used as "if rematch:CantChangeQueue() then return end" to leave queue-changing functions
 function rematch:CantChangeQueue()
-	local reason = InCombatLockdown() and COMBAT or C_PetBattles.IsInBattle() and L["a pet battle"] or C_PetBattles.GetPVPMatchmakingInfo() and L["pet PVP"]
+	local reason
+	if InCombatLockdown() then
+		reason = COMBAT
+	elseif C_PetBattles.IsInBattle() then
+		reason = L["a pet battle"]
+	elseif C_PetBattles.GetPVPMatchmakingInfo() then
+		reason = L["pet PVP"]
+	else
+		return false
+	end
 	if reason then
 		if rematch:IsVisible() then
 			ClearCursor()
@@ -846,33 +876,42 @@ function rematch:CantChangeQueue()
 	end
 end
 
--- this is for the preferences button OnEnter in the team list
+-- this is for the preferences button OnEnter in the team list and beside the leveling slot
 -- displays a tooltip of the leveling preferences on a team
-function rematch:PreferencesOnEnter()
-	local team = RematchSaved[self:GetParent().teamName]
+-- if teamName not passed, it will grab it from the parent of the button
+function rematch:PreferencesOnEnter(teamName)
+	local team = RematchSaved[teamName or self:GetParent().teamName]
 	if team then
-		local body = ""
-		if team[7] then
-			body = format("%s: %s\n",L["Minimum Health"],team[7])
-			if team[8] then
-				-- the "or any" string matches the option exactly
-				body = body .. (L["Or any \124TInterface\\PetBattles\\PetIcon-Magical:20:20:0:0:128:256:102:63:129:168\124t & \124TInterface\\PetBattles\\PetIcon-Mechanical:20:20:0:0:128:256:102:63:129:168\124t"]):gsub("20:20","16:16").."\n"
+		local info = rematch.info
+		wipe(info)
+		tinsert(info,format("%s %s","\124TInterface\\AddOns\\Rematch\\textures\\preference:20:20:0:0:64:64:16:47:16:47\124t",L["Leveling Preferences"]))
+		if team[7] then -- minimum hp defined
+			tinsert(info,format("%s: \124cffffd200%s",L["Minimum Health"],team[7]))
+			if team[10] then -- expected damage taken
+				tinsert(info,format(L["  For %s pets: \124cffffd200%d"],rematch:PetTypeAsText(rematch.hintsOffense[team[10]][1]),team[7]*1.5))
+				tinsert(info,format(L["  For %s pets: \124cffffd200%d"],rematch:PetTypeAsText(rematch.hintsOffense[team[10]][2]),team[7]*2/3))
 			end
+			if team[8] then -- allow magic & mechanical
+				tinsert(info,format("  %s %s & %s",L["Or any"],rematch:PetTypeAsText(6),rematch:PetTypeAsText(10)))
+			end
+--			if team[10] then -- it looks better if damage taken line is last (and is line even needed?)
+--				tinsert(info,format("  %s: %s",L["Damage expected"],rematch:PetTypeAsText(team[10])))
+--			end
 		end
-		if team[9] then
-			body = body.. format("%s: %s\n",L["Maximum Level"],team[9])
+		if team[9] then -- maximum level
+			tinsert(info,format("%s: \124cffffd200%s",L["Maximum Level"],team[9]))
 		end
-		rematch:ShowTooltip(L["Leveling Preferences"],(body:gsub("\n$","")))
+		rematch:ShowTableTooltip(self,info)
 	end
 end
 
--- this is either from the right-click "Leveling Preferences" (teamList rmf) or the preferences button
+-- this is either from the right-click "Leveling Preferences" (teamList rmf), the preferences button
 -- display a dialog with the levelingPanel
 function rematch:EditPreferences(teamName)
 	teamName = teamName or self:GetParent().teamName
 	local team = RematchSaved[teamName]
 	if not team then return end
-	local dialog = rematch:ShowDialog("EditPreferences",242,teamName,L["Save Preferences?"],rematch.PreferencesAccept)
+	local dialog = rematch:ShowDialog("EditPreferences",rematch.dialog.levelingPanel:GetHeight()+122,teamName,L["Save Preferences?"],rematch.PreferencesAccept)
 	dialog.team:SetPoint("TOP",0,-24)
 	rematch:FillPetFramesFromTeam(dialog.team.pets,team,teamName)
 	dialog.team:Show()
@@ -884,6 +923,7 @@ function rematch:EditPreferences(teamName)
 	panel.allowMM:SetChecked(dialog.team.pets[8] and true)
 	panel.maxXP:SetText(dialog.team.pets[9] or "")
 	panel.minHP:SetFocus(true)
+	rematch:PreferencesExpectedUpdate()
 end
 
 -- when accept is clicked for EditPreferences, preferences are lifted from pet frames and saved in the team
@@ -892,10 +932,46 @@ function rematch:PreferencesAccept()
 	local pets = dialog.team.pets
 	local team = RematchSaved[pets.teamName]
 	if not team then return end
-	for i=7,9 do
+	for i=7,10 do -- MAX_TEAM_FIELDS is 10
 		team[i] = pets[i]
 	end
 	rematch:ProcessQueue() -- will do a delayed UpdateWindow to update teamlist icons if needed
+end
+
+function rematch:PreferencesExpectedOnClick()
+	local index = self:GetID()
+	if rematch.dialog.team.pets[10]==index then
+		rematch.dialog.team.pets[10] = nil
+	else
+		rematch.dialog.team.pets[10] = index
+	end
+	rematch:PreferencesExpectedUpdate()
+end
+
+function rematch:PreferencesExpectedUpdate()
+	local buttons = rematch.dialog.levelingPanel.expected.buttons
+	local pets = rematch.dialog.team.pets
+	for i=1,10 do
+		buttons[i]:SetChecked(pets[10]==i)
+		buttons[i].icon:SetDesaturated(pets[10] and pets[10]~=i)
+	end
+end
+
+function rematch:PreferencesExpectedOnEnter()
+	local petType = self:GetID()
+	local minHP = rematch.dialog.team.pets[7]
+
+	if not minHP then -- no min health defined, show a tooltip to describe what the buttons are for
+		rematch:ShowTooltip(L["Expected damage taken"],L["The minimum health of pets can be adjusted by the type of damage they are expected to receive."])
+	else
+		local info = rematch.info
+		wipe(info)
+		tinsert(info,format("%s: %s",L["Damage expected"],rematch:PetTypeAsText(petType)))
+		tinsert(info,format("%s: \124cffffd200%s",L["Minimum Health"],minHP))
+		tinsert(info,format(L["  For %s pets: \124cffffd200%d"],rematch:PetTypeAsText(rematch.hintsOffense[petType][1]),minHP*1.5))
+		tinsert(info,format(L["  For %s pets: \124cffffd200%d"],rematch:PetTypeAsText(rematch.hintsOffense[petType][2]),minHP*2/3))
+		rematch:ShowTableTooltip(self,info)
+	end
 end
 
 --[[ Leveling Carousel ]]
@@ -906,17 +982,6 @@ function rematch:ShowLevelingCarouselDialog()
 	if isOpen then return end
 
 	local dialog = rematch:ShowDialog("LevelingCarousel",114,L["Leveling Pet"],L["Choose a new pet"],rematch.LevelingCarouselAccept)
-
-	if not dialog.shortQueue then
-		dialog.queueMenu = CreateFrame("Button",nil,dialog,"RematchToolbarButtonTemplate")
-		rematch:RegisterDialogWidget("queueMenu")
-		local menu = dialog.queueMenu
-		menu:SetScript("PreClick",nil)
-		menu.icon:SetTexture("Interface\\Icons\\INV_Misc_EngGizmos_30")
-		menu:SetScript("OnClick",function(self) if rematch:IsMenuOpen("dialogQueueMenu") then rematch:HideMenu() else Rematch:ShowMenu("dialogQueueMenu","BOTTOMRIGHT",self,"TOPRIGHT",-4,-4,true) end end)
-	end
-	dialog.queueMenu:SetPoint("BOTTOMRIGHT",dialog.accept,"BOTTOMLEFT",6,0)
-	dialog.queueMenu:Show()
 
 	local carousel = dialog.levelingCarousel
 	carousel:SetPoint("TOP",0,-16)
@@ -935,7 +1000,7 @@ function rematch:LevelingCarouselReset()
 	if settings.QueueFullSort then
 		dialog:SetHeight(136)
 		dialog.warning:SetPoint("TOP",carousel,"BOTTOM",0,-3)
-		dialog.warning.text:SetText(L["Choosing a pet will turn off Full Sort"])
+		dialog.warning.text:SetText(L["Choosing a pet will turn off Active Sort"])
 		dialog.warning:Show()
 	else
 		dialog.warning:Hide()
@@ -967,8 +1032,8 @@ function rematch:LevelingCarouselSpin(direction,speed)
 	frame:SetScript("OnUpdate",rematch.LevelingCarouselSpinOnUpdate)
 	frame.offset = frame.offset + frame.direction
 	if frame.offset<1 then
-		frame.offset = #workingQueue
-	elseif frame.offset>#workingQueue then
+		frame.offset = #levelingQueue
+	elseif frame.offset>#levelingQueue then
 		frame.offset = 1
 	end
 end
@@ -993,9 +1058,9 @@ function rematch:LevelingCarouselUpdate()
 	local pets = frame.carousel.child.pets
 
 	local function fill(button,index)
-		local index = (index+frame.offset-1)%#workingQueue
-		index = index==0 and #workingQueue or index
-		local petID = workingQueue[index]
+		local index = (index+frame.offset-1)%#levelingQueue
+		index = index==0 and #levelingQueue or index
+		local petID = levelingQueue[index]
 		local icon,_,level = rematch:GetPetIDIcon(petID)
 		if icon then
 			button.index = index
@@ -1028,7 +1093,7 @@ end
 -- when the green check is clicked
 function rematch:LevelingCarouselAccept()
 	settings.QueueFullSort = nil
-	rematch:StartLevelingPet(workingQueue[rematch.dialog.levelingCarousel.offset])
+	rematch:StartLevelingPet(levelingQueue[rematch.dialog.levelingCarousel.offset])
 end
 
 -- when a pet is clicked, instead of locking the card, immediately choose it
@@ -1036,4 +1101,19 @@ function rematch:LevelingCarouselPetOnClick()
 	rematch:HideDialogs()
 	settings.QueueFullSort = nil
 	rematch:StartLevelingPet(self.petID)
+end
+
+-- use this instead of tinsert(levelingQueue,petID)
+function rematch:InsertIntoLevelingQueue(petID,index)
+	if not petID or type(petID)~="string" then
+		return
+	end
+	if index then
+		tinsert(levelingQueue,index,petID)
+	else
+		tinsert(levelingQueue,petID)
+	end
+	if not tContains(settings.LevelingTimeline,petID) then
+		tinsert(settings.LevelingTimeline,petID)
+	end
 end

@@ -46,6 +46,8 @@ function rematch:HideDialogs()
 	RematchAbilityFlyout:Hide()
 	RematchTeamCard:Hide()
 	RematchAbilityCard:Hide()
+	RematchTooltip:Hide()
+	RematchTableTooltip:Hide()
 	dialog:Hide()
 end
 
@@ -54,6 +56,7 @@ end
 -- and anchor the dialog itself too
 -- if okayFunc is true, then only an accept button is shown (cancel is hidden)
 function rematch:ShowDialog(name,height,title,prompt,okayFunc)
+	rematch:HideTooltip()
 	rematch:WipeDialog()
 	dialog:SetHeight(height)
 	dialog.name = name

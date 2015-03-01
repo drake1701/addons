@@ -1,6 +1,6 @@
 ﻿-- (c) 2006-2014, all rights reserved.
--- $Revision: 1305 $
--- $Date: 2015-02-06 22:02:22 +1100 (Fri, 06 Feb 2015) $
+-- $Revision: 1311 $
+-- $Date: 2015-02-25 07:11:45 +1100 (Wed, 25 Feb 2015) $
 
 
 local _G = _G
@@ -126,6 +126,7 @@ ArkInventory.Const = { -- constants
 		Tradeskill = 12,
 		Void = 13,
 		Toybox = 14,
+		Heirloom = 15,
 	},
 
 	Offset = {
@@ -140,6 +141,7 @@ ArkInventory.Const = { -- constants
 		Tradeskill = 9000,
 		Void = 1500,
 		Toybox = 1200,
+		Heirloom = 1300,
 	},
 	
 	Bag = {
@@ -181,6 +183,7 @@ ArkInventory.Const = { -- constants
 			Cooking = 25,
 			Toybox = 26,
 			ReagentBank = 27,
+			Heirloom = 28,
 		},
 
 		New = {
@@ -354,6 +357,10 @@ ArkInventory.Const = { -- constants
 				[446] = {
 					["id"] = "SYSTEM_NEW",
 					["text"] = ArkInventory.Localise["CONFIG_SETTINGS_ITEMS_NEW"],
+				},
+				[447] = {
+					["id"] = "SYSTEM_HEIRLOOM",
+					["text"] = ArkInventory.Localise["HEIRLOOM"],
 				},
 			},
 			Consumable = {
@@ -1053,6 +1060,14 @@ ArkInventory.Const.Slot.Data = {
 		["emptycolour"] = GREEN_FONT_COLOR_CODE, -- status text colour when no slots left
 		["hide"] = true,
 	},
+	[ArkInventory.Const.Slot.Type.Heirloom] = {
+		["name"] = ArkInventory.Localise["STATUS_NAME_HEIRLOOM"],
+		["long"] = ArkInventory.Localise["WOW_AH_CONTAINER_BAG"],
+		["type"] = ArkInventory.Localise["HEIRLOOM"],
+		["colour"] = ArkInventory.Const.Slot.DefaultColour,
+		["emptycolour"] = GREEN_FONT_COLOR_CODE, -- status text colour when no slots left
+		["hide"] = true,
+	},
 	[ArkInventory.Const.Slot.Type.Token] = {
 		["name"] = ArkInventory.Localise["STATUS_NAME_TOKEN"],
 		["long"] = ArkInventory.Localise["WOW_AH_CONTAINER_BAG"],
@@ -1093,9 +1108,9 @@ ArkInventory.Const.Slot.Data = {
 		["colour"] = ArkInventory.Const.Slot.DefaultColour,
 	},
 	[ArkInventory.Const.Slot.Type.Void] = {
-		["name"] = VOID_STORAGE,
-		["long"] = VOID_STORAGE,
-		["type"] = VOID_STORAGE,
+		["name"] = ArkInventory.Localise["LOCATION_VOIDSTORAGE"],
+		["long"] = ArkInventory.Localise["LOCATION_VOIDSTORAGE"],
+		["type"] = ArkInventory.Localise["LOCATION_VOIDSTORAGE"],
 		["colour"] = ArkInventory.Const.Slot.DefaultColour,
 		["texture"] = [[Interface\AddOns\ArkInventory\Images\VoidStorageSlot.tga]],
 		["emptycolour"] = GREEN_FONT_COLOR_CODE,
@@ -1180,7 +1195,7 @@ ArkInventory.Global = { -- globals
 		[ArkInventory.Const.Location.Bank] = {
 			isActive = true,
 			Internal = "bank",
-			Name = ArkInventory.Localise["BANK"],
+			Name = ArkInventory.Localise["LOCATION_BANK"],
 			Texture = [[Interface\Icons\INV_Box_02]], --Interface\Minimap\Tracking\Banker
 			bagCount = 1, -- set in OnLoad
 			Bags = { },
@@ -1207,7 +1222,7 @@ ArkInventory.Global = { -- globals
 		[ArkInventory.Const.Location.Vault] = {
 			isActive = true,
 			Internal = "vault",
-			Name = ArkInventory.Localise["GUILDBANK"],
+			Name = ArkInventory.Localise["LOCATION_VAULT"],
 			Texture = [[Interface\Icons\INV_Misc_Coin_02]],
 			bagCount = 1, -- actual value set in OnLoad
 			Bags = { },
@@ -1352,6 +1367,31 @@ ArkInventory.Global = { -- globals
 			
 		},
 		
+		[ArkInventory.Const.Location.Heirloom] = {
+			isActive = true,
+			Internal = "heirloom",
+			Name = ArkInventory.Localise["HEIRLOOM"],
+			Texture = [[Interface\Icons\Trade_Archaeology_ChestofTinyGlassAnimals]],
+			bagCount = 1,
+			Bags = { },
+			canRestack = nil,
+			hasChanger = nil,
+			canSearch = true,
+			
+			Layout = { },
+			maxBar = 0,
+			maxSlot = { },
+			
+			isOffline = false,
+			canView = false,
+			canOverride = nil,
+			
+			template = "ARKINV_TemplateButtonHeirloomItem",
+			
+			drawState = ArkInventory.Const.Window.Draw.Init,
+			
+		},
+		
 		[ArkInventory.Const.Location.Token] = {
 			isActive = true,
 			Internal = "token",
@@ -1446,7 +1486,7 @@ ArkInventory.Global = { -- globals
 		[ArkInventory.Const.Location.Void] = {
 			isActive = true,
 			Internal = "void",
-			Name = VOID_STORAGE,
+			Name = ArkInventory.Localise["LOCATION_VOIDSTORAGE"],
 			Texture = [[Interface\Icons\Spell_Nature_AstralRecalGroup]],
 			bagCount = 1,
 			Bags = { },
@@ -1522,15 +1562,16 @@ ArkInventory.Config = {
 -- Binding Variables
 BINDING_HEADER_ARKINV = ArkInventory.Const.Program.Name
 BINDING_NAME_ARKINV_TOGGLE_BAG = ArkInventory.Localise["LOCATION_BAG"]
-BINDING_NAME_ARKINV_TOGGLE_BANK = ArkInventory.Localise["BANK"]
-BINDING_NAME_ARKINV_TOGGLE_VAULT = ArkInventory.Localise["GUILDBANK"]
+BINDING_NAME_ARKINV_TOGGLE_BANK = ArkInventory.Localise["LOCATION_BANK"]
+BINDING_NAME_ARKINV_TOGGLE_VAULT = ArkInventory.Localise["LOCATION_VAULT"]
 BINDING_NAME_ARKINV_TOGGLE_MAIL = ArkInventory.Localise["MAIL"]
 BINDING_NAME_ARKINV_TOGGLE_WEARING = ArkInventory.Localise["LOCATION_WEARING"]
 BINDING_NAME_ARKINV_TOGGLE_PET = ArkInventory.Localise["PET"]
 BINDING_NAME_ARKINV_TOGGLE_MOUNT = ArkInventory.Localise["MOUNT"]
 BINDING_NAME_ARKINV_TOGGLE_TOYBOX = ArkInventory.Localise["TOYBOX"]
+BINDING_NAME_ARKINV_TOGGLE_HEIRLOOM = ArkInventory.Localise["HEIRLOOM"]
 BINDING_NAME_ARKINV_TOGGLE_TOKEN = ArkInventory.Localise["CURRENCY"]
-BINDING_NAME_ARKINV_TOGGLE_VOID = VOID_STORAGE
+BINDING_NAME_ARKINV_TOGGLE_VOID = ArkInventory.Localise["LOCATION_VOIDSTORAGE"]
 BINDING_NAME_ARKINV_TOGGLE_EDIT = ArkInventory.Localise["MENU_ACTION_EDITMODE"]
 BINDING_NAME_ARKINV_TOGGLE_RULES = ArkInventory.Localise["CONFIG_RULES"]
 BINDING_NAME_ARKINV_TOGGLE_SEARCH = ArkInventory.Localise["SEARCH"]
@@ -1630,7 +1671,7 @@ ArkInventory.Const.DatabaseDefaults.global = {
 					[9995] = {
 						["system"] = true,
 						["used"] = true,
-						["name"] = string.format( "* %s / %s", ArkInventory.Localise["GUILDBANK"], VOID_STORAGE ),
+						["name"] = string.format( "* %s / %s", ArkInventory.Localise["LOCATION_VAULT"], ArkInventory.Localise["LOCATION_VOIDSTORAGE"] ),
 						["bagslot"] = true,
 						["ascending"] = true,
 						["reversed"] = false,
@@ -1946,8 +1987,25 @@ ArkInventory.Const.DatabaseDefaults.profile = {
 					},
 					["data"] = {
 						["*"] = {
-							-- label
-							-- sortorder
+							["label"] = "",
+							["sortorder"] = nil,
+							["border"] = {
+								["use"] = 0, -- 0 = default, 1 = custom
+								["colour"] = {
+									["r"] = 0.3,
+									["g"] = 0.3,
+									["b"] = 0.3,
+								},
+							},
+							["background"] = {
+								["use"] = 0, -- 0 = default, 1 = custom, 2 = border
+								["colour"] = {
+									["r"] = 0,
+									["g"] = 0,
+									["b"] = 0.4,
+									["a"] = 0.4,
+								},
+							},
 						},
 					},
 				},
@@ -2024,9 +2082,35 @@ ArkInventory.Const.DatabaseDefaults.profile = {
 				["title"] = {
 					["hide"] = false,
 					["size"] = 1,
+					["colour"] = {
+						["online"] = {
+							["r"] = 0,
+							["g"] = 1,
+							["b"] = 0,
+						},
+						["offline"] = {
+							["r"] = 1,
+							["g"] = 0,
+							["b"] = 0,
+						},
+					},
 				},
 				["search"] = {
 					["hide"] = false,
+					["label"] = {
+						["colour"] = {
+							["r"] = 0,
+							["g"] = 1,
+							["b"] = 0,
+						},
+					},
+					["text"] = {
+						["colour"] = {
+							["r"] = 1,
+							["g"] = 1,
+							["b"] = 1,
+						},
+					},
 				},
 				["changer"] = {
 					["hide"] = false,
@@ -2188,6 +2272,9 @@ function ArkInventory.OnLoad( )
 	
 	-- toybox
 	table.insert( ArkInventory.Global.Location[ArkInventory.Const.Location.Toybox].Bags, ArkInventory.Const.Offset.Toybox + 1 )
+	
+	-- heirloom
+	table.insert( ArkInventory.Global.Location[ArkInventory.Const.Location.Heirloom].Bags, ArkInventory.Const.Offset.Heirloom + 1 )
 	
 	-- token
 	table.insert( ArkInventory.Global.Location[ArkInventory.Const.Location.Token].Bags, ArkInventory.Const.Offset.Token + 1 )
@@ -2743,7 +2830,7 @@ function ArkInventory.LocationPlayerInfoGet( loc_id )
 			end
 		end
 		
-	elseif ( loc_id == ArkInventory.Const.Location.Pet ) or ( loc_id == ArkInventory.Const.Location.Mount ) or ( loc_id == ArkInventory.Const.Location.Toybox ) then
+	elseif ( loc_id == ArkInventory.Const.Location.Pet ) or ( loc_id == ArkInventory.Const.Location.Mount ) or ( loc_id == ArkInventory.Const.Location.Toybox ) or ( loc_id == ArkInventory.Const.Location.Heirloom ) then
 		
 		local id = ArkInventory.PlayerIDAccount( )
 		cp = ArkInventory.PlayerInfoGet( id )
@@ -3582,6 +3669,11 @@ function ArkInventory.ItemCategoryGetDefaultActual( i )
 		return ArkInventory.CategoryGetSystemID( "SYSTEM_TOY" )
 	end
 	
+	-- heirloom
+	if i.loc_id == ArkInventory.Const.Location.Heirloom then
+		return ArkInventory.CategoryGetSystemID( "SYSTEM_HEIRLOOM" )
+	end
+	
 	
 	
 	-- everything else
@@ -3599,6 +3691,10 @@ function ArkInventory.ItemCategoryGetDefaultActual( i )
 	-- items only from here on
 	if class ~= "item" then
 		return
+	end
+	
+	if itemRarity == 7 then
+		return ArkInventory.CategoryGetSystemID( "SYSTEM_HEIRLOOM" )
 	end
 	
 	--ArkInventory.Output( "bag[", i.bag_id, "], slot[", i.slot_id, "] = ", itemType )
@@ -4849,15 +4945,15 @@ function ArkInventory.Frame_Main_DrawThreadStart( frame )
 	end
 	
 	if ArkInventory.Global.Location[loc_id].isOffline then
-		obj:SetTextColor( 1, 0, 0 )
+		local colour = ArkInventory.LocationOptionGet( loc_id, "title", "colour", "offline" )
+		obj:SetTextColor( colour.r, colour.g, colour.b )
 		t = string.format( "%s [%s]", t, PLAYER_OFFLINE )
 	else
-		obj:SetTextColor( 0, 1, 0 )
+		local colour = ArkInventory.LocationOptionGet( loc_id, "title", "colour", "online" )
+		obj:SetTextColor( colour.r, colour.g, colour.b )
 	end
 	
 	obj:SetText( t )
-	
-	
 	
 	
 	
@@ -5025,8 +5121,16 @@ function ArkInventory.Frame_Main_DrawThreadStart( frame )
 			obj:SetHeight( ArkInventory.Const.Frame.Search.Height )
 			obj:Show( )
 			
+			obj = _G[string.format( "%s%s%s", frame:GetName( ), ArkInventory.Const.Frame.Search.Name, "FilterLabel" )]
+			local colour = ArkInventory.LocationOptionGet( loc_id, "search", "label", "colour" )
+			obj:SetTextColor( colour.r, colour.g, colour.b )
+			
+			obj = _G[string.format( "%s%s%s", frame:GetName( ), ArkInventory.Const.Frame.Search.Name, "Filter" )]
+			local colour = ArkInventory.LocationOptionGet( loc_id, "search", "text", "colour" )
+			obj:SetTextColor( colour.r, colour.g, colour.b )
+			
 		end
-	
+		
 	end
 	
 	
@@ -6173,6 +6277,8 @@ function ArkInventory.Frame_Bar_Paint( frame )
 	end
 	
 	local loc_id = frame.ARK_Data.loc_id
+	local bar_id = frame.ARK_Data.bar_id
+	
 	
 	-- border
 	local obj = _G[string.format( "%s%s", frame:GetName( ), "ArkBorder" )]
@@ -6199,40 +6305,43 @@ function ArkInventory.Frame_Bar_Paint( frame )
 	end
 	
 	-- background colour
+	
+	local bg = _G[string.format( "%s%s", frame:GetName( ), "Background" )]
+	local em = _G[string.format( "%s%s", frame:GetName( ), "Edit" )]
+	
 	if ArkInventory.Global.Mode.Edit then
 		
 		frame:SetBackdropBorderColor( 1, 0, 0, 1 )
-		ArkInventory.SetTexture( _G[string.format( "%s%s", frame:GetName( ), "Background" )], true, 1, 0, 0, 0.1 )
-		
-		local obj = _G[string.format( "%s%s", frame:GetName( ), "Edit" )]
+		ArkInventory.SetTexture( bg, true, 1, 0, 0, 0.1 )
 		
 		local padBarInternal = ArkInventory.LocationOptionGet( loc_id, "bar", "pad", "internal" )
 		local padLabel = ( ArkInventory.LocationOptionGet( loc_id, "bar", "name", "show" ) and ArkInventory.LocationOptionGet( loc_id, "bar", "name", "height" ) ) or 0
 		local slotAnchor = ArkInventory.LocationOptionGet( loc_id, "slot", "anchor" )
 		
-		obj:ClearAllPoints( )
+		em:ClearAllPoints( )
 		
 		-- anchor to the opposite corner that items are
 		if slotAnchor == ArkInventory.Const.Anchor.BottomLeft then
-			obj:SetPoint( "TOPRIGHT", 0 - padBarInternal, 0 - padBarInternal - padLabel ) -- OK
+			em:SetPoint( "TOPRIGHT", 0 - padBarInternal, 0 - padBarInternal - padLabel ) -- OK
 		elseif slotAnchor == ArkInventory.Const.Anchor.TopLeft then
-			obj:SetPoint( "BOTTOMRIGHT", 0 - padBarInternal, padBarInternal + padLabel )
+			em:SetPoint( "BOTTOMRIGHT", 0 - padBarInternal, padBarInternal + padLabel )
 		elseif slotAnchor == ArkInventory.Const.Anchor.TopRight then
-			obj:SetPoint( "BOTTOMLEFT", padBarInternal, padBarInternal + padLabel )
+			em:SetPoint( "BOTTOMLEFT", padBarInternal, padBarInternal + padLabel )
 		else -- slotAnchor == ArkInventory.Const.Anchor.BottomRight then
-			obj:SetPoint( "TOPLEFT", padBarInternal, 0 - padBarInternal - padLabel ) -- OK
+			em:SetPoint( "TOPLEFT", padBarInternal, 0 - padBarInternal - padLabel ) -- OK
 		end
 		
-		obj:Show( )
+		em:Show( )
 		
 	else
 		
 		local colour = ArkInventory.LocationOptionGet( loc_id, "bar", "background", "colour" )
-		ArkInventory.SetTexture( _G[string.format( "%s%s", frame:GetName( ), "Background" )], true, colour.r, colour.g, colour.b, colour.a )
-		_G[string.format( "%s%s", frame:GetName( ), "Edit" )]:Hide( )
+		ArkInventory.SetTexture( bg, true, colour.r, colour.g, colour.b, colour.a )
+		
+		em:Hide( )
 		
 	end
-
+	
 	-- label
 	ArkInventory.Frame_Bar_Label( frame )
 	
@@ -6428,6 +6537,10 @@ function ArkInventory.Frame_Bar_DrawItems( frame )
 				
 				if loc_id == ArkInventory.Const.Location.Toybox then
 					ArkInventory.Frame_Item_Update_Toybox( obj )
+				end
+				
+				if loc_id == ArkInventory.Const.Location.Heirloom then
+					ArkInventory.Frame_Item_Update_Heirloom( obj )
 				end
 				
 			end
@@ -7297,6 +7410,10 @@ function ArkInventory.Frame_Item_OnEnter( frame )
 			
 			GameTooltip:SetToyByItemID( i.item )
 			
+		elseif loc_id == ArkInventory.Const.Location.Heirloom then
+			
+			--GameTooltip:SetToyByItemID( i.h )
+			
 		elseif loc_id == ArkInventory.Const.Location.Bag or loc_id == ArkInventory.Const.Location.Bank then
 			
 			ContainerFrameItemButton_OnEnter( frame )
@@ -7577,6 +7694,22 @@ function ArkInventory.Frame_Item_Update_Toybox( frame )
 	
 end
 
+function ArkInventory.Frame_Item_Update_Heirloom( frame )
+	
+	local i = ArkInventory.Frame_Item_GetDB( frame )
+	
+	if i then
+		
+		
+		
+	else
+		
+		
+		
+	end
+	
+end
+
 function ArkInventory.Frame_Item_Update_Clickable( frame )
 
 	if not ArkInventory.ValidFrame( frame, true ) then return end
@@ -7787,6 +7920,20 @@ function ArkInventory.Frame_Item_OnDragStart_Toybox( frame )
 	
 end
 
+function ArkInventory.Frame_Item_OnDragStart_Heirloom( frame )
+	
+	if ArkInventory.Global.Mode.Edit then return end
+	
+	local i = ArkInventory.Frame_Item_GetDB( frame )
+	
+	if i and i.h then
+		
+		--C_ToyBox.PickupToyBoxItem( i.item )
+		
+	end
+	
+end
+
 function ArkInventory.Frame_Item_OnClick_MountJournal( frame, button )
 	
 	if ArkInventory.Global.Mode.Edit then return end -- need to sort out edit mode menu
@@ -7849,6 +7996,34 @@ function ArkInventory.Frame_Item_OnClick_Toybox( frame, button )
 	
 end
 
+function ArkInventory.Frame_Item_OnClick_Heirloom( frame, button )
+	
+	if ArkInventory.Global.Mode.Edit then return end -- need to sort out edit mode menu
+
+	local i = ArkInventory.Frame_Item_GetDB( frame )
+	
+	if i and i.h and IsModifiedClick( "CHATLINK" ) then
+		
+		ChatEdit_InsertLink( i.h )
+		
+	elseif i then
+		
+		if ( button == "LeftButton" ) then
+			
+			--UseToy( i.item ) -- secure action, cant be done
+			
+		elseif ( button == "RightButton" ) then
+			
+			--ArkInventory.MenuItemHeirloom( frame, i.index ) !!! to be done
+			
+		end
+		
+	end
+	
+	ClearCursor( )
+	
+end
+
 function ArkInventory.Frame_Item_OnDragStart_MountJournal( frame )
 	
 	if ArkInventory.Global.Mode.Edit then return end
@@ -7887,6 +8062,10 @@ function ArkInventory.Frame_Item_Update( loc_id, bag_id, slot_id )
 		
 		if loc_id == ArkInventory.Const.Location.Toybox then
 			ArkInventory.Frame_Item_Update_Toybox( obj )
+		end
+		
+		if loc_id == ArkInventory.Const.Location.Heirloom then
+			ArkInventory.Frame_Item_Update_Heirloom( obj )
 		end
 		
 		if ( obj == GameTooltip:GetOwner( ) ) then
@@ -8621,7 +8800,7 @@ function ArkInventory.Frame_Changer_Slot_OnEnter( frame )
 			if loc_id == ArkInventory.Const.Location.Bag then
 				GameTooltip:SetText( BACKPACK_TOOLTIP, 1.0, 1.0, 1.0 )
 			elseif loc_id == ArkInventory.Const.Location.Bank then
-				GameTooltip:SetText( ArkInventory.Localise["BANK"], 1.0, 1.0, 1.0 )
+				GameTooltip:SetText( ArkInventory.Localise["LOCATION_BANK"], 1.0, 1.0, 1.0 )
 			end
 		
 		elseif ArkInventory.Global.Location[loc_id].isOffline then

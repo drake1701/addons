@@ -90,16 +90,13 @@ end
 --[[ Queue ]]
 
 function rmf:HideQueueMove()
-	return settings.QueueSortOrder and true
-end
-function rmf:HideQueueMoveToTop()
 	return (settings.QueueSortOrder and settings.QueueFullSort) and true
 end
 function rmf:AtTopOfQueue()
-	return rematch:GetUnsortedQueuePosition(menu.subject)==1
+	return rematch:GetQueuePosition(menu.subject)==1
 end
 function rmf:AtEndOfQueue()
-	return rematch:GetUnsortedQueuePosition(menu.subject)==rematch:GetNumLevelingPets()
+	return rematch:GetQueuePosition(menu.subject)==rematch:GetNumLevelingPets()
 end
 function rmf:ShinePet(index)
 	local buttons = rematch.drawer.queue.list.scrollFrame.buttons
@@ -118,13 +115,13 @@ function rmf:MoveToEnd()
 	rematch:AddLevelingPet(menu.subject)
 end
 function rmf:MoveUp()
-	local index = rematch:GetUnsortedQueuePosition(menu.subject)
+	local index = rematch:GetQueuePosition(menu.subject)
 	rematch:SwapQueuePositions(index,index-1)
 	rematch:ListScrollToIndex(rematch.drawer.queue.list.scrollFrame,index-1)
 	rmf:ShinePet(index-1)
 end
 function rmf:MoveDown()
-	local index = rematch:GetUnsortedQueuePosition(menu.subject)
+	local index = rematch:GetQueuePosition(menu.subject)
 	rematch:SwapQueuePositions(index,index+1)
 	rematch:ListScrollToIndex(rematch.drawer.queue.list.scrollFrame,index+1)
 	rmf:ShinePet(index+1)
@@ -404,7 +401,7 @@ menu.menus["browserFilter"] = {
 	{ text=MISCELLANEOUS, subMenu="browserMisc", arg=roster.IsMiscFilterClear, highlight=rmf.HighlightMenu },
 	{ text=RAID_FRAME_SORT_LABEL, subMenu="browserSort", arg=roster.CanDefaultSort, highlight=rmf.HighlightMenu },
 	{ text=L["Load Filters"], hide=rmf.HideLoadFilters, func=rmf.LoadFilters },
-	{ text=L["Save Filters"], func=rmf.SaveFilters  },
+	{ text=L["Save Filters"], func=rmf.SaveFilters },
 	{ text=L["Reset All"], stay=true, func=rematch.ResetAllBrowserFilters },
 	{ text=OKAY },
 }
@@ -478,6 +475,7 @@ menu.menus["current"] = {
 	{ text=L["Add to Leveling Queue"], hide=rmf.HideAddToQueue, func=rmf.AddToQueue },
 	{ text=L["Stop Leveling"], hide=rmf.HideStopLeveling, func=rmf.StopLeveling },
 	{ text=L["Put Leveling Pet Here"], hide=rmf.HidePutLevelingPetHere, disable=rmf.DisablePutLevelingPetHere, func=rmf.PutLevelingPetHere },
+	{ text=L["Find Similar"], func=rmf.FindSimilar },
 	{ text=rmf.SummonOrDismissText, hide=rmf.MissingPet, func=rmf.Summon },
 	{ text=rmf.FavoriteText, hide=rmf.MissingPet, func=rmf.FavoritePet },
 	{ text=CANCEL }
@@ -486,6 +484,7 @@ menu.menus["current"] = {
 menu.menus["levelingSlot"] = {
 	{ title=rmf.PetName },
 	{ text=L["Stop Leveling"], hide=rmf.HideStopLeveling, func=rmf.StopLeveling },
+	{ text=L["Find Similar"], func=rmf.FindSimilar },
 	{ text=rmf.SummonOrDismissText, hide=rmf.MissingPet, func=rmf.Summon },
 	{ text=rmf.FavoriteText, hide=rmf.MissingPet, func=rmf.FavoritePet },
 	{ text=CANCEL }
@@ -493,13 +492,15 @@ menu.menus["levelingSlot"] = {
 
 menu.menus["levelingQueueList"] = {
 	{ title=rmf.PetName },
+	{ text=L["Start Leveling"], hide=rmf.HideStartLeveling, func=rmf.StartLeveling },
 	{ text=L["Stop Leveling"], hide=rmf.HideStopLeveling, func=rmf.StopLeveling },
+	{ text=L["Find Similar"], func=rmf.FindSimilar },
 	{ text=rmf.SummonOrDismissText, func=rmf.Summon },
 	{ text=rmf.FavoriteText, hide=rmf.MissingPet, func=rmf.FavoritePet },
-	{ text=L["Move to Top"], hide=rmf.HideQueueMoveToTop, disable=rmf.AtTopOfQueue, icon="Interface\\Buttons\\UI-MicroStream-Green", iconCoords={0.075,0.925,0.925,0.075}, func=rmf.MoveToTop },
+	{ text=L["Move to Top"], hide=rmf.HideQueueMove, disable=rmf.AtTopOfQueue, icon="Interface\\Buttons\\UI-MicroStream-Green", iconCoords={0.075,0.925,0.925,0.075}, stay=true, func=rmf.MoveToTop },
 	{ text=L["Move Up"], hide=rmf.HideQueueMove, disable=rmf.AtTopOfQueue, icon="Interface\\Buttons\\UI-MicroStream-Yellow", iconCoords={0.075,0.925,0.925,0.075}, stay=true, func=rmf.MoveUp },
 	{ text=L["Move Down"], hide=rmf.HideQueueMove, disable=rmf.AtEndOfQueue, icon="Interface\\Buttons\\UI-MicroStream-Yellow", stay=true, func=rmf.MoveDown },
-	{ text=L["Move to End"], hide=rmf.HideQueueMove, disable=rmf.AtEndOfQueue, icon="Interface\\Buttons\\UI-MicroStream-Green", func=rmf.MoveToEnd },
+	{ text=L["Move to End"], hide=rmf.HideQueueMove, disable=rmf.AtEndOfQueue, icon="Interface\\Buttons\\UI-MicroStream-Green", stay=true, func=rmf.MoveToEnd },
 	{ text=OKAY },
 }
 
@@ -508,8 +509,8 @@ menu.menus["browserPet"] = {
 	{ text=L["Start Leveling"], hide=rmf.HideStartLeveling, func=rmf.StartLeveling },
 	{ text=L["Add to Leveling Queue"], hide=rmf.HideAddToQueue, func=rmf.AddToQueue },
 	{ text=L["Stop Leveling"], hide=rmf.HideStopLeveling, func=rmf.StopLeveling },
-	{ text=rmf.SummonOrDismissText, hide=rmf.MissingPet, func=rmf.Summon },
 	{ text=L["Find Similar"], func=rmf.FindSimilar },
+	{ text=rmf.SummonOrDismissText, hide=rmf.MissingPet, func=rmf.Summon },
 	{ text=BATTLE_PET_RENAME, hide=rmf.MissingPet, func=rmf.RenamePet },
 	{ text=rmf.FavoriteText, hide=rmf.MissingPet, func=rmf.FavoritePet },
 	{ text=BATTLE_PET_RELEASE, hide=rmf.HideRelease, func=rmf.ReleasePet },
@@ -521,25 +522,22 @@ function rmf:GetQueueSort()
 	return settings.QueueSortOrder==self.index
 end
 function rmf:SetQueueSort(value)
-	settings.QueueSortOrder = value and self.index
-	rematch:SortOrderChanged()
+	settings.QueueSortOrder = self.index
+	if not settings.QueueFullSort then
+		rematch:SortQueue()
+	end
+	rematch:SortOrderChanged() -- if active sort enabled, this will sort it
+	rematch.drawer.queue.levelingSlot.anim.texture:SetTexture(rematch.sortIcons[self.index])
+	rematch.drawer.queue.levelingSlot.anim:Show()
 end
 function rmf:GetFullSort()
 	return settings.QueueFullSort
 end
 function rmf:SetFullSort(value)
 	settings.QueueFullSort = value
+	settings.QueueSortOrder = settings.QueueSortOrder or 1 -- make sorting by ascending level default sort
 	rematch:SortOrderChanged()
-end
-function rmf:DisableFullSort()
-	return not settings.QueueSortOrder
-end
-function rmf:GetQueueSkipDead()
-	return settings.QueueSkipDead
-end
-function rmf:SetQueueSkipDead(value)
-	settings.QueueSkipDead = value
-	rematch:ProcessQueue()
+	rematch:ShowMenu("levelingQueueFilter","TOPLEFT",rematch.drawer.queue.filter,"TOPRIGHT",-6,8)
 end
 function rmf:GetQueueNoPreferences()
 	return settings.QueueNoPreferences
@@ -573,39 +571,24 @@ function rmf:EmptyQueue()
 	dialog:SetPoint("CENTER")
 end
 
--- note: 1=ascending, 2=descending, 3=median, 4=type; 2 and 3 are switched for aesthetic reasons
+-- note: 1=ascending, 2=descending, 3=median, 4=type, 5=when; 2 and 3 are switched for aesthetic reasons
 menu.menus["levelingQueueFilter"] = {
 	{ title = L["Queue"] },
-	{ text=L["Sort Order:"], highlight=true, disable=true },
-	{ text=L["Ascending"], icon="Interface\\Minimap\\Minimap-QuestArrow", radio=true, index=1, value=rmf.GetQueueSort, func=rmf.SetQueueSort, tooltipTitle=L["Sort:\124cffffd200Ascending"], tooltipBody=L["Sort all but the top-most pet from level 1 to level 25."] },
-	{ text=L["Median"], icon="Interface\\Minimap\\ObjectIcons", iconCoords={0,0.125,0.125,0.25}, radio=true, index=3, value=rmf.GetQueueSort, func=rmf.SetQueueSort, tooltipTitle=L["Sort:\124cffffd200Median"], tooltipBody=L["Sort all but the top-most pet for levels closest to 10.5."] },
-	{ text=L["Descending"], icon="Interface\\Minimap\\Minimap-QuestArrow", iconCoords={0.075,0.925,0.925,0.075}, radio=true, index=2, value=rmf.GetQueueSort, func=rmf.SetQueueSort, tooltipTitle=L["Sort:\124cffffd200Descending"], tooltipBody=L["Sort all but the top-most pet from level 25 to level 1."] },
-	{ text=TYPE, icon="Interface\\Minimap\\ObjectIcons", iconCoords={0.5,0.625,0.5,0.625}, radio=true, index=4, value=rmf.GetQueueSort, func=rmf.SetQueueSort, tooltipTitle=L["Sort:\124cffffd200Type"], tooltipBody=L["Sort all but the top-most pet by their types."] },
+	{ text=L["Sort By:"], highlight=true, disable=true },
+	{ text=L["Ascending"], icon="Interface\\Icons\\misc_arrowlup", radio=rmf.GetFullSort, index=1, value=rmf.GetQueueSort, func=rmf.SetQueueSort, stay=false, tooltipTitle=L["Sort:Ascending"], tooltipBody=L["Sort all pets in the queue from level 1 to level 24."] },
+	{ text=L["Median"], icon="Interface\\Icons\\Ability_Hunter_FocusedAim", radio=rmf.GetFullSort, index=3, value=rmf.GetQueueSort, func=rmf.SetQueueSort, stay=false, tooltipTitle=L["Sort:Median"], tooltipBody=L["Sort all pets in the queue for levels closest to 10.5."] },
+	{ text=L["Descending"], icon="Interface\\Icons\\misc_arrowdown", radio=rmf.GetFullSort, index=2, value=rmf.GetQueueSort, func=rmf.SetQueueSort, stay=false, tooltipTitle=L["Sort:Descending"], tooltipBody=L["Sort all pets in the queue from level 24 to level 1."] },
+	{ text=TYPE, icon="Interface\\Icons\\Icon_UpgradeStone_Beast_Uncommon", radio=rmf.GetFullSort, index=4, value=rmf.GetQueueSort, func=rmf.SetQueueSort, stay=false, tooltipTitle=L["Sort:Type"], tooltipBody=L["Sort all pets in the queue by their types."] },
+	{ text=L["Time"], icon="Interface\\Icons\\Spell_Holy_BorrowedTime", radio=rmf.GetFullSort, index=5, value=rmf.GetQueueSort, func=rmf.SetQueueSort, stay=false, tooltipTitle=L["Sort:Time"], tooltipBody=L["Sort all pets in the queue by when they were added, earliest pets first."] },
 	{ spacer=true },
-	{ text=L["Full Sort"], disable=rmf.DisableFullSort, icon="Interface\\Minimap\\ObjectIcons", iconCoords={0.375,0.5,0.25,0.375}, check=true, value=rmf.GetFullSort, func=rmf.SetFullSort, tooltipTitle=L["Full Sort"], tooltipBody=L["Include even the top-most pet in the sort. This can cause the top-most pet to change as it gains xp or pets get added to the queue."] },
+	{ text=L["Active Sort"], check=true, value=rmf.GetFullSort, func=rmf.SetFullSort, tooltipTitle=L["Active Sort"], tooltipBody=L["When sorting the queue, Rematch will keep it sorted. The order of pets may change as they gain xp or get added/removed from the queue.\n\nYou cannot manually change the order of pets while the queue is actively sorted."] },
 	{ spacer=true },
-	{ text=L["Prefer Live Pets"], check=true, disable=rmf.GetQueueNoPreferences, value=rmf.GetQueueSkipDead, func=rmf.SetQueueSkipDead, tooltipTitle=L["Prefer Live Pets"], tooltipBody=L["When loading pets from the queue, skip dead pets and load living ones first."] },
 	{ text=L["No Preferences"], check=true, value=rmf.GetQueueNoPreferences, func=rmf.SetQueueNoPreferences, tooltipTitle=L["No Preferences"], tooltipBody=L["Suspend all preferred loading of pets from the queue, except for pets that can't load."] },
 	{ spacer=true },
 	{ text=L["Fill Queue"], func=rmf.FillQueue, tooltipTitle=L["Fill Queue"], tooltipBody=L["Fill the leveling queue with one of each species that can level from the filtered pet browser, and for which you don't have a level 25 already."] },
 	{ text=L["Fill Queue More"], func=rmf.FillQueueMore, tooltipTitle=L["Fill Queue More"], tooltipBody=L["Fill the leveling queue with one of each species that can level from the filtered pet browser, regardless whether you have any at level 25 already."] },
 	{ text=L["Empty Queue"], func=rmf.EmptyQueue, tooltipTitle=L["Empty Queue"], tooltipBody=L["Remove all leveling pets from the queue."] },
-	{ spacer=true },
-	{ text=RESET, stay=true, func=rematch.ClearQueueSort },
 	{ text=OKAY },
-}
-
-menu.menus["dialogQueueMenu"] = {
-	{ title = L["Queue"] },
-	{ text=L["Sort Order:"], highlight=true, disable=true },
-	{ text=L["Ascending"], icon="Interface\\Minimap\\Minimap-QuestArrow", radio=true, stay=false, index=1, value=rmf.GetQueueSort, func=rmf.SetQueueSort, tooltipTitle=L["Sort:\124cffffd200Ascending"], tooltipBody=L["Sort all but the top-most pet from level 1 to level 25."] },
-	{ text=L["Median"], icon="Interface\\Minimap\\ObjectIcons", iconCoords={0,0.125,0.125,0.25}, radio=true, stay=false, index=3, value=rmf.GetQueueSort, func=rmf.SetQueueSort, tooltipTitle=L["Sort:\124cffffd200Median"], tooltipBody=L["Sort all but the top-most pet for levels closest to 10.5."] },
-	{ text=L["Descending"], icon="Interface\\Minimap\\Minimap-QuestArrow", iconCoords={0.075,0.925,0.925,0.075}, radio=true, stay=false, index=2, value=rmf.GetQueueSort, func=rmf.SetQueueSort, tooltipTitle=L["Sort:\124cffffd200Descending"], tooltipBody=L["Sort all but the top-most pet from level 25 to level 1."] },
-	{ text=TYPE, icon="Interface\\Minimap\\ObjectIcons", iconCoords={0.5,0.625,0.5,0.625}, radio=true, stay=false, index=4, value=rmf.GetQueueSort, func=rmf.SetQueueSort, tooltipTitle=L["Sort:\124cffffd200Type"], tooltipBody=L["Sort all but the top-most pet by their types."] },
-	{ spacer=true },
-	{ text=L["Full Sort"], disable=rmf.DisableFullSort, icon="Interface\\Minimap\\ObjectIcons", iconCoords={0.375,0.5,0.25,0.375}, check=true, stay=false, value=rmf.GetFullSort, func=rmf.SetFullSort, tooltipTitle=L["Full Sort"], tooltipBody=L["Include even the top-most pet in the sort. This can cause the top-most pet to change as it gains xp or pets get added to the queue."] },
-	{ spacer=true },
-	{ text=RESET, func=rematch.ClearQueueSort },
 }
 
 function rmf:GetTabName()
@@ -713,6 +696,13 @@ function rmf:DeleteNotes()
 		end
 	end
 end
+function rmf:UnloadTeam()
+	settings.loadedTeamName = nil
+	settings.loadedNpcID = nil
+	rematch:UpdateWindow()
+end
+
+
 function rmf:HidePreferences()
 	local team = saved[menu.subject]
 	return not team or (team[1][1]~=0 and team[2][1]~=0 and team[3][1]~=0)
@@ -774,8 +764,19 @@ for i=1,16 do
 	tinsert(menu.menus["tabPicker"], { index=i, text=rmf.GetTabNameByIndex, icon=rmf.GetTabIconByIndex, hide=rmf.HideTabByIndex, highlight=rmf.HighlightPickerTab, func=rmf.SelectTabIndex })
 end
 
--- right-click menu for the notes buttons on team list and main header
+-- right-click menu for the notes buttons on team list
 menu.menus["manageNotes"] = {
 	{ text=L["Set Notes"], func=rmf.SetNotes },
 	{ text=L["Delete Notes"], func=rmf.DeleteNotes },
+	{ text=CANCEL },
+}
+
+-- right-click menu for title header (and its notes/preferences buttons)
+menu.menus["headerMenu"] = {
+	{ text=L["Set Notes"], func=rmf.SetNotes },
+	{ text=L["Delete Notes"], func=rmf.DeleteNotes },
+	{ text=L["Leveling Preferences"], hide=rmf.HidePreferences, func=rmf.SetPreferences },
+	{ text=L["Unload Team"], func=rmf.UnloadTeam },
+	{ text=L["Close Rematch"], func=Rematch.Toggle },
+	{ text=CANCEL },
 }

@@ -139,6 +139,44 @@
 				<Anchors>
 					<Anchor point="TOPLEFT" x="6" y="-3"/>
 				</Anchors>
+				<Frames>
+					<Frame parentKey="anim" setAllPoints="true" hidden="true">
+						<Animations>
+							<!-- makes an icon of the sort drop from leveling slot into queue  -->
+							<AnimationGroup parentKey="pulse" looping="NONE">
+								<Scale scaleX="1.25" scaleY="1.25" duration="0.2" smoothing="IN_OUT" order="1"/>
+								<Translation offsetX="0" offsetY="-120" duration="0.7" order="2"/>
+								<Scale scaleX="0.25" scaleY="0.25" duration="0.5" smoothing="IN_OUT" order="2"/>
+								<Alpha startDelay="0.3" change="-1" duration="0.4" order="2"/>
+								<Scripts>
+									<OnFinished>
+										self:GetParent():Hide()
+									</OnFinished>
+								</Scripts>
+							</AnimationGroup>
+						</Animations>
+						<Layers>
+							<Layer level="ARTWORK">
+								<Texture parentKey="texture" setAllPoints="true"/>
+							</Layer>
+							<Layer level="OVERLAY">
+								<Texture file="Interface\PetBattles\PetBattle-GoldSpeedFrame">
+									<Anchors>
+										<Anchor point="TOPLEFT" x="-1" y="1"/>
+										<Anchor point="BOTTOMRIGHT" x="1" y="-1"/>
+									</Anchors>
+									<TexCoords left="0.1171875" right="0.7421875" top="0.1171875" bottom="0.734375"/>
+								</Texture>
+							</Layer>
+						</Layers>
+						<Scripts>
+							<OnShow>
+								self.pulse:Play()
+								self:SetFrameLevel(self:GetParent():GetFrameLevel()+6)
+							</OnShow>
+						</Scripts>
+					</Frame>
+				</Frames>
 				<Scripts>
 					<OnEnter>
 						Rematch.LevelingSlotOnEnter(self)
@@ -182,31 +220,24 @@
 				<Layers>
 					<Layer level="ARTWORK">
 						<FontString parentKey="label" inherits="GameFontNormalSmall" setAllPoints="true" hidden="true"/>
-						<FontString parentKey="sortLabel" inherits="GameFontHighlightSmall" text="Sort:">
+						<FontString parentKey="sortLabel" inherits="GameFontHighlightSmall">
 							<Anchors>
-								<Anchor point="LEFT" x="7" y="0"/>
+								<Anchor point="CENTER"/>
 							</Anchors>
 						</FontString>
 						<Texture parentKey="sorted" file="Interface\Minimap\Minimap-QuestArrow">
-							<Size x="16" y="16"/>
+							<Size x="12" y="12"/>
 							<Anchors>
-								<Anchor point="LEFT" relativeKey="$parent.sortLabel" relativePoint="RIGHT" x="-1" y="0"/>
+								<Anchor point="LEFT" x="4" y="0"/>
 							</Anchors>
 							<TexCoords left="0.075" right="0.925" top="0.075" bottom="0.925"/>
-						</Texture>
-						<Texture parentKey="rotate" file="Interface\Minimap\ObjectIcons">
-							<Size x="16" y="16"/>
-							<Anchors>
-								<Anchor point="LEFT" relativeKey="$parent.sorted" relativePoint="RIGHT" x="-3" y="0"/>
-							</Anchors>
-							<TexCoords left="0.375" right="0.5" top="0.25" bottom="0.375"/>
 						</Texture>
 					</Layer>
 				</Layers>
 				<Frames>
 					<Button parentKey="clear" inherits="RematchClearButtonTemplate">
 						<Anchors>
-							<Anchor point="RIGHT" x="-4" y="0"/>
+							<Anchor point="RIGHT" x="-2" y="0"/>
 						</Anchors>
 						<Scripts>
 							<OnClick>

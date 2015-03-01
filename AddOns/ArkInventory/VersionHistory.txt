@@ -15,6 +15,13 @@
 
  
  
+*3.05.00 (25-FEB-2015)*
+ * added - config > settings > location > window > frames > title > online (sets the colour of the character name in the title bar when online)
+ * added - config > settings > location > window > frames > title > offline (sets the colour of the character name in the title bar when offline)
+ * added - config > settings > location > window > frames > search > label (sets the colour of the label in the search bar)
+ * added - config > settings > location > window > frames > search > text (sets the colour of the text in the search bar)
+ * changed - toc set to 60100
+ 
 *3.04.22 (06-JAN-2015)*
  * added - right click menu off refresh icon to toggle display of hidden categories/stacks
  * added - config > settings > location > items > limit stacks (range from 0 to 5, 0 will show all stacks, 1-5 will only show that many stacks of an item and hide the rest, toggle show hidden to temporarily see all hidden stacks) - note: displayed stack count does not increase to cater for the hidden stacks

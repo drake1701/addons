@@ -6,7 +6,7 @@
 	<Frame name="RematchDragTemplate" enableMouse="true" virtual="true">
 		<Scripts>
 			<OnMouseDown>
-				Rematch.FrameStartMoving(Rematch)
+				Rematch.FrameStartMoving(Rematch,button)
 			</OnMouseDown>
 			<OnMouseUp>
 				Rematch.FrameStopMoving(Rematch)
@@ -33,20 +33,45 @@
 						<Anchor point="CENTER"/>
 					</Anchors>
 				</FontString>
+			</Layer>
+		</Layers>
+		<Frames>
+			<!-- buttonFrame is for space to put buttons in the header. (like notes and preferences buttons)
+			     It's attached to the right of the text and the rest of the header artwork attaches
+					 to the right of this frame. This frame is invisible and not mouse enabled.
+
+					expanded:
+					header.buttonFrame:SetPoint("LEFT",header.text,"RIGHT")
+					header.buttonFrame:Show()
+					collapsed:
+					header.buttonFrame:SetPoint("RIGHT",header.text,"RIGHT")
+					header.buttonFrame:Hide()
+			-->
+			<Frame parentKey="buttonFrame" useParentLevel="true" hidden="true">
+				<Size x="32" y="28"/> <!-- can be resized any width -->
+				<Anchors>
+					<Anchor point="RIGHT" relativeKey="$parent.text"/>
+				</Anchors>
+			</Frame>
+		</Frames>
+		<Layers>
+			<Layer level="OVERLAY">
 				<Texture file="Interface\PetBattles\_PetJournalHorizTile" horizTile="true">
 					<Size y="17"/>
 					<Anchors>
 						<Anchor point="LEFT" relativePoint="LEFT" relativeKey="$parent.text" x="-10" y="0"/>
-						<Anchor point="RIGHT" relativePoint="RIGHT" relativeKey="$parent.text" x="10" y="0"/>
+						<Anchor point="RIGHT" relativePoint="RIGHT" relativeKey="$parent.buttonFrame" x="10" y="0"/>
 					</Anchors>
 					<TexCoords left="0.00000000" right="1.00000000" top="0.23437500" bottom="0.42187500"/>	
 				</Texture>
 			</Layer>
+		</Layers>
+		<Layers>
 			<Layer level="OVERLAY" textureSubLevel="1">
 				<Texture parentKey="headerF" file="Interface\PetBattles\_PetJournalHorizTile" horizTile="true">
 					<Anchors>
 						<Anchor point="TOPLEFT" relativePoint="TOPLEFT" relativeKey="$parent.text"/>
-						<Anchor point="BOTTOMRIGHT" relativePoint="BOTTOMRIGHT" relativeKey="$parent.text"/>
+						<Anchor point="BOTTOMRIGHT" relativePoint="BOTTOMRIGHT" relativeKey="$parent.buttonFrame"/>
 					</Anchors>
 					<TexCoords left="0.00000000" right="1.00000000" top="0.43750000" bottom="0.75000000"/>	
 				</Texture>
@@ -594,7 +619,7 @@
 					<Anchors>
 						<Anchor point="TOPLEFT" relativeKey="$parent.title" relativePoint="BOTTOMLEFT" x="0" y="-4"/>
 					</Anchors>
-					<Color r=".85" g=".85" b=".85"/>
+					<Color r=".9" g=".9" b=".9"/>
 				</FontString>
 			</Layer>
 		</Layers>
@@ -825,5 +850,34 @@
 			</OnEditFocusLost>
 		</Scripts>
 	</EditBox>
+
+	<!-- RematchTableTooltip is a tooltip designed for bigger text that doesn't wrap,
+			 especially for in-line textures that want vertically-centered fontstrings.
+			 Use RematchTooltip for traditional tooltips with wrapping lines of text. -->
+	<Frame name="RematchTableTooltip" parent="UIParent" frameStrata="TOOLTIP" clampedToScreen="true" hidden="true">
+		<Anchors>
+			<Anchor point="CENTER"/>
+		</Anchors>
+		<Backdrop bgFile="Interface\ChatFrame\ChatFrameBackground" edgeFile="Interface\Tooltips\UI-Tooltip-Border" tile="true">
+			<BackgroundInsets>
+				<AbsInset left="3" right="3" top="3" bottom="3"/>
+			</BackgroundInsets>
+			<EdgeSize val="16"/>
+			<TileSize val="32"/>
+			<Color r="0.15" g="0.15" b="0.15"/>
+			<BorderColor r="0.5" g="0.42" b="0"/>
+		</Backdrop>
+		<Layers>
+			<Layer level="BACKGROUND" textureSubLevel="1">
+				<Texture file="Interface\Common\ShadowOverlay-Corner">
+					<Anchors>
+						<Anchor point="TOPLEFT" x="3" y="-3"/>
+						<Anchor point="BOTTOMRIGHT" x="-3" y="3"/>
+					</Anchors>
+					<TexCoords left="0" right="1" top="1" bottom="0"/>
+				</Texture>
+			</Layer>
+		</Layers>
+	</Frame>
 
 </Ui>

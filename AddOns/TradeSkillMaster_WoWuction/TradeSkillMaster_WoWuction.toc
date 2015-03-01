@@ -1,4 +1,4 @@
-## Interface: 60000
+## Interface: 60100
 ## Title: |cff00ff00TradeSkillMaster_WoWuction|r
 ## Notes: Gets data from wowuction.com in game for use by other TSM modules.
 ## Author: Sapu94, Bart39

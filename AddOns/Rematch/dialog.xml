@@ -372,8 +372,8 @@
 			</Button>
 
 			<!-- levelingPanel displays the min health/max level/etc for leveling pet save dialog -->
-			<Frame parentKey="levelingPanel" useParentLevel="true">
-				<Size x="250" y="120"/>
+			<Frame parentKey="levelingPanel" useParentLevel="true" hidden="true">
+				<Size x="250" y="164"/>
 				<Layers>
 					<Layer level="BACKGROUND">
 						<!-- horizontal line at top -->
@@ -429,10 +429,38 @@
 							</OnLeave>
 						</Scripts>
 					</CheckButton>
+					<!-- 10th entry is the expected damage taken -->
+					<Frame parentKey="expected">
+						<Size x="190" y="34"/>
+						<Anchors>
+							<Anchor point="TOP" x="0" y="-86"/>
+						</Anchors>
+						<Layers>
+							<Layer level="ARTWORK">
+								<FontString parentKey="label" inherits="GameFontHighlight">
+									<Anchors>
+										<Anchor point="TOP"/>
+									</Anchors>
+								</FontString>
+							</Layer>
+						</Layers>
+						<Frames>
+							<CheckButton parentArray="buttons" inherits="RematchBrowserTypeButtonTemplate" id="1"/>
+							<CheckButton parentArray="buttons" inherits="RematchBrowserTypeButtonTemplate" id="2"/>
+							<CheckButton parentArray="buttons" inherits="RematchBrowserTypeButtonTemplate" id="3"/>
+							<CheckButton parentArray="buttons" inherits="RematchBrowserTypeButtonTemplate" id="4"/>
+							<CheckButton parentArray="buttons" inherits="RematchBrowserTypeButtonTemplate" id="5"/>
+							<CheckButton parentArray="buttons" inherits="RematchBrowserTypeButtonTemplate" id="6"/>
+							<CheckButton parentArray="buttons" inherits="RematchBrowserTypeButtonTemplate" id="7"/>
+							<CheckButton parentArray="buttons" inherits="RematchBrowserTypeButtonTemplate" id="8"/>
+							<CheckButton parentArray="buttons" inherits="RematchBrowserTypeButtonTemplate" id="9"/>
+							<CheckButton parentArray="buttons" inherits="RematchBrowserTypeButtonTemplate" id="10"/>
+						</Frames>
+					</Frame>
 					<!-- 9th entry in team table is maxXP -->
 					<EditBox parentKey="maxXP" inherits="RematchLevelingPanelEditBoxTemplate" id="9">
 						<Anchors>
-							<Anchor point="TOPRIGHT" x="-42" y="-88"/>
+							<Anchor point="TOPRIGHT" x="-42" y="-130"/>
 						</Anchors>
 						<Scripts>
 							<OnTabPressed>

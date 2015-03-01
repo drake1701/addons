@@ -1653,7 +1653,7 @@ function ArkInventory.MenuChangerVaultTabOpen( frame )
 				if level == 1 then
 				
 					ArkInventory.Lib.Dewdrop:AddLine(
-						"text", string.format( "%s: %s", ArkInventory.Localise["GUILDBANK"], string.format( GUILDBANK_TAB_NUMBER, bag_id ) ),
+						"text", string.format( "%s: %s", ArkInventory.Localise["LOCATION_VAULT"], string.format( GUILDBANK_TAB_NUMBER, bag_id ) ),
 						"isTitle", true,
 						"icon", bag.texture,
 						"textHeight", 12
@@ -1684,7 +1684,7 @@ function ArkInventory.MenuChangerVaultTabOpen( frame )
 					end
 					
 					ArkInventory.Lib.Dewdrop:AddLine(
-						"text", string.format( "mode: %s", ArkInventory.Localise["GUILDBANK"] ),
+						"text", string.format( "mode: %s", ArkInventory.Localise["LOCATION_VAULT"] ),
 						"closeWhenClicked", true,
 						"disabled", GuildBankFrame.mode == "bank",
 						"func", function( )
@@ -1801,7 +1801,7 @@ function ArkInventory.MenuChangerVaultActionOpen( frame )
 				if level == 1 then
 				
 					ArkInventory.Lib.Dewdrop:AddLine(
-						"text", ArkInventory.Localise["GUILDBANK"],
+						"text", ArkInventory.Localise["LOCATION_VAULT"],
 						"icon", ArkInventory.Global.Location[loc_id].Texture,
 						"isTitle", true,
 						"textHeight", 12
@@ -1936,7 +1936,7 @@ function ArkInventory.MenuChangerVaultActionOpen( frame )
 					ArkInventory.Lib.Dewdrop:AddLine( )
 					
 					ArkInventory.Lib.Dewdrop:AddLine(
-						"text", string.format( "%s: %s", DISPLAY, ArkInventory.Localise["GUILDBANK"] ),
+						"text", string.format( "%s: %s", DISPLAY, ArkInventory.Localise["LOCATION_VAULT"] ),
 						"closeWhenClicked", true,
 						"disabled", GuildBankFrame.mode == "bank",
 						"func", function( )

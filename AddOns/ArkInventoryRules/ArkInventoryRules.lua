@@ -1,6 +1,6 @@
 ﻿-- (c) 2009-2014, all rights reserved.
--- $Revision: 1303 $
--- $Date: 2015-01-24 18:38:27 +1100 (Sat, 24 Jan 2015) $
+-- $Revision: 1310 $
+-- $Date: 2015-02-25 07:11:34 +1100 (Wed, 25 Feb 2015) $
 
 
 local _G = _G
@@ -1088,9 +1088,9 @@ function ArkInventoryRules.System.location( ... )
 		local k = string.lower( string.trim( arg ) )
 		if k == "bag" or k == string.lower( ArkInventory.Localise["LOCATION_BAG"] ) then
 			k = ArkInventory.Const.Location.Bag
-		elseif k == "bank" or k == string.lower( ArkInventory.Localise["BANK"] ) then
+		elseif k == "bank" or k == string.lower( ArkInventory.Localise["LOCATION_BANK"] ) then
 			k = ArkInventory.Const.Location.Bank
-		elseif k == "guild bank" or k == "vault" or k == string.lower( ArkInventory.Localise["GUILDBANK"] ) then
+		elseif k == "guild bank" or k == "vault" or k == string.lower( ArkInventory.Localise["LOCATION_VAULT"] ) then
 			k = ArkInventory.Const.Location.Vault
 		elseif k == "mail" or k == string.lower( ArkInventory.Localise["MAIL"] ) then
 			k = ArkInventory.Const.Location.Mail

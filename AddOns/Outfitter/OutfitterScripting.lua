@@ -852,8 +852,8 @@ if event == "OUTFIT_EQUIPPED" then
     end
     
    if setting.DisableClicktoMove then
-       setting.savedMove = GetCVar("Autointeract")
-       SetCVar("Autointeract", "0")
+       setting.savedMove = GetCVar("autointeract")
+       SetCVar("autointeract", "0")
        setting.didSetMove = true
    end
    
@@ -879,7 +879,7 @@ elseif event == "OUTFIT_UNEQUIPPED" then
    end
    
   if setting.DisableClicktoMove and setting.didSetMove then
-      SetCVar("Autointeract", setting.savedMove)
+      SetCVar("autointeract", setting.savedMove)
       setting.didSetMove = nil
       setting.savedMove = nil
   end

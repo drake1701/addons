@@ -1,4 +1,4 @@
-## Interface: 60000
+## Interface: 60100
 ## Title: |cffC495DDSquare Minimap Buttons|r
 ## Version: 3.39
 ## Notes: Minimap Button Bar / Minimap Button Skinning

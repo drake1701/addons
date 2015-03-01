@@ -1,7 +1,7 @@
 ﻿--[[
 	This file is a template for localizing Rematch into other languages.
 
-	As strings are added for each update, they will appear here.
+	As strings are added/removed for each update, they will appear here.
 
 	If you'd like to translate Rematch into another language, that would be
 	very much appreciated!
@@ -18,13 +18,16 @@
 local _,L = ...
 if GetLocale()=="????" then
 
--- new in 3.3.0
-	L["Lock window size"] = "Lock window size"
-	L["Prevent the window from being resized with the resize grip along the edge of the window."] = "Prevent the window from being resized with the resize grip along the edge of the window."
-	L["Target treat onto the pet."] = "Target treat onto the pet."
-	L["Cast this treat."] = "Cast this treat."
-	L["Summon a favorite pet."] = "Summon a favorite pet."
-	L["Summon a leveling pet."] = "Summon a leveling pet."
+-- new strings in 3.3.4
+-- "Damage expected"
+-- "Close Rematch"
+-- "Or any"
+-- "Expected damage taken"
+-- "The minimum health of pets can be adjusted by the type of damage they are expected to receive."
+-- "  For %s pets: \124cffffd200%d"
+
+-- removed strings in 3.3.4
+-- "Or any \124TInterface\\PetBattles\\PetIcon-Magical:20:20:0:0:128:256:102:63:129:168\124t & \124TInterface\\PetBattles\\PetIcon-Mechanical:20:20:0:0:128:256:102:63:129:168\124t"
 
 -- browser.lua
 	L["Strong vs"] = "Strong vs"
@@ -41,14 +44,9 @@ if GetLocale()=="????" then
 	L["Toggle Teams"] = "Toggle Teams"
 	L["Toggle Notes"] = "Toggle Notes"
 	L["Toggles the Rematch window to manage battle pets and teams."] = "Toggles the Rematch window to manage battle pets and teams."
-	L["Slotted leveling pets are chosen by the queue.\n\nThe queue is now sorted.\n\nFor greater control, turn off queue sorting."] = "Slotted leveling pets are chosen by the queue.\n\nThe queue is now sorted.\n\nFor greater control, turn off queue sorting."
 
 -- current.lua
 	L["Current Battle Pets"] = "Current Battle Pets"
-
--- dialog.lua
-
--- finder.lua
 
 -- floatingpetcard.lua
 	L["Damage Taken"] = "Damage Taken"
@@ -63,23 +61,22 @@ if GetLocale()=="????" then
 
 -- leveling.lua
 	L["Queued:"] = "Queued:"
-	L["Leveling:"] = "Leveling:"
-	L["Sort:"] = "Sort:"
+	L["Leveling"] = "Leveling"
+	L["Active"] = "Active"
 	L["Leveling Pet Preferences"] = "Leveling Pet Preferences"
 	L["Minimum Health"] = "Minimum Health"
 	L["Maximum Level"] = "Maximum Level"
-	L["Or any \124TInterface\\PetBattles\\PetIcon-Magical:20:20:0:0:128:256:102:63:129:168\124t & \124TInterface\\PetBattles\\PetIcon-Mechanical:20:20:0:0:128:256:102:63:129:168\124t"] = "Or any \124TInterface\\PetBattles\\PetIcon-Magical:20:20:0:0:128:256:102:63:129:168\124t & \124TInterface\\PetBattles\\PetIcon-Mechanical:20:20:0:0:128:256:102:63:129:168\124t"
+	L["Or any"] = "Or any"
 	L["This is the minimum health preferred for a leveling pet."] = "This is the minimum health preferred for a leveling pet."
 	L["Allow low-health Magic and Mechanical pets to ignore the Minimum Health, since their racials allow them to often survive a hit that would ordinarily kill them."] = "Allow low-health Magic and Mechanical pets to ignore the Minimum Health, since their racials allow them to often survive a hit that would ordinarily kill them."
 	L["This is the maximum level preferred for a leveling pet.\n\nLevels can be partial amounts. Level 23.45 is level 23 with 45% xp towards level 24."] = "This is the maximum level preferred for a leveling pet.\n\nLevels can be partial amounts. Level 23.45 is level 23 with 45% xp towards level 24."
-	L["This is the leveling slot.\n\nDrag a level 1-24 pet here to set it as the active leveling pet.\n\nWhen a team is saved with a leveling pet, that pet's place on the team is reserved for future leveling pets.\n\nThis slot can contain as many leveling pets as you want. When a pet reaches 25 the topmost pet in the queue becomes your new leveling pet."] = "This is the leveling slot.\n\nDrag a level 1-24 pet here to set it as the active leveling pet.\n\nWhen a team is saved with a leveling pet, that pet's place on the team is reserved for future leveling pets.\n\nThis slot can contain as many leveling pets as you want. When a pet reaches 25 the topmost pet in the queue becomes your new leveling pet."
+	L["Expected damage taken"] = "Expected damage taken"
 	L["\124TInterface\\Buttons\\UI-GroupLoot-Pass-Up:16\124t This pet can't level"] = "\124TInterface\\Buttons\\UI-GroupLoot-Pass-Up:16\124t This pet can't level"
-	L["\124TInterface\\Buttons\\UI-GroupLoot-Pass-Up:16\124t The queue is in \124cffffffffFull Sort\124r mode."] = "\124TInterface\\Buttons\\UI-GroupLoot-Pass-Up:16\124t The queue is in \124cffffffffFull Sort\124r mode."
-	L["You can't choose the active leveling pet while the queue is fully sorted."] = "You can't choose the active leveling pet while the queue is fully sorted."
-	L["\124TInterface\\Buttons\\UI-GroupLoot-Pass-Up:16\124t The queue is sorted"] = "\124TInterface\\Buttons\\UI-GroupLoot-Pass-Up:16\124t The queue is sorted"
-	L["This pet is already in the queue. Pets can't move while the queue is sorted"] = "This pet is already in the queue. Pets can't move while the queue is sorted"
-	L["\124TInterface\\DialogFrame\\UI-Dialog-Icon-AlertNew:16\124t The queue is sorted"] = "\124TInterface\\DialogFrame\\UI-Dialog-Icon-AlertNew:16\124t The queue is sorted"
-	L["This pet will be added to the end of the unsorted queue."] = "This pet will be added to the end of the unsorted queue."
+	L["\124TInterface\\Buttons\\UI-GroupLoot-Pass-Up:16\124t Active Sort is enabled"] = "\124TInterface\\Buttons\\UI-GroupLoot-Pass-Up:16\124t Active Sort is enabled"
+	L["This pet is already in the queue.\n\nYou can't rearrange the order of pets while the queue is actively sorted."] = "This pet is already in the queue.\n\nYou can't rearrange the order of pets while the queue is actively sorted."
+	L["\124TInterface\\DialogFrame\\UI-Dialog-Icon-AlertNew:16\124t Active Sort is enabled"] = "\124TInterface\\DialogFrame\\UI-Dialog-Icon-AlertNew:16\124t Active Sort is enabled"
+	L["The queue is actively sorted. This pet will be sorted with the rest."] = "The queue is actively sorted. This pet will be sorted with the rest."
+	L["This is the leveling slot.\n\nDrag a level 1-24 pet here to set it as the active leveling pet.\n\nWhen a team is saved with a leveling pet, that pet's place on the team is reserved for future leveling pets.\n\nThis slot can contain as many leveling pets as you want. When a pet reaches 25 the topmost pet in the queue becomes your new leveling pet."] = "This is the leveling slot.\n\nDrag a level 1-24 pet here to set it as the active leveling pet.\n\nWhen a team is saved with a leveling pet, that pet's place on the team is reserved for future leveling pets.\n\nThis slot can contain as many leveling pets as you want. When a pet reaches 25 the topmost pet in the queue becomes your new leveling pet."
 	L["All done leveling pets!"] = "All done leveling pets!"
 	L["Rematch's leveling queue is empty"] = "Rematch's leveling queue is empty"
 	L["Next leveling pet:"] = "Next leveling pet:"
@@ -88,24 +85,28 @@ if GetLocale()=="????" then
 	L["In Pet Battle"] = "In Pet Battle"
 	L["You are in %s.\n\nThe leveling slot and queue are locked while you are in %s."] = "You are in %s.\n\nThe leveling slot and queue are locked while you are in %s."
 	L["Leveling Preferences"] = "Leveling Preferences"
+	L["  For %s pets: \124cffffd200%d"] = "  For %s pets: \124cffffd200%d"
+	L["Damage expected"] = "Damage expected"
 	L["Save Preferences?"] = "Save Preferences?"
+	L["The minimum health of pets can be adjusted by the type of damage they are expected to receive."] = "The minimum health of pets can be adjusted by the type of damage they are expected to receive."
 	L["Choose a new pet"] = "Choose a new pet"
-	L["Choosing a pet will turn off Full Sort"] = "Choosing a pet will turn off Full Sort"
+	L["Choosing a pet will turn off Active Sort"] = "Choosing a pet will turn off Active Sort"
 
 -- main.lua
-	L["Reload"] = "Reload"
-	L["Options"] = "Options"
 	L["Teams"] = "Teams"
 	L["You're in combat. Blizzard has restrictions on what we can do with pets during combat. Try again when you're out of combat. Sorry!"] = "You're in combat. Blizzard has restrictions on what we can do with pets during combat. Try again when you're out of combat. Sorry!"
 	L["Auto Load is now"] = "Auto Load is now"
 	L["\124cff00ff00Enabled"] = "\124cff00ff00Enabled"
 	L["\124cffff0000Disabled"] = "\124cffff0000Disabled"
 	L["This team did not automatically load because you've already auto-loaded a team from where you're standing."] = "This team did not automatically load because you've already auto-loaded a team from where you're standing."
+	L["Summon a leveling pet."] = "Summon a leveling pet."
+	L["Summon a favorite pet."] = "Summon a favorite pet."
+	L["Target treat onto the pet."] = "Target treat onto the pet."
+	L["Cast this treat."] = "Cast this treat."
+	L["Dismiss the summoned pet."] = "Dismiss the summoned pet."
 	L["\124cffffd200PetBattleTeams is not enabled. Try again when the addon is enabled."] = "\124cffffd200PetBattleTeams is not enabled. Try again when the addon is enabled."
-
--- menu.lua
-
--- notes.lua
+	L["Reload"] = "Reload"
+	L["Options"] = "Options"
 	L["Undo"] = "Undo"
 	L["Revert to the last saved notes. Changes are saved when leaving these notes."] = "Revert to the last saved notes. Changes are saved when leaving these notes."
 
@@ -130,8 +131,8 @@ if GetLocale()=="????" then
 	L["Make the text in the scrollable lists (pets, teams and options) a little bigger."] = "Make the text in the scrollable lists (pets, teams and options) a little bigger."
 	L["Lock window position"] = "Lock window position"
 	L["Prevent the Rematch window from being dragged unless Shift is held."] = "Prevent the Rematch window from being dragged unless Shift is held."
-	L["Lock window height"] = "Lock window height"
-	L["Prevent the window's height from being resized with the resize grip along the bottom of the expanded window."] = "Prevent the window's height from being resized with the resize grip along the bottom of the expanded window."
+	L["Lock window size"] = "Lock window size"
+	L["Prevent the window from being resized with the resize grip along the edge of the window."] = "Prevent the window from being resized with the resize grip along the edge of the window."
 	L["Stay for pet battle"] = "Stay for pet battle"
 	L["When a pet battle begins, keep Rematch on screen instead of hiding it. Note: the window will still close on player combat."] = "When a pet battle begins, keep Rematch on screen instead of hiding it. Note: the window will still close on player combat."
 	L["Reverse pullout"] = "Reverse pullout"
@@ -160,11 +161,11 @@ if GetLocale()=="????" then
 	L["When pets load, show the window if any pets are injured. The window will show if any pets are dead or missing regardless of this setting."] = "When pets load, show the window if any pets are injured. The window will show if any pets are dead or missing regardless of this setting."
 	L["Leveling Queue Options"] = "Leveling Queue Options"
 	L["Keep current pet on new sort"] = "Keep current pet on new sort"
-	L["Do not change the current leveling pet to the top-most pet when choosing a sort order."] = "Do not change the current leveling pet to the top-most pet when choosing a sort order."
-	L["Keep sort when emptied"] = "Keep sort when emptied"
-	L["When the queue is emptied, preserve the sort order and auto rotate status instead of resetting them."] = "When the queue is emptied, preserve the sort order and auto rotate status instead of resetting them."
+	L["When sorting the queue, keep the top-most pet at the top so the current leveling pet doesn't change.\n\nThis option has no effect when the queue is actively sorted."] = "When sorting the queue, keep the top-most pet at the top so the current leveling pet doesn't change.\n\nThis option has no effect when the queue is actively sorted."
 	L["Hide pet toast"] = "Hide pet toast"
 	L["Don't display the popup 'toast' when a new pet is automatically loaded from the leveling queue."] = "Don't display the popup 'toast' when a new pet is automatically loaded from the leveling queue."
+	L["Prefer Live Pets"] = "Prefer Live Pets"
+	L["When loading pets from the queue, skip dead pets and load living ones first."] = "When loading pets from the queue, skip dead pets and load living ones first."
 	L["Pet Browser Options"] = "Pet Browser Options"
 	L["Use type bar"] = "Use type bar"
 	L["Show the tabbed bar near the top of the pet browser to filter pet types, pets that are strong or tough vs chosen types."] = "Show the tabbed bar near the top of the pet browser to filter pet types, pets that are strong or tough vs chosen types."
@@ -196,8 +197,6 @@ if GetLocale()=="????" then
 	L["If both you and the recipient have this option checked, teams can be sent to or from battle.net friends. Note: The recipient needs Rematch 3.0 or greater."] = "If both you and the recipient have this option checked, teams can be sent to or from battle.net friends. Note: The recipient needs Rematch 3.0 or greater."
 	L["Hide tooltips"] = "Hide tooltips"
 	L["Hide the more common tooltips within Rematch."] = "Hide the more common tooltips within Rematch."
-	L["Even alerts"] = "Even alerts"
-	L["Also hide tooltips that warn when you can't place a pet somewhere. This is not recommended if you're new to the addon."] = "Also hide tooltips that warn when you can't place a pet somewhere. This is not recommended if you're new to the addon."
 	L["Even options"] = "Even options"
 	L["Also hide tooltips that appear here in the options panel. This is not recommended if you're new to the addon."] = "Also hide tooltips that appear here in the options panel. This is not recommended if you're new to the addon."
 	L["Use minimap button"] = "Use minimap button"
@@ -217,6 +216,7 @@ if GetLocale()=="????" then
 	L["Start Leveling"] = "Start Leveling"
 	L["Add to Leveling Queue"] = "Add to Leveling Queue"
 	L["Stop Leveling"] = "Stop Leveling"
+	L["Find Similar"] = "Find Similar"
 
 -- petloading.lua
 	L["Loading..."] = "Loading..."
@@ -239,7 +239,6 @@ if GetLocale()=="????" then
 	L["Use Type Bar"] = "Use Type Bar"
 	L["Reverse Sort"] = "Reverse Sort"
 	L["Favorites First"] = "Favorites First"
-	L["Leveling"] = "Leveling"
 	L["Not Leveling"] = "Not Leveling"
 	L["Tradable"] = "Tradable"
 	L["Not Tradable"] = "Not Tradable"
@@ -258,7 +257,6 @@ if GetLocale()=="????" then
 	L["Move Up"] = "Move Up"
 	L["Move Down"] = "Move Down"
 	L["Move to End"] = "Move to End"
-	L["Find Similar"] = "Find Similar"
 	L["Fill Queue"] = "Fill Queue"
 	L["This will add %d pets to the leveling queue.\n%s\nAre you sure you want to fill the leveling queue?"] = "This will add %d pets to the leveling queue.\n%s\nAre you sure you want to fill the leveling queue?"
 	L["\nYou can reduce the number of pets by filtering them in Rematch's pet browser\n\nFor instance: search for \"21-24\" and filter Rare only to fill the queue with rares between level 21 and 24.\n"] = "\nYou can reduce the number of pets by filtering them in Rematch's pet browser\n\nFor instance: search for \"21-24\" and filter Rare only to fill the queue with rares between level 21 and 24.\n"
@@ -266,22 +264,23 @@ if GetLocale()=="????" then
 	L["Empty Queue"] = "Empty Queue"
 	L["Are you sure you want to remove all pets from the leveling queue?"] = "Are you sure you want to remove all pets from the leveling queue?"
 	L["Queue"] = "Queue"
-	L["Sort Order:"] = "Sort Order:"
+	L["Sort By:"] = "Sort By:"
 	L["Ascending"] = "Ascending"
-	L["Sort:\124cffffd200Ascending"] = "Sort:\124cffffd200Ascending"
-	L["Sort all but the top-most pet from level 1 to level 25."] = "Sort all but the top-most pet from level 1 to level 25."
+	L["Sort:Ascending"] = "Sort:Ascending"
+	L["Sort all pets in the queue from level 1 to level 24."] = "Sort all pets in the queue from level 1 to level 24."
 	L["Median"] = "Median"
-	L["Sort:\124cffffd200Median"] = "Sort:\124cffffd200Median"
-	L["Sort all but the top-most pet for levels closest to 10.5."] = "Sort all but the top-most pet for levels closest to 10.5."
+	L["Sort:Median"] = "Sort:Median"
+	L["Sort all pets in the queue for levels closest to 10.5."] = "Sort all pets in the queue for levels closest to 10.5."
 	L["Descending"] = "Descending"
-	L["Sort:\124cffffd200Descending"] = "Sort:\124cffffd200Descending"
-	L["Sort all but the top-most pet from level 25 to level 1."] = "Sort all but the top-most pet from level 25 to level 1."
-	L["Sort:\124cffffd200Type"] = "Sort:\124cffffd200Type"
-	L["Sort all but the top-most pet by their types."] = "Sort all but the top-most pet by their types."
-	L["Full Sort"] = "Full Sort"
-	L["Include even the top-most pet in the sort. This can cause the top-most pet to change as it gains xp or pets get added to the queue."] = "Include even the top-most pet in the sort. This can cause the top-most pet to change as it gains xp or pets get added to the queue."
-	L["Prefer Live Pets"] = "Prefer Live Pets"
-	L["When loading pets from the queue, skip dead pets and load living ones first."] = "When loading pets from the queue, skip dead pets and load living ones first."
+	L["Sort:Descending"] = "Sort:Descending"
+	L["Sort all pets in the queue from level 24 to level 1."] = "Sort all pets in the queue from level 24 to level 1."
+	L["Sort:Type"] = "Sort:Type"
+	L["Sort all pets in the queue by their types."] = "Sort all pets in the queue by their types."
+	L["Time"] = "Time"
+	L["Sort:Time"] = "Sort:Time"
+	L["Sort all pets in the queue by when they were added, earliest pets first."] = "Sort all pets in the queue by when they were added, earliest pets first."
+	L["Active Sort"] = "Active Sort"
+	L["When sorting the queue, Rematch will keep it sorted. The order of pets may change as they gain xp or get added/removed from the queue.\n\nYou cannot manually change the order of pets while the queue is actively sorted."] = "When sorting the queue, Rematch will keep it sorted. The order of pets may change as they gain xp or get added/removed from the queue.\n\nYou cannot manually change the order of pets while the queue is actively sorted."
 	L["No Preferences"] = "No Preferences"
 	L["Suspend all preferred loading of pets from the queue, except for pets that can't load."] = "Suspend all preferred loading of pets from the queue, except for pets that can't load."
 	L["Fill the leveling queue with one of each species that can level from the filtered pet browser, and for which you don't have a level 25 already."] = "Fill the leveling queue with one of each species that can level from the filtered pet browser, and for which you don't have a level 25 already."
@@ -300,6 +299,8 @@ if GetLocale()=="????" then
 	L["Export"] = "Export"
 	L["Save To"] = "Save To"
 	L["Delete Notes"] = "Delete Notes"
+	L["Unload Team"] = "Unload Team"
+	L["Close Rematch"] = "Close Rematch"
 
 -- roster.lua
 	L["Battle"] = "Battle"
@@ -346,7 +347,6 @@ if GetLocale()=="????" then
 	L["New Team"] = "New Team"
 
 -- teams.lua
-	L["Import"] = "Import"
 	L["New Tab"] = "New Tab"
 	L["Create a new tab."] = "Create a new tab."
 	L["Choose a name and icon."] = "Choose a name and icon."
@@ -354,5 +354,6 @@ if GetLocale()=="????" then
 	L["Teams in this tab will be moved to the General tab."] = "Teams in this tab will be moved to the General tab."
 	L["Load this team?"] = "Load this team?"
 	L["Rename this team?"] = "Rename this team?"
+	L["Import"] = "Import"
 
 end

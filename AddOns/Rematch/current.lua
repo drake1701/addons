@@ -120,7 +120,11 @@ function rematch:UpdateCurrentPets()
 			local hp,hpmax,_,_,rarity = C_PetJournal.GetPetStats(petID)
 			if hp>0 then
 				bars.health:SetWidth(hp>0 and 38*(hp/hpmax) or 1)
+				button.deadPulse:Stop()
+			else
+				button.deadPulse:Play()
 			end
+			button.blood:SetShown(hp<hpmax)
 			button.dead:SetShown(hp==0)
 			bars.healthBG:Show()
 			bars.health:SetShown(hp>0)
@@ -155,6 +159,7 @@ function rematch:UpdateCurrentLevelingBorders()
 			rematch.current.pets[i].leveling:Hide()
 		else
 			rematch.current.pets[i].leveling:SetShown(rematch:IsPetLeveling(petID))
+			rematch.current.pets[i].leveling:SetDesaturated(settings.ManuallySlotted[petID])
 		end
 	end
 end

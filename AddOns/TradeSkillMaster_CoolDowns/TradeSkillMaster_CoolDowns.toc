@@ -1,4 +1,4 @@
-## Interface: 60000
+## Interface: 60100
 ## Title: |cff00ff00TradeSkillMaster_CoolDowns|r
 ## Notes: Tracks your professions CD's and provides a quick way to queue them.
 ## Author: Shiftywarloc aka j311yf1sh

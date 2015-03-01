@@ -1,0 +1,20 @@
+------------------------------------------------------------------------
+r77 | ludius | 2015-02-26 19:05:14 +0000 (Thu, 26 Feb 2015) | 1 line
+Changed paths:
+   A /tags/v4.6 (from /trunk:76)
+
+Updated version to support 6.1
+------------------------------------------------------------------------
+r76 | ludius | 2015-02-26 19:04:49 +0000 (Thu, 26 Feb 2015) | 1 line
+Changed paths:
+   M /trunk/WorldBossStatus.toc
+
+Updated version to support 6.1
+------------------------------------------------------------------------
+r74 | ludius | 2015-02-04 10:50:37 +0000 (Wed, 04 Feb 2015) | 1 line
+Changed paths:
+   M /trunk/WorldBossStatus.lua
+   M /trunk/WorldBossStatus.toc
+
+Fixed issue with tracking Rukhmar.
+------------------------------------------------------------------------

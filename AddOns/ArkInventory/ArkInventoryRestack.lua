@@ -248,7 +248,7 @@ local function CompactVault( )
 	local _, _, canView, canDeposit = GetGuildBankTabInfo( bag_id )
 	
 	if not ( IsGuildLeader( ) or ( canView and canDeposit ) ) then
-		ArkInventory.Output( string.format( ArkInventory.Localise["RESTACK_FAIL_ACCESS"], ArkInventory.Localise["GUILDBANK"], bag_id ) )
+		ArkInventory.Output( string.format( ArkInventory.Localise["RESTACK_FAIL_ACCESS"], ArkInventory.Localise["LOCATION_VAULT"], bag_id ) )
 		return
 	end
 	

@@ -1,0 +1,21 @@
+## Interface: 60100
+## Title: CandyBuckets
+## Notes: Shows map icons for Lunar Festival, Hallow's End and Midsummer Fire Festival!
+## Author: Vladinator
+## Version: 6.0.0.141030
+## DefaultState: enabled
+## SavedVariables: CandyBucketsDB
+## X-Curse-Packaged-Version: v6.0.0.141030
+## X-Curse-Project-Name: Candy Buckets
+## X-Curse-Project-ID: candy-buckets
+## X-Curse-Repository-ID: wow/candy-buckets/mainline
+
+libs\Astrolabe\Load.xml
+
+ns.lua
+
+db\hallow.lua
+db\lunar.lua
+db\midsummer.lua
+
+core.lua

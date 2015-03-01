@@ -1077,20 +1077,27 @@ local core = {} do
 		sf:SetScript("OnShow", function()
 			int:Update(bar:GetValue())
 		end)
-		local timeLeft
-		local function fadeIn(self, e)
-			timeLeft = timeLeft-e
-			if timeLeft < 0 then
+		missionList.FadeIn = {} do
+			local timeLeft
+			local function fadeInFinish()
+				sc:SetScript("OnUpdate", nil)
+				sc:SetScript("OnHide", nil)
 				sc:SetAlpha(1)
-				self:SetScript("OnUpdate", nil)
-			else
-				sc:SetAlpha(cos(timeLeft*360))
+			end
+			local function fadeIn(self, e)
+				timeLeft = timeLeft-e
+				if timeLeft < 0 then
+					fadeInFinish()
+				else
+					sc:SetAlpha(cos(timeLeft*360))
+				end
+			end
+			function missionList.FadeIn.Play()
+				timeLeft = 0.25
+				sc:SetScript("OnUpdate", fadeIn)
+				sc:SetScript("OnHide", fadeInFinish)
 			end
 		end
-		missionList.FadeIn = {Play=function()
-			timeLeft = 0.25
-			sc:SetScript("OnUpdate", fadeIn)
-		end}
 	end
 	local function Release(keepMin, keepMax)
 		local t, w = int.view, int.props.widgets
@@ -1328,7 +1335,7 @@ local CreateMissionButton do
 		t:SetGradient("VERTICAL", 0.5, 0.5, 0.5, 1,1,1)
 		t:SetPoint("TOPLEFT") t:SetPoint("TOPRIGHT")
 		t:SetHeight(30/44*h) -- SCALE
-		t = b:CreateTexture(nil, "BACKGROUND", nil, 3)
+		t = b:CreateTexture(nil, "BACKGROUND", nil, 5)
 		t:SetAtlas("Garr_MissionList-IconBG")
 		t:SetPoint("TOPLEFT", 0, -1)
 		t:SetPoint("BOTTOMLEFT", 0, 1)
@@ -1348,13 +1355,13 @@ local CreateMissionButton do
 		t:SetPoint("BOTTOMLEFT", -5, -4)
 		t, b.rare = CreateFrame("Frame", nil, b), t
 		t:SetScript("OnShow", RaiseVeil)
-		b.veil, t = t, t:CreateTexture(nil, "OVERLAY", nil, -1)
+		t, b.veil = t:CreateTexture(nil, "OVERLAY", nil, -1), t
 		t:SetAllPoints(b)
 		t:SetTexture(1,1,1)
 		t:SetGradient("VERTICAL", 0.8, 0.8, 0.8, 0.6, 0.6, 0.6)
 		t:SetBlendMode("MOD")
 		
-		b.rewards = CreateRewards(b, 32/44*h)
+		b.veil.tex, b.rewards = t, CreateRewards(b, 32/44*h)
 		b.rewards[1]:SetPoint("RIGHT", -14, 1)
 		
 		return b
@@ -1416,6 +1423,8 @@ do -- activeMissionsHandle
 			end
 		elseif mi.readyTime and mi.readyTime < time() and not (mi.succeeded or mi.failed) and activeUI.completionState ~= "RUNNING" then
 			CompleteMission(mi)
+		elseif C_Garrison.CastSpellOnMission then
+			C_Garrison.CastSpellOnMission(mi.missionID)
 		end
 	end
 	local function Banner_OnPlay(self)
@@ -1537,8 +1546,9 @@ do -- activeMissionsHandle
 				if v.followerXP then
 					quant = abridge(v.followerXP)
 				elseif v.currencyID == 0 then
-					quant = abridge(v.quantity/10000)
-					r.tooltipText = GetMoneyString(v.quantity)
+					v.goldMultiplier = v.goldMultiplier or select(9, C_Garrison.GetPartyMissionInfo(d.missionID)) or 1
+					quant = v.quantity*v.goldMultiplier/10000
+					quant, r.tooltipText = abridge(quant), GetMoneyString(quant)
 				elseif v.currencyID == GARRISON_CURRENCY then
 					v.materialMultiplier = v.materialMultiplier or select(8, C_Garrison.GetPartyMissionInfo(d.missionID)) or 1
 					quant = abridge(v.quantity * v.materialMultiplier)
@@ -1837,13 +1847,9 @@ do -- availMissionsHandle
 			summary = summary .. "; " .. d.cost .. " |TInterface\\Garrison\\GarrisonCurrencyIcons:0:0:0:0:128:128:13:46:13:46|t"
 		end
 		self.stats:SetFormattedText(PARENS_TEMPLATE, summary)
-		local min, max, exp = G.GetMissionSeen(d.missionID)
-		if exp and exp > 0 then
-			local text = math.max(0,exp-floor(max/3600+0.5))
-			if min - max >= 3600 and text > 0 then
-				text = math.max(0, exp-floor(min/3600+0.5)) .. "-" .. text
-			end
-			self.expire:SetFormattedText(GARRISON_DURATION_HOURS:gsub("%%[%d$]*d", "%%s"), text)
+		local tl, _, expTimeShort = G.GetMissionSeen(d.missionID, d)
+		if expTimeShort ~= "" then
+			self.expire:SetText(expTimeShort)
 		else
 			self.expire:SetText("")
 		end
@@ -2045,8 +2051,8 @@ do -- availMissionsHandle
 			elseif order == "expire" then
 				for i=1, #missions do
 					local mi = missions[i]
-					local max, _, dur = G.GetMissionSeen(mi.missionID)
-					mi.ord = (dur or 0) > 0 and min(0, floor(max/1800 - dur*2)) or -math.huge
+					local max = mi.offerEndTime or G.GetMissionSeen(mi.missionID, mi)
+					mi.ord = (max or -1) >= 0 and -floor(max/1800) or -math.huge
 				end
 			elseif order == "level" then
 				for i=1, #missions do
@@ -2175,6 +2181,15 @@ do -- interestMissionsHandle
 					b.Details:SetText((prefix or "|cffa0a0a0")  .. b.Details:GetText())
 				end
 			end
+			local mlvl2 = data.best[6]
+			if (mlvl2 or 0) > 600 then
+				local m = "|cffa0a0a0" .. GARRISON_FOLLOWER_ITEM_LEVEL:format(info.iLevel) .. (info.iLevel < mlvl2 and "|cffff2020" or "")  .. " (" .. mlvl2 .. ")"
+				if info.quality >= 4 and info.level >= 100 then
+					GarrisonFollowerTooltip.ILevel:SetText(m)
+				else
+					GarrisonFollowerTooltip.ClassSpecName:SetText(info.className .. " - " .. m)
+				end
+			end
 		end
 	end
 	local function CreateInterestMission()
@@ -2184,16 +2199,17 @@ do -- interestMissionsHandle
 		b.level:ClearAllPoints()
 		b.level:SetPoint("CENTER", b, "LEFT", 32, 7)
 		b.rare:Hide()
-		b.iconBG:SetVertexColor(0, 0, 0, 0.4)
 		b.veil:Hide()
+		b.iconBG:SetVertexColor(0, 0, 0, 0.4)
 		b:Disable()
 
 		local t = b:CreateTexture(nil, "BACKGROUND", nil, 3)
 		t:SetSize(780, 62)
 		t:SetPoint("RIGHT")
-		t, b.loc = b:CreateTexture(nil, "BACKGROUND", nil, 4), t
+		t, b.loc = b:CreateTexture(nil, "BACKGROUND", nil, 6), t
 		t:SetAtlas("GarrMission_MissionParchment")
 		t:SetVertexColor(0.25, 0.25, 0.25)
+		t:SetTexCoord(0, 1, 0, 0.25)
 		t:SetHorizTile(true)
 		t:SetAllPoints()
 		t:Hide()
@@ -2238,7 +2254,8 @@ do -- interestMissionsHandle
 		[-2]={115280, 3},
 		[-3]={115510, 18},
 		[-4]={122484, 1},
-		[-5]={994, 1}
+		[-5]={994, 1},
+		[-6]={123858, 1},
 	}
 	local GetHighmaulReward do
 		local r = {
@@ -2315,20 +2332,30 @@ do -- interestMissionsHandle
 			end
 			self.altBG:Hide()
 		end
-		local best = d.best
+		local best, mname = d.best, C_Garrison.GetMissionName(d[1])
 		self.level:SetText(d[2])
-		self.title:SetText((C_Garrison.GetMissionLink(d[1]) or ""):match("|h%[?(.-)%]?|h") or (L"Future Mission #%d"):format(d[1]))
+		self.title:SetText(mname ~= "" and mname or (L"Future Mission #%d"):format(d[1]))
 		self.mtype:SetAtlas("GarrMission_MissionIcon-" .. (d[5] > 0 and "Provision" or missionTypes[d[5]] or "Combat"))
 		self.loc:SetAtlas(missionLocations[d[1]] or missionLocations[1])
 		self.fc:SetText(("|TInterface\\FriendsFrame\\UI-Toast-FriendOnlineIcon:11:11:3:0:32:32:8:24:8:24:214:170:115|t"):rep(d[3]))
-		local _, _, _, lc = G.GetMissionSeen(d[1])
-		for i=1,d[5] == 0 and 3 or 0 do
-			local _, _, _, l2 = G.GetMissionSeen(d[1]+4*i)
-			if l2 and (not lc or lc > l2) then
-				lc = l2
-			end
+
+		local isAvailable, lastCompleted
+		for i=0, d[5] == 0 and 3 or 0 do
+			local id = d[1]+4*i
+			local a, _, _, _, l2 = C_Garrison.GetMissionTimes(id), G.GetMissionSeen(id)
+			isAvailable, lastCompleted = isAvailable or (a ~= nil and id), l2 and (l2 <= (lastCompleted or l2)) and l2 or lastCompleted
 		end
-		self.seen:SetText((lc and lc > 0) and (L"Last completed: %s ago"):format("|cffffffff" .. SecondsToTime(lc) .. "|r") or "")
+		if (lastCompleted or 0) > 0 then
+			self.seen:SetFormattedText(L"Last completed: %s ago", "|cffffffff" .. SecondsToTime(lastCompleted) .. "|r")
+		else
+			self.seen:SetText("")
+		end
+		if isAvailable and C_Garrison.GetNumFollowersOnMission(isAvailable) == 0 and C_Garrison.GetBasicMissionInfo(isAvailable).state == -2 then
+			self.level:SetTextColor(0.90, 0.80, 0)
+		else
+			self.level:SetTextColor(0.84, 0.72, 0.57)
+		end
+		
 		for i=1, #self.threats do
 			local tb, tid = self.threats[i], d[6+i]
 			tb:SetShown(tid)
@@ -2372,12 +2399,13 @@ do -- interestMissionsHandle
 		local r, ri = self.rewards[1], missionRewards[d[5]]
 		if d[5] > 0 then
 			r.currencyID, r.itemID, r.tooltipTitle, r.tooltipText = GARRISON_CURRENCY
-			r.quantity:SetText(d[5] * (1 + 2*(best and best[4] or 0)))
+			r.quantity:SetText(d[5] * (1 + (best and best[4] or 0)))
 			r.icon:SetTexture("Interface\\Icons\\inv_garrison_resource")
 		elseif ri[1] == 0 then
-			r.tooltipTitle, r.tooltipText, r.currencyID, r.itemID = GARRISON_REWARD_MONEY, GetMoneyString(ri[2]), 0
+			local rq = ri[2] * (1+(best and best[4] or 0))
+			r.tooltipTitle, r.tooltipText, r.currencyID, r.itemID = GARRISON_REWARD_MONEY, GetMoneyString(rq), 0
 			r.icon:SetTexture("Interface\\Icons\\INV_Misc_Coin_02")
-			r.quantity:SetFormattedText("%d", ri[2] / 1e4)
+			r.quantity:SetFormattedText("%d", rq / 1e4)
 		elseif ri[1] < 2e4 then
 			r.currencyID, r.itemID, r.tooltipTitle, r.tooltipText = ri[1]
 			r.quantity:SetText(ri[2] > 1 and ri[2] or "")
@@ -2394,19 +2422,24 @@ do -- interestMissionsHandle
 		{314, 645, 3, 28800, 0, 17, 1, 3, 3, 4, 6, 7}, -- Highmaul Raid
 		{315, 645, 3, 28800, 0, 12, 2, 4, 7, 9, 10, 10}, -- Highmaul Raid
 		{316, 645, 3, 28800, 0, 29, 1, 6, 8, 9, 9, 10}, -- Highmaul Raid
-		{311, 630, 3, 21600, 175, 11, 2, 3, 6, 10}, -- Can't Go Home This Way
-		{312, 630, 3, 21600, 175, 25, 2, 4, 8, 10}, -- Magical Mystery Tour
-		{268, 615, 3, 14400, 130, 22, 2, 3, 7}, -- Who's the Boss?
-		{269, 615, 3, 14400, 130, 20, 1, 6, 10}, -- Griefing with the Enemy
-		{132, 100, 2, 21600, 100, 15, 4, 6}, -- The Basilisk's Stare
-		{133, 100, 2, 21600, 100, 18, 3, 8}, -- Elemental Territory
+		{446, 660, 3, 28800, -4, 18, 1, 2, 3, 6, 7, 9, 10}, -- Slagworks
+		{447, 660, 3, 28800, -4, 21, 1, 2, 3, 3, 6, 8, 10}, -- Black Forge
+		{448, 660, 3, 28800, -4, 24, 3, 4, 4, 6, 7, 7, 8}, -- Iron Assembly
+		{449, 660, 3, 28800, -4, 11, 1, 2, 3, 6, 8, 9, 10}, -- Blackhand's Crucible
+		{311, 630, 3, 21600, 300, 11, 2, 3, 6, 10}, -- Can't Go Home This Way
+		{312, 630, 3, 21600, 300, 25, 2, 4, 8, 10}, -- Magical Mystery Tour
+		{268, 615, 2, 14400, 225, 22, 2, 3, 7}, -- Who's the Boss?
+		{269, 615, 2, 14400, 225, 20, 1, 6, 10}, -- Griefing with the Enemy
+		{132, 100, 2, 21600, 175, 15, 4, 6}, -- The Basilisk's Stare
+		{133, 100, 2, 21600, 175, 18, 3, 8}, -- Elemental Territory
+		{503, 675, 2, 21600, -6, 11, 1, 2, 3, 6, 10}, -- Lessons of the Blade
 		{361, 100, 3, 36000, -1, 25, 2, 3, 7, 9}, -- Blingtron's Secret Vault
 		{407, 100, 3, 86000, -2, 13, 3, 4, 6, 8, 8}, -- Tower of Terror
 		{405, 100, 3, 86000, -2, 20, 1, 2, 4, 7, 9}, -- Lost in the Weeds
 		{403, 100, 3, 86000, -2, 27, 3, 6, 7, 8}, -- Rock the Boat
 		{404, 100, 3, 86000, -2, 12, 2, 6, 7, 8}, -- He Keeps it Where?
 		{406, 100, 3, 86000, -2, 27, 1, 2, 3, 10}, -- It's Rigged!
-		{410, 100, 3, 86000, -3, 16, 2, 3, 4, 8, 9}, -- A Rune with a View
+		{410, 100, 3, 86000, -3, 16, 2, 3, 4, 8, 9}, -- A Rune With a View
 		{412, 100, 3, 86000, -3, 24, 2, 2, 3, 3, 7, 9}, -- Beyond the Pale
 		{413, 100, 3, 86000, -3, 27, 1, 2, 4, 6, 7, 8}, -- Pumping Iron
 		{411, 100, 3, 86000, -3, 29, 2, 3, 3, 6, 8, 9}, -- Rocks Fall. Everyone Dies.
@@ -2414,10 +2447,6 @@ do -- interestMissionsHandle
 		{408, 100, 3, 86000, -3, 11, 1, 2, 3, 6, 7, 10}, -- The Pits
 		{358, 100, 3, 36000, -5, 22, 2, 3, 6}, -- Drov the Ruiner
 		{359, 100, 3, 36000, -5, 21, 1, 3, 7}, -- Rukhmar
-		{446, 660, 3, 28800, -4, 18, 1, 2, 3, 6, 7, 9, 10}, -- Slagworks
-		{447, 660, 3, 28800, -4, 21, 1, 2, 3, 3, 6, 8, 10}, -- Black Forge
-		{448, 660, 3, 28800, -4, 24, 3, 4, 4, 6, 7, 7, 8}, -- Iron Assembly
-		{449, 660, 3, 28800, -4, 11, 1, 2, 3, 6, 8, 9, 10}, -- Blackhand's Crucible
 	}, {unused={}}, {}
 	interestMissionsHandle = core:CreateHandle(CreateInterestMission, setData, 60)
 	local function loadAndRefresh(id)
@@ -2591,6 +2620,9 @@ function api:SetMissionsUI(tab)
 			G.AbortCompleteMissions()
 		end
 		activeUI.completionState = nil
+		if GarrisonMissionFrame.MissionComplete:IsShown() then
+			GarrisonMissionFrame_HideCompleteMissions(true)
+		end
 	end
 end
 T.MissionsUI = api

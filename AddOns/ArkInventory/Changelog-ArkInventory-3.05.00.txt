@@ -1,0 +1,79 @@
+------------------------------------------------------------------------
+r483 | arkayenro | 2015-02-24 20:22:48 +0000 (Tue, 24 Feb 2015) | 7 lines
+Changed paths:
+   A /tags/3.05.00 (from /trunk:482)
+
+*3.05.00 (25-FEB-2015)*
+ * added - config > settings > location > window > frames > title > online (sets the colour of the character name in the title bar when online)
+ * added - config > settings > location > window > frames > title > offline (sets the colour of the character name in the title bar when offline)
+ * added - config > settings > location > window > frames > search > label (sets the colour of the label in the search bar)
+ * added - config > settings > location > window > frames > search > text (sets the colour of the text in the search bar)
+ * changed - toc set to 60100
+
+------------------------------------------------------------------------
+r482 | arkayenro | 2015-02-24 20:21:08 +0000 (Tue, 24 Feb 2015) | 7 lines
+Changed paths:
+   M /trunk/ArkInventory.lua
+   M /trunk/ArkInventory.toc
+   M /trunk/ArkInventory.xml
+   M /trunk/ArkInventoryMenu.lua
+   M /trunk/ArkInventoryMountJournal.lua
+   M /trunk/ArkInventoryPetJournal.lua
+   M /trunk/ArkInventoryRestack.lua
+   M /trunk/ArkInventoryStorage.lua
+   M /trunk/Bindings.xml
+   M /trunk/Locale/deDE.lua
+   M /trunk/Locale/enUS.lua
+   M /trunk/Locale/esES.lua
+   M /trunk/Locale/esMX.lua
+   M /trunk/Locale/frFR.lua
+   M /trunk/Locale/game.lua
+   M /trunk/Locale/itIT.lua
+   M /trunk/Locale/koKR.lua
+   M /trunk/Locale/ptBR.lua
+   M /trunk/Locale/ruRU.lua
+   M /trunk/Locale/zhCN.lua
+   M /trunk/Locale/zhTW.lua
+   M /trunk/Modules/ArkInventoryConfig/ArkInventoryConfig.lua
+   M /trunk/Modules/ArkInventoryConfig/ArkInventoryConfig.toc
+   M /trunk/Modules/ArkInventoryRules/ArkInventoryRules.lua
+   M /trunk/Modules/ArkInventoryRules/ArkInventoryRules.toc
+   M /trunk/Modules/ArkInventoryRules_Example/ArkInventoryRules_Example.toc
+   M /trunk/VersionHistory.txt
+
+*3.05.00 (25-FEB-2015)*
+ * added - config > settings > location > window > frames > title > online (sets the colour of the character name in the title bar when online)
+ * added - config > settings > location > window > frames > title > offline (sets the colour of the character name in the title bar when offline)
+ * added - config > settings > location > window > frames > search > label (sets the colour of the label in the search bar)
+ * added - config > settings > location > window > frames > search > text (sets the colour of the text in the search bar)
+ * changed - toc set to 60100
+
+------------------------------------------------------------------------
+r480 | arkayenro | 2015-02-06 11:29:09 +0000 (Fri, 06 Feb 2015) | 6 lines
+Changed paths:
+   M /trunk/ArkInventory.lua
+   M /trunk/ArkInventory.toc
+   M /trunk/ArkInventoryMenu.lua
+   M /trunk/ArkInventoryMountJournal.lua
+   M /trunk/Locale/deDE.lua
+   M /trunk/Locale/enUS.lua
+   M /trunk/Locale/esES.lua
+   M /trunk/Locale/esMX.lua
+   M /trunk/Locale/frFR.lua
+   M /trunk/Locale/itIT.lua
+   M /trunk/Locale/koKR.lua
+   M /trunk/Locale/ptBR.lua
+   M /trunk/Locale/ruRU.lua
+   M /trunk/Locale/zhCN.lua
+   M /trunk/Locale/zhTW.lua
+   M /trunk/Modules/ArkInventoryConfig/ArkInventoryConfig.lua
+   M /trunk/Modules/ArkInventoryRules/ArkInventoryRules.lua
+   M /trunk/VersionHistory.txt
+
+*3.04.22 (06-JAN-2015)*
+ * added - right click menu off refresh icon to toggle display of hidden categories/stacks
+ * added - config > settings > location > items > limit stacks (range from 0 to 5, 0 will show all stacks, 1-5 will only show that many stacks of an item and hide the rest, toggle show hidden to temporarily see all hidden stacks) - note: displayed stack count does not increase to cater for the hidden stacks
+ * added - rule function: mounttype | mtype ( "L" = land, "A" = flying, "S" = water surface, "U" = underwater, "X" = ignored/unknown)
+ * added - config > settings > location > items > empty slots > sort position (Enabled: Empty slots are sorted first alphabetically | Disabled: empty slots are sorted last alphabetically)
+
+------------------------------------------------------------------------

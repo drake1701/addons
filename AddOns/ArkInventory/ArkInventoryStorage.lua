@@ -1500,6 +1500,10 @@ function ArkInventory.Scan( bagTable )
 			if not processed[loc_id] then
 				ArkInventory.ScanToybox( )
 			end
+		elseif loc_id == ArkInventory.Const.Location.Heirloom then
+			if not processed[loc_id] then
+				ArkInventory.ScanHeirloom( )
+			end
 		elseif loc_id == ArkInventory.Const.Location.Token then
 			if not processed[loc_id] then
 				ArkInventory.ScanCurrency( )
@@ -2605,6 +2609,91 @@ function ArkInventory.ScanToybox( )
 	--ArkInventory.Frame_Main_Generate( loc_id, ArkInventory.Const.Window.Draw.Refresh )
 	
 	--ArkInventory.Output( "ScanToybox( ) end" )
+	
+end
+
+function ArkInventory.ScanHeirloom( )
+	
+	if true then return end
+	
+	
+	--ArkInventory.Output( "ScanHeirloom( ) start" )
+	
+	if ( not ArkInventory.Toybox.JournalIsReady( ) ) then
+		--ArkInventory.Output( "toybox journal not ready" )
+		ArkInventory:SendMessage( "LISTEN_TOYBOX_RELOAD_BUCKET", "RESCAN" )
+		return
+	end
+	--ArkInventory.Output( "toybox journal ready" )
+	
+	if ( ArkInventory.Toybox.GetCount( ) == 0 ) then
+		--ArkInventory.Output( "no toys" )
+		return
+	end
+	
+	local blizzard_id = ArkInventory.Const.Offset.Toybox + 1
+	local loc_id, bag_id = ArkInventory.BagID_Internal( blizzard_id )
+	
+	if not ArkInventory.LocationIsMonitored( loc_id ) then
+		--ArkInventory.Output( RED_FONT_COLOR_CODE, "aborted scan of bag id [", blizzard_id, "], location ", loc_id, " [", ArkInventory.Global.Location[loc_id].Name, "] is not being monitored" )
+		return
+	end
+	
+	--ArkInventory.Output( GREEN_FONT_COLOR_CODE, "scaning: ", ArkInventory.Global.Location[loc_id].Name, " [", loc_id, ".", bag_id, "] - [", blizzard_id, "]" )
+	
+	local player_id = ArkInventory.PlayerIDAccount( )
+	local cp = ArkInventory.PlayerInfoGet( player_id )
+	
+	local bag = cp.location[loc_id].bag[bag_id]
+	
+	bag.count = 0
+	bag.empty = 0
+	bag.type = ArkInventory.BagType( blizzard_id )
+	bag.status = ArkInventory.Const.Bag.Status.Active
+	
+	--ArkInventory.Output( "scanning toybox [", ArkInventory.Toybox.data.owned, "]" )
+	
+	local slot_id = 0
+	
+	for _, td in ArkInventory.Toybox.Iterate( ) do
+		
+		slot_id = slot_id + 1
+		
+		if not bag.slot[slot_id] then
+			bag.slot[slot_id] = {
+				loc_id = loc_id,
+				bag_id = bag_id,
+				slot_id = slot_id,
+			}
+		end
+		
+		local i = bag.slot[slot_id]
+		
+		local h = td.link
+		local sb = 1
+		local count = 1
+		
+		ArkInventory.ScanChanged( i, h, sb, count )
+		
+		i.h = h
+		i.count = count
+		i.ab = 1
+		i.sb = sb
+		i.q = 1
+		
+		i.index = td.index
+		i.item = td.item
+		i.fav = td.fav
+		
+	end
+	
+	bag.count = slot_id
+	
+	ArkInventory.ScanCleanup( cp, loc_id, bag_id, bag )
+	
+	--ArkInventory.Frame_Main_Generate( loc_id, ArkInventory.Const.Window.Draw.Refresh )
+	
+	--ArkInventory.Output( "ScanHeirloom( ) end" )
 	
 end
 

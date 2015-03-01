@@ -184,7 +184,11 @@ function Outfitter:ParseItemLink2(pItemLink)
 	
 	local vStartIndex, vEndIndex, vCodeStrings, vName = pItemLink:find("|Hitem:([^|]*)|h%[([^%]]*)%]|h")
 	-- self:DebugMessage("start %s, end %s, codes %s, name %s", tostring(vStartIndex), tostring(vEndIndex), tostring(vCodeStrings), tostring(vName))
-		
+	
+	if not vCodeStrings then
+		return
+	end
+
 	local vCodes = {}
 	for vCodeString in string.gmatch(vCodeStrings, "%d+") do
 		local vCode = tonumber(vCodeString)

@@ -15,8 +15,10 @@ do
 	card.back.strongAbilities:SetText(L["abilities"])
 	card.main.slotted:SetText(L["This pet is currently slotted."])
 	card.isleveling:SetText(L["When this team loads, your active leveling pet will go in this spot."])
-	if GetLocale()=="ruRU" then
-		card.back.description:SetFont("Fonts\\FRIZQT___CRY.TTF",14)
+	if GetLocale()=="ruRU" then -- if client language can't display skurri, use alternate description font
+		card.back.description:Hide()
+		card.back.descriptionAlt:Show()
+		card.back.description = card.back.descriptionAlt
 	end
 end
 
@@ -35,8 +37,6 @@ local function SetCardDesaturate(desat)
 		card:SetBackdropBorderColor(1,.82,0)
 	end
 end
-
-rematch.vulnerabilities = {{4,5},{1,3},{6,8},{5,2},{8,7},{2,9},{9,10},{10,1},{3,4},{7,6}}
 
 -- petID can be a speciesID; fromBrowser will turn on searchHits for the reason the pet is listed
 function rematch:ShowFloatingPetCard(petID,relativeTo,fromBrowser)
@@ -73,8 +73,8 @@ function rematch:ShowFloatingPetCard(petID,relativeTo,fromBrowser)
 		card.back.source:SetText(format("%s%s%s",sourceText,tradable and "" or "\n\124cffff0000"..BATTLE_PET_NOT_TRADABLE,unique and "\n\124cffffd200"..ITEM_UNIQUE or ""))
 		card.back.description:SetText(description)
 		-- set vulnerabilities
-		card.back.strongType:SetTexture("Interface\\PetBattles\\PetIcon-"..PET_TYPE_SUFFIX[rematch.vulnerabilities[petType][1]])
-		card.back.weakType:SetTexture("Interface\\PetBattles\\PetIcon-"..PET_TYPE_SUFFIX[rematch.vulnerabilities[petType][2]])
+		card.back.strongType:SetTexture("Interface\\PetBattles\\PetIcon-"..PET_TYPE_SUFFIX[rematch.hintsDefense[petType][1]])
+		card.back.weakType:SetTexture("Interface\\PetBattles\\PetIcon-"..PET_TYPE_SUFFIX[rematch.hintsDefense[petType][2]])
 		card.titleCapture:EnableMouse(true)
 	else
 		card.back:Hide()

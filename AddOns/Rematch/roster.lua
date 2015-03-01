@@ -408,6 +408,11 @@ function roster:SetSimilarFilter(speciesID,abilityID)
 			roster.similarFilter[abilityID] = true
 		end
 		roster.similarLimit = 3
+		RematchSettings.DrawerMode = "PETS"
+		if not rematch:IsVisible() then
+			rematch:Show()
+			return
+		end
 	end
 	roster:Updated()
 end
@@ -881,6 +886,7 @@ function roster:SetSort(key,value)
 		wipe(roster.sortNames)
 		wipe(roster.sortFavorites)
 		wipe(roster.sortMissing)
+		rematch.defaultSorting = true -- used only here and nil'ed in hooksecurefunc of SetPetSortParameter
 		C_PetJournal.SetPetSortParameter(order.order)
 	end
 	roster:Updated()
@@ -980,3 +986,14 @@ function roster:ResetSort()
 	roster.sortOrder.order = C_PetJournal.GetPetSortParameter()
 	roster:SetSort()
 end
+
+-- when the user sorts pets by some other method (like default journal), wipe any
+-- custom sorts and join the journal sort.
+hooksecurefunc(C_PetJournal,"SetPetSortParameter",function(order)
+	if not rematch.defaultSorting then
+		wipe(roster.sortOrder)
+		roster.sortOrder.order = order
+		roster:Updated()
+	end
+	rematch.defaultSorting = nil
+end)

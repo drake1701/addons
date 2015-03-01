@@ -745,14 +745,14 @@ function ArkInventory.ConfigInternal( )
 						},
 						vault = {
 							order = 200,
-							name = ArkInventory.Localise["GUILDBANK"],
+							name = ArkInventory.Localise["LOCATION_VAULT"],
 							type = "group",
 							inline = true,
 							args = {
 								enabled = {
 									order = 100,
 									name = ArkInventory.Localise["ENABLED"],
-									desc = string.format( ArkInventory.Localise["CONFIG_SYSTEM_TIMERS_TEXT"], ArkInventory.Localise["GUILDBANK"] ),
+									desc = string.format( ArkInventory.Localise["CONFIG_SYSTEM_TIMERS_TEXT"], ArkInventory.Localise["LOCATION_VAULT"] ),
 									type = "toggle",
 									get = function( info )
 										return ArkInventory.db.global.option.bucket[ArkInventory.Const.Location.Vault]
@@ -2266,7 +2266,7 @@ function ArkInventory.ConfigInternalSettings( path )
 								size = {
 									order = 200,
 									type = "select",
-									name = "size",
+									name = ArkInventory.Localise["HEIGHT"],
 									disabled = function( info )
 										local loc_id = ConfigGetNodeArg( info, #info - 4 )
 										return ArkInventory.LocationOptionGetReal( loc_id, "title", "hide" )
@@ -2284,6 +2284,56 @@ function ArkInventory.ConfigInternalSettings( path )
 										ArkInventory.LocationOptionSetReal( loc_id, "title", "size", v )
 										ArkInventory.Frame_Main_Generate( nil, ArkInventory.Const.Window.Draw.Refresh )
 									end,
+								},
+								online = {
+									order = 300,
+									name = ArkInventory.Localise["ONLINE"],
+									--desc = ArkInventory.Localise["CONFIG_SETTINGS_FRAME_TITLE_ONLINE_COLOUR_TEXT"],
+									type = "color",
+									hasAlpha = false,
+									disabled = function( info )
+										local loc_id = ConfigGetNodeArg( info, #info - 4 )
+										return ArkInventory.LocationOptionGetReal( loc_id, "title", "hide" )
+									end,
+									get = function( info )
+										local loc_id = ConfigGetNodeArg( info, #info - 4 )
+										local r = ArkInventory.LocationOptionGetReal( loc_id, "title", "colour", "online", "r" )
+										local g = ArkInventory.LocationOptionGetReal( loc_id, "title", "colour", "online", "g" )
+										local b = ArkInventory.LocationOptionGetReal( loc_id, "title", "colour", "online", "b" )
+										return r, g, b
+									end,
+									set = function( info, r, g, b )
+										local loc_id = ConfigGetNodeArg( info, #info - 4 )
+										ArkInventory.LocationOptionSetReal( loc_id, "title", "colour", "online", "r", r )
+										ArkInventory.LocationOptionSetReal( loc_id, "title", "colour", "online", "g", g )
+										ArkInventory.LocationOptionSetReal( loc_id, "title", "colour", "online", "b", b )
+										ArkInventory.Frame_Main_Generate( nil, ArkInventory.Const.Window.Draw.Refresh )
+									end,	
+								},
+								offline = {
+									order = 400,
+									name = ArkInventory.Localise["OFFLINE"],
+									--desc = ArkInventory.Localise["CONFIG_SETTINGS_FRAME_TITLE_OFFLINE_COLOUR_TEXT"],
+									type = "color",
+									hasAlpha = false,
+									disabled = function( info )
+										local loc_id = ConfigGetNodeArg( info, #info - 4 )
+										return ArkInventory.LocationOptionGetReal( loc_id, "title", "hide" )
+									end,
+									get = function( info )
+										local loc_id = ConfigGetNodeArg( info, #info - 4 )
+										local r = ArkInventory.LocationOptionGetReal( loc_id, "title", "colour", "offline", "r" )
+										local g = ArkInventory.LocationOptionGetReal( loc_id, "title", "colour", "offline", "g" )
+										local b = ArkInventory.LocationOptionGetReal( loc_id, "title", "colour", "offline", "b" )
+										return r, g, b
+									end,
+									set = function( info, r, g, b )
+										local loc_id = ConfigGetNodeArg( info, #info - 4 )
+										ArkInventory.LocationOptionSetReal( loc_id, "title", "colour", "offline", "r", r )
+										ArkInventory.LocationOptionSetReal( loc_id, "title", "colour", "offline", "g", g )
+										ArkInventory.LocationOptionSetReal( loc_id, "title", "colour", "offline", "b", b )
+										ArkInventory.Frame_Main_Generate( nil, ArkInventory.Const.Window.Draw.Refresh )
+									end,	
 								},
 							},
 						},
@@ -2315,6 +2365,56 @@ function ArkInventory.ConfigInternalSettings( path )
 										ArkInventory.LocationOptionSetReal( loc_id, "search", "hide", v )
 										ArkInventory.Frame_Main_Generate( nil, ArkInventory.Const.Window.Draw.Refresh )
 									end,
+								},
+								searchlabel = {
+									order = 200,
+									name = ArkInventory.Localise["FILTER"],
+									--desc = ArkInventory.Localise["CONFIG_SETTINGS_FRAME_SEARCH_LABEL_COLOUR_TEXT"],
+									type = "color",
+									hasAlpha = false,
+									disabled = function( info )
+										local loc_id = ConfigGetNodeArg( info, #info - 4 )
+										return ArkInventory.LocationOptionGetReal( loc_id, "search", "hide" )
+									end,
+									get = function( info )
+										local loc_id = ConfigGetNodeArg( info, #info - 4 )
+										local r = ArkInventory.LocationOptionGetReal( loc_id, "search", "label", "colour", "r" )
+										local g = ArkInventory.LocationOptionGetReal( loc_id, "search", "label", "colour", "g" )
+										local b = ArkInventory.LocationOptionGetReal( loc_id, "search", "label", "colour", "b" )
+										return r, g, b
+									end,
+									set = function( info, r, g, b )
+										local loc_id = ConfigGetNodeArg( info, #info - 4 )
+										ArkInventory.LocationOptionSetReal( loc_id, "search", "label", "colour", "r", r )
+										ArkInventory.LocationOptionSetReal( loc_id, "search", "label", "colour", "g", g )
+										ArkInventory.LocationOptionSetReal( loc_id, "search", "label", "colour", "b", b )
+										ArkInventory.Frame_Main_Generate( nil, ArkInventory.Const.Window.Draw.Refresh )
+									end,	
+								},
+								searchtext = {
+									order = 300,
+									name = ArkInventory.Localise["TEXT"],
+									--desc = ArkInventory.Localise["CONFIG_SETTINGS_FRAME_SEARCH_TEXT_COLOUR_TEXT"],
+									type = "color",
+									hasAlpha = false,
+									disabled = function( info )
+										local loc_id = ConfigGetNodeArg( info, #info - 4 )
+										return ArkInventory.LocationOptionGetReal( loc_id, "search", "hide" )
+									end,
+									get = function( info )
+										local loc_id = ConfigGetNodeArg( info, #info - 4 )
+										local r = ArkInventory.LocationOptionGetReal( loc_id, "search", "text", "colour", "r" )
+										local g = ArkInventory.LocationOptionGetReal( loc_id, "search", "text", "colour", "g" )
+										local b = ArkInventory.LocationOptionGetReal( loc_id, "search", "text", "colour", "b" )
+										return r, g, b
+									end,
+									set = function( info, r, g, b )
+										local loc_id = ConfigGetNodeArg( info, #info - 4 )
+										ArkInventory.LocationOptionSetReal( loc_id, "search", "text", "colour", "r", r )
+										ArkInventory.LocationOptionSetReal( loc_id, "search", "text", "colour", "g", g )
+										ArkInventory.LocationOptionSetReal( loc_id, "search", "text", "colour", "b", b )
+										ArkInventory.Frame_Main_Generate( nil, ArkInventory.Const.Window.Draw.Refresh )
+									end,	
 								},
 							},
 						},

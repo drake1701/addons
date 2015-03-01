@@ -1,0 +1,16 @@
+tag v6.0.0.141030
+20b11472a0f7bcc56cfedd0162d491dd8c7364b4
+Vlad <vladix@gmail.com>
+2014-10-30 08:36:46 +0100
+
+Tagging as new release.
+
+
+--------------------
+
+Vlad:
+	- Reverted Shattrath changes, apparently they are now accessible even without picking a faction. It will still hide buckets where you are below Neutral with either Aldor or Scryers.
+	Trying to fix TomTom arrow, but it seems to be a but faulty as it is right now. Relogging usually makes the arrow appear after clicking on the nodes.
+	
+	Fixed an issue where browsing the calendar could trigger loading the other modules for Lunar or Midsummer. This shouldn't occur any longer.
+	- Fixed tooltip to use the title of the module it was showing, and to use the zone name in the assigned waypoint. The last digits are the quest ID.

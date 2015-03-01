@@ -9,7 +9,7 @@
 ## X-Curse-Project-Name: LibStub
 ## X-Curse-Project-ID: libstub
 ## X-Curse-Repository-ID: wow/libstub/mainline
-## X-Curse-Packaged-Version: v19
+## X-Curse-Packaged-Version: v20
 ## X-Curse-Project-Name: AskMrRobot
 ## X-Curse-Project-ID: askmrrobot
 ## X-Curse-Repository-ID: wow/askmrrobot/mainline

@@ -787,6 +787,9 @@ end
 
 function Outfitter._OutfitMethodsEM:SlotIsEnabledEM(pSlotName, pIgnoreSlots, pItemLocations)
 	local vSlotID = Outfitter.cSlotIDs[pSlotName]
+	if not pIgnoreSlots then
+		return true
+	end
 	return not pIgnoreSlots[vSlotID]
 end
 

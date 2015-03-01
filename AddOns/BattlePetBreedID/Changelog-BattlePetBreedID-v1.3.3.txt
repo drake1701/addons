@@ -1,0 +1,8 @@
+2015-02-27  MMOSimca  <MMOSimca@gmail.com>
+
+[56b4edfbb341] [v1.3.3]
+* PetData.lua:
+
+Updated available breeds for: Mechanical Axebeak, Sea Calf, Bone Serpent, K'ute, and Young Talbuk.
+
+

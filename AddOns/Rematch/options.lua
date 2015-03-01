@@ -26,7 +26,6 @@ rematch.optionsList = {
 	{ "check", "LargeFont", L["Larger list text"], L["Make the text in the scrollable lists (pets, teams and options) a little bigger."], nil, true },
 	{ "check", "LockPosition", L["Lock window position"], L["Prevent the Rematch window from being dragged unless Shift is held."] },
 	{ "check", "LockHeight", L["Lock window size"], L["Prevent the window from being resized with the resize grip along the edge of the window."] },
-	{ "check", "StayForBattle", L["Stay for pet battle"], L["When a pet battle begins, keep Rematch on screen instead of hiding it. Note: the window will still close on player combat."] },
 	{ "check", "GrowDownward", L["Reverse pullout"], L["When the Pets or Teams tab is opened, expand the window down the screen instead of up."] },
 	{ "check", "ReverseDialog", L["Reverse dialog direction"], L["This setting controls which side of the Rematch window popup dialogs will appear.\n\nRegardless of this setting, when the window is expanded, unless the 'Show dialogs at side' option is checked, they will appear in the middle of the window.\n\n\Otherwise:\n\n\124cffffd200When this option is disabled:\124r Dialogs will appear in the direction that the pullout drawer grows.\n\n\124cffffd200When this option is enabled:\124r Dialogs will appear in the opposite direction that the pullout drawer grows."] },
 	{ "check", "SideDialog", L["Show dialogs at side"], L["Instead of making popup dialogs appear in the middle of the expanded Rematch window, make them appear to the side."] },
@@ -35,15 +34,20 @@ rematch.optionsList = {
 	{ "check", "LockDrawer", L["Disable ESC for drawer"], L["Prevent the pullout drawer from being collapsed with the Escape key."] },
 	{ "check", "NotesNoESC", L["Disable ESC for notes"], L["Prevent the notes card from being dismissed with the Escape key."] },
 	{ "check", "CloseAllOnESC", L["Close everything with ESC"], L["Close all Escape-enabled Rematch windows at once with the Escape key instead of one at a time."] },
+	{ "header", nil, L["Battle Options"] },
+	{ "check", "StayForBattle", L["Stay for pet battle"], L["When a pet battle begins, keep Rematch on screen instead of hiding it. Note: the window will still close on player combat."] },
+	{ "check", "ShowAfterBattle", L["Show after pet battle"]..newOption, L["When leaving a pet battle, automatically show the Rematch window."] },
+	{ "check", "ShowNotesInBattle", L["Show notes in battle"], L["If the loaded team has notes, display and lock the notes when you enter a pet battle."] },
+	{ "check", "ShowNotesOnce", L["Only once per team"], L["Only display notes automatically the first time entering battle, until another team is loaded."], "ShowNotesInBattle" },
 	{ "header", nil, L["Loading Options"] },
 	{ "check", "OneClickLoad", L["One-click loading"], L["When clicking a team in the Teams tab, instead of locking the team card, load the team immediately. If this is unchecked you can double-click a team to load it."] },
 	{ "check", "DontWarnMissing", L["Don't warn about missing pets"], L["Don't display a popup when a team loads and a pet within the team can't be found."] },
 	{ "check", "KeepSummoned", L["Keep companion"], L["After a team is loaded, summon back the companion that was at your side before the load."] },
 	{ "check", "ShowOnInjured", L["Show on injured"], L["When pets load, show the window if any pets are injured. The window will show if any pets are dead or missing regardless of this setting."] },
 	{ "header", nil, L["Leveling Queue Options"] },
-	{ "check", "KeepCurrentOnSort", L["Keep current pet on new sort"], L["Do not change the current leveling pet to the top-most pet when choosing a sort order."] },
-	{ "check", "KeepQueueSort", L["Keep sort when emptied"], L["When the queue is emptied, preserve the sort order and auto rotate status instead of resetting them."] },
+	{ "check", "KeepCurrentOnSort", L["Keep current pet on new sort"]..newOption, L["When sorting the queue, keep the top-most pet at the top so the current leveling pet doesn't change.\n\nThis option has no effect when the queue is actively sorted."] },
 	{ "check", "HidePetToast", L["Hide pet toast"], L["Don't display the popup 'toast' when a new pet is automatically loaded from the leveling queue."] },
+	{ "check", "QueueSkipDead", L["Prefer Live Pets"], L["When loading pets from the queue, skip dead pets and load living ones first."] },
 	{ "header", nil, L["Pet Browser Options"] },
 	{ "check", "UseTypeBar", L["Use type bar"], L["Show the tabbed bar near the top of the pet browser to filter pet types, pets that are strong or tough vs chosen types."] },
 	{ "check", "OnlyBattlePets", L["Only battle pets"], L["Never list pets that can't battle in the pet browser, such as Guild Heralds. Note: most filters like rarity, level or stats will not include non-battle pets already."] },
@@ -54,14 +58,11 @@ rematch.optionsList = {
 	{ "header", nil, MISCELLANEOUS },
 	{ "check", "ShowAbilityNumbers", L["Show ability numbers"], L["In the ability flyout, show the numbers 1 and 2 to help with the common notation such as \"Pet Name 122\" to know which abilities to use."], nil, true },
 	{ "check", "RealAbilityIcons", L["Use actual ability icons"], L["In the pet card, display the actual icon of each ability instead of an icon showing the ability's type."], nil, true },
-	{ "check", "ShowNotesInBattle", L["Show notes in battle"], L["If the loaded team has notes, display and lock the notes when you enter a pet battle."] },
-	{ "check", "ShowNotesOnce", L["Only once per team"], L["Only display notes automatically the first time entering battle, until another team is loaded."], "ShowNotesInBattle" },
 	{ "check", "HideRarityBorders", L["Hide rarity borders"], L["Hide the colored borders to indicate rarity around current pets and pets on the team cards."] },
 	{ "check", "DisableShare", L["Disable sharing"], L["Disable the Send button and also block any incoming pets sent by others. Import and Export still work."] },
 	{ "check", "JumpToTeam", L["Jump to key"], L["While the mouse is over the team list or pet browser, hitting a key will jump to the next team or pet that begins with that letter."] },
 	{ "check", "UseBNet", L["Use Battle.net (beta)"], L["If both you and the recipient have this option checked, teams can be sent to or from battle.net friends. Note: The recipient needs Rematch 3.0 or greater."], nil, true },
 	{ "check", "HideTooltips", L["Hide tooltips"], L["Hide the more common tooltips within Rematch."] },
-	{ "check", "HideWarnings", L["Even alerts"], L["Also hide tooltips that warn when you can't place a pet somewhere. This is not recommended if you're new to the addon."], "HideTooltips" },
 	{ "check", "HideOptionTooltips", L["Even options"], L["Also hide tooltips that appear here in the options panel. This is not recommended if you're new to the addon."], "HideTooltips" },
 	{ "check", "UseMinimapButton", L["Use minimap button"], L["Place a button on the minimap to toggle Rematch."], nil, true },
 	{ "check", "HideJournalButton", L["Hide journal button"], L["Do not place a Rematch button along the bottom of the default Pet Journal."], nil, true },
@@ -82,8 +83,8 @@ function rematch:InitOptions()
 	if IsAddOnLoaded("PetBattleTeams") then
 		tinsert(rematch.optionsList,{"button", "ImportPBTButton", L["Import Pet Battle Teams"], L["Copy the teams from the addon Pet Battle Teams to the current team tab in Rematch."]})
 	end
-	if IsAddOnLoaded("Blizzard_PetJournal") then
-		rematch.events.ADDON_LOADED("Blizzard_PetJournal") -- another addon forced a load, run the event manually
+	if IsAddOnLoaded("Blizzard_Collections") then
+		rematch.events.ADDON_LOADED("Blizzard_Collections") -- another addon forced a load, run the event manually
 	else
 		rematch:RegisterEvent("ADDON_LOADED")
 	end
@@ -406,7 +407,12 @@ function rematch:MigratePBT(over)
 							petID = rematch:ConvertPetID(petID)
 							if petID then
 								local speciesID = C_PetJournal.GetPetInfoByPetID(petID)
-								saved[teamName][pet][1] = petID
+								if speciesID then
+									saved[teamName][pet][1] = petID
+								else
+									speciesID = PBTsaved[team][pet].speciesID
+									saved[teamName][pet][1] = speciesID or 0
+								end
 								for ability=1,3 do
 									saved[teamName][pet][ability+1] = PBTsaved[team][pet].abilities[ability]
 								end
@@ -452,11 +458,11 @@ end
 --[[ Default Pet Journal changes ]]
 
 function rematch.events.ADDON_LOADED(addon)
-	if addon=="Blizzard_PetJournal" then
+	if addon=="Blizzard_Collections" then
 		rematch:UnregisterEvent("ADDON_LOADED")
 
 		-- hook the pet menu drop-down menu to rematch.NewDropDownMenu after giving time for all LoadWith to get done
-		C_Timer.After(0.25,function()
+		C_Timer.After(0.5,function()
 			if not settings.HideJournalButton then
 				rematch:CreateJournalButton()
 			end
@@ -513,6 +519,9 @@ function rematch:NewPetMenuDropDownInit(level)
 			  UIDropDownMenu_AddButton(info,level)
 			end
 		end
+		info.text = L["Find Similar"]
+		info.func = rematch.DropDownFindSimilar
+	  UIDropDownMenu_AddButton(info,level)
 	end
 	rematch.oldDropDownInit(self,level)
 end
@@ -527,6 +536,13 @@ end
 
 function rematch:DropDownStopLeveling(petID)
 	rematch:StopLevelingPet(petID)
+end
+
+function rematch:DropDownFindSimilar(petID)
+	if type(petID)=="string" then
+		petID = C_PetJournal.GetPetInfoByPetID(petID)
+	end
+	rematch.roster:SetSimilarFilter(petID)
 end
 
 -- in ADDON_LOADED of the pet journal, HybridScrollFrame_Update is hooked to this
@@ -589,4 +605,3 @@ function rematch:CreateJournalButton()
 	local yoff = floor(button:GetBottom())-floor(PetJournal:GetBottom())-4
 	button:SetPoint("RIGHT",lastAnchor,"LEFT",-2,-yoff)
 end
-

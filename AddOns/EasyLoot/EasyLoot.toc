@@ -1,13 +1,13 @@
-﻿## Interface: 60000
+﻿## Interface: 60100
 ## Title: EasyLoot
 ## Author: Zaman
-## Version: 3.1.0.1
+## Version: 3.1.0.2
 ## DefaultState: Enabled
 ## LoadOnDemand: 0
 ## SavedVariables: EasyLootSettings
 ## SavedVariablesPerCharacter: EasyLootLootList
 ## OptionalDeps: AtlasLoot, Auc-Auctioneer
-## X-Curse-Packaged-Version: v3.1.0.1
+## X-Curse-Packaged-Version: v3.1.0.2
 ## X-Curse-Project-Name: EasyLoot
 ## X-Curse-Project-ID: easyloot
 ## X-Curse-Repository-ID: wow/easyloot/mainline

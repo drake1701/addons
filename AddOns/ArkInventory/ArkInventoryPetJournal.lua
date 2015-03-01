@@ -1152,7 +1152,7 @@ end
 
 -- runtime
 PetJournal:HookScript( "OnHide", ArkInventory.PetJournal.OnHide )
-PetJournalParent:HookScript( "OnHide", ArkInventory.PetJournal.OnHide )
+--CollectionsJournal:HookScript( "OnHide", ArkInventory.PetJournal.OnHide )
 
 --PetJournalParent:Show( )
 --PetJournalParent:Hide( )

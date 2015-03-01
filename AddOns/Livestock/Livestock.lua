@@ -1076,7 +1076,7 @@ function Livestock.RenumberMounts()
 						end
 						mountstable[name2] = true
 					end
-				elseif mountType == 230 or mountType == 241 or mountType == 269 then -- land mount
+				elseif mountType == 230 or mountType == 241 or mountType == 269 or mountType == 284 then -- land mount
 					LivestockSettings.Mounts[name].type = "land"
 				elseif mountType == 231 or mountType == 232 or mountType == 254 then -- water
 					LivestockSettings.Mounts[name].type = "water"
@@ -1089,6 +1089,15 @@ function Livestock.RenumberMounts()
 				LivestockSettings.Mounts[name].spellID = spellID
 				LivestockSettings.Mounts[name].mountType = mountType
 				mountstable[name] = true
+
+				if mountType == 247 or mountType == 248 then -- flying mount
+					LivestockSettings.Mounts[name].type = "flying"
+				elseif mountType == 230 or mountType == 241 or mountType == 269 or mountType == 284 then -- land mount
+					LivestockSettings.Mounts[name].type = "land"
+				elseif mountType == 231 or mountType == 232 or mountType == 254 then -- water
+					LivestockSettings.Mounts[name].type = "water"
+				end
+				
 				if LivestockSettings.flyland == 1 and (mountType == 247 or mountType == 248) then
 					if name2 and not LivestockSettings.Mounts[name2] then
 						LivestockSettings.Mounts[name2] = { 
@@ -1272,7 +1281,13 @@ function Livestock.SmartPreClick(self)
 		
 	elseif state == 4 then -- handle "flyable" areas
 
-		if LivestockSettings.nagrand == 1 and zoneID == 950 then
+		self.mounttype = Livestock.LandOrFlying()
+		
+		if LivestockSettings.movingaspects == 1 and GetUnitSpeed("player") ~= 0 then
+			self:SetAttribute("type", "spell")
+			self:SetAttribute("spell", (GetNumGroupMembers() ~= 0 and LivestockSettings.groupaspects == 0 and GetSpellInfo(L.LIVESTOCK_SPELL_PACK) and L.LIVESTOCK_SPELL_PACK) or L.LIVESTOCK_SPELL_CHEETAH)
+			self.mounttype = nil
+		elseif LivestockSettings.nagrand == 1 and zoneID == 950 then
 			local spellID = select(7, GetSpellInfo(GetSpellInfo(DraenorZoneAbilitySpellID)))
 			if spellID == 165803 or spellID == 164222 then
 				self:SetAttribute("type", "macro")
@@ -1280,14 +1295,6 @@ function Livestock.SmartPreClick(self)
 				self.mounttype = nil
 				return
 			end
-		end
-
-		self.mounttype = Livestock.LandOrFlying()
-		
-		if LivestockSettings.movingaspects == 1 and GetUnitSpeed("player") ~= 0 then
-			self:SetAttribute("type", "spell")
-			self:SetAttribute("spell", (GetNumGroupMembers() ~= 0 and LivestockSettings.groupaspects == 0 and GetSpellInfo(L.LIVESTOCK_SPELL_PACK) and L.LIVESTOCK_SPELL_PACK) or L.LIVESTOCK_SPELL_CHEETAH)
-			self.mounttype = nil
 		elseif LivestockSettings.mountaspects == 1 then
 			local spellName = UnitBuff("player", (GetNumGroupMembers() ~= 0 and LivestockSettings.groupaspects == 0 and GetSpellInfo(L.LIVESTOCK_SPELL_PACK) and L.LIVESTOCK_SPELL_PACK) or L.LIVESTOCK_SPELL_CHEETAH, nil);
 			if spellName then
@@ -1350,7 +1357,9 @@ function Livestock.SmartPreClick(self)
 		end
 		
 	elseif state == 5 then -- if in a land area, set the button to mount a land mount or possibly cast an instant travel form spell
+
 		self.mounttype = Livestock.LandOrFlying()
+
 		if LivestockSettings.movingform == 1 and GetUnitSpeed("player") ~= 0 or LivestockSettings.travelform == 1 then
 			if UnitBuff("player", L.LIVESTOCK_SPELL_TRAVELFORM, nil) and LivestockSettings.moonkin == 1 and GetSpellInfo(L.LIVESTOCK_SPELL_MOONKINFORM) then
 				self:SetAttribute("type", "spell")
@@ -1366,6 +1375,14 @@ function Livestock.SmartPreClick(self)
 			self:SetAttribute("type", "spell")
 			self:SetAttribute("spell", (GetNumGroupMembers() ~= 0 and LivestockSettings.groupaspects == 0 and GetSpellInfo(L.LIVESTOCK_SPELL_PACK) and L.LIVESTOCK_SPELL_PACK) or L.LIVESTOCK_SPELL_CHEETAH)
 			self.mounttype = nil
+		elseif LivestockSettings.nagrand == 1 and zoneID == 950 then
+			local spellID = select(7, GetSpellInfo(GetSpellInfo(DraenorZoneAbilitySpellID)))
+			if spellID == 165803 or spellID == 164222 then
+				self:SetAttribute("type", "macro")
+				self:SetAttribute("macrotext", "/use "..L.LIVESTOCK_SKILL_GARRISON)
+				self.mounttype = nil
+				return
+			end
 		elseif LivestockSettings.mountaspects == 1 then
 			local spellName = UnitBuff("player", (GetNumGroupMembers() ~= 0 and LivestockSettings.groupaspects == 0 and GetSpellInfo(L.LIVESTOCK_SPELL_PACK) and L.LIVESTOCK_SPELL_PACK) or L.LIVESTOCK_SPELL_CHEETAH, nil);
 			if spellName then
@@ -1624,6 +1641,8 @@ function Livestock.SummonFavoritePet()
 end
 
 function Livestock.PickLandMount()
+	local apprenticeRiding = IsUsableSpell(L.LIVESTOCK_SPELL_APPRENTICERIDING) -- Apprentice Riding
+	local unitLevel = UnitLevel("player")
 	local engineeringLevel = Livestock.GetProfSkillLevel(L.LIVESTOCK_SKILL_ENGR)
 	local tailoringLevel = Livestock.GetProfSkillLevel(L.LIVESTOCK_SKILL_TAILOR)
 	local leatherworkingLevel = Livestock.GetProfSkillLevel(L.LIVESTOCK_SKILL_LW)
@@ -1669,6 +1688,10 @@ function Livestock.PickLandMount()
 				-- don't try to use the AQ40 mounts
 			elseif LivestockSettings.Mounts[k].spellID == 171844 and leatherworkingLevel < 300 then
 				-- don't try to use the Dustmane Direwolf
+			elseif unitLevel < 40 and not apprenticeRiding then
+				if LivestockSettings.Mounts[k].mountType == 284 then
+					tinsert(temp, LivestockSettings.Mounts[k].index)
+				end
 			else
 				tinsert(temp, LivestockSettings.Mounts[k].index)
 			end

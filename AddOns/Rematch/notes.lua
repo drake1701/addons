@@ -50,7 +50,7 @@ function rematch:ShowNotesCard(teamName,force)
 		card.scrollFrame.editBox:SetText(saved[6] or "")
 		card.title:SetText(teamName)
 		card.scrollFrame.editBox:SetCursorPosition(0)
-		card.save:Hide()
+		card.save:SetShown(card.scrollFrame.editBox:HasFocus())
 		rematch:UpdateNotesCardLock()
 		card:Show()
 	end

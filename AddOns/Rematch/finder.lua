@@ -184,7 +184,7 @@ function rematch:UpdateOwnedSpeciesAt25()
 		for set,info in pairs(movesets) do
 			for i=2,#info do
 				if speciesAt25[info[i]] then
-					set[1] = 25
+					movesets[set][1] = 25
 				end
 			end
 		end

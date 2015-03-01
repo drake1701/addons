@@ -17,6 +17,18 @@ BINDING_NAME_REMATCH_PETS = L["Toggle Pets"]
 BINDING_NAME_REMATCH_TEAMS = L["Toggle Teams"]
 BINDING_NAME_REMATCH_TOGGLENOTES = L["Toggle Notes"]
 
+-- 1=Humanoid 2=Dragonkin 3=Flying 4=Undead 5=Critter 6=Magic 7=Elemental 8=Beast 9=Aquatic 10=Mechanical
+
+-- this table describes how an attack will be received by the indexed pet type (incoming modifier)
+-- {[petType]={increasedVs,decreasedVs},[petType]={increasedVs,decreasedVs},etc}
+-- ie dragonkin pets {1,3} take increased damage from humanoid attacks (1) and less damage from flying attacks (3)
+rematch.hintsDefense = {{4,5},{1,3},{6,8},{5,2},{8,7},{2,9},{9,10},{10,1},{3,4},{7,6}}
+
+-- this table describes how an attack of the indexed pet type will be applied (outgoing modifier)
+-- {[attackType]={increasedVs,decreasedVs},[attackType]={increasedVs,decreasedVs},etc}
+-- ie dragonkin attacks {6,4) deal increased damage to magic pets (6) and less damage to undead pets (4)
+rematch.hintsOffense = {{2,8},{6,4},{9,2},{1,9},{4,1},{3,10},{10,5},{5,3},{7,6},{8,7}}
+
 function rematch:InitCommon()
 	RematchSettings = RematchSettings or {}
 	settings = RematchSettings
@@ -79,6 +91,20 @@ function rematch:InitCommon()
 		tinsert(queue,1,petID)
 		settings.CurrentLevelingPet = nil
 	end
+
+	-- 3.3.1 there must be a sort order if active sort is enabled
+	if settings.QueueFullSort then
+		settings.QueueSortOrder = settings.QueueSortOrder or 1
+	end
+	-- 3.3.1 LevelingTimeline is the pets in the queue in the order they were added
+	if not settings.LevelingTimeline then
+		settings.LevelingTimeline = {}
+		for _,petID in ipairs(settings.LevelingQueue) do
+			tinsert(settings.LevelingTimeline,petID) -- start with 3.3.0 (or earlier) order
+		end
+	end
+	-- 3.3.1 ManuallySlotted is petIDs user manually slots (really) with a silver "leave alone" border
+	settings.ManuallySlotted = settings.ManuallySlotted or {}
 
 end
 
@@ -173,6 +199,7 @@ function rematch.events.PLAYER_REGEN_ENABLED()
 end
 
 function rematch.events.PET_BATTLE_OPENING_START()
+	rematch:HideDialogs()
 	if settings.ShowNotesInBattle and settings.loadedTeamName and RematchSaved[settings.loadedTeamName] and RematchSaved[settings.loadedTeamName][6] then
 		if not settings.ShowNotesOnce or rematch.lastNotedTeam~=settings.loadedTeamName then
 			rematch:ShowNotesCard(settings.loadedTeamName,true)
@@ -201,6 +228,9 @@ end
 function rematch:PostBattleProcessing()
 	if settings.ShowNotesInBattle then
 		RematchNotesCard:Hide()
+	end
+	if settings.ShowAfterBattle then
+		rematch:Show()
 	end
 	rematch.events.PLAYER_REGEN_ENABLED() -- rest of end-of-fight handling identical to leaving combat
 end
@@ -411,6 +441,7 @@ end
 function rematch:ToolbarButtonOnEnter()
 	if self.tooltipTitle then
 		local title = _G[self.tooltipTitle] or L[self.tooltipTitle]
+		local body = _G[self.tooltipBody] or L[self.tooltipBody]
 		rematch:ShowTooltip(title,self.tooltipBody)
 		RematchTooltip:ClearAllPoints()
 		RematchTooltip:SetPoint("BOTTOM",self,"TOP",0,-2)
@@ -536,12 +567,15 @@ end
 -- if option is set, make the tooltip wider and anchor it to the parent of the mouseover
 -- if no title is given, it will fetch self's .tooltipTitle and .tooltipBody
 function rematch:ShowTooltip(title,body,priority,option)
+	if MouseIsOver(rematch.dialog) and rematch.dialog.timeShown==GetTime() then
+		return -- if dialog appeared this frame, don't show a tooltip, to prevent it from obscuring what just appeared
+	end
 	if not title then
 		title = self.tooltipTitle
 		body = self.tooltipBody
 		priority = self.tooltipPriority
 	end
-	if title and not settings.HideTooltips or (priority and not settings.HideWarnings) or (option and not settings.HideOptionTooltips) then
+	if title and (not settings.HideTooltips or priority or (option and not settings.HideOptionTooltips)) then
 		local tooltip = RematchTooltip
 		tooltip.title:SetText(title)
 		tooltip.body:SetText(body)
@@ -578,6 +612,11 @@ function rematch:ShowTooltip(title,body,priority,option)
 			rematch:SmartAnchor(tooltip,GetMouseFocus())
 		end
 	end
+end
+
+function rematch:HideTooltip()
+	RematchTooltip:Hide()
+	RematchTableTooltip:Hide()
 end
 
 function rematch:TooltipOnUpdate(elapsed)
@@ -667,7 +706,7 @@ function rematch.events.CURSOR_UPDATE()
 	end
 end
 
--- for general purpose use, creates a shine cooldown effect on corner of frame
+-- for general purpose use, creates a shine cooldown effect on a frame
 function rematch:ShineOnYouCrazy(frame,corner,xoff,yoff)
 	if not rematch.shine then
 		rematch.shine = CreateFrame("Frame")
@@ -805,36 +844,20 @@ function rematch:FindBreedSource()
 	return addon
 end
 
+-- this is called after a pet is dragged to a loadout slot, either in rematch
+-- or the default journal
 function rematch:HandleReceivingLevelingPet(petID)
+	-- if petID not passed, grab it from the journal slot receiving the pet
 	if not petID then
-		local slot = self:GetParent():GetID() -- grab petID from journal slot receiving pet
+		local slot = self:GetParent():GetID()
 		if slot and slot>0 and slot<4 then
 			petID = C_PetJournal.GetPetLoadOutInfo(self:GetParent():GetID())
 		end
 	end
-	if rematch:IsPetLeveling(petID) and petID~=rematch:GetCurrentLevelingPet() then
-		local loadedLevelingPets = 0
-		for i=1,3 do
-			loadedLevelingPets = loadedLevelingPets +	(rematch:IsPetLeveling(C_PetJournal.GetPetLoadOutInfo(i)) and 1 or 0)
-		end
-		if (settings.QueueFullSort or (loadedLevelingPets>1 and settings.QueueSortOrder)) then
-			local warning = L["Slotted leveling pets are chosen by the queue.\n\nThe queue is now sorted.\n\nFor greater control, turn off queue sorting."]
-			if rematch:IsVisible() then
-				local dialog = rematch:ShowDialog("SlottingLevelingPets",156,LABEL_NOTE,"",true)
-				dialog.text:SetSize(196,96)
-				dialog.text:SetPoint("TOP",0,-20)
-				dialog.text:SetText(warning)
-				dialog.text:Show()
-			else
-				rematch:print((warning:gsub("\n\n"," ")))
-			end
-		end
-		if not settings.QueueFullSort then
-			rematch:StartLevelingPet(petID)
-		else
-			rematch:StartTimer("ProcessQueue",0.5,rematch.ProcessQueue)
-		end
+	if petID and petID~=rematch:GetCurrentLevelingPet() then
+		settings.ManuallySlotted[petID] = true
 	end
+	rematch:StartTimer("ProcessQueue",0.5,rematch.ProcessQueue)
 end
 
 -- CheckForChangedPetIDs() runs on login after pets are loaded.
@@ -846,6 +869,11 @@ function rematch:CheckForChangedPetIDs()
 		local newPetID = rematch:SanctuaryFind(petID)
 		if newPetID then
 			settings.LevelingQueue[index] = newPetID
+			-- also replace petID in ManuallySlotted if petID changed (and it's there)
+			if settings.ManuallySlotted[petID] then
+				settings.ManuallySlotted[newPetID] = true
+				settings.ManuallySlotted[petID] = nil
+			end
 		end
 	end
 	-- validate pets within teams
@@ -857,5 +885,61 @@ function rematch:CheckForChangedPetIDs()
 			end
 		end
 	end
+	-- validate pets in queue timeline
+	for index,petID in ipairs(settings.LevelingTimeline) do
+		local newPetID = rematch:SanctuaryFind(petID)
+		if newPetID then
+			settings.LevelingTimeline[index] = newPetID
+		end
+	end
 	rematch:SanctuaryDone()
+end
+
+-- takes a petType (1-10) and returns a text string for the icon (20x20) with the thin circle border
+function rematch:PetTypeAsText(petType)
+	local suffix = PET_TYPE_SUFFIX[petType]
+	return suffix and format("\124TInterface\\PetBattles\\PetIcon-%s:20:20:0:0:128:256:102:63:129:168\124t",suffix) or "?"
+end
+
+-- RematchTableTooltip is a tooltip designed for bigger text that doesn't wrap,
+-- especially for in-line textures that want vertically-centered fontstrings.
+-- Use RematchTooltip for traditional tooltips with wrapping lines of text.
+-- info is an ordered table with each entry as a line: {"title is gold","rest of lines","are white"}
+function rematch:ShowTableTooltip(anchorTo,info)
+	if MouseIsOver(rematch.dialog) and rematch.dialog.timeShown==GetTime() then
+		return -- if dialog appeared this frame, don't show a tooltip, to prevent it from obscuring what just appeared
+	end
+	if settings.HideTooltips then
+		return -- tooltips hidden :(
+	end
+	local tooltip = RematchTableTooltip
+	tooltip.lines = tooltip.lines or {}
+	local lines = tooltip.lines
+	local maxWidth = 0
+	-- erase what was in this tooltip
+	for _,line in ipairs(lines) do
+		line:SetText("")
+		line:Hide()
+	end
+	-- add a line for each entry in the passed table
+	for i=1,#info do
+		if not lines[i] then -- create line if it doesn't exist
+			lines[i] = tooltip:CreateFontString(nil,"ARTWORK",i==1 and "GameFontNormal" or "GameFontHighlight")
+			lines[i]:SetPoint("TOPLEFT",tooltip,"TOPLEFT",8,-8-(i-1)*20)
+			lines[i]:SetJustifyH("LEFT")
+			lines[i]:SetSize(0,20)
+			lines[i]:SetJustifyV("CENTER")
+			if i>1 then
+				lines[i]:SetTextColor(.9,.9,.9)
+			end
+		end
+		lines[i]:SetText(info[i])
+		lines[i]:Show()
+		maxWidth = max(maxWidth,lines[i]:GetStringWidth())
+	end
+	-- resize to accommodate the width/lines
+	tooltip:SetWidth(maxWidth+16)
+	tooltip:SetHeight(#info*20+16)
+	tooltip:Show()
+	rematch:SmartAnchor(tooltip,anchorTo)
 end

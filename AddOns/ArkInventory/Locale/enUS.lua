@@ -82,11 +82,13 @@ if not L then return end
 	
 --	bag names - used to name the empty slots in the status frame (and LDB)
 	L["STATUS_NAME_BAG"] = "Bag"
+	L["STATUS_NAME_COOKING"] = "Cook"
 	L["STATUS_NAME_CRITTER"] = "Pet"
 	L["STATUS_NAME_ENCHANTING"] = "Ench"
 	L["STATUS_NAME_ENGINEERING"] = "Eng"
 	L["STATUS_NAME_GEAR"] = "Gear"
 	L["STATUS_NAME_GEM"] = "Gem"
+	L["STATUS_NAME_HEIRLOOM"] = "Hrlm"
 	L["STATUS_NAME_HERB"] = "Herb"
 	L["STATUS_NAME_INSCRIPTION"] = "Insc"
 	L["STATUS_NAME_KEY"] = "Key"
@@ -94,11 +96,10 @@ if not L then return end
 	L["STATUS_NAME_MAIL"] = "Mail"
 	L["STATUS_NAME_MINING"] = "Mng"
 	L["STATUS_NAME_MOUNT"] = "Mnt"
-	L["STATUS_NAME_TOKEN"] = "Tkn"
-	L["STATUS_NAME_TACKLE"] = "Fish"
-	L["STATUS_NAME_COOKING"] = "Cook"
-	L["STATUS_NAME_TOY"] = "Toy"
 	L["STATUS_NAME_REAGENTBANK"] = "Rgt"
+	L["STATUS_NAME_TACKLE"] = "Fish"
+	L["STATUS_NAME_TOKEN"] = "Tkn"
+	L["STATUS_NAME_TOY"] = "Toy"
 	
 	
 --	main menu
@@ -638,7 +639,7 @@ if not L then return end
 	L["NO_DATA_AVAILABLE"] = "No Data Available"
 	L["TOOLTIP_PURCHASE_BANK_BAG_SLOT"] = "Click to purchase the next available bank bag slot."
 	L["TOOLTIP_PURCHASE_BANK_TAB_REAGENT"] = "Click to purchase the reagent bank tab."
-	L["HEIGHT"] = "Height"
+	L["LABEL"] = "Label"
 	
 	
 --	libdatabroker
