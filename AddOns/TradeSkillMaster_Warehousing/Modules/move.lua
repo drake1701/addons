@@ -114,7 +114,11 @@ function move:getContainerTable(cnt)
 end
 
 function move:areBanksVisible()
-	if BagnonFrameguildbank and BagnonFrameguildbank:IsVisible() then
+	if BagnonFrameGuildBank and BagnonFrameGuildBank:IsVisible() then
+		return true
+	elseif BagnonFrameguild and BagnonFrameguild:IsVisible() then
+		return true
+	elseif BagnonFrameinventory and BagnonFrameinventory:IsVisible() then
 		return true
 	elseif BagnonFramebank and BagnonFramebank:IsVisible() then
 		return true
@@ -154,7 +158,13 @@ function move:areBanksVisible()
 		return true
 	elseif NivayacBniv_Bank and NivayacBniv_Bank:IsVisible() then
 		return true
-	elseif DufUIBank and DufUIBank:IsVisble() then
+	elseif DufUIBank and DufUIBank:IsVisible() then
+		return true
+	elseif SVUI_BankContainerFrame and SVUI_BankContainerFrame:IsVisible() then
+		return true
+	elseif LiteBagBank and LiteBagBank:IsVisible() then
+		return true
+	elseif LiteBagInventory and LiteBagInventory:IsVisible() then
 		return true
 	end
 	TSM:Print(L["Canceled"])

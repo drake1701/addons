@@ -26,7 +26,7 @@ L["Here, you can choose what ItemTracker info, if any, to show in tooltips. \"Si
 L["If you rename / transfer / delete one of your characters, use this dropdown to remove that character from ItemTracker. There is no confirmation. If you accidentally delete a character that still exists, simply log onto that character to re-add it to ItemTracker."] = "如果您改名/转移/删除了某个角色，使用此下拉菜单从ItemTracker中移除该角色。此操作无确认提示。如果你意外删除了某个仍然存在的角色，只需登录该角色即可重新添加到ItemTracker。"
 L["Inventory Viewer"] = "库存一览"
 L["Item Name"] = "物品名称"
-L["Item Search"] = "物品查询"
+L["Item Search"] = "物品搜索" -- Needs review
 L["Mail"] = "邮件"
 L["Market Value Price Source"] = "市场价来源"
 L["No Tooltip Info"] = "无鼠标提示信息"

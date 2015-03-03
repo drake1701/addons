@@ -1,3 +1,9 @@
+v2.4.5
+*Fixing interface version.
+
+v2.4.4
+*Updated for patch 6.1.
+
 v2.4.3
 *Added reagent bank for auctioning bankui functions.
 *Ignore Soulbound items for auctioning bankui functions.

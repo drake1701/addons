@@ -13,19 +13,19 @@
 local L = LibStub("AceLocale-3.0"):NewLocale("TradeSkillMaster_WoWuction", "deDE")
 if not L then return end
 
-L["Display realm market price in tooltip."] = "Zeige Realm-Marktpreis im Tooltip" -- Needs review
-L["Display realm median price in tooltip."] = "Zeige den Durchschnittspreis auf dem Realm im Tooltip an" -- Needs review
-L["Display region average daily quantity in tooltips."] = "Zeige die durchschnittliche tägliche Menge in der Region in den Tooltips an" -- Needs review
-L["Display region market value in tooltip."] = "Zeige den Marktpreis in der Region im Tooltip an" -- Needs review
-L["Display region median price in tooltip."] = "Zeige den Durchschnittspreis in der Region im Tooltip an" -- Needs review
-L["Enable display of WoWuction data in tooltip."] = "Aktiviere WoWuction Datenanzeige im Tooltip" -- Needs review
-L["If checked, the average daily quantity across the region will be shown."] = "Wenn gesetzt, dann wird die tgl. Durchschnittsmenge in der Region angezeigt" -- Needs review
-L["If checked, the market value across the region of the item will be shown."] = "Wenn gesetzt, dann wird der Marktpreis in der Region angezeigt" -- Needs review
-L["If checked, the market value of the item will be shown"] = "Wenn gesetzt, dann wird der Marktpreis des Items angezeigt" -- Needs review
-L["If checked, the median price across the region of the item will be shown."] = "Wenn gesetzt, wird der Durchschnittspreis in der Region angezeigt" -- Needs review
-L["If checked, the median price of the item will be shown."] = "Wenn gesetzt, wird der Durchschnittspreis angezeigt" -- Needs review
+L["Display realm market price in tooltip."] = "Zeige den Marktpreis des Realms im Tooltip an"
+L["Display realm median price in tooltip."] = "Zeige den Durchschnittspreis des Realms im Tooltip an"
+L["Display region average daily quantity in tooltips."] = "Zeige die durchschnittliche Tagesmenge der Region im Tooltip an"
+L["Display region market value in tooltip."] = "Zeige den Marktpreis der Region im Tooltip an"
+L["Display region median price in tooltip."] = "Zeige den Durchschnittspreis der Region im Tooltip an"
+L["Enable display of WoWuction data in tooltip."] = "Zeige WoWuction-Daten im Tooltip an"
+L["If checked, the average daily quantity across the region will be shown."] = "Wenn aktiviert, wird die durchschn. Tagesmenge der Region angezeigt."
+L["If checked, the market value across the region of the item will be shown."] = "Wenn aktiviert, wird der Marktpreis der Region angezeigt."
+L["If checked, the market value of the item will be shown"] = "Wenn aktiviert, wird der Marktpreis des Gegenstands angezeigt."
+L["If checked, the median price across the region of the item will be shown."] = "Wenn aktiviert, wird der Durchschnittspreis der Region angezeigt."
+L["If checked, the median price of the item will be shown."] = "Wenn aktiviert, wird der Durchschnittspreis des Gegenstands angezeigt."
 L["Not Scanned"] = "Nicht gescannt" -- Needs review
-L["No wowuction data found. Go to the \"Data Export\" page for your realm on wowuction.com to download data."] = "Keine wowuction Daten gefunden. Gehe zur \"Daten Export\"-Seite für deinen Realm auf wowuction.com um die Daten runterzuladen."
+L["No wowuction data found. Go to the \"Data Export\" page for your realm on wowuction.com to download data."] = "Keine WoWuction-Daten gefunden. Geht auf die Seite \"Data Export\" Eures Realms auf wowuction.com, um die Daten herunterzuladen."
 L["Realm Last Scan Min Buyout:"] = "Realm letzter Scan min. Aufkauf" -- Needs review
 L["Realm Market Value:"] = "Realm: Durchschnittswert" -- Needs review
 L["Realm Median Price:"] = "Realm: Durchschnittspreis" -- Needs review

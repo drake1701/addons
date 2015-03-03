@@ -15,7 +15,7 @@ if not L then return end
 
 L["2 to 12 hrs"] = "2到12小时"
 L["30min to 2hrs"] = "30分钟到2小时"
-L["Add a new player to your whitelist."] = "新添角色名到白名单。"
+L["Add a new player to your whitelist."] = "新增角色名到白名单。"
 L["Add player"] = "添加角色"
 L["Any auctions at or below the selected duration will be ignored. Selecting \"<none>\" will cause no auctions to be ignored based on duration."] = "低于该持续时间的拍卖品将被忽略。选择'<无>'将不会在持续时间上忽略任何拍卖品。"
 L["At normal price and not undercut."] = "处于正常价格且未被压价"
@@ -50,7 +50,7 @@ L["Cancel Undercut Auctions"] = "取消被压的拍卖"
 L["Cheapest auction below min price."] = "低于最低价的最便宜的拍卖。"
 L["Click to show auctions for this item."] = "点击显示这个物品的拍卖。"
 L["Confirming %d / %d"] = "确认 %d / %d"
-L["Create Macro and Bind ScrollWheel (with selected options)"] = [=[创建宏并绑定鼠标滚轮（与选定的选项）
+L["Create Macro and Bind ScrollWheel (with selected options)"] = [=[创建宏并绑定鼠标滚轮（配合选定的选项）
 ]=]
 L["Currently Owned:"] = "当前拥有:"
 L["Default Operation Tab"] = "默认操作标签"
@@ -105,7 +105,7 @@ L["General Reset Settings"] = "常规转卖设置"
 L["General Settings"] = "常规设定"
 L["Give the new operation a name. A descriptive name will help you find this operation later."] = "为新操作命名，一个描述性的名称将方便您找到它。"
 L["Help"] = "帮助"
-L["How long auctions should be up for."] = "拍卖持续时间。"
+L["How long auctions should be up for."] = "拍卖持续时间。" -- Needs review
 L["How many auctions at the lowest price tier can be up at any one time. Setting this to 0 disables posting for any groups this operation is applied to."] = "发布商品的数量上限。设置为0时会使任何应用此操作的分组无法发布拍卖。"
 L["How many items should be in a single auction, 20 will mean they are posted in stacks of 20."] = "一次拍卖发布多少个物品,20意味着物品将以20个为堆叠发布."
 L["How much to undercut other auctions by. Format is in \"#g#s#c\". For example, \"50g30s\" means 50 gold, 30 silver, and no copper."] = "物品压价金额的格式为'#g#s#c', 比如: \"50g30s\"表示50金30银0铜"

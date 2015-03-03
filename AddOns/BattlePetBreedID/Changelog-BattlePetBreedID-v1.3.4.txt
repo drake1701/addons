@@ -1,0 +1,9 @@
+2015-03-02  MMOSimca  <MMOSimca@gmail.com>
+
+[b4ee9152fbdc] [v1.3.4]
+* BattlePetBreedID.lua:
+
+Added calculation support for a new aspect of WoD Pet Battles - Wild pets now have a 25% reduced Power stat.
+Additionally, adjusted calculation weights when determining breed so that HP differences are now valued equally with Power and Speed differences (instead of being worth 5x as much).
+
+

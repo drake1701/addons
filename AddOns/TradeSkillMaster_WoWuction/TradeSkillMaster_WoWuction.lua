@@ -12,7 +12,6 @@ TSM = LibStub("AceAddon-3.0"):NewAddon(TSM, "TSM_WoWuction", "AceConsole-3.0")
 local AceGUI = LibStub("AceGUI-3.0") -- load the AceGUI libraries
 local L = LibStub("AceLocale-3.0"):GetLocale("TradeSkillMaster_WoWuction") -- loads the localization table
 local private = {}
-TSMAPI:RegisterForTracing(private, "TradeSkillMaster_WoWuction_private")
 
 local savedDBDefaults = {
 	profile = {
@@ -57,8 +56,7 @@ end
 
 function TSM:OnEnable()
 	local realms = { GetRealmName(), "region" }
-	local realm = strlower(GetRealmName())
-	local faction = strlower(UnitFactionGroup("player") or "")
+	local CURRENT_REALM = strlower(GetRealmName())
 	local extractedData = {}
 	local hasData = false
 	
@@ -74,10 +72,9 @@ function TSM:OnEnable()
 		end
 	end
 
-	if TSM.AppData and (TSM.AppData[faction] or TSM.AppData[realm]) then
+	if TSM.AppData and (TSM.AppData.alliance or TSM.AppData[CURRENT_REALM]) then
 		hasData = true
-		local sets = {faction, realm}
-		for _, set in ipairs(sets) do
+		for _, set in ipairs({"alliance", CURRENT_REALM}) do
 			if TSM.AppData[set] then
 				local fields = TSM.AppData[set].fields
 				for _, itemData in ipairs(TSM.AppData[set].data) do
@@ -99,33 +96,13 @@ function TSM:OnEnable()
 		end
 		extractedData.lastUpdate = TSM.AppData.lastUpdate
 	elseif TSM.data then
-		for _, realm in ipairs(realms) do
-			if TSM.data[realm] and TSM.data[realm][faction] then
-				extractedData.lastUpdate = extractedData.lastUpdate or TSM.data[realm].lastUpdate
-				if #TSM.data[realm][faction] > 0 then
-					for _, itemData in ipairs(TSM.data[realm][faction]) do
-						local itemID = itemData[1] -- itemID always in the first slot
-						extractedData[itemID] = extractedData[itemID] or {}
-						for i = 2, #itemData do
-							local key = TSM.data[realm].fields[i]
-							if key == "regionAvgDailyQuantityX100" then
-								key = "regionAvgDailyQuantity"
-								itemData[i] = itemData[i] / 100
-							elseif key == "dailySoldX100" then
-								key = "dailySold"
-								itemData[i] = itemData[i] / 100
-							end
-							extractedData[itemID][key] = itemData[i]
-						end
-						hasData = true
-					end
-				else
-					hasData = true
-					extractedData = CopyTable(TSM.data[realm][faction])
-				end
+		for realm, data in pairs(TSM.data) do
+			if strlower(realm) == CURRENT_REALM and data.alliance then
+				hasData = true
+				extractedData = data.alliance
+				extractedData.lastUpdate = data.lastUpdate
 			end
 		end
-		wipe(TSM.data)
 	end
 	if not hasData then
 		TSM:Print(L["No wowuction data found. Go to the \"Data Export\" page for your realm on wowuction.com to download data."])

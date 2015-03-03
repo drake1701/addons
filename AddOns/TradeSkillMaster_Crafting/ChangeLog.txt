@@ -1,5 +1,11 @@
+v2.6.18
+*Fixing interface version.
+
+v2.6.17
+*Updated for patch 6.1.
+
 v2.6.16
-*Added TradeSkillMaster_ItemTracker as a required dependency
+*Added TradeSkillMaster_ItemTracker as a required dependency.
 
 v2.6.15
 *Fixed an issue where the cost per mat was displayed incorrectly if more than one item was made per craft.
