@@ -285,37 +285,70 @@ function ActionBars:LoadVariables()
 	end
 end
 
+function ActionBars:VehicleOnEvent(event)
+    if CanExitVehicle() then
+        if (UnitOnTaxi("player")) then
+            self.Text:SetText("|cffFF0000" .. TAXI_CANCEL_DESCRIPTION .. "|r")
+        else
+            self.Text:SetText("|cffFF0000" .. LEAVE_VEHICLE .. "|r")
+        end
+        
+        self:Show()
+    else
+        self:Hide()
+    end
+end
+
+function ActionBars:VehicleOnClick()
+    if (UnitOnTaxi("player")) then
+        TaxiRequestEarlyLanding()
+    else
+        VehicleExit()
+    end
+end
+
 function ActionBars:CreateVehicleButtons()
-	local VehicleLeft = CreateFrame("Button", nil, UIParent, "SecureHandlerClickTemplate")
+	local VehicleLeft = CreateFrame("Button", nil, UIParent)
 	VehicleLeft:SetAllPoints(T.Panels.DataTextLeft)
 	VehicleLeft:SetFrameStrata("MEDIUM")
 	VehicleLeft:SetFrameLevel(10)
-	VehicleLeft:SetTemplate()
+    VehicleLeft:SkinButton()
 	VehicleLeft:RegisterForClicks("AnyUp")
-	VehicleLeft:SetScript("OnClick", VehicleExit)
+	VehicleLeft:SetScript("OnClick", ActionBars.VehicleOnClick)
+	VehicleLeft:RegisterEvent("PLAYER_ENTERING_WORLD")
+	VehicleLeft:RegisterEvent("UPDATE_BONUS_ACTIONBAR")
+	VehicleLeft:RegisterEvent("UPDATE_MULTI_CAST_ACTIONBAR")
+	VehicleLeft:RegisterEvent("UNIT_ENTERED_VEHICLE")
+	VehicleLeft:RegisterEvent("UNIT_EXITED_VEHICLE")
+	VehicleLeft:RegisterEvent("VEHICLE_UPDATE")
+	VehicleLeft:SetScript("OnEvent", ActionBars.VehicleOnEvent)
+	VehicleLeft:Hide()
 
 	VehicleLeft.Text = VehicleLeft:CreateFontString(nil, "OVERLAY")
 	VehicleLeft.Text:SetFont(C.Medias.Font, 12)
 	VehicleLeft.Text:Point("CENTER", 0, 0)
-	VehicleLeft.Text:SetText("|cffFF0000" .. LEAVE_VEHICLE .. "|r")
 	VehicleLeft.Text:SetShadowOffset(1.25, -1.25)
 
-	local VehicleRight = CreateFrame("Button", nil, UIParent, "SecureHandlerClickTemplate")
+	local VehicleRight = CreateFrame("Button", nil, UIParent)
 	VehicleRight:SetAllPoints(T.Panels.DataTextRight)
-	VehicleRight:SetTemplate()
 	VehicleRight:SetFrameStrata("MEDIUM")
 	VehicleRight:SetFrameLevel(10)
+	VehicleRight:SkinButton()
 	VehicleRight:RegisterForClicks("AnyUp")
-	VehicleRight:SetScript("OnClick", VehicleExit)
+	VehicleRight:SetScript("OnClick", ActionBars.VehicleOnClick)
+	VehicleRight:RegisterEvent("PLAYER_ENTERING_WORLD")
+	VehicleRight:RegisterEvent("UPDATE_BONUS_ACTIONBAR")
+	VehicleRight:RegisterEvent("UPDATE_MULTI_CAST_ACTIONBAR")
+	VehicleRight:RegisterEvent("UNIT_ENTERED_VEHICLE")
+	VehicleRight:RegisterEvent("UNIT_EXITED_VEHICLE")
+	VehicleRight:RegisterEvent("VEHICLE_UPDATE")
+	VehicleRight:SetScript("OnEvent", ActionBars.VehicleOnEvent)
+	VehicleRight:Hide()
 
 	VehicleRight.Text = VehicleRight:CreateFontString(nil, "OVERLAY")
 	VehicleRight.Text:SetFont(C.Medias.Font, 12)
 	VehicleRight.Text:Point("CENTER", 0, 0)
-	VehicleRight.Text:SetText("|cffFF0000" .. LEAVE_VEHICLE .. "|r")
 	VehicleRight.Text:SetShadowOffset(1.25, -1.25)
-
-	RegisterStateDriver(VehicleLeft, "visibility", "[target=vehicle, exists] show; hide")
-	RegisterStateDriver(VehicleRight, "visibility", "[target=vehicle, exists] show; hide")
 	
 	T.Panels.VehicleButtonLeft = VehicleLeft
 	T.Panels.VehicleButtonRight = VehicleRight

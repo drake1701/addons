@@ -67,22 +67,33 @@ function rematch:ShowSaveDialog(team,fromCurrent)
 		dialog.panelToggle:Show()
 		-- if saving from current pets, show the option 'Save leveling pets as themselves'
 		if not dialog.asThemselves then
-			dialog.asThemselves = CreateFrame("CheckButton",nil,dialog,"UICheckButtonTemplate")
+			dialog.asThemselves = CreateFrame("CheckButton",nil,dialog,"RematchCheckButtonTemplate")
 			rematch:RegisterDialogWidget("asThemselves")
-			dialog.asThemselves:SetSize(26,26)
-			local label = dialog.asThemselves:CreateFontString(nil,"ARTWORK","GameFontHighlightSmall")
-			label:SetPoint("LEFT",dialog.asThemselves,"RIGHT",2,0)
-			label:SetText(L["Save leveling pets as themselves"])
+			dialog.asThemselves.text:SetText(L["Save leveling pets as themselves"])
 			dialog.asThemselves.tooltipTitle = L["Save As Themselves"]
 			dialog.asThemselves.tooltipBody = L["Save pets without turning them into leveling pets.\n\nSo loading this team in the future will load these specific pets and not from the queue."]
-			dialog.asThemselves:SetScript("OnEnter",function(self) rematch.ShowTooltip(self) end)
-			dialog.asThemselves:SetScript("OnLeave",rematch.HideTooltip)
 			dialog.asThemselves:SetScript("OnClick",rematch.LevelingPanelSaveAsThemselvesOnClick)
 		end
 		dialog.asThemselves:SetChecked(false) -- always default it to off
 		dialog.asThemselves:SetPoint("BOTTOMLEFT",24,40)
 	else
 		dialog.hasLeveling = nil
+	end
+
+	-- if saving with an npcID attached, add a checkbox to allow clearing the npcID
+	if pets[4] then
+		if not dialog.checkBox then
+			dialog.checkBox = CreateFrame("CheckButton",nil,dialog,"RematchCheckButtonTemplate")
+			rematch:RegisterDialogWidget("checkBox")
+		end
+		dialog.checkBox.text:SetText(format(L["Save NPC ID with team"],pets[4]))
+		dialog.checkBox:SetChecked(true)
+		dialog.checkBox.tooltipTitle = format(L["Save NPC ID (%d)"],pets[4])
+		dialog.checkBox.tooltipBody = format(L["Save a unique identifier for \124cffffffff%s\124r so Rematch will react only to this version of the NPC.\n\nIf an ID is not saved, Rematch will react to any targets that share this team's name.\n\nTeams with an NPC ID are listed in \124cffffffffWhite\124r.\nTeams without an NPC ID are listed in \124cffffd200Gold\124r."],team.teamName)
+		dialog.checkBox:SetPoint("TOPLEFT",dialog.team,"BOTTOMLEFT",35,-6)
+		dialog.keepNpcID = true
+		dialog.checkBox:SetScript("OnClick",function(self) dialog.keepNpcID = self:GetChecked() end)
+		dialog.checkBox:Show()
 	end
 
 	RematchTeamCard:Hide()
@@ -92,14 +103,15 @@ function rematch:UpdateSaveDialog()
 	local dialog = rematch.dialog
 	local warnOffset = dialog.warning:IsVisible() and 18 or 0
 	local pets = dialog.team.pets
+	local npcOffset = pets[4] and 26 or 0
 	local showLeveling = dialog.showLeveling and dialog.hasLeveling
 	dialog.levelingPanel:SetShown(showLeveling and true)
 	if dialog.asThemselves then
 		dialog.asThemselves:SetShown(dialog.savingFromCurrent and showLeveling)
 	end
-	dialog:SetHeight(152 + warnOffset + (showLeveling and (dialog.levelingPanel:GetHeight()+(dialog.savingFromCurrent and 24 or 0)) or 0))
+	dialog:SetHeight(152 + npcOffset + warnOffset + (showLeveling and (dialog.levelingPanel:GetHeight()+(dialog.savingFromCurrent and 24 or 0)) or 0))
 	dialog.team:SetPoint("TOP",0,-48-warnOffset)
-	dialog.levelingPanel:SetPoint("TOP",0,-120-warnOffset)
+	dialog.levelingPanel:SetPoint("TOP",0,-120-warnOffset-npcOffset)
 end
 
 function rematch:SaveEditBoxOnTextChanged()
@@ -145,12 +157,13 @@ function rematch:SaveTeamFromPetFrames(pets)
 			team[i][5] = petID
 		end
 	end
-	if settings.SelectedTab and settings.SelectedTab>1 then
-		team[5] = settings.SelectedTab
-	end
-	-- the existing npcID should take precedent over the old one; but we need to be able to fix the npcID too hmm
+	-- the existing npcID should take precedent over the old one
 	if not team[4] then
 		team[4] = pets[4]
+	end
+	-- if 'Save NPC with team' unchecked, remove npcID
+	if not rematch.dialog.keepNpcID then
+		team[4] = nil
 	end
 	for i=7,10 do -- minHP, allowMM, maxXP, expected (MAX_TEAM_FIELDS is 10)
 		if hasLeveling then
@@ -159,7 +172,7 @@ function rematch:SaveTeamFromPetFrames(pets)
 			team[i] = nil
 		end
 	end
-	team[5] = settings.SelectedTab>1 and settings.SelectedTab or nil
+	rematch:AssignTeamToTab(pets.teamName,settings.SelectedTab)
 	-- if the name was changed by the user, then remove its npcID
 	if pets.originalTeamName ~= pets.teamName then
 		team[4] = nil

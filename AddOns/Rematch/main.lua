@@ -74,7 +74,7 @@ function rematch:OnShow()
 		settings.DrawerMode = settings.oldDrawerMode
 		settings.oldDrawerMode = nil
 	end
-
+	rematch.toolbar.heal.cooldownContainer.cooldown:Hide() -- temporary fix for Blizzard bug with cooldown blings not hiding
 	rematch:UpdateWindow()
 
 	if rematch:TeamNeedsLoading(rematch.targetName,rematch.targetNpcID) then
@@ -281,7 +281,7 @@ end
 
 -- this is for any button that contains a spell or item that should show a real tooltip:
 -- heal, bandage, treat, lessertreat, safari
-function rematch:HealButtonOnEnter()
+function rematch:HealButtonOnEnter(once)
 	GameTooltip:SetOwner(self,"ANCHOR_NONE")
 	if self:GetAttribute("type")=="spell" then
 		GameTooltip:SetSpellByID(self:GetAttribute("spell"))
@@ -325,7 +325,9 @@ function rematch:HealButtonOnEnter()
 	-- this timer calls this onenter again in half a second; the onleave stops the timer
 	-- this causes a bit of garbage creation but is forgivable for the effects (cooldown timers
 	-- count down in the tooltip and left/right click instructions update)
-	self.tooltipTimer = C_Timer.NewTimer(0.5,function() rematch.HealButtonOnEnter(self) end)
+	if not once then
+		self.tooltipTimer = C_Timer.NewTimer(0.5,function() rematch.HealButtonOnEnter(self) end)
+	end
 end
 
 function rematch:HealButtonOnLeave()
@@ -334,6 +336,32 @@ function rematch:HealButtonOnLeave()
 	end
 	GameTooltip:Hide()
 	RematchTooltip:Hide()
+end
+
+function rematch:HealButtonPreClick()
+	for _,petID in pairs(rematch.ownedPets) do
+		local health,maxHealth = C_PetJournal.GetPetStats(petID)
+		if health and health<maxHealth then
+			rematch.HealButtonPostClick(self)
+			return
+		end
+	end
+	-- all pets are full health
+	if self.tooltipTimer then
+		self.tooltipTimer:Cancel() -- stop updating tooltip, about to add a line
+	end
+	rematch.HealButtonOnEnter(self,true)
+	GameTooltip:AddLine(L["Your pets are already at full health."],.5,0.6875,1)
+	GameTooltip:Show()
+	self:SetAttribute("type",nil) -- prevent button from casting (postclick will restore attribute)
+end
+
+function rematch:HealButtonPostClick()
+	if self==rematch.toolbar.heal then
+		self:SetAttribute("type","spell")
+	else
+		self:SetAttribute("type","item")
+	end
 end
 
 function rematch:UpdateSafariHat()
@@ -653,15 +681,23 @@ end
 
 --[[ ESCable system ]]
 
-rematch.specialFrames = { "Rematch", "RematchDrawer", "RematchDialog", "RematchMenu", "RematchTeamCard", "RematchFloatingPetCard" }
+rematch.specialFrames = { "Rematch", "RematchDrawer", "RematchDialog", "RematchMenu", "RematchTeamCard", "RematchFloatingPetCard", "RematchTeamDragFrame" }
 rematch.ESCHandler = CreateFrame("Frame",nil,rematch)
 rematch.ESCHandler:SetScript("OnKeyDown",function(self,key) -- this only runs while frame is visible
 	local somethingClosed
 	if key==GetBindingKey("TOGGLEGAMEMENU") then
+		-- if a pet is on mouse, drop the pet and don't let esc through
+		if rematch:GetCursorPetID() then
+			ClearCursor()
+			self:SetPropagateKeyboardInput(false)
+			return
+		end
+		-- if one of the search boxes have focus, allow esc to go through to clear focus
 		if rematch.drawer.browser.searchBox:HasFocus() or rematch.drawer.teams.searchBox:HasFocus() then
 			self:SetPropagateKeyboardInput(true)
 			return
 		end
+		-- if options panel is open, toggle options closed and don't allow esc through
 		if rematch:GetDrawerMode()=="OPTIONS" then
 			rematch:ToggleOptions()
 			self:SetPropagateKeyboardInput(false)

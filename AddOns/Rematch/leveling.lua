@@ -556,9 +556,11 @@ function rematch:UpdateQueueList()
 			    button.rarity:SetGradientAlpha("VERTICAL",r,g,b,.25,r,g,b,.6)
 				end
 				button.type:SetTexture("Interface\\PetBattles\\PetIcon-"..PET_TYPE_SUFFIX[petType])
-				button.icon:SetDesaturated(onCursor)
-				button.type:SetDesaturated(onCursor)
-				button:SetAlpha(skippedLevelingPicks[petID] and 0.4 or 1)
+				if onCursor then
+					button:SetAlpha(skippedLevelingPicks[petID] and 0.167 or 0.33)
+				else
+					button:SetAlpha(skippedLevelingPicks[petID] and 0.4 or 1)
+				end
 			end
 			button.selected:SetShown(button.petID and button.petID==rematch:GetCurrentLevelingPet())
 			lastButton = button

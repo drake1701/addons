@@ -10,10 +10,10 @@ How to Use
 You can summon the Rematch window several ways:
 - Set a key binding from options.
 - /rematch command.
-- The Rematch button at the bottom of the pet journal.
 - 'Use Minimap Button' in options will create a minimap button.
 - From its LDB button if you use a Broker infobar addon.
 - Have 'Auto Show' checked in options and target something for which you have a saved team that's not already loaded.
+- The Rematch button at the bottom of the pet journal.
 
 Saving a Team
 
@@ -112,15 +112,16 @@ Leveling Pet Preferences
 
 The queue is also able to prefer some pets over others.
 - If a queued pet is one your character can't load (like a wrong-factioned Moonkin Hatchling), it will skip over that pet and prefer pets you can load.
-- In the queue menu you can check "Prefer Live Pets."  This will make living pets load before any dead ones.
+- In the main options panel you can check "Prefer Live Pets."  This will make living pets load before any dead ones.
 - Pets that are not preferred will be darkened in the queue.
 - If preferred pets can't be found to fill all leveling slots, the top-most pets in the queue not already chosen will be used to fill the remaining slots.
-- You can globally disable preferences from checking 'No Preferences' in the queue menu.
+- You can globally disable preferences by checking 'No Preferences' in the queue menu.
 
 You can also save teams with some leveling pet preferences that are active only while that team is loaded.
 - When saving a team with a leveling pet, a button in the lower left will allow you to expand the window to assign leveling pet preferences.  These include:
   - Minimum Health: Any pets with at least this much maximum health will be preferred. (Injured pets will use their maximum health for consideration)
   - or any Magic & Mechanical: These two types can survive one hit. For opponents that would only get one swipe at your leveling pet, this option will allow all magic and mechanical pets to be preferred.
+  - Expected damage taken: Choosing a type of damage expected will adjust the minimum health for some pet types. For instance if you expect Dragonkin damage, the minimum health of Magic pets is increased by 50% and the minimum health of Undead pets is reduced by 33%.
   - Maximum Level: Any pets above this level will be skipped, to save from lost xp.  Note that the level can be a partial amount: 23.45 is level 23 and 45% towards the next level.
 - To change the leveling preferences of an existing team, right-click a team that contains a leveling pet and choose 'Leveling Preferences'.
 - Teams with a preference will have a leveling icon to the right of their name. Mouseover of this button will show the preferences in a tooltip. Clicking the button will summon a dialog to change preferences.
@@ -155,33 +156,33 @@ ogether if you choose.
 
 Future plans
 
-My addon-writing time should be picking up again now that holidays are passing. The present plans for Rematch are listed below, loosely grouped into three priorities.
+The present plans for Rematch are listed below roughly grouped into three priorities:
 
 Short term:
-- Look for multiple sources for breed data.
-- Queue recovery in the event of a server mass petID reassignment.
-- Custom sorting of pets: by power, speed, favorites mixed with rest, reverse sort, etc.
-- Additional leveling pet preferences: vulnerable pet types, maybe resistant types.
-- Mass Export/Import of teams.
-- Somehow save for challenge posts (prompt to save after a successful battle with a non-wild pet?)
-- Allow the window to be resized horizontally the way it can be resized vertically now.
+- Rework how teams are organized internally. (Specifically: index either by npcID or by name, and change ordered list to unordered table)
+- Rework how caged pets are dealt with: wait for original to return instead of potentially subtituting a lesser copy.
+- Prompt to save after a successful battle with a non-wild pet if a team is not saved for the npcID you just fought (like challenge posts).
+- A method of tagging pets, owned or not, with custom tags.
+- Mark a team tab to be used with the minimap button.
 
 Mid term:
-- Allow re-ordering teams into an arbitrary order within a group.
-- Re-evaluate UI:
- - See about making the UI less "dense".
- - The small square buttons could afford to be wider.
- - An alternate view of current pets that stacks them vertically.
-- Pet Treat, Lesser Pet Treat and Safari Hat buttons in the collapsed view, with cooldown spinners on the treats to tell how much time is left on the buff.
-- Some alternate method of tagging pets. A "second" favorites at least.
-- A way to pick a new leveling pet while the window is collapsed.
+- Rework UI:
+  - See about making the UI less "dense".
+  - The small square buttons could afford to be bigger.
+  - An alternate view of current pets that stacks them vertically.
+- Update sharing teams:
+  - Include notes and preferences in Import/Export/Send/Receive of teams.
+  - Battle.net support for sharing teams.
+  - Mass Export/Import of teams.
 - A "favorite filters" system.
+- Add right-click menus to pets on the team cards.
 
 Long term:
 - Rework the pet card to get more information on the card, such as breeds owned.
-- Rematch journal companion: maybe throw in the towel and integrate Rematch into the journal.
+- Rematch journal companion: maybe throw in the towel and integrate Rematch into the journal with a separate optional module.
 - Understudy pet slot on the pet card for loading an alternate pet if that pet is dead or injured.
 - Possibly some method of choosing alternate teams if the saved team has dead or injured pets.
+- A help or tutorial system.
 
 If you have any comments, suggestions or bugs to report feel free to post them here in the comments. Thanks!
 

@@ -60,7 +60,7 @@
 		<Layers>
 			<Layer level="ARTWORK">
 				<!-- red tint around edge of icon for when pet is injured -->
-				<Texture parentKey="blood" file="Interface\ContainerFrame\Bags">
+				<Texture parentKey="blood" file="Interface\ContainerFrame\Bags" hidden="true">
 					<Anchors>
 						<Anchor point="TOPLEFT" relativeKey="$parent.icon"/>
 						<Anchor point="BOTTOMRIGHT" relativeKey="$parent.icon"/>
@@ -160,6 +160,7 @@
 		</Anchors>
 		<Layers>
 			<Layer level="BACKGROUND">
+				<!-- the brown background behind current pets -->
 				<Texture parentKey="back" file="Interface\PetBattles\PetJournal" setAllPoints="true">
 					<TexCoords left="0.189453125" right="0.658203125" top="0.486328125" bottom="0.5908203125"/>
 				</Texture>
@@ -177,27 +178,28 @@
 				</Texture>
 				<!-- doodad in topleft corner -->
 				<Texture parentArray="doodads" file="Interface\Collections\Collections" alpha="0.5">
-					<Size x="46" y="35"/>
+					<Size x="43" y="32"/>
 					<Anchors>
 						<Anchor point="TOPLEFT" x="2" y="-2"/>
 					</Anchors>
-					<TexCoords left="0.06640625" right="0.244140625" top="0.63671875" bottom="0.90625"/>
+					<!-- texcoords are for 86x64 square -->
+					<TexCoords left="0.00390625" right="0.169921875" top="0.015625" bottom="0.138671875"/>
 				</Texture>
 				<!-- doodad in topright corner -->
 				<Texture parentArray="doodads" file="Interface\Collections\Collections" alpha="0.5">
-					<Size x="46" y="35"/>
+					<Size x="43" y="32"/>
 					<Anchors>
 						<Anchor point="TOPRIGHT" x="-2" y="-2"/>
 					</Anchors>
-					<TexCoords left="0.244140625" right="0.06640625" top="0.63671875" bottom="0.90625"/>
+					<TexCoords left="0.169921875" right="0.00390625" top="0.015625" bottom="0.138671875"/>
 				</Texture>
 				<!-- doodad in bottomright corner -->
 				<Texture parentArray="doodads" file="Interface\Collections\Collections" alpha="0.5">
-					<Size x="46" y="35"/>
+					<Size x="43" y="32"/>
 					<Anchors>
 						<Anchor point="BOTTOMRIGHT" x="-2" y="2"/>
 					</Anchors>
-					<TexCoords left="0.244140625" right="0.06640625" top="0.90625" bottom="0.63671875"/>
+					<TexCoords left="0.169921875" right="0.00390625" top="0.138671875" bottom="0.015625"/>
 				</Texture>
 				<!-- doodad in bottomleft corner -->
 				<Texture parentArray="doodads" file="Interface\Collections\Collections" alpha="0.5">
@@ -205,7 +207,7 @@
 					<Anchors>
 						<Anchor point="BOTTOMLEFT" x="2" y="2"/>
 					</Anchors>
-					<TexCoords left="0.06640625" right="0.244140625" top="0.90625" bottom="0.63671875"/>
+					<TexCoords left="0.00390625" right="0.169921875" top="0.138671875" bottom="0.015625"/>
 				</Texture>
 			</Layer>
 		</Layers>

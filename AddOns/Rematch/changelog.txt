@@ -1,3 +1,19 @@
+03/05/2015 version 3.3.7
+- Teams can now be dragged to other team tabs.
+- Teams within a tab can now be sorted into an arbirtary order:
+  - Right-click a tab you'd like to custom sort and check 'Custom Sort'.
+  - Teams within that tab can then be dragged around or moved with the teams' right-click menus.
+  - Teams added to a custom sorted tab from elsewhere will be added to the end.
+  - The General tab cannot be custom sorted, sorry!
+- New option 'Spam when teams move' to display in the chat window when a team moves to another tab.
+- New option 'Require Shift to drag' to lock teams in place and require Shift to drag them.
+- When saving a team with an NPC ID stored, or when saving while targeting an NPC, a checkbox 'Save NPC ID with team' will let you choose whether or not to keep the NPC ID in the team.
+- When all pets are at full health, the bandage and revive button will not waste the cast.
+- Right-click menus are now larger when 'Larger window' option checked.
+- 'Larger list text' renamed to 'Larger text' and affects menus also.
+- When a pet belongs to a team the number of teams it belongs to will be displayed on the pet card.
+- If a pet belongs to a team, 'List Teams' will appear in their right-click menu to list all teams it's a member of.
+
 02/24/2015 version 3.3.6
 - Fix for journal interaction when other addons load the journal during their loading process.
 

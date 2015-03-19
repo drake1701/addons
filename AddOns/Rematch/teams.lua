@@ -2,7 +2,7 @@
 
 	["team name"] = {
 		[1] = {petID,abilityID,abilityID,abilityID,speciesID}, -- petID can be a speciesID (number) if missing
-		[2] = {petID,abilityID,abilityID,abilityID,speciesID},
+		[2] = {petID,abilityID,abilityID,abilityID,speciesID}, -- petID of 0 means it's a leveling pet
 		[3] = {petID,abilityID,abilityID,abilityID,speciesID},
 		[4] = npcID, -- nil or number
 		[5] = tab, -- nil or tab number (1-16)
@@ -11,9 +11,16 @@
 		[8] = allowMM, nil or true to allow low-health magic and mechanical
 		[9] = maxXP, - nil or maximum level preference
 		[10]= expected, -- nil or damage type expected (1-10 pet type)
-	}
+	},
 
-	petID of 0 notes a leveling pet.
+	tabs are saved in RematchSettings.TeamGroups in this format:
+
+	[1] = {
+		[1] = "name", -- name of tab
+		[2] = "Interface\\Icons\\Path", -- icon of tab
+		[3] = { "Team A", "Team B", "Team C", etc }, -- ordered list of teams (if custom sort) or nil
+	},
+
 ]]
 
 local MAX_TEAM_FIELDS = 10
@@ -57,6 +64,16 @@ function rematch:InitTeams()
 
 	card:SetFrameLevel(4)
 	card.lockFrame:SetFrameLevel(1)
+
+	teams.dragFrame.team:EnableMouse(false)
+	teams.dragFrame.team.notes:Hide()
+	teams.dragFrame.team.preferences:Hide()
+	teams.dragFrame.team.name:SetText("A very very long team name that may wrap the frame")
+	teams.dragFrame:RegisterForClicks("AnyUp")
+	for i=1,3 do
+		teams.dragFrame.panels[i]:RegisterForClicks("AnyUp")
+	end
+	teams.dragFrame.team:SetFrameLevel(teams.dragFrame.insertLine:GetFrameLevel()+1)
 end
 
 function rematch:UpdateTeams()
@@ -78,8 +95,10 @@ function rematch:UpdateTeamTabs()
 		tab:SetChecked(i==settings.SelectedTab and not searching)
 		if i==(numGroups+1) then
 			tab.icon:SetTexture("Interface\\AddOns\\Rematch\\textures\\newteam")
+			tab.custom:Hide()
 			tab.name = nil
 		elseif i<=numGroups then
+			tab.custom:SetShown(groups[i][3] and true)
 			tab.icon:SetTexture(groups[i][2])
 			tab.name = groups[i][1]
 			if searching then -- dim tabs that are not part of search results
@@ -97,9 +116,27 @@ end
 
 function rematch:TeamTabButtonOnClick(button)
 	rematch:HideDialogs()
+	local index = self:GetID()
+	if teams.dragFrame:IsVisible() then -- if a team is being dragged
+		if button=="RightButton" then
+			teams.dragFrame:Hide()
+			return
+		end
+		if not self.name then
+			return -- can't drop teams on "New Tab" button
+		end
+		if (saved[teams.dragFrame.teamName][5] or 1)==self:GetID() then
+			self:SetChecked(true)
+			return -- can't drop teams onto a tab it already belongs to
+		end
+		-- there's a team picked up, receive it to this tab
+		teams.dragFrame:Hide()
+		rematch:AssignTeamToTab(teams.dragFrame.teamName,self:GetID(),true)
+		rematch:UpdateTeams()
+		return
+	end
 	self:SetChecked(false)
 	rematch:ClearSearchBox(teams.searchBox)
-	local index = self:GetID()
 	if not self.name then
 		if button~="RightButton" then
 			rematch:ShowTeamTabEditDialog(index,L["New Tab"],"Interface\\Icons\\INV_Misc_QuestionMark")
@@ -128,7 +165,16 @@ end
 
 function rematch:TeamTabButtonOnEnter()
 	local index = self:GetID()
-	if settings.TeamGroups[index] then
+	if teams.dragFrame:IsVisible() then -- team is being dragged
+		if settings.TeamGroups[index] then -- this is an actual tab
+			local targetTab = saved[teams.dragFrame.teamName][5] or 1
+			if index~=targetTab then
+				rematch:ShowTooltip(format(L["Move to \124T%s:16\124t%s"],settings.TeamGroups[index][2],settings.TeamGroups[index][1]))
+				RematchTooltip:ClearAllPoints()
+				RematchTooltip:SetPoint("TOPLEFT",teams.dragFrame.team,"BOTTOMLEFT")
+			end
+		end
+	elseif settings.TeamGroups[index] then
 		rematch:ShowTooltip(settings.TeamGroups[index][1])
 	else
 		rematch:ShowTooltip(L["New Tab"],L["Create a new tab."])
@@ -334,23 +380,25 @@ function rematch:SwapTeamTabs(index1,index2)
 		end
 	end
 	local groups = settings.TeamGroups
-	local name,icon = groups[index1][1], groups[index1][2]
+	local name,icon,custom = groups[index1][1], groups[index1][2], groups[index1][3]
 	groups[index1][1] = groups[index2][1]
 	groups[index1][2] = groups[index2][2]
+	groups[index1][3] = groups[index2][3]
 	groups[index2][1] = name
 	groups[index2][2] = icon
+	groups[index2][3] = custom
 end
 
 --[[ Team List ]]
 
 -- populates teams.teamList with teamNames in the selected tab
 function rematch:PopulateTeamList()
+	local selectedTab = settings.SelectedTab
 	local list = teams.teamList
 	wipe(list)
 	if teams.searchText then -- if anything in searchbox, populate from search results
 		rematch:PopulateTeamSearchResults()
 	else -- otherwise populate with matching tabs
-		local selectedTab = settings.SelectedTab
 		local numTabs = #settings.TeamGroups
 		for teamName,teamData in pairs(saved) do
 			local teamTab = teamData[5]
@@ -365,7 +413,33 @@ function rematch:PopulateTeamList()
 			end
 		end
 	end
+	-- alphabetically sort the teams
 	table.sort(list,function(e1,e2) return e1:lower()<e2:lower() end)
+
+	-- if nothing being searched, this is a non-general tab and this tab has a custom sort:
+	-- teamList with the custom sort+any sorted newcomers
+	if not teams.searchText and selectedTab then
+		local custom = settings.TeamGroups[selectedTab][3]
+		if settings.TeamGroups[selectedTab][3] then -- this group is custom sorted
+			-- first remove any teams from custom sort that don't belong in this tab
+			for i=#custom,1,-1 do
+				if not saved[custom[i]] or saved[custom[i]][5]~=selectedTab then
+					tremove(custom,i)
+				end
+			end
+			-- now look for any in teamList that belong here but don't already
+			for i=1,#list do
+				if not tContains(custom,list[i]) then
+					tinsert(custom,list[i])
+				end
+			end
+			-- now wipe teamList and populate with custom
+			wipe(list)
+			for i=1,#custom do
+				tinsert(list,custom[i])
+			end
+		end
+	end
 end
 
 function rematch:UpdateTeamList()
@@ -422,6 +496,11 @@ function rematch:UpdateTeamList()
 				button.preferences:SetPoint("RIGHT",1,0)
 			end
 			button.preferences:SetShown(hasPreferences)
+			if teams.dragFrame:IsVisible() and teams.dragFrame.teamName==teamName then
+				button:SetAlpha(0.33)
+			else
+				button:SetAlpha(1)
+			end
 			button:Show()
 		else
 			button:Hide()
@@ -698,6 +777,11 @@ function rematch:TeamSearchBoxOnTextChanged()
 	else
 		teams.searchText = nil
 	end
+	if text:match("^BattlePet%-%x%-%x%x%x%x%x%x%x%x%x%x%x%x$") then
+		self:SetTextColor(.5,.5,.5)
+	else
+		self:SetTextColor(1,1,1)
+	end
 	rematch:UpdateTeams()
 end
 
@@ -705,6 +789,7 @@ end
 function rematch:PopulateTeamSearchResults()
 	local list = teams.teamList
 	local search = teams.searchText
+	local rawSearch = teams.searchBox:GetText()
 	wipe(teams.searchTabsFound)
 	rematch:ValidateAllTeams()
 	for teamName,teamData in pairs(saved) do
@@ -719,6 +804,10 @@ function rematch:PopulateTeamSearchResults()
 			for i=1,3 do -- look for search as part of a pet or ability in the team
 				local petID = teamData[i][1]
 				if type(petID)=="string" and petID~=rematch.emptyPetID then
+					if rawSearch==petID then
+						found = true
+						break
+					end
 					local _,customName,_,_,_,_,_,realName = C_PetJournal.GetPetInfoByPetID(petID)
 					if (customName and customName:match(search)) or (realName and realName:match(search)) then
 						found = true
@@ -763,3 +852,218 @@ function rematch:TeamTabScrollUpdate(offset)
 	teams.tabScrollUp:SetShown(offset>0)
 	teams.tabScrollDown:SetShown(offset<maxOffset)
 end
+
+-- this should be used to assign a team to a tab, instead of team[5]=tab.
+-- if the tab is custom sorted it will add it to the end of the custom table.
+-- it's ok if this is not religiously used; the populate will add any missing
+-- teams to the end, but it should be used especially when you can assign
+-- teams while not looking at the tab (moving, saving)
+function rematch:AssignTeamToTab(teamName,tab,spam)
+	tab = tab or 1
+	if saved[teamName] then
+		if tab==1 then
+			saved[teamName][5] = nil
+		else
+			saved[teamName][5] = tab
+			local custom = settings.TeamGroups[tab][3]
+			if custom and not tContains(custom,teamName) then
+				tinsert(custom,teamName)
+			end
+		end
+	end
+	-- if team tab visible, then shine the tab receiving the team
+	if teams:IsVisible() then
+		for i=1,teams.maxTabs do
+			local button = teams.tabScrollFrame.scrollChild.tabs[i]
+			if button:GetID()==tab then
+				rematch:ShineOnYouCrazy(button)
+			end
+		end
+	end
+	if spam and settings.SpamTeamMove then
+		rematch:print(format(L["%s \124cffffd200moved to\124r \124T%s:14\124t %s"],teamName,settings.TeamGroups[tab][2],settings.TeamGroups[tab][1]))
+	end
+end
+	
+-- returns number of times petID appears in all teams
+-- if any is true, returns 1 after finding first one (if rematch:GetNumPetIDsInTeams(petID,true)>0)
+function rematch:GetNumPetIDsInTeams(petID,any)
+	if not petID or type(petID)~="string" then
+		return 0 -- not a real petID, none in any teams
+	end
+	local count = 0
+	for _,team in pairs(saved) do
+		for i=1,3 do
+			if team[i][1]==petID then
+				count = count+1
+				if any then
+					return 1
+				end
+			end
+		end
+	end
+	return count
+end
+
+--[[ Team Dragging
+
+	Team dragging is accomplished by an invisible frame (teams.dragFrame) that
+	covers most of UIParent, leaving just the scrollbar and tabs exposed.
+	The dragFrame receives clicks that other parts of the UI would ordinarily
+	receive, and has an OnUpdate to position a team on the cursor and an
+	insertLine if the user is dragging from within a custom-sorted tab.
+]]
+
+-- called in the team list buttons, picks up a team
+function rematch:TeamListOnDragStart()
+	if #settings.TeamGroups<2 or (settings.LockTeamDrag and not IsShiftKeyDown()) then
+		return -- can't pick up teams if only a general tab
+	end
+	PlaySound("igAbilityIconPickup")
+	local teamName = self.teamName
+	local team = saved[teamName]
+	-- fill name in picked up team
+	teams.dragFrame.teamName = teamName
+	teams.dragFrame.sourceTab = not teams.searchText and (team[5] or 1) or nil
+	teams.dragFrame.team.name:SetText(teamName)
+	teams.dragFrame.team.name:SetFontObject(settings.LargeFont and "GameFontHighlight" or "GameFontHighlightSmall")
+	if team[4] then
+		teams.dragFrame.team.name:SetTextColor(1,1,1)
+	else
+		teams.dragFrame.team.name:SetTextColor(1,.82,0)
+	end
+	-- fill icons in picked up team
+	for i=1,3 do
+		local petID = team[i][1]
+		teams.dragFrame.team.pets[i]:SetTexture(rematch:GetPetIDIcon(petID))
+	end
+	-- make tabs that can receive this team glow
+	for i=1,#settings.TeamGroups do
+		local tab = teams.tabScrollFrame.scrollChild.tabs[i]
+		local glow = (i==1 and team[5]) or (i>1 and team[5]~=i)
+		tab.glow:SetShown(glow)
+		tab.icon:SetDesaturated(not glow)
+		tab.icon:SetVertexColor(glow and 1 or .5, glow and 1 or .5, glow and 1 or .5)
+	end
+	teams.dragFrame:Show()
+	rematch:UpdateTeamList()
+	SetCursor("ITEM_CURSOR")
+end
+
+function rematch:TeamListOnDragStop(button)
+	if button=="RightButton" then
+		teams.dragFrame:Hide()
+		return
+	end
+
+	local focus = GetMouseFocus()
+	-- if team was dragged to a named tab, move it to that tab
+	if focus:GetParent()==teams.tabScrollFrame.scrollChild and focus.name then
+		local sourceTab = saved[teams.dragFrame.teamName][5] or 1
+		local destinationTab = focus:GetID()
+		if sourceTab ~= destinationTab then -- (and it's going to a different tab)
+			teams.dragFrame:Hide()
+			rematch:AssignTeamToTab(teams.dragFrame.teamName,destinationTab,true)
+			rematch:UpdateTeams()
+		else
+			return -- don't drop the team if clicked on tab it already belongs to
+		end
+	end
+	if teams.dragFrame.insertLine:IsVisible() and teams.dragFrame.insertLine.index then
+		-- inserts the team dragFrame.teamName to index dragFrame.insertLine.index
+		local teamName = teams.dragFrame.teamName
+		local index = teams.dragFrame.insertLine.index
+		local custom = settings.TeamGroups[settings.SelectedTab][3]
+		if teamName and index and custom then
+			-- first blank the original place of the team name
+			for i=1,#custom do
+				if custom[i]==teamName then
+					custom[i] = ""
+				end
+			end
+			-- now insert the team to its chosen index
+			tinsert(custom,index,teamName)
+			-- now remove the blanked team
+			for i=#custom,1,-1 do
+				if custom[i]=="" then
+					tremove(custom,i)
+				end
+			end
+			rematch:UpdateTeams()
+			teams.dragFrame:Hide()
+		end
+	end
+	-- if button passed (due to a click) and we're not over the rematch window, drop the team
+	if button and not MouseIsOver(rematch) then
+		teams.dragFrame:Hide()
+	end
+end
+
+function rematch:TeamDragFrameOnHide()
+	PlaySound("igAbilityIconDrop")
+	ResetCursor()
+	for i=1,#settings.TeamGroups do
+		local tab = teams.tabScrollFrame.scrollChild.tabs[i]
+		tab.glow:Hide()
+	end
+	rematch:UpdateTeamTabs()
+	self.insertLine:Hide()
+	self:Hide()
+	RematchTooltip:Hide()
+	rematch:UpdateTeamList()
+end
+
+function rematch:TeamDragFrameOnUpdate(elapsed)
+	local x,y = GetCursorPosition()
+	local scale = self:GetEffectiveScale()
+	self.team:SetPoint("TOPLEFT",UIParent,"BOTTOMLEFT",x/scale,y/scale)
+
+	-- if the tab it's being dragged from has a custom sort, deal with insertLine
+	-- (when search for teams sourceTab is nil)
+	if self.sourceTab and settings.TeamGroups[self.sourceTab][3] then
+		local scrollFrame = teams.list.scrollFrame
+		local over -- becomes the button that the cursor is over
+		local showLine -- whether to show a line, becomes "TOP" or "BOTTOM" to anchor it to over button
+		local index
+		if MouseIsOver(self) and MouseIsOver(scrollFrame) then
+			for _,button in ipairs(scrollFrame.buttons) do
+				if MouseIsOver(button) then
+					over = button
+					break
+				end
+			end
+			if over then
+				if over:IsVisible() then -- over an actual button
+					self.insertLine:SetWidth(over:GetWidth())
+					local side = (y/scale)>select(2,over:GetCenter()) and "TOP" or "BOTTOM"
+					if side=="TOP" and over:GetTop()<(scrollFrame:GetTop()+4) then
+						showLine = side
+						index = over.index
+					elseif side=="BOTTOM" and over:GetBottom()>(scrollFrame:GetBottom()-4) then
+						showLine = side
+						index = over.index+1
+					end
+				else -- over a button but it's not visible (likely empty space)
+					-- look for last visible button and place insert at bottom of it
+					for _,button in ipairs(scrollFrame.buttons) do
+						if button:IsVisible() then
+							over = button
+						else
+							break
+						end
+					end
+					showLine = "BOTTOM"
+					index = over.index+1
+				end
+			end
+		end
+		if showLine then
+			self.insertLine:SetPoint("CENTER",over,showLine)
+			self.insertLine:Show()
+		else
+			self.insertLine:Hide()
+		end
+		self.insertLine.index = index
+	end
+end
+

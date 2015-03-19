@@ -1,6 +1,6 @@
 ClamStacker = LibStub("AceAddon-3.0"):NewAddon("ClamStacker", "AceConsole-3.0", "AceEvent-3.0")
 local L = LibStub("AceLocale-3.0"):GetLocale("ClamStacker", false)
-local version = "1.6.28"
+local version = "1.6.33"
 
 local debugFrame = tekDebug and tekDebug:GetFrame("ClamStacker")
 
@@ -46,6 +46,109 @@ local salvagedGoods = Set {
 114119, --Crate of Salvage
 114120, --Big Crate of Salvage
 118473, --Small Sack of Salvaged Goods
+}
+
+local armorTokens = Set {
+102263, --Timeless Plate Chestpiece
+102264, --Timeless Plate Boots
+102265, --Timeless Plate Gloves
+102266, --Timeless Plate Helm
+102267, --Timeless Plate Leggings
+102268, --Timeless Plate Spaulders
+102269, --Timeless Plate Belt
+102270, --Timeless Mail Chestpiece
+102271, --Timeless Mail Boots
+102272, --Timeless Mail Gloves
+102273, --Timeless Mail Helm
+102274, --Timeless Mail Leggings
+102275, --Timeless Mail Spaulders
+102276, --Timeless Mail Belt
+102277, --Timeless Leather Chestpiece
+102278, --Timeless Leather Boots
+102279, --Timeless Leather Gloves
+102280, --Timeless Leather Helm
+102281, --Timeless Leather Leggings
+102282, --Timeless Leather Spaulders
+102283, --Timeless Leather Belt
+102284, --Timeless Cloth Robes
+102285, --Timeless Cloth Boots
+102286, --Timeless Cloth Gloves
+102287, --Timeless Cloth Helm
+102288, --Timeless Cloth Leggings
+102289, --Timeless Cloth Spaulders
+102290, --Timeless Cloth Belt
+102291, --Timeless Signet
+102318, --Timeless Cloak
+102320, --Timeless Plate Bracers
+102321, --Timeless Cloth Bracers
+102322, --Timeless Leather Bracers
+102323, --Timeless Mail Bracers
+102345, --Timeless Lavalliere
+102347, --Timeless Curio
+114052, --Gleaming Ring
+114053, --Shimmering Gauntlets
+114057, --Munificent Bracers
+114058, --Munificent Robes
+114059, --Munificent Treads
+114060, --Munificent Gauntlets
+114061, --Munificent Hood
+114062, --Munificent Leggings
+114063, --Munificent Spaulders
+114064, --Munificent Girdle
+114065, --Munificent Ring
+114066, --Munificent Choker
+114067, --Munificent Cloak
+114068, --Munificent Trinket
+114069, --Turbulent Bracers
+114070, --Turbulent Robes
+114071, --Turbulent Treads
+114072, --Turbulent Gauntlets
+114073, --Turbulent Hood
+114074, --Turbulent Leggings
+114075, --Turbulent Spaulders
+114076, --Turbulent Girdle
+114077, --Turbulent Ring
+114078, --Turbulent Choker
+114079, --Turbulent Cloak
+114080, --Turbulent Trinket
+114082, --Grandiose Bracers
+114083, --Grandiose Robes
+114084, --Grandiose Treads
+114085, --Grandiose Spaulders
+114086, --Grandiose Choker
+114087, --Grandiose Trinket
+114094, --Tormented Bracers
+114096, --Tormented Treads
+114097, --Tormented Gauntlets
+114098, --Tormented Hood
+114099, --Tormented Leggings
+114100, --Tormented Spaulders
+114101, --Tormented Girdle
+114105, --Tormented Trinket
+114108, --Tormented Armament
+114109, --Munificent Armament
+114110, --Turbulent Armament
+114112, --Grandiose Armament
+119114, --Grandiose Gauntlets
+119116, --Grandiose Hood
+119118, --Grandiose Leggings
+119120, --Grandiose Girdle
+119122, --Grandiose Ring
+119124, --Grandiose Cloak
+--Coming in patch 6.1
+122621, --Shared Turbulent Bracers
+122622, --Shared Turbulent Robes
+122623, --Shared Turbulent Treads
+122624, --Shared Turbulent Gauntlets
+122625, --Shared Turbulent Hood
+122626, --Shared Turbulent Leggings
+122627, --Shared Turbulent Spaulders
+122628, --Shared Turbulent Girdle
+122629, --Shared Turbulent Ring
+122630, --Shared Turbulent Choker
+122631, --Shared Turbulent Cloak
+122632, --Shared Turbulent Trinket
+122633, --Shared Turbulent Armament
 }
 
 local smallDraenorFish = Set {
@@ -182,6 +285,7 @@ local smallLeatherBits = Set {
 local mediumLeatherBits = Set {
 25649,
 33567,
+52977, --Savage Leather Scraps
 72162,
 }
 
@@ -865,7 +969,6 @@ local clamItemIds = Set {
 113258, --Blingtron 5000 Gift Package
 113992, --Scribe's Research Notes
 114028, --Small Pouch of Coins
-114116, --Bag of Salvaged Goods
 114662, --Tranquil satchel of helpful goods
 114970, --Small Pouch of Coins
 115356, --Draenor Blacksmithing
@@ -889,9 +992,11 @@ local clamItemIds = Set {
 116431, --Garrison Blueprint: Frostwall Tavern, Level 2
 116432, --Garrison Blueprint: Frostwall Tavern, Level 3
 116761, --Winter Veil Gift
+116762, --Stolen Present
 116764, --Small Pouch of Coins
 116980, --Invader's Forgotten Treasure
 117392, --Loot-filled pumpkin
+117492, --Relic of Rukhmar
 118193, --Mysterious Shining Lockbox
 118215, --Book of Garrison Blueprints
 118473, --Small Sack of Salvaged Goods
@@ -932,7 +1037,69 @@ local clamItemIds = Set {
 120323, --Bulging Stacked Card Deck
 120324, --Bursting Stacked Card Deck
 120325, --Overflowing Stacked Card Deck
+122195, --Music Roll: Legends of Azeroth
+122196, --Music Roll: The Burning Legion
+122197, --Music Roll: Wrath of the Lich King
+122198, --Music Roll: The Shattering
+122199, --Music Roll: Heart of Pandaria
+122200, --Music Roll: A Siege of Worlds
+122201, --Music Roll: Stormwind
+122202, --Music Roll: High Seas
+122203, --Music Roll: Ironforge
+122204, --Music Roll: Cold Mountain
+122205, --Music Roll: Night Song
+122206, --Music Roll: Gnomeregan
+122207, --Music Roll: Tinkertown
+122208, --Music Roll: Exodar
+122209, --Music Roll: Curse of the Worgen
+122210, --Music Roll: Orgrimmar
+122211, --Music Roll: War March
+122212, --Music Roll: Undercity
+122213, --Music Roll: Thunder Bluff
+122214, --Music Roll: Mulgore Plains
+122215, --Music Roll: Zul'Gurub Voodoo
+122216, --Music Roll: The Zandalari
+122217, --Music Roll: Silvermoon
+122218, --Music Roll: Rescue the Warchief
+122219, --Music Roll: Way of the Monk
+122221, --Music Roll: Song of Liu Lang
+122222, --Music Roll: Angelic
+122223, --Music Roll: Ghost
+122224, --Music Roll: Mountains
+122226, --Music Roll: Magic
+122228, --Music Roll: The Black Temple
+122229, --Music Roll: Invincible
+122231, --Music Roll: Karazhan Opera House
+122232, --Music Roll: The Argent Tournament
+122233, --Music Roll: Lament of the Highborne
+122234, --Music Roll: Faerie Dragon
+122236, --Music Roll: Totems of the Grizzlemaw
+122237, --Music Roll: Mountains of Thunder
+122238, --Music Roll: Darkmoon Carousel
+122239, --Music Roll: Shalandis Isle
 122535, --Traveler's Pet Supplies
+122613, --Stash of Dusty Music Rolls
+122718, --Clinking Present
+123857, --Runic Pouch
+123975, --Greater Bounty Spoils
+
+-- PvP strongboxes
+111598, --Gold Strongbox
+111599, --Silver Strongbox
+111600, --Bronze Strongbox
+116762, --Stolen Present
+118065, --Gleaming Ashmaul Strongbox
+118066, --Ashmaul Strongbox
+118697, --Big Bag of Pet Supplies
+119330, --Steel Strongbox
+120146, --Smuggled Sack of Gold
+120147, --Bloody Gold Purse
+120184, --Ashmaul Strongbox
+120321, --Mystery Bag
+120353, --Steel Strongbox
+120354, --Gold Strongbox
+120355, --Silver Strongbox
+120356, --Bronze Strongbox
 }
 
 local openableInStacks = {
@@ -956,6 +1123,20 @@ local options = {
     handler = ClamStacker,
     desc = "Manage clams and other things that can be opened",
     args = {
+    	head0 = {
+    		name = "",
+    		desc = "heaing 0",
+    		type = "header",
+    		order = 1
+    	},
+    	frame_locked = {
+    		name = "Locked?",
+    		desc = "Is frame locked from moving?",
+    		type = "toggle",
+    		set = function ( info, val ) ClamStacker.db.profile.frame_locked = val; ClamStacker:BAG_UPDATE_DELAYED() end,
+    		get = function (info) return ClamStacker.db.profile.frame_locked end,
+    		order = 2.
+    	},
     	head1 = {
     		name = "",
     		desc = "Heading 1",
@@ -1021,6 +1202,7 @@ local defaults = {
         orientation = 1,
         lockboxes = true,
         verbose = false,
+        frame_locked = false,
     }
 }
 
@@ -1032,6 +1214,44 @@ local profileOptions = {
 }
 
 ClamStacker.itemButtons = {}
+
+local function table_print (tt, indent, done)
+  done = done or {}
+  indent = indent or 0
+  if type(tt) == "table" then
+    local sb = {}
+    for key, value in pairs (tt) do
+      table.insert(sb, string.rep (" ", indent)) -- indent it
+      if type (value) == "table" and not done [value] then
+        done [value] = true
+        table.insert(sb, "{\n");
+        table.insert(sb, table_print (value, indent + 2, done))
+        table.insert(sb, string.rep (" ", indent)) -- indent it
+        table.insert(sb, "}\n");
+      elseif "number" == type(key) then
+        table.insert(sb, string.format("\"%s\"\n", tostring(value)))
+      else
+        table.insert(sb, string.format(
+            "%s = \"%s\"\n", tostring (key), tostring(value)))
+       end
+    end
+    return table.concat(sb)
+  else
+    return tt .. "\n"
+  end
+end
+
+local function to_string( tbl )
+    if  "nil"       == type( tbl ) then
+        return tostring(nil)
+    elseif  "table" == type( tbl ) then
+        return table_print(tbl)
+    elseif  "string" == type( tbl ) then
+        return tbl
+    else
+        return tostring(tbl)
+    end
+end
 
 function ClamStacker:Debug(...)
     if debugFrame then
@@ -1056,16 +1276,28 @@ function ClamStacker:OnInitialize()
     defaults.profile.orientation = L["ORIENTATION_HORIZONTAL"]
 
     ClamStacker.db = LibStub("AceDB-3.0"):New("ClamStackerDB", defaults, "Default")
+    ClamStacker.db.RegisterCallback(ClamStacker, "OnProfileChanged", "BAG_UPDATE_DELAYED")
 
     ClamStacker.cache = {}
 
-    LibStub("AceConfig-3.0"):RegisterOptionsTable("ClamStacker", options)
+    local ACFG = LibStub("AceConfig-3.0")
+    ACFG:RegisterOptionsTable("ClamStacker", options)
+    ACFG:RegisterOptionsTable("ClamStacker Profiles", LibStub("AceDBOptions-3.0"):GetOptionsTable(ClamStacker.db))
 
-    ClamStacker.optionsFrame = LibStub("AceConfigDialog-3.0"):AddToBlizOptions("ClamStacker", "ClamStacker")
+    local ACD = LibStub("AceConfigDialog-3.0")
+    ClamStacker.optionsFrame = ACD:AddToBlizOptions("ClamStacker", "ClamStacker")
+    ACD:AddToBlizOptions("ClamStacker Profiles", "Profiles", "ClamStacker")
 
     self:RegisterChatCommand("clamstacker", "ChatCommand")
 
-
+    -- preload map to avoid iterating "openableInStacks" all the time
+    ClamStacker.cache.openableInStacks = {}
+    for i,v in ipairs(openableInStacks) do
+    	for ik,iv in pairs(v[1]) do
+    		self:Debug("adding item " .. ik .. " with count " .. v[2])
+    		ClamStacker.cache.openableInStacks[ik] = v[2]
+    	end
+    end
 
     -- Configuration I18N
     tinsert(ClamStacker.OrientationChoices, L["ORIENTATION_VERTICAL"])
@@ -1087,17 +1319,16 @@ function ClamStacker:OnEnable()
     self:Print("v"..version.." loaded")
     self:RegisterEvent("BAG_UPDATE_DELAYED");
     self:RegisterEvent("ZONE_CHANGED")
-
-    -- preload map to avoid iterating "openableInStacks" all the time
-    ClamStacker.cache.openableInStacks = {}
-    for i,v in ipairs(openableInStacks) do
-    	for ik,iv in pairs(v[1]) do
-    		self:Debug("adding item " .. ik .. " with count " .. v[2])
-    		ClamStacker.cache.openableInStacks[ik] = v[2]
-    	end
-    end
+    self:RegisterEvent("PLAYER_REGEN_DISABLED")
 
     self:BAG_UPDATE_DELAYED()
+end
+
+function ClamStacker:PLAYER_REGEN_DISABLED(self)
+    if ClamStacker.popupFrame and ClamStacker.popupFrame:IsShown() then
+        ClamStacker.popupFrame:Hide()
+        ClamStacker.popupFrame:RegisterEvent("PLAYER_REGEN_ENABLED")
+    end
 end
 
 local function PLAYER_REGEN_ENABLED(self)
@@ -1144,7 +1375,8 @@ function ClamStacker:BAG_UPDATE_DELAYED()
                     if clamItemIds[itemId]
                     		or (ClamStacker.db.profile.lockboxes and lockboxItemIds[itemId])
                     		or (inGarrison and ClamStacker.db.profile.salvage and salvagedGoods[itemId])
-                    		or (ClamStacker.cache.openableInStacks[itemId] ~= nil and ClamStacker.cache.openableInStacks[itemId] <= itemCount)
+                    		or (ClamStacker.cache.openableInStacks[itemId] ~= nil and IsUsableItem(itemId))
+                    		or (armorTokens[itemId] and select(5,GetItemInfo(itemId)) <= UnitLevel('player'))
                     		then
                         self:Debug(itemId.." is a clam")
                         if not itemlist[itemId] then
@@ -1169,8 +1401,8 @@ function ClamStacker:BAG_UPDATE_DELAYED()
         end
     end
 
-    if ClamStacker.popupFrame then
-        ClamStacker.popupFrame:Hide()
+    if ClamStacker.popupFrame and ClamStacker.popupFrame:IsShown() then
+    	ClamStacker.popupFrame:Hide()
     end
 
     -- No clams? We're all done
@@ -1192,39 +1424,71 @@ function ClamStacker:BAG_UPDATE_DELAYED()
     end
 end
 
+function ClamStacker:StartMoving()
+	if ClamStacker.db.profile.frame_locked then
+		return
+	end
+
+	ClamStacker.popupFrame:StartMoving()
+end
+
+function ClamStacker:StopMoving()
+	if ClamStacker.db.profile.frame_locked then
+		return
+	end
+
+	local f = ClamStacker.popupFrame
+    f:StopMovingOrSizing()
+    self:Debug("#points="..to_string(f:GetNumPoints()))
+    local point,relativeTo,relativePoint,xOfs,yOfs = f:GetPoint(1)
+    self:Debug("point="..to_string(point))
+    self:Debug("relativeTo"..to_string(relativeTo))
+    self:Debug("relativePoint="..to_string(relativePoint))
+    self:Debug("xOfs="..xOfs)
+    self:Debug("yOfs="..yOfs)
+    ClamStacker.db.profile.point = point
+    ClamStacker.db.profile.relativeTo = relativeTo
+    ClamStacker.db.profile.relativePoint = relativePoint
+    ClamStacker.db.profile.xOfs = xOfs
+    ClamStacker.db.profile.yOfs = yOfs
+end
+
+
 function ClamStacker:CreatePopupFrame()
+	if ClamStacker.popupFrame and ClamStacker.db.profile.point then
+		local f = ClamStacker.popupFrame
+	    f:SetPoint(ClamStacker.db.profile.point,
+	        UIParent,
+	        ClamStacker.db.profile.relativePoint,
+	        ClamStacker.db.profile.xOfs,
+	        ClamStacker.db.profile.yOfs)
+	    self:Debug("restoring frmae to "
+	    	..ClamStacker.db.profile.relativePoint
+	    	..", x="..ClamStacker.db.profile.xOfs
+	    	..", y="..ClamStacker.db.profile.yOfs)
+	end
     if not ClamStacker.popupFrame then
         ClamStacker.popupFrame = CreateFrame("Frame", "ClamStackerPopupFrame", UIParent)
         local f = ClamStacker.popupFrame
+        f:RegisterForDrag("LeftButton")
         f:ClearAllPoints()
-        if not ClamStacker.db.char.point then
-            f:SetPoint("CENTER", 0, 0)
+        if not ClamStacker.db.profile.point then
+            f:SetPoint("TOPLEFT", 0, 0)
+            self:Debug("putting frame in default position")
         else
-            f:SetPoint(ClamStacker.db.char.point,
+            f:SetPoint(ClamStacker.db.profile.point,
                 UIParent,
-                ClamStacker.db.char.relativePoint,
-                ClamStacker.db.char.xOfs,
-                ClamStacker.db.char.yOfs)
+                ClamStacker.db.profile.relativePoint,
+                ClamStacker.db.profile.xOfs,
+                ClamStacker.db.profile.yOfs)
         end
         self:Debug("ClamStackerPopupFrame created")
         f:SetFrameStrata("HIGH")
         f:SetClampedToScreen(true)
         f:EnableMouse(true)
         f:SetMovable(true)
-        f:SetScript("OnMouseDown", function() f:StartMoving() end)
-        f:SetScript("OnMouseUp", function()
-            f:StopMovingOrSizing()
-            local point,relativeTo,relativePoint,xOfs,yOfs = f:GetPoint()
-            self:Debug("point="..point)
-            self:Debug("relativePoint="..relativePoint)
-            self:Debug("xOfs="..xOfs)
-            self:Debug("yOfs="..yOfs)
-            ClamStacker.db.char.point = point
-            ClamStacker.db.char.relativeTo = relativeTo
-            ClamStacker.db.char.relativePoint = relativePoint
-            ClamStacker.db.char.xOfs = xOfs
-            ClamStacker.db.char.yOfs = yOfs
-        end)
+        f:SetScript("OnDragStart", function() ClamStacker:StartMoving() end)
+        f:SetScript("OnDragStop", function() ClamStacker:StopMoving() end)
         f:SetScript("OnEvent", PLAYER_REGEN_ENABLED)
 
         f:SetBackdrop{
@@ -1289,6 +1553,9 @@ function ClamStacker:PopulatePopupFrame(numItems, itemlist)
         button:SetWidth(buttonSize)
         button:SetHeight(buttonSize)
         button:SetPoint("TOPLEFT", ClamStacker.popupFrame, 4+(i-1)*buttonSize*deltaX, -12-(i-1)*buttonSize*deltaY)
+
+        button:SetNormalFontObject("GameFontHighlightLarge")
+        button:SetText(tostring(v.itemCount))
 
         button.cooldown:SetID(v.itemId)
         button.cooldown:SetAllPoints()

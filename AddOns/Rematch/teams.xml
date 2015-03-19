@@ -23,7 +23,7 @@
 			<Layer level="ARTWORK">
 				<Texture file="Interface\Common\ShadowOverlay-Corner">
 					<Anchors>
-						<Anchor point="TOPLEFT" x="76" y="-3"/>
+						<Anchor point="TOPLEFT" x="74" y="-3"/>
 						<Anchor point="BOTTOMRIGHT" x="-3" y="3"/>
 					</Anchors>
 					<TexCoords left="0" right="1" top="1" bottom="0"/>
@@ -130,6 +130,7 @@
 			<OnLoad>
 				self:RegisterForClicks("AnyUp")
 				self.notes:RegisterForClicks("AnyUp")
+				self:RegisterForDrag("LeftButton")
 			</OnLoad>
 			<OnEnter>
 				Rematch.TeamListOnEnter(self)
@@ -143,6 +144,12 @@
 			<OnDoubleClick>
 				Rematch.TeamListOnDoubleClick(self)
 			</OnDoubleClick>
+			<OnDragStart>
+				Rematch.TeamListOnDragStart(self)
+			</OnDragStart>
+			<OnDragStop>
+				Rematch.TeamListOnDragStop(self)
+			</OnDragStop>
 		</Scripts>
 	</Button>
 
@@ -229,7 +236,43 @@
 					<TexCoords left="0.075" right="0.925" top="0.075" bottom="0.925"/>
 				</Texture>
 			</Layer>
+			<Layer level="OVERLAY">
+				<Texture parentKey="custom" file="Interface\Buttons\UI-GuildButton-PublicNote-Up">
+					<Size x="16" y="16"/>
+					<Anchors>
+						<Anchor point="BOTTOMLEFT" x="-1" y="0"/>
+					</Anchors>
+				</Texture>
+			</Layer>
 		</Layers>
+		<Frames>
+			<!-- glow is the pulsing border to indicate a tab can receive the team on the cursor -->
+			<Frame parentKey="glow" setAllPoints="true" hidden="true">
+				<Animations>
+					<AnimationGroup parentKey="animation" looping="REPEAT">
+						<Alpha change="-1.0" duration="0.9" order="1"/>
+						<Alpha change="1.0" duration="0.9" order="2"/>
+					</AnimationGroup>
+				</Animations>
+				<Layers>
+					<Layer level="BACKGROUND">
+						<Texture file="Interface/BUTTONS/CheckButtonHilight" alphaMode="ADD">
+							<Anchors>
+								<Anchor point="TOPLEFT" x="-4" y="4"/>
+								<Anchor point="BOTTOMRIGHT" x="4" y="-4"/>
+							</Anchors>
+						</Texture>
+					</Layer>
+				</Layers>
+				<Scripts>
+					<OnShow>
+						self.animation:Stop() -- reset cycle to start
+						self.animation:Play()
+						self:SetFrameLevel(self:GetParent():GetFrameLevel()+4)
+					</OnShow>
+				</Scripts>
+			</Frame>
+		</Frames>
 		<NormalTexture/>
 		<HighlightTexture file="Interface\Buttons\ButtonHilight-Square" alphaMode="ADD">
 			<Anchors>
@@ -307,7 +350,7 @@
 			<!-- this is not used for scrolling; it's to use a scrollChild so tabs clip at the bottom -->
 			<ScrollFrame parentKey="tabScrollFrame">
 				<Anchors>
-					<Anchor point="TOPLEFT" relativePoint="TOPRIGHT" x="0" y="0"/>
+					<Anchor point="TOPLEFT" relativePoint="TOPRIGHT" x="0" y="-10"/>
 					<Anchor point="BOTTOMRIGHT" x="36" y="12"/>
 				</Anchors>
 				<ScrollChild>
@@ -387,7 +430,7 @@
 			<Button parentKey="tabScrollUp">
 				<Size x="32" y="16"/>
 				<Anchors>
-					<Anchor point="BOTTOM" relativeKey="$parent.tabScrollFrame" relativePoint="TOP" x="0" y="0"/>
+					<Anchor point="BOTTOM" relativeKey="$parent.tabScrollFrame" relativePoint="TOP" x="0" y="-1"/>
 				</Anchors>
 				<NormalTexture file="Interface\PaperDollInfoFrame\UI-GearManager-FlyoutButton">
 					<TexCoords left="0.2" right="0.8" top="0.025" bottom="0.475"/>
@@ -423,6 +466,96 @@
 					<OnClick>
 						Rematch:TeamTabScroll(-1)
 					</OnClick>
+				</Scripts>
+			</Button>
+
+			<!-- This invisible frame is shown when a team is "picked up": it covers the most
+					 of the UI with the scrollbar and tabs exposed.  This primary frame has an
+					 OnUpdate to position the picked up team on the cursor and to position an
+					 insertLine if the mouse is over the team list to show where it will insert.
+					 The actual drop happens when the frame is clicked. -->
+			<Button name="RematchTeamDragFrame" parentKey="dragFrame" frameStrata="TOOLTIP" hidden="true">
+				<Anchors>
+					<Anchor point="TOPLEFT" relativeTo="UIParent"/>
+					<Anchor point="BOTTOMLEFT" relativeTo="UIParent"/>
+					<Anchor point="RIGHT" x="-22" y="0"/>
+				</Anchors>
+				<Frames>
+					<!-- the "picked up" team, filled by the pickup and anchored in the OnUpdate -->
+					<Button parentKey="team" inherits="RematchTeamListButtonTemplate"/>
+
+					<!-- this is the line that appears between teams when dragging a team within a custom-sorted tab -->
+					<!-- note the explicit parent: this is actually rematch.drawer.queue.list.scrollFrame.insertLine -->
+					<Frame parentKey="insertLine" hidden="true">
+						<Size x="0" y="6"/>
+						<Animations>
+							<AnimationGroup parentKey="animation" looping="REPEAT">
+								<Alpha change="-1.0" duration="0.5" order="1"/>
+								<Alpha change="1.0" duration="0.5" order="2"/>
+							</AnimationGroup>
+						</Animations>
+						<Layers>
+							<Layer level="OVERLAY">
+								<Texture file="Interface\Archeology\Arch-FlareEffect" setAllPoints="true">
+									<TexCoords left="0.04296875" right="0.892578125" top="0.703125" bottom="0.794921875"/>
+								</Texture>
+							</Layer>
+						</Layers>
+						<Scripts>
+							<OnShow>
+								self.animation:Play()
+							</OnShow>
+						</Scripts>
+					</Frame>
+
+					<!-- the following three panels cover the rest of the UI beyond the scrollbar/tabs -->
+					<Button parentArray="panels"> <!-- covers UI to right of tabs -->
+						<Anchors>
+							<Anchor point="TOPRIGHT" relativeTo="UIParent"/>
+							<Anchor point="BOTTOMRIGHT" relativeTo="UIParent"/>
+							<Anchor point="LEFT" relativePoint="RIGHT" x="58" y="0"/>
+						</Anchors>
+						<Scripts>
+							<OnClick>
+								Rematch.TeamListOnDragStop(self:GetParent(),button)
+							</OnClick>
+						</Scripts>
+					</Button>
+					<Button parentArray="panels"> <!-- covers UI from top of UI to top of RematchTeams -->
+						<Anchors>
+							<Anchor point="TOPLEFT" relativeTo="UIParent"/>
+							<Anchor point="TOPRIGHT" relativeTo="UIParent"/>
+							<Anchor point="BOTTOM" relativeTo="RematchTeams" relativePoint="TOP"/>
+						</Anchors>
+						<Scripts>
+							<OnClick>
+								Rematch.TeamListOnDragStop(self:GetParent(),button)
+							</OnClick>
+						</Scripts>
+					</Button>
+					<Button parentArray="panels"> <!-- covers UI from bottom of UI to bottom of RematchTeams -->
+						<Anchors>
+							<Anchor point="BOTTOMLEFT" relativeTo="UIParent"/>
+							<Anchor point="BOTTOMRIGHT" relativeTo="UIParent"/>
+							<Anchor point="TOP" relativeTo="RematchTeams" relativePoint="BOTTOM"/>
+						</Anchors>
+						<Scripts>
+							<OnClick>
+								Rematch.TeamListOnDragStop(self:GetParent(),button)
+							</OnClick>
+						</Scripts>
+					</Button>
+				</Frames>
+				<Scripts>
+					<OnHide>
+						Rematch.TeamDragFrameOnHide(self)
+					</OnHide>
+					<OnClick>
+						Rematch.TeamListOnDragStop(self,button) -- clicking anywhere is same as stopping drag that showed this
+					</OnClick>
+					<OnUpdate>
+						Rematch.TeamDragFrameOnUpdate(self,elapsed)
+					</OnUpdate>
 				</Scripts>
 			</Button>
 
@@ -589,52 +722,6 @@
 				Rematch.TeamCardOnHide(self)
 			</OnHide>
 		</Scripts>
-	</Frame>
-
-
-	<Frame name="SfT" parent="UIParent" hidden="true">
-		<Size x="64" y="250"/>
-		<Anchors>
-			<Anchor point="CENTER" x="-200" y="0"/>
-		</Anchors>
-		<Backdrop edgeFile="Interface\Tooltips\UI-Tooltip-Border" tile="true">
-			<EdgeSize>
-				<AbsValue val="16"/>
-			</EdgeSize>
-			<BorderColor r="1" g=".82" b="0"/>
-		</Backdrop>
-		<Frames>
-			<!-- this is not used for scrolling; it's to use a scrollChild so tabs clip at the bottom -->
-			<ScrollFrame parentKey="scrollFrame">
-				<Anchors>
-					<Anchor point="TOPLEFT" relativePoint="TOPRIGHT" x="0" y="0"/>
-					<Anchor point="BOTTOMRIGHT" x="48" y="0"/>
-				</Anchors>
-				<ScrollChild>
-					<Frame parentKey="childFrame">
-						<Size x="48" y="100"/>
-						<Frames>
-							<CheckButton parentArray="tabs" inherits="RematchTeamTabButtonTemplate" id="1">
-								<Anchors>
-									<Anchor point="TOPLEFT" x="2" y="-10"/>
-								</Anchors>
-							</CheckButton>
-							<!-- rest of the tabs will be made in InitTeams() -->
-						</Frames>
-					</Frame>
-				</ScrollChild>
-				<Scripts>
-					<OnLoad>
-						self.value = 0
-					</OnLoad>
-					<OnMouseWheel>
-						self.value = self.value - delta*20
-						self:SetVerticalScroll(self.value)
-					</OnMouseWheel>
-				</Scripts>
-			</ScrollFrame>
-
-		</Frames>
 	</Frame>
 
 </Ui>

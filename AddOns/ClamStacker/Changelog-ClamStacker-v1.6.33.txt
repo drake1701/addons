@@ -1,0 +1,17 @@
+tag v1.6.33
+b0cdf683bac5109339d93359dd24f0fc92f50669
+Gunboat Smith <gunboat.smith.2010@gmail.com>
+2015-03-07 21:57:12 -0600
+
+releasing as v1.6.33
+
+
+--------------------
+
+Gunboat Smith:
+	- releasing as v1.6.33
+	- add a checkbox to config to lock/unlock frame, then respect the checkbox when moving
+	- move window if needed when profile changes
+	- profile support
+	- use IsUsableItem() instead of hard-coded stack counts
+	- bag of salvaged goods was listed twice

@@ -566,22 +566,11 @@ function roster:FilterPetByIndex(index,checkStrong,checkTough,checkRarity,checkS
 			if not owned then
 				return false
 			end
-			local found
-			for teamName,team in pairs(RematchSaved) do
-				for i=1,3 do
-					if petID==team[i][1] then
-						if notInATeam then
-							return false
-						end
-						found = true
-						break
-					end
-				end
-				if found then
-					break -- don't need to look through rest of teams
-				end
+			local numFound = rematch:GetNumPetIDsInTeams(petID,true)
+			if numFound==0 and inATeam then
+				return false
 			end
-			if not found and inATeam then
+			if numFound>0 and notInATeam then
 				return false
 			end
 		end

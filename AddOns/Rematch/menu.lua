@@ -116,6 +116,7 @@ function menu:GetButton(parent)
 	for i=1,#menu.buttonPool do
 		if not menu.buttonPool[i]:GetParent() then
 			menu.buttonPool[i]:SetParent(parent)
+			menu.buttonPool[i].text:SetFontObject(RematchSettings.LargeFont and "GameFontHighlight" or "GameFontHighlightSmall")
 			return menu.buttonPool[i]
 		end
 	end
@@ -126,6 +127,7 @@ function menu:GetButton(parent)
 	button:SetScript("OnMouseDown",menu.ButtonOnMouseDown)
 	button:SetScript("OnMouseUp",menu.ButtonOnMouseUp)
 	button:SetScript("OnClick",menu.ButtonOnClick)
+	button.text:SetFontObject(RematchSettings.LargeFont and "GameFontHighlight" or "GameFontHighlightSmall")
 	tinsert(menu.buttonPool,button)
 	return button
 end
@@ -150,7 +152,7 @@ function rematch:ShowMenu(name,anchorPoint,relativeTo,relativePoint,anchorXoff,a
 	end
 
 	local entry = menu.menus[name]
-	local frame = menu:GetMenuFrame(level or 1,relativeTo or UIParent)
+	local frame = menu:GetMenuFrame(level or 1,relativeTo or rematch)
 
 	if level==1 then
 		frame.timeAway = nil
@@ -164,7 +166,7 @@ function rematch:ShowMenu(name,anchorPoint,relativeTo,relativePoint,anchorXoff,a
 
 	local maxWidth = 0
 	local hasSubMenu -- becomes true if any item in this menu has a sub-menu
-	local yoff = -5 -- offset from top to anchor next button
+	local yoff = -7 -- offset from top to anchor next button
 	local first = 1 -- which entry we start from (can change if we have a title)
 
 	local item = entry[1]
@@ -175,7 +177,7 @@ function rematch:ShowMenu(name,anchorPoint,relativeTo,relativePoint,anchorXoff,a
 --		maxWidth = entry[1].maxWidth and entry[1].maxWidth or frame.title.text:GetStringWidth()+16
 		frame.shadow:SetPoint("TOPLEFT",3,-20)
 		frame.title:Show()
-		yoff = -22
+		yoff = -24
 		first = 2
 	else
 		frame.shadow:SetPoint("TOPLEFT",3,-3)
@@ -222,6 +224,11 @@ function rematch:ShowMenu(name,anchorPoint,relativeTo,relativePoint,anchorXoff,a
 				else
 					button.icon:SetTexCoord(0.075,0.925,0.075,0.925)
 				end
+				if item.iconColor then
+					button.icon:SetVertexColor(unpack(item.iconColor))
+				else
+					button.icon:SetVertexColor(1,1,1)
+				end
 				button.icon:Show()
 			else
 				button.icon:Hide()
@@ -265,7 +272,7 @@ function rematch:ShowMenu(name,anchorPoint,relativeTo,relativePoint,anchorXoff,a
 
 	-- now size this frame itself
 	frame:SetWidth(maxWidth+16)
-	frame:SetHeight(abs(yoff-5))
+	frame:SetHeight(abs(yoff-7))
 
 	-- now position the frame
 	local uiScale = UIParent:GetEffectiveScale()
@@ -279,6 +286,7 @@ function rematch:ShowMenu(name,anchorPoint,relativeTo,relativePoint,anchorXoff,a
 		end
 	elseif anchorPoint=="cursor" or not anchorPoint then -- if "cursor" or no anchor, to cursor
 	  local x,y = GetCursorPosition()
+		uiScale = rematch:GetEffectiveScale()
 		frame:SetPoint("TOPLEFT",UIParent,"BOTTOMLEFT",x/uiScale-4,y/uiScale+4)
 		menu.reverseAnchor = nil
 	elseif anchorPoint then -- or a defined anchor

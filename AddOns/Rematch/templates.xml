@@ -206,6 +206,7 @@
 				</Layers>
 				<Scripts>
 					<OnShow>
+						self.animation:Stop()
 						self.animation:Play()
 						self:SetFrameLevel(self:GetParent():GetFrameLevel()+4)
 					</OnShow>
@@ -879,5 +880,20 @@
 			</Layer>
 		</Layers>
 	</Frame>
+
+	<CheckButton name="RematchCheckButtonTemplate" inherits="UICheckButtonTemplate" virtual="true">
+		<Size x="26" y="26"/>
+		<Scripts>
+			<OnLoad>
+				self.text:SetTextColor(1,1,1)
+			</OnLoad>
+			<OnEnter>
+				Rematch.ShowTooltip(self)
+			</OnEnter>
+			<OnLeave>
+				Rematch.HideTooltip(self)
+			</OnLeave>
+		</Scripts>
+	</CheckButton>
 
 </Ui>

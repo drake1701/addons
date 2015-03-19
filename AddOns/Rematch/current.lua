@@ -19,12 +19,12 @@ function rematch:InitCurrent()
 
 	-- adjust the color of the doodads in the corners
 	for i=1,4 do
-		rematch.current.doodads[i]:SetDesaturated(true)
 		if i<3 then -- top ones are lighter
 			rematch.current.doodads[i]:SetVertexColor(1,.82,0)
 		else -- bottom ones are darker (1,.82,0 divided by 5)
 			rematch.current.doodads[i]:SetVertexColor(.2,.164,0)
 		end
+		rematch.current.doodads[i]:SetDesaturated(true)
 	end
 
 end

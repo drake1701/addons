@@ -1,3 +1,0 @@
-Azilroka:
-	- New Colorblind Options
-	- Pets -> Collections | SpellStealer Skin from Outofammo

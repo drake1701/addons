@@ -4,10 +4,10 @@
 ## Author: gunboat
 ## eMail: gunboat.smith.2010@gmail.com
 ## URL: http://wow.curse.com/downloads/wow-addons/details/clamstacker.aspx
-## Version: 1.6.28
+## Version: 1.6.33
 ## SavedVariables: ClamStackerDB
 ## OptionalDeps: Ace3, tekDebug
-## X-Curse-Packaged-Version: v1.6.28
+## X-Curse-Packaged-Version: v1.6.33
 ## X-Curse-Project-Name: ClamStacker
 ## X-Curse-Project-ID: clamstacker
 ## X-Curse-Repository-ID: wow/clamstacker/mainline

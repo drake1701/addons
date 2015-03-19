@@ -293,12 +293,13 @@ function rematch:ShowMissingDialog(teamName)
 		end
 
 		if not dialog.checkBox then
-			dialog.checkBox = CreateFrame("CheckButton",nil,dialog,"UICheckButtonTemplate")
+			dialog.checkBox = CreateFrame("CheckButton",nil,dialog,"RematchCheckButtonTemplate")
 			rematch:RegisterDialogWidget("checkBox")
-			dialog.checkBox.text:SetTextColor(1,1,1)
 		end
 		dialog.checkBox:SetPoint("BOTTOMLEFT",28,38)
+		dialog.checkBox.tooltipTitle = nil
 		dialog.checkBox.text:SetText(L["Don't warn about missing pets"])
+		dialog.checkBox:SetChecked(false)
 		dialog.checkBox:SetScript("OnClick",function(self) settings.DontWarnMissing = self:GetChecked() end)
 		dialog.checkBox:Show()
 

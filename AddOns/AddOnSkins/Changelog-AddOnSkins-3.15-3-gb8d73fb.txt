@@ -1,0 +1,4 @@
+Azilroka:
+	- Altoholic Issue #220
+	- Slight Changes
+	- World Map / Encounter Journal

@@ -202,7 +202,14 @@ function rematch:ShowFloatingPetCard(petID,relativeTo,fromBrowser)
 				card.stats.breed:SetText(rematch:GetBreed(petID))
 				card.stats.breed:Show()
 				card.stats.breedIcon:Show()
+			else
+				card.stats.teamsIcon:SetPoint("TOPLEFT",card.stats.breedIcon,"TOPLEFT",-1,0)
 			end
+
+			local numTeams = rematch:GetNumPetIDsInTeams(petID)
+			card.stats.teamsIcon:SetShown(numTeams>0)
+			card.stats.teams:SetShown(numTeams>0)
+			card.stats.teams:SetText(format(L["%s \1244Team:Teams;"],numTeams))
 
 			if level<25 then
 				card.stats.xpBar:SetMinMaxValues(0,maxXp)

@@ -384,6 +384,22 @@ function rmf:SaveFilters()
 	end
 end
 
+function rmf:HideListInTeams()
+	return rematch:GetNumPetIDsInTeams(menu.subject)==0
+end
+function rmf:ListInTeamsText()
+	return format(L["List %d \1244Team:Teams;"],rematch:GetNumPetIDsInTeams(menu.subject))
+end
+function rmf:ListInTeams()
+	if settings.DrawerMode~="TEAMS" then
+		settings.DrawerMode = "TEAMS"
+		rematch:UpdateWindow()
+	end
+	rematch.drawer.teams.searchBox:SetFocus(true)
+	rematch.drawer.teams.searchBox:SetText(menu.subject)
+	rematch.drawer.teams.searchBox:ClearFocus(true)
+end
+
 --[[ The final menus ]]
 
 -- main browser filter menu
@@ -478,6 +494,7 @@ menu.menus["current"] = {
 	{ text=L["Find Similar"], func=rmf.FindSimilar },
 	{ text=rmf.SummonOrDismissText, hide=rmf.MissingPet, func=rmf.Summon },
 	{ text=rmf.FavoriteText, hide=rmf.MissingPet, func=rmf.FavoritePet },
+	{ text=rmf.ListInTeamsText, icon="Interface\\FriendsFrame\\UI-Toast-ChatInviteIcon", iconColor={0,.9,0}, hide=rmf.HideListInTeams, func=rmf.ListInTeams },
 	{ text=CANCEL }
 }
 
@@ -487,6 +504,7 @@ menu.menus["levelingSlot"] = {
 	{ text=L["Find Similar"], func=rmf.FindSimilar },
 	{ text=rmf.SummonOrDismissText, hide=rmf.MissingPet, func=rmf.Summon },
 	{ text=rmf.FavoriteText, hide=rmf.MissingPet, func=rmf.FavoritePet },
+	{ text=rmf.ListInTeamsText, icon="Interface\\FriendsFrame\\UI-Toast-ChatInviteIcon", iconColor={0,.9,0}, hide=rmf.HideListInTeams, func=rmf.ListInTeams },
 	{ text=CANCEL }
 }
 
@@ -497,6 +515,7 @@ menu.menus["levelingQueueList"] = {
 	{ text=L["Find Similar"], func=rmf.FindSimilar },
 	{ text=rmf.SummonOrDismissText, func=rmf.Summon },
 	{ text=rmf.FavoriteText, hide=rmf.MissingPet, func=rmf.FavoritePet },
+	{ text=rmf.ListInTeamsText, icon="Interface\\FriendsFrame\\UI-Toast-ChatInviteIcon", iconColor={0,.9,0}, hide=rmf.HideListInTeams, func=rmf.ListInTeams },
 	{ text=L["Move to Top"], hide=rmf.HideQueueMove, disable=rmf.AtTopOfQueue, icon="Interface\\Buttons\\UI-MicroStream-Green", iconCoords={0.075,0.925,0.925,0.075}, stay=true, func=rmf.MoveToTop },
 	{ text=L["Move Up"], hide=rmf.HideQueueMove, disable=rmf.AtTopOfQueue, icon="Interface\\Buttons\\UI-MicroStream-Yellow", iconCoords={0.075,0.925,0.925,0.075}, stay=true, func=rmf.MoveUp },
 	{ text=L["Move Down"], hide=rmf.HideQueueMove, disable=rmf.AtEndOfQueue, icon="Interface\\Buttons\\UI-MicroStream-Yellow", stay=true, func=rmf.MoveDown },
@@ -513,6 +532,7 @@ menu.menus["browserPet"] = {
 	{ text=rmf.SummonOrDismissText, hide=rmf.MissingPet, func=rmf.Summon },
 	{ text=BATTLE_PET_RENAME, hide=rmf.MissingPet, func=rmf.RenamePet },
 	{ text=rmf.FavoriteText, hide=rmf.MissingPet, func=rmf.FavoritePet },
+	{ text=rmf.ListInTeamsText, icon="Interface\\FriendsFrame\\UI-Toast-ChatInviteIcon", iconColor={0,.9,0}, hide=rmf.HideListInTeams, func=rmf.ListInTeams },
 	{ text=BATTLE_PET_RELEASE, hide=rmf.HideRelease, func=rmf.ReleasePet },
 	{ text=rmf.CageableText, hide=rmf.HideCageable, disable=rmf.DisableCageable, func=rmf.CagePet },
 	{ text=CANCEL },
@@ -632,9 +652,29 @@ function rmf:MoveTabDown()
 	rematch:SelectTeamTab(menu.subject+1)
 	menu.subject = menu.subject+1
 end
+function rmf:TabHasCustomSort()
+	return settings.TeamGroups[menu.subject][3] and true
+end
+function rmf:TabToggleCustomSort()
+	if settings.TeamGroups[menu.subject][3] then
+		-- confirm when turning off custom sort, since the saved order is irrevocably lost
+		local dialog = rematch:ShowDialog("UnCustomSort",116,settings.TeamGroups[menu.subject][1],L["Remove custom sort?"],function() settings.TeamGroups[menu.subject][3]=nil rematch:UpdateTeams() end)
+		dialog.slot.icon:SetTexture(settings.TeamGroups[menu.subject][2])
+		dialog.slot:SetPoint("TOPLEFT",12,-24)
+		dialog.slot:Show()
+		dialog.text:SetSize(180,80)
+		dialog.text:SetPoint("LEFT",dialog.slot,"RIGHT",4,0)
+		dialog.text:SetText(L["The saved order will be lost and teams will be listed alphabetically again."])
+		dialog.text:Show()
+	else
+		settings.TeamGroups[menu.subject][3] = {}
+		rematch:UpdateTeams()
+	end
+end
 
 menu.menus["teamTab"] = {
 	{ title=rmf.GetTabName },
+	{ text=L["Custom Sort"], check=true, icon="Interface\\Buttons\\UI-GuildButton-PublicNote-Up", value=rmf.TabHasCustomSort, func=rmf.TabToggleCustomSort, stay=false },
 	{ text=L["Edit"], func=rmf.EditTab },
 	{ text=DELETE, func=rmf.DeleteTab },
 	{ text=L["Move Up"], hide=rmf.HideTabByIndexUpDown, disable=rmf.TabAtTop, icon="Interface\\Buttons\\UI-MicroStream-Yellow", iconCoords={0.075,0.925,0.925,0.075}, stay=true, func=rmf.MoveTabUp },
@@ -701,14 +741,43 @@ function rmf:UnloadTeam()
 	settings.loadedNpcID = nil
 	rematch:UpdateWindow()
 end
-
-
 function rmf:HidePreferences()
 	local team = saved[menu.subject]
 	return not team or (team[1][1]~=0 and team[2][1]~=0 and team[3][1]~=0)
 end
 function rmf:SetPreferences()
 	rematch:EditPreferences(menu.subject)
+end
+function rmf:HideCustomMove()
+	return rematch.drawer.teams.searchText or not settings.TeamGroups[settings.SelectedTab][3]
+end
+-- only used here, to get the index of a team name within a custom group
+local function customIndex(teamName)
+	for index,name in pairs(settings.TeamGroups[settings.SelectedTab][3]) do
+		if name==teamName then
+			return index
+		end
+	end
+end
+function rmf:AtTopOfCustom()
+	return customIndex(menu.subject)==1
+end
+function rmf:AtEndOfCustom()
+	return customIndex(menu.subject)==#settings.TeamGroups[settings.SelectedTab][3]
+end
+function rmf:MoveCustom()
+	local direction = self.direction
+	local custom = settings.TeamGroups[settings.SelectedTab][3]
+	local index = customIndex(menu.subject)
+	local swapee = custom[index+direction]
+	custom[index+direction] = menu.subject
+	custom[index] = swapee
+	rematch:UpdateTeams()
+	if index+direction==#custom then
+		rematch:ListScrollToBottom(rematch.drawer.teams.list.scrollFrame)
+	else
+		rematch:ListScrollToIndex(rematch.drawer.teams.list.scrollFrame,customIndex(menu.subject))
+	end
 end
 
 menu.menus["teamList"] = {
@@ -718,6 +787,8 @@ menu.menus["teamList"] = {
 	{ text=L["Set Notes"], func=rmf.SetNotes },
 	{ text=L["Leveling Preferences"], hide=rmf.HidePreferences, func=rmf.SetPreferences },
 	{ text=L["Move To"], subMenu="teamMove", hide=rmf.HideMoveMenu },
+	{ text=L["Move Up"], hide=rmf.HideCustomMove, disable=rmf.AtTopOfCustom, icon="Interface\\Buttons\\UI-MicroStream-Yellow", iconCoords={0.075,0.925,0.925,0.075}, stay=true, func=rmf.MoveCustom, direction=-1 },
+	{ text=L["Move Down"], hide=rmf.HideCustomMove, disable=rmf.AtEndOfCustom, icon="Interface\\Buttons\\UI-MicroStream-Yellow", stay=true, func=rmf.MoveCustom, direction=1 },
 	{ text=L["Send"], func=rmf.SendTeam, disable=rmf.DisableSendTeam },
 	{ text=L["Export"], func=rmf.ExportTeam },
 	{ text=DELETE, func=rmf.DeleteTeam },
@@ -738,7 +809,8 @@ function rmf:HideTabByIndex()
 	return not settings.TeamGroups[self.index]
 end
 function rmf:MoveTeamToTab()
-	saved[menu.subject][5] = self.index>1 and self.index or nil
+	rematch:AssignTeamToTab(menu.subject,self.index,true)
+--	saved[menu.subject][5] = self.index>1 and self.index or nil
 	rematch:UpdateTeams()
 end
 function rmf:SelectTabIndex()

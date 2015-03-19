@@ -210,6 +210,10 @@ function AS:Blizzard_Collections(event, addon)
 			AS:SkinStatusBar(Pet.healthFrame.healthBar)
 			AS:SkinStatusBar(Pet.xpBar)
 
+			hooksecurefunc(Pet.qualityBorder, 'SetVertexColor', function(self, r, g, b)
+				Pet.dragButton.Backdrop:SetBackdropBorderColor(r, g, b)
+			end)
+
 			for index = 1, 3 do
 				local Spell = _G["PetJournalLoadoutPet"..i.."Spell"..index]
 				AS:SkinIconButton(Spell)
@@ -237,7 +241,10 @@ function AS:Blizzard_Collections(event, addon)
 		AS:SkinTexture(PetJournalPetCardPetInfoIcon)
 		AS:CreateBackdrop(PetJournalPetCardPetInfo)
 		PetJournalPetCardPetInfo.Backdrop:SetOutside(PetJournalPetCardPetInfoIcon)
-
+		PetJournalPetCardPetInfoQualityBorder:SetAlpha(0)
+		hooksecurefunc(PetJournalPetCardPetInfoQualityBorder, 'SetVertexColor', function(self, r, g, b)
+			PetJournalPetCardPetInfo.Backdrop:SetBackdropBorderColor(r, g, b)
+		end)
 		local tt = PetJournalPrimaryAbilityTooltip
 		tt.Background:SetTexture(nil)
 		if tt.Delimiter1 then
@@ -289,17 +296,21 @@ function AS:Blizzard_Collections(event, addon)
 			Button.pushed:SetAllPoints(Button.iconTexture)
 			Button.cooldown:SetAllPoints(Button.iconTexture)
 			Button:HookScript('OnUpdate', function(self)
-				if (PlayerHasToy(self.itemID)) then
-					local quality = select(3, GetItemInfo(self.itemID))
-					local r, g, b = GetItemQualityColor(quality)
-					self:SetBackdropBorderColor(r, g, b)
-					self.name:SetTextColor(r, g, b)
-				else
-					self:SetBackdropBorderColor(unpack(AS.BorderColor))
-					self.name:SetTextColor(.6, .6, .6)
-				end
+				self.name:SetTextColor(unpack(self.TextColor))
 			end)
 		end
+
+		hooksecurefunc("ToySpellButton_UpdateButton", function(self)
+			if (PlayerHasToy(self.itemID)) then
+				local quality = select(3, GetItemInfo(self.itemID))
+				local r, g, b = GetItemQualityColor(quality)
+				self.TextColor = { r, g, b }
+				self:SetBackdropBorderColor(r, g, b)
+			else
+				self:SetBackdropBorderColor(unpack(AS.BorderColor))
+				self.TextColor = { .6, .6, .6 }
+			end
+		end)
 
 		AS:SkinStatusBar(ToyBox.progressBar)
 

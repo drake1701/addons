@@ -234,6 +234,12 @@
 							<Frame parentKey="cooldownContainer" inherits="RematchCooldownContainerTemplate"/>
 						</Frames>
 						<Scripts>
+							<PreClick>
+								Rematch.HealButtonPreClick(self)
+							</PreClick>
+							<PostClick>
+								Rematch.HealButtonPostClick(self)
+							</PostClick>
 							<OnEnter>
 								Rematch.HealButtonOnEnter(self)
 							</OnEnter>
@@ -265,6 +271,9 @@
 							</Layer>
 						</Layers>
 						<Scripts>
+							<PreClick>
+								Rematch.HealButtonPreClick(self)
+							</PreClick>
 							<OnEnter>
 								Rematch.HealButtonOnEnter(self)
 							</OnEnter>

@@ -607,6 +607,19 @@
 								<Anchor point="LEFT" relativeKey="$parent.breedIcon" relativePoint="RIGHT" x="1" y="0"/>
 							</Anchors>
 						</FontString>
+						<Texture parentKey="teamsIcon" file="Interface\FriendsFrame\UI-Toast-ChatInviteIcon" hidden="true">
+							<Size x="14" y="14"/>
+							<Anchors>
+								<Anchor point="TOPLEFT" relativeKey="$parent.breedIcon" relativePoint="BOTTOMLEFT" x="-1" y="-3"/>
+							</Anchors>
+							<TexCoords left="0.125" right="0.875" top="0.09375" bottom="0.84375"/>
+							<Color r="0" g=".9" b="0"/>
+						</Texture>
+						<FontString parentKey="teams" inherits="GameFontHighlightSmall" hidden="true">
+							<Anchors>
+								<Anchor point="LEFT" relativeKey="$parent.teamsIcon" relativePoint="RIGHT" x="2" y="0"/>
+							</Anchors>
+						</FontString>
 					</Layer>
 					<Layer level="OVERLAY">
 						<Texture parentKey="hpBar" file="Interface\TargetingFrame\UI-TargetingFrame-BarFill">

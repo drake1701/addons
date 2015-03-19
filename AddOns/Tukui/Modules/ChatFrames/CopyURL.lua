@@ -51,24 +51,23 @@ function TukuiChat:EnableURL()
 	ChatFrame_AddMessageEventFilter("CHAT_MSG_BN_CONVERSATION", TukuiChat.FindURL)
 
 	local CurrentLink = nil
-	local ChatFrame_OnHyperlinkShow_Original = ChatFrame_OnHyperlinkShow
+	local SetHyperlink = ItemRefTooltip.SetHyperlink
 
-	ChatFrame_OnHyperlinkShow = function(self, link, ...)
-		if (strsub(link, 1, 3) == "url") then
-			local ChatFrameEditBox = ChatEdit_ChooseBoxForSend()
+	ItemRefTooltip.SetHyperlink = function(self, data, ...)
+        if (strsub(data, 1, 3) == "url") then
+            local ChatFrameEditBox = ChatEdit_ChooseBoxForSend()
 
-			CurrentLink = (link):sub(5)
+            CurrentLink = (data):sub(5)
 
-			if (not ChatFrameEditBox:IsShown()) then
-				ChatEdit_ActivateChat(ChatFrameEditBox)
-			end
+            if (not ChatFrameEditBox:IsShown()) then
+                ChatEdit_ActivateChat(ChatFrameEditBox)
+            end
 
-			ChatFrameEditBox:Insert(CurrentLink)
-			ChatFrameEditBox:HighlightText()
-			CurrentLink = nil
-			return
+            ChatFrameEditBox:Insert(CurrentLink)
+            ChatFrameEditBox:HighlightText()
+            CurrentLink = nil
+        else
+            SetHyperlink(self, data, ...)
 		end
-
-		ChatFrame_OnHyperlinkShow_Original(self, link, ...)
 	end
 end
